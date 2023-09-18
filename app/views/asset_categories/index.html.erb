@@ -1,0 +1,14 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Asset categories</h1>
+
+<div id="asset_categories">
+  <% @asset_categories.each do |asset_category| %>
+    <%= render asset_category %>
+    <p>
+      <%= link_to "Show this asset category", asset_category %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New asset category", new_asset_category_path , class: "btn btn-primary", data: { turbo_frame: "remote_modal" }%>
