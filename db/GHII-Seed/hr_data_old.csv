@@ -1,0 +1,21 @@
+﻿FirstName,MiddleName,LastName,DOB,Gender,Position,Date joined,Department,Supervisor,Marital Status
+Aubrey,,Chinkunda,1998-08-02,Male,Team Leader,01 October 2021,Programs,Lungu,Single
+Sharon,,Ngozo,14/09/1996,Female,Team Leader,01 October 2021,Programs,Lungu,Single
+Mwabi,,Lungu,18/09/1995,Male,Program Manager,27 June 2022,Programs,Mtonga,Single
+Mtheto,,Sinjani,26/05/1997,Male,Program Manager,27 June 2022,Programs,Mtonga,Single
+Chipiliro,,Kadzakumamja,22/07/1980,Male,Operations Officer,29 October 2021,Finance & Administration,Mvula,Married
+John,,Abudul,1971-05-04,Male,Driver,01 November 2021,Finance & Administration,Kadzakumamja,Married
+Naomi,,Nyama,13/09/2000,Female,Jnr Applications Developer,26 August 2022,Programs,Sinjani,Single
+Neverson,,Nkhata,1993-03-04,Male,Technician Assistant,29 October 2021,Programs,Lungu,Married
+Tobias,,Bendabenda,18/04/1986,Male,Technician,29 October 2021,Programs,Lungu,Married
+Timothy,,Mtonga,27/05/1995,Male,Director,26 January 2022,Finance & Administration,,Married
+Sithembinkosi,,Phombeya,2001-02-06,Female,Product Developer,05 September 2022,Research & Evaluation,Sinjani,Single
+Sophie ,Gondwe,Mvula,1981-08-07,Female,Finance & Administration Lead,28 March 2022,Finance & Administration,Mtonga,Married
+Rashid,,Deula,20/02/1973,Male,Program Officer,2022-05-26,Programs,Sinjani,Married
+Wonderful,,Lijoni,1996-11-11,Male,CAD/CAM Engineer,01 August 2022,Research & Evaluation,Sinjani,Single
+Innocent,,Kumwenda,16/03/1999,Male,Jnr Applications Developer,2023-11-22,Programs,Sinjani,Single
+Wiza,,Munthali,1999-05-27,Male,Jnr Applications Developer,2023-03-07,Programs,Sinjani,Single
+Boniface,Moffat,Kaseka,1994-09-11,Male,Engineering Intern,2023-04-03,Programs,Lungu,Single
+Elizabeth,Towela,Nthapalapa,1999-01-25,Female,Engineering Intern,2023-04-11,Programs,Lungu,Single
+Grace,Favour,Bwanali,1996-02-09,Female,Engineering Intern,2023-04-11,Programs,Lungu,Single
+Goodluck,Halord,Banda,1996-02-19,Male,Engineering Intern,2023-04-11,Programs,Lungu,Single

@@ -1,0 +1,187 @@
+<div class="row">
+  <div class="col">
+    <p class="h3">Personal Dashboard</p>
+  </div>
+  <div class="col text-end">
+    Welcome <%= @person.first_name %>!
+  </div>  
+</div>
+
+<div class="row">
+  <div class="col-sm-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title text-dark" id="empName"><%= @person.full_name %></h5>
+        <p><small class="fs-6 fst-italic" id="role"><%= @employee.current_position %></small></p>
+        <p><%= @employee.current_department %></p>
+        <p><%= @employee.current_branches %></p>
+        <p><%= @employee.employment_date.strftime('%d %b, %Y') %> - </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card h-100">
+      <div class="card-body p-2">
+        <h6 class="card-title">Level Of Effort</h6>
+        <table class="table table-bordered p-0 m-0">
+         <tr>
+          <td>
+            Target
+            <canvas id="loeTargetPie" style="height: 10vh !important; width: 5vw;margin-left: auto; margin-right: auto;"></canvas>
+          </td>
+          <td>
+            Current
+            <canvas id="loeActualPie" style="height: 10vh !important; width: 5vw;margin-left: auto; margin-right: auto;"></canvas>
+          </td>
+        </tr>
+        </table>
+        <%= link_to "View Timesheet", timesheet_path(@current_timesheet) %>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card h-100">
+      <div class="card-body p-2">
+        <h6 class="card-title">Upcoming Deadlines</h6>
+          <table class="table m-0">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Task</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(deadline, index) in deadlines" :key="index">
+                <td>1 Oct 2023</td>
+                <td>Task A</td>
+                <td>Action</td>
+              </tr>
+              <tr v-for="(deadline, index) in deadlines" :key="index">
+                <td>1 Oct 2023</td>
+                <td>Task A</td>
+                <td>Action</td>
+              </tr>
+              <tr v-for="(deadline, index) in deadlines" :key="index">
+                <td>1 Oct 2023</td>
+                <td>Task A</td>
+                <td>Action</td>
+              </tr>
+            </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row mt-4">
+  <div class="col-sm-10">
+    <div class="card ">
+      <div class="card-header card-header-dark">
+      <nav>
+        <div class="nav nav-tabs " id="nav-tab" role="tablist">
+          <button class="nav-link active" id="nav-timeSheet-tab" data-bs-toggle="tab" data-bs-target="#nav-timeSheet" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Time Sheet</button>
+          <button class="nav-link" id="nav-requisition-tab" data-bs-toggle="tab" data-bs-target="#nav-requisition" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Requisitions</button>
+          <button class="nav-link" id="nav-assignedTasks-tab" data-bs-toggle="tab" data-bs-target="#nav-assignedTasks" type="button" role="tab" aria-controls="nav-assignedTasks" aria-selected="false">Assigned Tasks</button>
+          <button class="nav-link" id="nav-project-tab" data-bs-toggle="tab" data-bs-target="#nav-project" type="button" role="tab" aria-controls="nav-project" aria-selected="true">Projects</button>
+          <button class="nav-link" id="nav-approval-tab" data-bs-toggle="tab" data-bs-target="#nav-approval" type="button" role="tab" aria-controls="nav-approval" aria-selected="false">Pending Approvals</button>
+        </div>
+      </nav>
+      </div>
+      <div class="card-body">
+        <div class="tab-content" id="nav-tabContent">
+          <div class="tab-pane fade show active" id="nav-timeSheet" role="tabpanel" aria-labelledby="nav-timeSheet-tab">
+            <%= render partial: 'timesheets/time_sheet_summary' %>
+          </div>
+          <div class="tab-pane fade" id="nav-requisition" role="tabpanel" aria-labelledby="nav-requisition-tab">
+            <h3>Requisitions</h3>
+            <p>Paris is the capital of France.</p>
+          </div>
+          <div class="tab-pane fade" id="nav-assignedTasks" role="tabpanel" aria-labelledby="nav-assignedTasks-tab">
+            <%= render partial: 'project_task_assignments/index' %>
+          </div>
+          <div class="tab-pane fade" id="nav-project" role="tabpanel" aria-labelledby="nav-project-tab">
+            <h3>Projects</h3>
+            <p>Tokyo is the capital of Japan.</p>
+          </div>
+          <div class="tab-pane fade" id="nav-approval" role="tabpanel" aria-labelledby="nav-approval-tab">
+            <% if (@approvals || []).empty? %>
+              <h3>No Pending Approvals</h3>
+            <% else%>
+              <%= render partial: 'requisitions/index' %>
+            <% end%>  
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-2">
+    <div class="card p-2">
+      <h6 class="is-primary">Key Performance Indicators</h6>
+      <div class="tableContainer">
+        <div class="box m-1">
+          Timeliness
+          <div role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" style="--value:85;margin-left: auto; margin-right: auto;"></div>
+        </div>
+        <div class="box m-1">
+          Task Completion
+          <div role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" style="--value:15;margin-left: auto; margin-right: auto;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>  
+
+      
+
+<style>
+  .tableContainer {
+      height: 50vh;
+      overflow: auto;
+      text-align: left !important;
+  }
+  .welcome {
+      float: right;
+      font-family: "Arial", sans-serif;
+      font-size: medium;
+  }
+</style>
+<script
+  src="https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js"></script>
+
+<script>
+
+  new Chart(document.getElementById("loeTargetPie"), {
+      type : 'doughnut',
+      data : {
+          labels : [ "MEDU", "SINTHA-MW", "Oxygen Alliance", "GHII"],
+          datasets : [ {
+              data : [ 50, 30, 10, 10]
+          } ]
+      },
+      options : {
+          responsive: false,
+          plugins: {
+              legend: {
+                  display: false
+              }
+          }
+      }
+  });
+  new Chart(document.getElementById("loeActualPie"), {
+      type : 'doughnut',
+      data : {
+          labels : [ "MEDU", "SINTHA-MW", "Oxygen Alliance", "GHII"],
+          datasets : [ {
+              data : [ 20, 40, 30, 5 ]
+          } ]
+      },
+      options : {
+          responsive: false,
+          plugins: {
+              legend: {
+                  display: false
+              }
+          }
+      }
+  });
+</script>

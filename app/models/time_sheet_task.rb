@@ -1,0 +1,2 @@
+class TimeSheetTask < ApplicationRecord
+end

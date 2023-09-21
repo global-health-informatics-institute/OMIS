@@ -1,0 +1,63 @@
+<p class="h5">Assets Dashboard</p>
+<div class="border p-2">
+  <h6>Assets Filter</h6>
+  <div class="row pt-2 pb-2">
+    <div class="col">
+      <select class="form-select">
+        <% (@categories || []).each do |id, category| %>
+          <option value="<%= id %>"><%= category %></option>
+        <%end %>
+      </select>
+    </div>
+    <div class="col">
+      <input class="form-control" type="text" placeholder="Search for Asset" id="textFilter">
+    </div>
+    <div class="col">
+      <button class="btn btn-success">
+        Search
+      </button>
+      <%= link_to "Register Asset", new_business_asset_path, class: "btn btn-primary",
+                  data: { turbo_frame: "remote_modal" } %>
+    </div>
+  </div>
+</div>
+
+<div class="border p-2 mt-2 fs-6">
+  <table class="table table-stripped" id="assetTable">
+    <thead class="thead-light">
+      <tr>
+        <th><abbr title="Lost">Asset ID</abbr></th>
+        <th><abbr title="Lost">Category</abbr></th>
+        <th><abbr title="Goals for">Description </abbr></th>
+        <th><abbr title="Goals against">Make & Model</abbr></th>
+        <th><abbr title="Goal difference">Serial Num.</abbr></th>
+        <th><abbr title="Points">Location</abbr></th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @assets.each do |asset| %>
+        <tr>
+          <td><%= asset.tag_id %></td>
+          <td><%= @categories[asset.asset_category_id] %></td>
+          <td><%= asset.description %></td>
+          <td><%= "#{asset.make} #{asset.model}"%></td>
+          <td><%= asset.serial_number %></td>
+          <td><%= asset.location %></td>
+          <td><%= link_to "View", "business_assets/#{asset.id}", data: { turbo_frame: "remote_model"} %> Request Edit</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $("#textFilter").on("keyup", function() {
+            const value = $(this).val().toLowerCase();
+            $("#assetTable tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>

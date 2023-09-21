@@ -1,0 +1,21 @@
+<p class="h5 ">Reports Center</p>
+<div class="border p-2">
+  <h6>Report Specification</h6>
+  <div class="row pt-2 pb-2">
+    <div class="col fs-5 fw-bold">
+      Report Type:
+    </div>
+    <div class="col">
+      <select class="form-select">
+        <option>Asset Status</option>
+        <option>Monthly LOE Report</option>
+        <option>HR Report</option>
+        <option>Project Progress Report</option>
+      </select>
+    </div>
+    <div class="col">
+      <%= link_to "Generate Report", new_business_asset_path, class: "btn btn-success",
+                  data: { turbo_frame: "remote_modal" } %>
+    </div>
+  </div>
+</div>

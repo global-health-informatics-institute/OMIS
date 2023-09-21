@@ -1,0 +1,10 @@
+{
+  "name": "omis",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Timothy Mtonga <timmtonga@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "jquery": "^3.7.1"
+  }
+}
