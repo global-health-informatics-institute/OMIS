@@ -1,0 +1,219 @@
+﻿Item Description,Make,Model,Serial Number,Cost (USD),Location,IG_ID Number,Category
+Vizio 32 inch screen,Vizio,E320VP,LAUKJAAL5006282,350,TC- Conference Room,GHII-ED-0001,Electronic Device
+Vizio 32 inch screen,Vizio,E320VP,LAUKJAEM4500805,350,TC- Conference Room,GHII-ED-0002,Electronic Device
+Vizio 32 inch screen,Vizio,E320VP,LAUKJAAM2903124,350,TC- Conference Room,GHII-ED-0003,Electronic Device
+Vizio 32 inch screen,Vizio,E320VP,LAUKJAAM1000583,350,TC- Conference Room,GHII-ED-0004,Electronic Device
+Vizio 32 inch screen,Vizio,E320VP,LAUKJAAL3002876,350,TC- Conference Room,GHII-ED-0005,Electronic Device
+Vizio 32 inch screen,Vizio,E320VP,,350,Emory Team Office (Android Development),GHII-ED-0006,Electronic Device
+Acer 24 inch screen,Acer,S241HL,MMLWVAA00142202AE98558,150,Coding Room,GHII-ED-0007,Electronic Device
+Acer 24 inch screen,Acer,S241HL,MMLWVAA0015090323C8558,150,Workshop,GHII-ED-0008,Electronic Device
+Acer 24 inch screen,Acer,S241HL,MMLWVAA001847048E5855B,150,Coding Room,GHII-ED-0009,Electronic Device
+Acer 24 inch screen,Acer,S241HL,MMLWB8800140504F968558,150,TC- Conference Room,GHII-ED-0010,Electronic Device
+Acer 24 inch screen,Acer,S241HL,MMLWVAA00151214488558,150,Director's Office,GHII-ED-0011,Electronic Device
+Acer 24 inch screen,Acer,S241HL,MMLWVAA00015411683348557,150,TC- Conference Room,GHII-ED-0012,Electronic Device
+Acer 24 inch screen,Acer,S241HL,MMLWVAA00150903209C858557,150,Jerry's Conference Room,GHII-ED-0013,Electronic Device
+10 inch Raspberry Pi screen,,,N/A,90,GHII CNC room,GHII-ED-0014,Electronic Device
+10 inch Raspberry Pi screen,,,N/A,90,GHII CNC room,GHII-ED-0015,Electronic Device
+Mitsubishi Rosa,Mitsubishi,Rosa,BE63DG700625,8000,Traing Center,GHII-HM-0016,Motor Vehicles
+Toyota Coaster,Toyota,Coaster,XZB500051080,7500,Training Center,GHII-HM-0017,Motor Vehicles
+"Dell Latitude E7250 13"" Laptop",Dell,E7250,2L18T32,250,Coding Room,GHII-ED-0016,Electronic Device
+"Dell Latitude E7250 13"" Laptop",Dell,E7250,,250,Director's Office,GHII-ED-0046,Electronic Device
+"Dell Latitude E7250 13"" Laptop",Dell,E7250,,250,Admin Office,GHII-ED-0017,Electronic Device
+HP Chromebook,HP,11-G5,,70,Pool,GHII-ED-0018,Electronic Device
+"Dell Latitude E7250 13"" Laptop",Dell,E7250,N/A,250,Store room,GHII-ED-0019,Electronic Device
+"Dell Latitude E7250 13"" Laptop",Dell,E7250,,250,Director's Drawer,GHII-ED-0020,Electronic Device
+HP Chromebook,HP,11-G5,,70,Electronics Room,GHII-ED-0021,Electronic Device
+HP Chromebook,HP,11-G5,,70,Director's Office,GHII-ED-0022,Electronic Device
+HP Chromebook,HP,11-G5,,70,Tobias Bendabenda,GHII-ED-0049,Electronic Device
+HP Chromebook,HP,11-G5,,70,Effa Solomon,GHII-ED-0050,Electronic Device
+HP Chromebook,HP,11-G5,,70,Neverson Nkhata,GHII-ED-0023,Electronic Device
+MacBook Pro,Apple,M2 Chip,Y5CX1HH9DK,2040,Mtheto Sinjani,GHII-ED-0055,Electronic Device
+MacBook Air,Apple,M1 Chip,FVFHR0L9Q72X,1200,Innocent Kumwenda,EMORY-ED-003,Electronic Device
+MacBook Air,Apple,M1 Chip,FVFHN07JQ72X ,1200,Naomi Nyama,EMORY-ED-004,Electronic Device
+MacBook Air,Apple,M1 Chip,FVFG558VQ6LT,1200,Evance Mose,EMORY-ED-005,Electronic Device
+Google Phone (White),Google,Pixel 6a,(IME) 52061659177840,600,Store Room,EMORY-ED-001,Electronic Device
+Google Phone (Black),Google,Pixel 6a,(IME) 52061659177840,600,Store Room,EMORY-ED-002,Electronic Device
+Tablet,Amazon,Amazon fire 7,GCC1 WE04 2295 0BSK,76.599999999999994,Store Room,NEOTREE-ED-001,Electronic Device
+Tablet,Amazon,Amazon fire 7,GCC1 WE04 2295 0EQ2,76.599999999999994,Store Room,NEOTREE-ED-002,Electronic Device
+Tablet,Amazon,Amazon fire 7,GCC1 WE04 2295 0CCB,76.599999999999994,Store Room,NEOTREE-ED-003,Electronic Device
+Tablet,Amazon,Amazon fire 7,GCC0 X908 0414 00B1,76.599999999999994,Store Room,NEOTREE-ED-004,Electronic Device
+Tablet,Amazon,Amazon fire 7,GCC0 X908 0435 00XV,76.599999999999994,Store Room,NEOTREE-ED-005,Electronic Device
+HP Color Printer,HP,M254DW,VNC4226827,300,Director's Office,GHII-ED-0024,Electronic Device
+HP Laserjet Printer,HP,1018,VNC3B09910,150,Common Area,GHII-ED-0025,Electronic Device
+TIKO 3D Printer,TIKO,1,TKKS-X1216-1D8C,180,TC- Conference Room,GHII-ED-0026,Electronic Device
+Blue 3D printer,,,N/A,100,Dark Room,GHII-ED-0045,Electronic Device
+HP Deskjet printer,,2050,,113.7,TC- Conference Room,GHII-ED-0048,Electronic Device
+Brother label printer,,PT-85,,30,Store Room,GHII-ED-0054,Electronic Device
+Printer,HP,HP LaserJet M110we,VNCZ186808,123.58,Store Room,NEOTREE-ED-006,Electronic Device
+Printer,HP,HP LaserJet M15w,VNC3351487,168.49000000000001,Common Area,NEOTREE-ED-007,Electronic Device
+Double-Drawer Cabinet,Wood,,N/A,49.289999999999999,Coding Room,GHII-FR-0001,Furniture
+Wooden Podium,Wood,,N/A,123.23,TC- Conference Room,GHII-FR-0002,Furniture
+Wooden Conference Table,Wood,,N/A,308.06999999999999,TC- Conference Room,GHII-FR-0003,Furniture
+Wooden Shelf 1,Wood,,N/A,123.23,Electronics Room,GHII-FR-0004,Furniture
+Wooden Shelf 2,Wood,,N/A,123.23,Electronics Room,GHII-FR-0005,Furniture
+Wooden Shelf 3,Wood,,N/A,123.23,Electronics,GHII-FR-0006,Furniture
+Wood Shelf 4,Wood,,N/A,50,Open O2 Room,GHII-FR-0007,Furniture
+Triple-Drawer Office Cabinet,Wood,,N/A,98.579999999999998,Admin Office,GHII-FR-0008,Furniture
+Double-Drawer Cabinet,Wood,,N/A,49.289999999999999,Director’s Office,GHII-FR-0009,Furniture
+Metal Filing Cabinet,,,N/A,65,Wood Workshop,GHII-FR-0012,Furniture
+Metal Fiing Cabinet,,,N/A,65,Wood Workshop,GHII-FR-0013,Furniture
+Metal Filing Cabinet,,,N/A,110.91,Director's Office,GHII-FR-0010,Furniture
+Wooden table (large),,,N/A,260,Dining Room,GHII-FR-0011,Furniture
+Small table,wooden,,N/A,70,Android Dev Room,GHII-FR-0015,Furniture
+Large CNC Milling Machine,,,N/A,1500,GHII CNC room,GHII-HM-0018,Heavy Machinery
+Medium CNC Milling Machine,,,N/A,700,GHII CNC room,GHII-HM-0019,Heavy Machinery
+Wire feed welding machine,Eastwood,MIG175,12100000000000,537.40999999999997,GHII CNC room,GHII-HM-0020,Heavy Machinery
+Medium CNC Engraving Machine,,,N/A,379.99000000000001,GHII CNC room,GHII-HM-0021,Heavy Machinery
+Small CNC Engraving Machine,Woodpecker,,N/A,119.59,GHII CNC room,GHII-HM-0022,Heavy Machinery
+Disk sanding machine,Wardkin bursgreen,,BGY.3.68966,500,Wood workshop,GHII-HM-0023,Heavy Machinery
+Mortising Machine,Central machinery,SQU#S35570,4027572,80,Wood workshop,GHII-HM-0024,Heavy Machinery
+Biscket machine,Porter cable,555,53436,80,Wood workshop,GHII-TL-0001,Tools
+Drill machine,Dewalt,DCD970,880326,80,wood workshop,GHII-TL-0002,Tools
+Drill machine,Dewalt,DCD925,3215,80,wood workshop,GHII-TL-0003,Tools
+Drill machine,Dewalt,DCD970,N/A,80,wood workshop,GHII-TL-0004,Tools
+Drill machine,Dewalt,DCD970,880326,80,wood workshop,GHII-TL-0005,Tools
+Drill machine,Dewalt,D25113K,PA6-GF33,80,wood workshop,GHII-TL-0006,Tools
+Drill machine,Ridgid,R81030,G062437107,35,wood workshop,GHII-TL-0007,Tools
+Drill machine,Ridgid,R81030,G053606889,35,wood workshop,GHII-TL-0008,Tools
+Drill machine,Ridgid,R81030,G054926780,35,wood workshop,GHII-TL-0009,Tools
+Drill machine,Ridgid,R81030,G053606889,35,wood workshop,GHII-TL-0010,Tools
+Drill machine,Ridgid,R81030,BD062538534,35,wood workshop,GHII-TL-0011,Tools
+Drill machine,Ridgid,R81030,G06253834,35,wood workshop,GHII-TL-0012,Tools
+Drill machine,Ingco,CDLI228180,1704878,40,Wood workshop,GHII-TL-0014,Tools
+Drill machine,Ridgid,R81030,G062437107,35,wood workshop,GHII-TL-0013,Tools
+Drill machine Charger,Rigid,EA11456D010082,EA11456D0100082,40,wood workshop,GHII-TL-0015,Tools
+Drill machine,Dewalt,,567029,80,wood workshop,GHII-TL-0016,Tools
+Welding machine,,ZX7-200,GB15579.1-2013,800,Wood workshop,GHII-HM-0025,Heavy Machinery
+Hitachi Oscilloscope,HITACHI,V-422,106663,190,Electronics Room,GHII-ED-0027,Electronic Device
+Hitachi Oscilloscope,HITACHI,V-422,7013214,190,Electronics Room,GHII-ED-0028,Electronic Device
+Rack Server,Logic,BHT-MC600,U667232,1100,Common Area,GHII-ED-0037,Electronic Device
+Indistrial router,ingco,RT22001,RT22001,100,wood Workshop,GHII-TL-0018,Tools
+Indistrial router,Dewalt,DW624,7963,300,wood Workshop,GHII-TL-0019,Tools
+Indistrial plunge router,Skil,1835,18358001,80,Wood workshop,GHII-TL-0020,Tools
+Router table,,,N/A,40,Wood workshop,GHII-FR-0014,Furniture
+Plasma cutter,Lotos,LTP5500D,ASPC100002337,489,GHII CNC room,GHII-HM-0025,Heavy Machinery
+Plasma cutter,Simadre,CUT50DP,EN60974-1:2005,399,GHII CNC room,GHII-HM-0026,Heavy Machinery
+CNC Plasma cutter,,,N/A,500,GHII CNC room,GHII-HM-0027,Heavy Machinery
+Bench circular saw,Black and decker,CD602,201429-CU,81,Wood Workshop,GHII-TL-0022,Tools
+3 Phase Table saw,Darra - James,WT212148,N/A,2000,Wood Workshop,GHII-HM-0002,Heavy Machinery
+Mitre saw,Ryobi,CMS-210A,141200590,80,wood Workshop,GHII-TL-0023,Tools
+Dado Saw,Wardkin bursgreen,,AGS58216,369.69,wood Workshop,GHII-HM-0001,Heavy Machinery
+Arm saw,Wardkin bursgreen,WS8/24,L637257,350,wood Workshop,GHII-HM-0003,Heavy Machinery
+Reciprocating saw,Dewalt,DW938,748352,112.98999999999999,wood Workshop,GHII-TL-0025,Tools
+Jigsaw,Dewalt,DW331K-QS,N044919,159,wood Workshop,GHII-TL-0026,Tools
+Jigsaw,Dewalt,DC330,865216,165,Wood workshop,GHII-TL-0027,Tools
+Circular saw,Lyobi,HCS-1250,135103006,80,Wood workshop,GHII-TL-0028,Tools
+Heat gun,skil,FO158003078,F015800307,41.990000000000002,GHII CNC room,GHII-TL-0029,Tools
+Heat gun,SONGSHAN,,N/A,41.990000000000002,GHII CNC room,GHII-TL-0030,Tools
+Heat gun,Bosh,PHG500-2,060329A003,91.140000000000001,GHII CNC room,GHII-TL-0031,Tools
+Heat gun,skil,,,41.990000000000002,wood Workshop,GHII-TL-0021,Tools
+Nail gun,Porter cable,BN200C,16060420DBJBN200C,90,Wood workshop,GHII-TL-0032,Tools
+Nail gun,Porter cable,BN200C,14022002KBJBN200C,90,Wood workshop,GHII-TL-0033,Tools
+LED lens bench light,Fix point,,45273,56.990000000000002,GHII CNC room,GHII-ED-0029,Electronic Device
+LED lens bench light,Fix point,,45271,56.990000000000002,Electronics Room,GHII-ED-0030,Electronic Device
+Battery charger,Kipoint,WP-2048A,WT1703290008,78.340000000000003,GHII CNC room,GHII-ED-0031,Electronic Device
+Bench power supply,Uniroi,UC3010,,50.990000000000002,GHII CNC room,GHII-ED-0032,Electronic Device
+Diesel generator,Koop,KDF6700Q,N/A,1000,In a Blue bus [Rosa],GHII-HM-0004,Heavy Machinery
+Diesel generator,Koop,KDF400X(E),N/A,800,In a White Bus [Coaster],GHII-HM-0005,Heavy Machinery
+Torch,Dewalt,DW908,1626367,25,wood workshop,GHII-TL-0024,Tools
+Torch,Dewalt,DW908,1626329,25,wood workshop,GHII-TL-0034,Tools
+Torch,Dewalt,DW908,1626250,25,wood workshop,GHII-TL-0035,Tools
+Pure sinewave Invertor,Flamezum,,,50,Open O2 Room,GHII-ED-0038,Electronic Device
+Big Air compressor,Jari,DN 350,00:20:00,330,GHII CNC room,GHII-HM-0006,Heavy Machinery
+PCB Board Material,,,N/A,680,GHII CNC room,GHII-ED-0041,Electronic Device
+Vacuum pump,WELCH,1399Z-05,24163,800,GHII CNC room,GHII-HM-0007,Heavy Machinery
+3 Phase motor,Crompton parkson,158OR170,N/A,50,GHII CNC room,GHII-HM-0008,Heavy Machinery
+Mobile Air Conditioner,Dragor,LTH-14,JAA0AD3105184000259,100,GHII CNC room,GHII-HM-0009,Heavy Machinery
+Bubble Level,Cen-tech,,N/A,75,wood Workshop,GHII-TL-0036,Tools
+Pipe Thread kit and clamper,,,N/A,99.989999999999995,wood Workshop,GHII-TL-0037,Tools
+Concrete Hammer,Hitach,,N/A,289.99000000000001,wood Workshop,GHII-TL-0038,Tools
+Powder fastening systems,Ramset,COBRA,N/A,129,wood Workshop,GHII-TL-0039,Tools
+Drill press,ingco,DP165001,IN106,358.94,wood Workshop,GHII-HM-0015,Heavy Machinery
+Spindal Molder,Wood tech,,1021079,50,wood Workshop,GHII-HM-0014,Heavy Machinery
+Air compressor,Ingco,AC25508,201708001,200,wood Workshop,GHII-HM-0010,Heavy Machinery
+Jointer planner,Craftsman,113.20693300000001,6151R114,300,wood Workshop,GHII-HM-0011,Heavy Machinery
+"15"" Planner",Enco,150-4100,90762,800,wood Workshop,GHII-HM-0012,Heavy Machinery
+Step down transformer,Hammond,MT1000MLY,LR32216,40,wood Workshop,GHII-ED-0039,Electronic Device
+Trimmer,,M1P-3701,N/A,50,wood Workshop,GHII-TL-0041,Tools
+Wet polisher glinder,Fixtech,,N/A,70,wood Workshop,GHII-TL-0042,Tools
+Oscilating tool,,FMT30001,AD010063,30,wood Workshop,GHII-TL-0043,Tools
+Orbital sander,Bosh,PEX220A,3603C78071,50,wood Workshop,GHII-TL-0044,Tools
+Orbital sander,Blach & decker,KA300,201736-58,50,wood Workshop,GHII-TL-0045,Tools
+Orbital sander,Makita,BO3700,13755231,50,wood Workshop,GHII-TL-0046,Tools
+Belt sander,Ryobi,EBS-810,182702095,80,wood Workshop,GHII-TL-0047,Tools
+Tool box,Epica,,N/A,15,wood Workshop,GHII-TL-0048,Tools
+Tool box,Craftsman,,N/A,15,wood Workshop,GHII-TL-0049,Tools
+Grinder,Ingco,AG75018,19027990876,60,wood Workshop,GHII-TL-0050,Tools
+Metal Grinder,Blach & decker,,N/A,150,wood Workshop,GHII-TL-0017,Tools
+Air compressor,Outstanding,OTS-550,N/A,80,wood Workshop,GHII-HM-0013,Heavy Machinery
+Air Compressor,Outstanding,OTS-550,N/A,80,open o2 bus,GHII-HM-0052,Heavy Machinery
+Fan,Changli crown,USS-1819,,58.5,wood Workshop,GHII-ED-0040,Electronic Device
+fan,Power King Premium Fan,PK 18786,N/A,45,Director's Office,GHII-ED-0042,Electronic Device
+Fan,Logik,LT-40P01,,25,Admin Office,GHII-ED-0033,Electronic Device
+Fan,Logik,LT-40P01,,25,Coding Room,GHII-ED-0034,Electronic Device
+Fan,Logik,LT-40P01,,25,Android Dev Room,GHII-ED-0035,Electronic Device
+Fan,Logik,LT-40P01,,25,Common Area,GHII-ED-0035,Electronic Device
+Fan,Changli crown,USS-1819,,58.5,Open O2 Room,GHII-ED-0052,Electronic Device
+E-mart umbrella light,,,,35.689999999999998,O2 Alliance Room,GHII-ED-0043,Electronic Device
+E-mart umbrella light,,,,35.689999999999998,O2 Alliance Room,GHII-ED-0044,Electronic Device
+Intertek Lamp,,3061837,,20,Electronics Room,GHII-ED-0047,Electronic Device
+tripod stand,Ubeesize,TR50,,21.989999999999998,O2 Room,GHII-TL-0051,Tools
+Drill machine,Ingco,CDLI228180,,40,O2 Room,GHII-TL-0053,Tools
+Charger,Uniroi,,,51.93,Electronics Room,GHII-ED-0051,Electronic Device
+New wooden Desk,Wood,,,144.78999999999999,F&A Lead Office,GHII-FR-0016,Furniture
+New Wooden Desk ,wood,,,144.78999999999999,DA Lead Office ,GHll-FR-0017,Furniture
+New wooden Desk ,Wood ,,,144.78999999999999,SA Lead Office ,GHII -FR-0018,Furniture
+Second Hand Executive Chair ,Leather,,,147.74000000000001,DA Lead Office ,GHll-FR-0019,Furniture
+Second Hand Executive Chair ,Leather ,,,147.74000000000001,SA Lead Office ,GHII-FR-0020,Furniture
+Second Hand Executive Chair ,Leather ,,,147.74000000000001,Mwabi Lungu Office ,GHII -FR-0021,Furniture
+Second Hand Executive Chair ,Leather ,,,147.74000000000001,Mthetho Sinjani Office ,GHII -FR-0022,Furniture
+Second Hand Executive Chair ,Fabric /Mesh,,,154.44,F&A Lead Office ,GHII -FR-0023,Furniture
+Second Hand Standard Chair ,Fabric,,,77.219999999999999,Mwabi & Mthetho Office ,GHII-FR-0024,Furniture
+Second Hand Standard Chair ,Fabric ,,,77.219999999999999,Software Dev interns Opp FA Lead Office ,GHII -FR-0025,Furniture
+Second Hand Standard Chair ,Fabric ,,,77.219999999999999,Software Dev Interns Opp FA Lead Office ,GHII-FR-0026,Furniture
+Second Hand Standard Chair ,Fabric ,,,77.219999999999999,Software Dev App Hatchery Office ,GHII -FR-0027,Furniture
+Second Hand Standard Chair ,Fabric ,,,77.219999999999999,Software Dev App Hatchery Office ,GHII -FR-0028,Furniture
+Second Hand Visitor c Chair,Fabric /Mesh,,,41.020000000000003,Director's Office ,GHII -FR-0029,Furniture
+Second Hand Visitor c Chair ,Fabric/Mesh,,,41.020000000000003,Director's Office ,GHII -FR-0030,Furniture
+Second Hand Visitor c chair,Fabric /Mesh,,,41.020000000000003,F&A Lead Office ,GHII -FR-0031,Furniture
+Second Hand visitor cChair,Fabric /Mesh,,,41.020000000000003,Mwabi & Mthetho's Office ,GHII -FR-0032,Furniture
+Second Hand Visitor c Chair ,Fabric /Mesh,,,41.020000000000003,DA&SA Lead Office ,GHII -FR-0033,Furniture
+Second Hand Visitor c Chair ,Fabric /Mesh,,,0,Admin Office ,GHII -FR-0034,Furniture
+Second Hand Wooden Desk ,Wood ,,,0,Sharon& Aubrey's Office ,GHII -FR-0035,Furniture
+Second Hand Wooden Desk ,Wood ,,,0,Sharon& Aubrey's Office ,GHIl-FR-0036,Furniture
+New visitor's fabric black chair,Fabric/Mesh,,,136.31999999999999,HR/Admin/Fin Office,GHII-FR-0037,Furniture
+New visitor's fabric black chair,Fabric/Mesh,,,136.31999999999999,HR/Admin/Fin Office ,GHII-FR-0038,Furniture
+New visitor's fabric black chair,Fabric/Mesh,,,136.31999999999999,GHII Office - not allocated yet,GHII-FR-0039,Furniture
+New visitor's fabric black chair,Fabric/Mesh,,,136.31999999999999,GHII Office - not allocated yet,GHII-FR-0040,Furniture
+New visitor's fabric black chair,Fabric/Mesh,,,136.31999999999999,Open Area data analysts,GHII-FR-0041,Furniture
+New visitor's fabric black chair,Fabric/Mesh,,,136.31999999999999,GHII Office - not allocated yet,GHII-FR-0042,Furniture
+New visitor's fabric black chair,Fabric/Mesh,,,136.31999999999999,Open area data analysts,GHII-FR-0043,Furniture
+New visitor's fabric black chair,Fabric/Mesh,,,136.31999999999999,GHII Office - not allocated yet,GHII-FR-0044,Furniture
+New visitor's fabric black chair,Fabric/Mesh,,,136.31999999999999,GHII Office - not allocated yet,GHII-FR-0045,Furniture
+New Standard Mesh Black Office Chair,Fabric/Mesh,,,160.75,Open area data analysts,GHII-FR-0046,Furniture
+New Standard Mesh Black Office Chair,Fabric/Mesh,,,160.75,Open area data analysts,GHII-FR-0047,Furniture
+New Standard Mesh Black Office Chair,Fabric/Mesh,,,160.75,Open Area data analysts,GHII-FR-0048,Furniture
+New Standard Mesh Black Office Chair,Fabric/Mesh,,,160.75,OPen Area data analysts,GHII-FR-0049,Furniture
+New Standard Mesh Black Office Chair,Fabric/Mesh,,,160.75,Open Area data analysts,GHII-FR-0050,Furniture
+New Standard Mesh Black Office Chair,Fabric/Mesh,,,160.75,Open Area data analysts,GHII-FR-0051,Furniture
+New Standard Mesh Black Office Chair,Fabric/Mesh,,,160.75,Open area data analysts,GHII-FR-0052,Furniture
+New Standard Mesh Black Office Chair,Fabric/Mesh,,,160.75,GHII Office - not allocated yet,GHII-FR-0053,Furniture
+New Standard Mesh Black Office Chair,Fabric/Mesh,,,160.75,HR/Admin/Fin Office - Angela,GHII-FR-0054,Furniture
+New Standard Mesh Black Office Chair,Fabric/Mesh,,,160.75,HR/Admin/Fin Office - Angela,GHII-FR-0055,Furniture
+New Standard Mesh Black Office Chair,Fabric/Mesh,,,160.75,GHII Office - not allocated yet,GHII-FR-0056,Furniture
+New Standard Mesh Black Office Chair,Fabric/Mesh,,,160.75,GHII Office - not allocated yet,GHII-FR-0057,Furniture
+New Standard Mesh Black Office Chair,Fabric/Mesh,,,160.75,GHII Office - not allocated yet,GHII-FR-0058,Furniture
+New Desk for Project Staff,Wood,,,287.39999999999998,GHII Office - not allocated yet,GHII-FR-0059,Furniture
+New Desk for Project Staff,Wood,,,287.39999999999998,GHII Office - not allocated yet,GHII-FR-0060,Furniture
+New Desk for Project Staff,Wood,,,287.39999999999998,GHII Office - not allocated yet,GHII-FR-0061,Furniture
+New Desk for Project Staff,Wood,,,287.39999999999998,GHII Office - not allocated yet,GHII-FR-0062,Furniture
+New Desk for Project Staff,Wood,,,287.39999999999998,GHII Office - not allocated yet,GHII-FR-0063,Furniture
+New Desk for Project Staff,Wood,,,287.39999999999998,GHII Office - not allocated yet,GHII-FR-0064,Furniture
+New Desk for Project Staff,Wood,,,287.39999999999998,GHII Office - not allocated yet,GHII-FR-0065,Furniture
+New Desk for Project Staff,Wood,,,287.39999999999998,GHII Office - not allocated yet,GHII-FR-0066,Furniture
+New Desk for Project Staff,Wood,,,287.39999999999998,GHII Office - not allocated yet,GHII-FR-0067,Furniture
+New Desk for Project Staff,Wood,,,287.39999999999998,GHII Office - not allocated yet,GHII-FR-0068,Furniture
+New Desk for Project Staff,Wood,,,287.39999999999998,GHII Office - not allocated yet,GHII-FR-0069,Furniture
+New Desk for Project Staff,Wood,,,287.39999999999998,GHII Office - not allocated yet,GHII-FR-0070,Furniture
+New Desk for Project Staff,Wood,,,287.39999999999998,GHII Office - not allocated yet,GHII-FR-0071,Furniture
+New Desk for Project Staff,Wood,,,287.39999999999998,GHII Office - not allocated yet,GHII-FR-0072,Furniture

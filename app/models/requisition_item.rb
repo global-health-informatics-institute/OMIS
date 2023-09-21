@@ -1,0 +1,2 @@
+class RequisitionItem < ApplicationRecord
+end

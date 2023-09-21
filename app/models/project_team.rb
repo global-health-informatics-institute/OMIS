@@ -1,0 +1,2 @@
+class ProjectTeam < ApplicationRecord
+end

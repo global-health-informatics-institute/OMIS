@@ -1,0 +1,35 @@
+FirstName	MiddleName	LastName	DOB	Gender	Position	Date joined	Department	Supervisor	Marital Status
+Aubrey		Chinkunda	02/08/1998	Male	Team Leader	01-Oct-21	Programs	Lungu	Single
+Sharon		Ngozo	14/09/1996	Female	Team Leader	01-Oct-21	Programs	Lungu	Single
+Mwabi		Lungu	18/09/1995	Male	Program Manager	27-Jun-22	Programs	Mtonga	Single
+Mtheto		Sinjani	26/05/1997	Male	Program Manager	27-Jun-22	Programs	Mtonga	Single
+Chipiliro		Kadzakumamja	22/07/1980	Male	Operations Officer	29-Oct-21	Finance & Administration	Mvula	Married
+John		Abudul	04/05/1971	Male	Driver	01-Nov-21	Finance & Administration	Kadzakumamja	Married
+Naomi		Nyama	13/09/2000	Female	Jnr Applications Developer	26-Aug-22	Programs	Sinjani	Single
+Neverson		Nkhata	04/03/1993	Male	Technician Assistant	29-Oct-21	Programs	Lungu	Married
+Tobias		Bendabenda	18/04/1986	Male	Technician	29-Oct-21	Programs	Lungu	Married
+Timothy		Mtonga	27/05/1995	Male	Director	26-Jan-22	Finance & Administration		Married
+Sithembinkosi		Phombeya	06/02/2001	Female	Product Developer	05-Sep-22	Research & Evaluation	Sinjani	Single
+Sophie 	Gondwe	Mvula	07/08/1981	Female	Finance & Administration Lead	28-Mar-22	Finance & Administration	Mtonga	Married
+Rashid		Deula	20/02/1973	Male	Program Officer	26/05/2022	Programs	Sinjani	Married
+Wonderful		Lijoni	11/11/1996	Male	CAD/CAM Engineer	01-Aug-22	Research & Evaluation	Sinjani	Single
+Innocent		Kumwenda	16/03/1999	Male	Jnr Applications Developer	22/11/2023	Programs	Sinjani	Single
+Wiza		Munthali	27/05/1999	Male	Jnr Applications Developer	07/03/2023	Programs	Sinjani	Single
+Boniface	Moffat	Kaseka	11/09/1994	Male	Engineering Intern	03/04/2023	Programs	Lungu	Single
+Elizabeth	Towela	Nthapalapa	25/01/1999	Female	Engineering Intern	11/04/2023	Programs	Lungu	Single
+Grace	Favour	Bwanali	09/02/1996	Female	Engineering Intern	11/04/2023	Programs	Lungu	Single
+Goodluck	Halord	Banda	19/02/1996	Male	Engineering Intern	11/04/2023	Programs	Lungu	Single
+Deliwe	Bernadette	Nkhoma	22/08/1982	Female	Data Access Centre Lead	01/10/2022	Programs	Mtonga	Married
+Peter		Namagonya	22/05/1984	Male	Systems Architecture Lead	01/10/2022	Programs	Mtonga	Married
+Luke		Kamvazina	07/12/1976	Male	Data Analyst		Programs	Nkhoma	Single
+Beatrice		Matambo	29/05/1986	Female	Data Analyst		Programs	Nkhoma	Single
+Kelvin		Msiska	01/07/2000	Male	Data Analyst		Programs	Nkhoma	Single
+Timothy 	Kumbweza	 Banda	25/02/1996	Male	Software Engineer		Programs	Namagonya	Single
+Dereck		Katuli	29/12/1995	Male	Data Analyst		Programs	Nkhoma	Single
+Pistone		Sanjama	06/06/1997	Male	Software Engineer		Programs	Namagonya	Single
+Blessings		Chidambe	29/11/1993	Male	Software Engineer		Programs	Namagonya	Married
+Pilirani		Chikudzu	31/12/1982	Female	Finance Officer		Finance & Administration	Mvula	Single
+Angela		Chindebvu	22/03/1986	Female	Human Resources & Administration Officer		Finance & Administration	Mvula	Single
+Dokiso		Makawa	23/06/1985	Male	Driver	23/09/2022	Finance & Administration	Kadzakumamja	Married
+Chimwemwe		Tiyesi	06/06/1997	Male	Product Developer	2023/04/01	Programs	Lungu	Single
+Yusuf	Joseph	Mtila	1993/01/20	Male	M & E Officer	05/06/2023	Research & Evaluation	Mtonga	Married

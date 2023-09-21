@@ -1,0 +1,175 @@
+<h5>Timesheet</h5>
+<div class="border p-2">
+  <div class="row">
+    <div class="col-5">
+      <span class="fs-6 fw-bold">Employee: </span> <%= @person.person.full_name %><br/>
+      <span class="fs-6 fw-bold">Role: </span> <%= @person.current_position %>
+    </div>
+    <div class="col-4">
+      <span class="fs-6 fw-bold">Period: </span> <%= @timesheet.period %><br/>
+      <span class="fs-6 fw-bold">Status: </span> <%= @timesheet.status %>
+    </div>
+    <div class="col-3">
+      <input type="date" class="form-control" id="period">
+    </div>
+  </div>
+  <hr>
+  <div class="row mt-2 mb-2">
+    <div class="col col-md-3">
+      <div class="row">
+        <div class="col col-md-8"><small class="fs-6 fw-bold text-primary">Export Timesheet</small></div>
+        <div class="col col-md-2">
+          <img src="/assets/xls-file.png">
+        </div>
+        <div class="col col-md-2">
+          <img src="/assets/pdf.png">
+        </div>
+      </div>
+    </div>
+    <div class="col text-end">
+      <button id="showModal" class="btn btn-primary">
+        Add Task
+      </button>
+      <button class="btn btn-success">
+        Submit Timesheet
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="border p-2 mt-2">
+  <table class="table table-striped table-hover ">
+    <thead class="table-dark">
+    <th>Project</th>
+    <th>Task</th>
+    <% (0..6).each do |day| %>
+      <th class="fs-6"><%= @timesheet.timesheet_week.advance(:days => day).strftime("%a, %b %d") %></th>
+    <% end %>
+    <th>Total</th>
+    </thead>
+    <tbody>
+    <% week_total = Hash.new(0.0) %>
+    <% (@records || []).each do |k, v| %>
+      <tr>
+        <th rowspan="<%= (v.keys.length + 1) %>">
+          <%= @projects[k] %>
+        </th>
+        <% (v || []).each do |task, entries| %>
+          <% total = 0.0 %>
+        <tr>
+          <td>
+            <%= task %>
+          </td>
+          <% (0..6).each do |day| %>
+            <td><%= entries[day].blank? ? '-' : entries[day] %></td>
+            <% total +=  (entries[day].blank? ? 0 : entries[day]) %>
+            <% week_total[day] +=  (entries[day].blank? ? 0 : entries[day]) %>
+          <% end %>
+          <td><%= total %></td>
+        </tr>
+      <% end %>
+      </tr>
+    <% end %>
+    </tbody>
+    <tfoot>
+    <th colspan="2">Total</th>
+    <% (0..6).each do |day| %>
+      <th><%= week_total[day] %></th>
+    <% end %>
+    <th>Total</th>
+    </tfoot>
+  </table>
+</div>
+
+<div class="container" id="app">
+  <div id="image-modal" class="modal">
+    <%= form_for "time_sheet_task", url: time_sheet_tasks_path  do |form| %>
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="modal-card">
+          <header class="modal-card-head">
+            <p class="modal-card-title">Add Task</p>
+          </header>
+          <section class="modal-card-body">
+            <div class="columns">
+              <div class="column">
+                Select Project
+              </div>
+              <div class="column">
+                <div class="select is-fullwidth">
+                  <%= form.select :project_id, @project_options %>
+                </div>
+              </div>
+            </div>
+            <div class="columns">
+              <div class="column">
+                <%= form.label :task_date %>
+                <%= form.date_field :task_date, class: 'input', required: true %>
+              </div>
+              <div class="column">
+                <%= form.label :duration %>
+                <%= form.number_field :duration, step:0.25, class: 'input', required: true %>
+              </div>
+            </div>
+            <div class="columns">
+              <div class="column">
+                <%= form.label :description %>
+                <%= form.text_field :description, class: 'input', required: true %>
+              </div>
+            </div>
+          </section>
+          <footer class="modal-card-foot">
+            <%= form.submit "Save", class: "button is-success" %>
+            <button id="close" class="button">Cancel</button>
+          </footer>
+        </div>
+      </div>
+      <%= form.hidden_field :time_sheet_id, value: @timesheet.timesheet_id %>
+    <% end %>
+    <button id="image-modal-close" class="modal-close"></button>
+  </div>
+</div>
+<script>
+    const picker  = document.getElementById('period');
+    const currentDate = new Date("<%= @timesheet.timesheet_week.strftime("%Y-%m-%d") %>")
+
+    function checkNewDate(event)
+    {
+        const newDate = new Date(picker.value);
+        const dateDifference = parseInt((currentDate - newDate) / (1000 * 60 * 60 * 24));
+        console.log(dateDifference);
+        if((dateDifference > 0) || (dateDifference < -6))
+        {
+            window.location = "/timesheets/show?period=" + picker.value
+        }
+
+    }
+
+    function onLoad(){
+        picker.addEventListener('change', checkNewDate);
+    }
+
+    var btn = document.querySelector('#showModal');
+    var closeBtn = document.getElementById('close');
+    var modalDlg = document.querySelector('#image-modal');
+    var imageModalCloseBtn = document.querySelector('#image-modal-close');
+    btn.addEventListener('click', function(){
+        modalDlg.classList.add('is-active');
+    });
+
+    imageModalCloseBtn.addEventListener('click', function(){
+        modalDlg.classList.remove('is-active');
+    });
+
+    closeBtn.addEventListener('click', function(){
+        modalDlg.classList.remove('is-active');
+    });
+
+    setTimeout('onLoad()', 3000)
+</script>
+
+<style>
+    tbody.td {
+        text-align: center;
+    }
+</style>

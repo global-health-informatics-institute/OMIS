@@ -38,3 +38,6 @@
 *.yml
 *.lock
 .ruby-version
+node_modules
+.idea
+
