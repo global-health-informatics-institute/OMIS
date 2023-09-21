@@ -1,11 +1,13 @@
+<%= javascript_include_tag 'custom/jquery-3.6.1.min', 'data-turbolinks-track' => true %>
+
 <p class="h5">Assets Dashboard</p>
 <div class="border p-2">
   <h6>Assets Filter</h6>
   <div class="row pt-2 pb-2">
     <div class="col">
-      <select class="form-select">
+      <select class="form-select" id="categoryFilter">
         <% (@categories || []).each do |id, category| %>
-          <option value="<%= id %>"><%= category %></option>
+          <option value="<%= category %>"><%= category %></option>
         <%end %>
       </select>
     </div>
@@ -57,6 +59,13 @@
             const value = $(this).val().toLowerCase();
             $("#assetTable tr").filter(function() {
                 $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+        $("#categoryFilter").on("change", function() {
+            console.log(this.value)
+            const value = $(this).val();
+            $("#assetTable tr").filter(function() {
+                $(this).toggle($(this).text().indexOf(value) > -1)
             });
         });
     });
