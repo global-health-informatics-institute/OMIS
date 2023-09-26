@@ -6,19 +6,19 @@
   <div class="card ">
     <div class="card-header card-header-dark">
       <nav>
-        <div class="nav nav-tabs " id="nav-tab" role="tablist">
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
           <ul class="nav nav-tabs">
             <li class="nav-item">
-              <a class="nav-link active" id="nav-timeSheet-tab" data-bs-toggle="tab" data-bs-target="#nav-timeSheet" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Global Properties</a>
+              <a class="nav-link active" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Profile Settings</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Policies</a>
+              <a class="nav-link" id="nav-global-tab" data-bs-toggle="tab" data-bs-target="#nav-global" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Global Properties</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Processes</a>
+              <a class="nav-link" id="nav-policy-tab" data-bs-toggle="tab" data-bs-target="#nav-policy" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Policies</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">General</a>
+              <a class="nav-link" id="nav-process-tab" data-bs-toggle="tab" data-bs-target="#nav-process" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Processes</a>
             </li>
           </ul>
         </div>
@@ -26,7 +26,21 @@
     </div>
     <div class="card-body">
       <div class="tab-content" id="nav-tabContent">
-        <div class="tab-pane fade show active" id="nav-timeSheet" role="tabpanel" aria-labelledby="nav-timeSheet-tab">
+        <div class="tab-pane fade show active" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+          <h3>HOME</h3>
+          <p>Some content.</p>
+        </div>
+        <div class="tab-pane fade" id="nav-global" role="tabpanel" aria-labelledby="nav-global-tab">
+          <h3>Global</h3>
+          <p>Some content in menu 1.</p>
+        </div>
+        <div class="tab-pane fade" id="nav-policy" role="tabpanel" aria-labelledby="nav-policy-tab">
+          <h3>Policy</h3>
+          <p>Some content in menu 1.</p>
+        </div>
+        <div class="tab-pane fade" id="nav-process" role="tabpanel" aria-labelledby="nav-process-tab">
+          <h3>Process</h3>
+          <p>Some content in menu 1.</p>
         </div>
       </div>
     </div>
