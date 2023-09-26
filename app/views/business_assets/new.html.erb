@@ -1,2 +1,4 @@
-<h1>BusinessAssets#new</h1>
-<p>Find me in app/views/business_assets/new.html.erb</p>
+<h1>New Asset Registration</h1>
+<%= render "remote_model", title: "New Asset Registration" do %>
+  <%= render "form", asset: @asset %>
+<% end %>

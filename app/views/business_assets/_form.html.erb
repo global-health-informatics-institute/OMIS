@@ -1,0 +1,39 @@
+<%= form_with model: @asset, url: business_assets_path do |form| %>
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :category, style: "display: block", class: "form-label" %>
+      <%= form.select(:object_field, @categories, {include_blank: "Select asset category"}, { :class => 'form-select' }) %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :description, style: "display: block", class: "form-label" %>
+      <%= form.text_field :description, placeholder: 'Enter asset description', class: "form-control" %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :make, style: "display: block", class: "form-label" %>
+      <%= form.text_field :make, class: "form-control", placeholder: 'Enter asset make' %>
+    </div>
+
+    <div class="col mb-3">
+      <%= form.label :model, style: "display: block", class: "form-label" %>
+      <%= form.text_field :model, placeholder: 'Enter asset model', class: "form-control" %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :serial_number, style: "display: block", class: "form-label" %>
+      <%= form.text_field :serial_number, class: "form-control", placeholder: 'Enter asset serial number' %>
+    </div>
+
+    <div class="col mb-3">
+      <%= form.label :location, style: "display: block", class: "form-label" %>
+      <%= form.text_field :location, placeholder: 'Enter asset location', class: "form-control" %>
+    </div>
+  </div>
+<div class="mb-3">
+    <%= form.submit "Save", class: "btn btn-success btn-block" %>
+</div>
+<% end %>

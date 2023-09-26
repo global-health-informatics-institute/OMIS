@@ -5,6 +5,8 @@ class BusinessAssetsController < ApplicationController
   end
 
   def new
+    @asset = Asset.new
+    @categories = AssetCategory.all.collect{|x|  x.category}
   end
 
   def create

@@ -1,0 +1,29 @@
+<div class="card h-100">
+  <div class="card-body p-2">
+    <h6>Workforce Age Rate</h6>
+    <div class="text-center">
+      <canvas id="ageBar" style="height: 35vh !important;"></canvas>
+    </div>
+  </div>
+</div>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js"></script>
+
+<script>
+    const ctx = document.getElementById('ageBar');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['18-24', '25-30', '30-45', '45-60', '60+'],
+            datasets: [{ data: [25, 10, 12, 5, 4, 0], label: "Age Categories", borderWidth: 1}]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>

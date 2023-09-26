@@ -27,12 +27,10 @@
       </div>
     </div>
     <div class="col text-end">
-      <button id="showModal" class="btn btn-primary">
-        Add Task
-      </button>
-      <button class="btn btn-success">
-        Submit Timesheet
-      </button>
+      <%= link_to "Add Task", new_time_sheet_task_path(time_sheet: @timesheet.id), class: "btn btn-primary",
+                  data: { turbo_frame: "remote_modal" } %>
+      <%= link_to "Submit Timesheet", new_time_sheet_task_path, class: "btn btn-success",
+                  data: { turbo_frame: "remote_modal" } %>
     </div>
   </div>
 </div>

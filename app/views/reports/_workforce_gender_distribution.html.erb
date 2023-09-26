@@ -1,0 +1,33 @@
+<div class="card h-100">
+  <div class="card-body p-2">
+    <h6>Workforce Gender Rate</h6>
+    <div class="text-center">
+      <canvas id="genderPie" style="height: 35vh !important;"></canvas>
+    </div>
+  </div>
+</div>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js"></script>
+
+<script>
+
+    new Chart(document.getElementById("genderPie"), {
+        type : 'doughnut',
+        data : {
+            labels : [ "Male", "Female", "Other"],
+            datasets : [ {
+                data : [ <%= (@gender_summary["Male"] || 0) %>, <%= (@gender_summary["Female"] || 0) %>,
+                    <%= (@gender_summary["Other"] || 0 ) %>]
+            } ]
+        },
+        options : {
+            responsive: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>

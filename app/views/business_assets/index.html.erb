@@ -46,7 +46,12 @@
           <td><%= "#{asset.make} #{asset.model}"%></td>
           <td><%= asset.serial_number %></td>
           <td><%= asset.location %></td>
-          <td><%= link_to "View", "business_assets/#{asset.id}", data: { turbo_frame: "remote_model"} %> Request Edit</td>
+          <td>
+            <%= link_to image_tag("/assets/info.png"), "business_assets/#{asset.id}", data: { turbo_frame: "remote_model"}%>
+            <%= link_to image_tag("/assets/edit.png"), "business_assets/#{asset.id}/edit", data: { turbo_frame: "remote_model"} %>
+            <%= link_to image_tag("/assets/delete.png"), "business_assets/#{asset.id}", data: { turbo_frame: "remote_model"} %>
+            <%= link_to image_tag("/assets/request.png"), "business_assets/#{asset.id}", data: { turbo_frame: "remote_model"} %>
+          </td>
         </tr>
       <% end %>
     </tbody>
