@@ -1,3 +1,27 @@
-<nav class="breadcrumb is-medium pt-2" aria-label="breadcrumbs">
-  Application Dashboard
-</nav>
+<div class="row">
+    <p class="h3">Application Dashboard</p>
+</div>
+
+<div class="row mt-2" style="height: 40vh;">
+  <div class="col col-4">
+    <%= render partial: "reports/workforce_gender_distribution" %>
+  </div>
+  <div class="col col-4">
+    <%= render partial: "reports/workforce_age_distribution" %>
+  </div>
+  <div class="col col-4">
+    <%= render partial: "project_tasks/upcoming_deadlines" %>
+  </div>
+</div>
+
+<div class="row mt-4" style="height: 40vh;">
+  <div class="col">
+    <%= render partial: "reports/workforce_type_distribution" %>
+  </div>
+  <div class="col">
+    <%= render partial: "reports/workforce_retention_distribution" %>
+  </div>
+  <div class="col">
+    <%= render partial: "projects/current_projects" %>
+  </div>
+</div>

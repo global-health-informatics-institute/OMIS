@@ -2,6 +2,16 @@ class TimesheetsController < ApplicationController
   def index
   end
 
+  def new
+  end
+
+  def create
+  end
+
+  def edit
+  end
+  def update
+  end
   def show
     if !params[:period].nil?
       @timesheet = Timesheet.where(timesheet_week: params[:period], employee_id: current_user.employee_id).first_or_create
