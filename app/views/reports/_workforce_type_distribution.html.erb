@@ -1,0 +1,29 @@
+<div class="card h-100">
+  <div class="card-body p-2">
+    <h6>Workforce Type Distribution</h6>
+    <div class="text-center">
+      <canvas id="typeBar" style="height: 35vh !important;"></canvas>
+    </div>
+  </div>
+</div>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js"></script>
+
+<script>
+    const ctxType = document.getElementById('typeBar');
+    new Chart(ctxType, {
+        type: 'bar',
+        data: {
+            labels: ['Full-time', 'Part-time', 'Internship', 'Volunteers'],
+            datasets: [{ data: [25, 10, 12, 5], label: "Employment Types", borderWidth: 1}]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>

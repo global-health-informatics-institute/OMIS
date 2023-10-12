@@ -8,14 +8,12 @@
     </tr>
     <tr>
       <td>Day</td>
-
       <% (0..(@last_day-1)).each do |i| %>
-        <td><%= Date.today.beginning_of_month.advance(days: i).strftime("%a") %></td>
+        <td><%= @first_day.beginning_of_month.advance(days: i).strftime("%a") %></td>
       <% end %>
     </tr>
     <tr>
       <td>Date</td>
-
       <% (1..@last_day).each do |i| %>
         <td class="text-center"><%= i %></td>
       <% end %>
@@ -25,9 +23,8 @@
     <% (@daily_summary || []).each do |project, summary| %>
       <tr>
         <th><%= Project.find(project).short_name %></th>
-
         <% (1..@last_day).each do |i| %>
-          <td><%= (summary[i] || '-' ) %></td>
+          <td><%= (summary[i].blank? ? '-' : summary[i].floor(2) ) %></td>
         <% end %>
       </tr>
     <% end %>

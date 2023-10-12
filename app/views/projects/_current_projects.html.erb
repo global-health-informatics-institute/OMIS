@@ -1,0 +1,23 @@
+<div class="card h-100">
+  <div class="card-body p-2">
+    <h6 class="card-title">Current Projects</h6>
+    <table class="table m-0">
+      <thead>
+      <tr>
+        <th>Donor</th>
+        <th>Project Name</th>
+        <th>Next Activity</th>
+      </tr>
+      </thead>
+      <tbody>
+        <% (@project || []).each do |project| %>
+          <tr>
+            <td><%= project.donor %>></td>
+            <td><%= project.short_name %>></td>
+            <td><%= project.next_deadline %>></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
