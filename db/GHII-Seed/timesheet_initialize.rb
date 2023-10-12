@@ -2,18 +2,18 @@ require 'csv'
 def main
   # frozen_string_literal: true
 
-  CSV.foreach("#{Rails.root}/db/GHII-Seed/precompiled_ghii_recovered.csv",:headers=>:true) do |row|
-    puts "#{row[0].split( " ")[0].strip} #{row[0].split( " ")[1].strip} #{row[1]}"
-    employee = Person.where(first_name: row[0].split( " ")[0].strip,
-                            last_name: row[0].split( " ")[1].strip).first.employee
+  CSV.foreach("#{Rails.root}/db/GHII-Seed/GHII_Timesheet_Raw.csv",:headers=>:true) do |row|
+    puts "#{row[0].split( " ")[0].strip} #{row[0].split( " ")[1].strip} #{row[1]} #{row[3]}"
+    employee = Person.where(first_name: row[0].split( " ")[0].strip.titlecase,
+                            last_name: row[0].split( " ")[1].strip.titlecase).first.employee
 
     day = fix_date(row[1])
-    puts day
+
     timesheet = Timesheet.where(employee_id: employee.id, submitted_on: fix_date(row[2]),
                                 timesheet_week: day.beginning_of_week).first_or_create
 
     (0..6).each do |col|
-      next if row[col+5].nil?
+      next if (row[col+5].nil? || row[col+5] == 0)
       prj = Project.where("(short_name = '#{row[3]}') OR (project_name = '#{row[3]}')").first.id
 
       TimesheetTask.create(task_date: day.advance(:days => col),project_id: prj ,
@@ -37,9 +37,6 @@ def main
 end
 
 def fix_date(day)
-  day = day.to_s.rjust(8,"0")
-  day = "#{day[0..1]}/#{day[2..3]}/#{day[4..7]}"
-
   return Date.parse(day)
 end
 

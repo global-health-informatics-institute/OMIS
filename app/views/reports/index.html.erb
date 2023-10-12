@@ -7,9 +7,10 @@
     </div>
     <div class="col">
       <select class="form-select">
-        <option>Asset Status</option>
-        <option>Monthly LOE Report</option>
         <option>HR Report</option>
+        <option>Asset Status</option>
+        <option>Monthly Individual LOE Report</option>
+        <option>Monthly Organization LOE Report</option>
         <option>Project Progress Report</option>
       </select>
     </div>
@@ -21,5 +22,6 @@
 </div>
 
 <div class="border p-2 mt-2">
+  <%= render partial: "employee_monthly_timesheet_summary" %>
   <%= turbo_frame_tag "report_modal", target: "_top" %>
 </div>

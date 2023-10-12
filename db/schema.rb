@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_09_17_175715) do
+ActiveRecord::Schema[7.0].define(version: 2023_09_27_095336) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -95,6 +95,16 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_17_175715) do
     t.date "#<ActiveRecord::ConnectionAdapters::PostgreSQL::TableDefinition"
   end
 
+  create_table "leave_summaries", primary_key: "leave_summary_id", force: :cascade do |t|
+    t.integer "leave_type_id", null: false
+    t.integer "employee_id", null: false
+    t.float "leave_days_total", null: false
+    t.float "leave_days_balance", null: false
+    t.integer "financial_year", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "people", primary_key: "person_id", force: :cascade do |t|
     t.string "first_name", null: false
     t.string "middle_name"
@@ -117,7 +127,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_17_175715) do
   create_table "project_task_assignments", primary_key: "project_task_assignment_id", force: :cascade do |t|
     t.integer "project_task_id", null: false
     t.integer "assigned_to", null: false
-    t.decimal "duration"
     t.boolean "revoked", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -138,6 +147,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_17_175715) do
   create_table "project_teams", primary_key: "project_team_id", force: :cascade do |t|
     t.integer "project_id", null: false
     t.integer "employee_id", null: false
+    t.float "allocated_effort", default: 0.0
     t.boolean "voided", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

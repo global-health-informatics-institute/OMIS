@@ -1,2 +1,0 @@
-class TimeSheet < ApplicationRecord
-end

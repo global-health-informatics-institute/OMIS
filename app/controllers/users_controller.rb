@@ -3,6 +3,10 @@ class UsersController < ApplicationController
     @users = User.all
   end
 
+  def password_reset
+
+  end
+
   private
 
   def user_params

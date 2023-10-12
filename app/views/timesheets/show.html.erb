@@ -19,18 +19,31 @@
       <div class="row">
         <div class="col col-md-8"><small class="fs-6 fw-bold text-primary">Export Timesheet</small></div>
         <div class="col col-md-2">
-          <img src="/assets/xls-file.png">
+          <%= link_to image_tag("/assets/xls-file.png"), "/timesheets/#{@timesheet.timesheet_id}.xsl"%>
         </div>
         <div class="col col-md-2">
-          <img src="/assets/pdf.png">
+          <%= link_to image_tag("/assets/pdf.png"), "/timesheets/#{@timesheet.timesheet_id}.pdf"%>
         </div>
       </div>
     </div>
     <div class="col text-end">
-      <%= link_to "Add Task", new_time_sheet_task_path(time_sheet: @timesheet.id), class: "btn btn-primary",
-                  data: { turbo_frame: "remote_modal" } %>
-      <%= link_to "Submit Timesheet", new_time_sheet_task_path, class: "btn btn-success",
-                  data: { turbo_frame: "remote_modal" } %>
+      <% if (@timesheet.status == "Pending Submit") && (@timesheet.employee_id == current_user.employee_id) %>
+        <%= link_to "Add Task", new_time_sheet_task_path(time_sheet: @timesheet.id), class: "btn btn-primary",
+                    data: { turbo_frame: "remote_modal" } %>
+        <%= link_to "Submit Timesheet", "/timesheets/#{ @timesheet.id}/submit_timesheet", class: "btn btn-success",method: :put,
+                    data: { turbo_method: :put, turbo_confirm: "Are you sure?" } %>
+      <% elsif @timesheet.status == "Pending Approval" %>
+        <% if @timesheet.employee_id == current_user.employee_id %>
+          <%= link_to "Recall Timesheet", "/timesheets/#{ @timesheet.id}/recall_timesheet", class: "btn btn-info",method: :put,
+                      data: { turbo_method: :put, turbo_confirm: "Are you sure you want to recall this timesheet?" } %>
+        <% else %>
+          <%= link_to "Approve Timesheet", "/timesheets/#{ @timesheet.id}/approve_timesheet", class: "btn btn-success",method: :put,
+                      data: { turbo_method: :put, turbo_confirm: "Are you sure you want to approve this timesheet?" } %>
+          <%= link_to "Reject Timesheet", "/timesheets/#{ @timesheet.id}/reject_timesheet", class: "btn btn-danger",method: :put,
+                      data: { turbo_method: :put, turbo_confirm: "Are you sure you want to reject this timesheet?" } %>
+        <% end %>
+      <% end %>
+
     </div>
   </div>
 </div>
@@ -47,6 +60,7 @@
     </thead>
     <tbody>
     <% week_total = Hash.new(0.0) %>
+
     <% (@records || []).each do |k, v| %>
       <tr>
         <th rowspan="<%= (v.keys.length + 1) %>">
@@ -147,21 +161,6 @@
         picker.addEventListener('change', checkNewDate);
     }
 
-    var btn = document.querySelector('#showModal');
-    var closeBtn = document.getElementById('close');
-    var modalDlg = document.querySelector('#image-modal');
-    var imageModalCloseBtn = document.querySelector('#image-modal-close');
-    btn.addEventListener('click', function(){
-        modalDlg.classList.add('is-active');
-    });
-
-    imageModalCloseBtn.addEventListener('click', function(){
-        modalDlg.classList.remove('is-active');
-    });
-
-    closeBtn.addEventListener('click', function(){
-        modalDlg.classList.remove('is-active');
-    });
 
     setTimeout('onLoad()', 3000)
 </script>

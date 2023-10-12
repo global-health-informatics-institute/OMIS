@@ -13,6 +13,9 @@ def main
   # Initialize Projects
   initialize_projects
 
+  # Initialize Projects
+  initialize_project_loe
+
   # Initialize Assets
   initialize_assets
 
@@ -118,6 +121,7 @@ end
 
 def initialize_assets
 
+  puts "Adding Assets"
   categories = {"Heavy Machinery": "Stationary devices used to perform or facilitate manual or mechanical work", 
     "Tools": "Any portable implement used to perform or facilitate manual or mechanical work", 
     "Electronic Device": "A digital implement designed to execute specific tasks", 
@@ -129,10 +133,27 @@ def initialize_assets
   end
 
   CSV.foreach("#{Rails.root}/db/GHII-Seed/ghii_assets.csv",:headers=>:true) do |row|
-    puts row[7]
     Asset.create(tag_id: row[6] , description: row[0], make: row[1], model: row[2],
                  serial_number: row[3], location: row[5], value: row[4],status: "Current",
                  asset_category_id: AssetCategory.find_by_category(row[7]).id)
+  end
+end
+
+def initialize_project_loe
+  headers = CSV.foreach("#{Rails.root}/db/GHII-Seed/project_loe.csv").first
+
+  CSV.foreach("#{Rails.root}/db/GHII-Seed/project_loe.csv",:headers=>:true) do |row|
+
+    person = Person.where(first_name: row[0].split(" ")[0].strip,
+                           last_name: row[0].split(" ")[1].strip).first
+    puts row[0]
+    (1..(headers.length-1)).each do |i|
+      if !row[i].blank?
+        project = Project.find_by_project_name(headers[i])
+        ProjectTeam.create(project_id: project.project_id, employee_id: person.employee.employee_id, allocated_effort: row[i] )
+      end
+    end
+
   end
 end
 

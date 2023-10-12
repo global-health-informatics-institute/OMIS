@@ -1,2 +1,0 @@
-class TimeSheetTask < ApplicationRecord
-end
