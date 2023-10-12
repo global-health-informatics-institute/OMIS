@@ -19,23 +19,29 @@
       </div>
     </div>
   </div>
-  <div class="col-sm-4">
-    <div class="card h-100">
+  <div class="col-sm-5">
+    <div class="card">
       <div class="card-body p-2">
-        <h6 class="card-title">Level Of Effort</h6>
-        <table class="table table-bordered p-0 m-0">
+        <div class="row">
+          <div class="col">
+            <h6 class="card-title">Level Of Effort</h6>
+          </div>
+          <div class="col text-end">
+            <%= link_to "View Timesheet", timesheet_path(@current_timesheet) %>
+          </div>
+        </div>
+        <table class="table table-bordered p-0 m-0 h-75">
          <tr>
           <td>
             Target
-            <canvas id="loeTargetPie" style="height: 10vh !important; width: 5vw;margin-left: auto; margin-right: auto;"></canvas>
+            <canvas id="loeTargetPie" style="height: 20vh !important; width: 10vw;margin-left: auto; margin-right: auto;"></canvas>
           </td>
           <td>
             Current
-            <canvas id="loeActualPie" style="height: 10vh !important; width: 5vw;margin-left: auto; margin-right: auto;"></canvas>
+            <canvas id="loeActualPie" style="height: 20vh !important; width: 10vw;margin-left: auto; margin-right: auto;"></canvas>
           </td>
         </tr>
         </table>
-        <%= link_to "View Timesheet", timesheet_path(@current_timesheet) %>
       </div>
     </div>
   </div>
@@ -48,25 +54,15 @@
               <tr>
                 <th>Date</th>
                 <th>Task</th>
-                <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(deadline, index) in deadlines" :key="index">
-                <td>1 Oct 2023</td>
-                <td>Task A</td>
-                <td>Action</td>
-              </tr>
-              <tr v-for="(deadline, index) in deadlines" :key="index">
-                <td>1 Oct 2023</td>
-                <td>Task A</td>
-                <td>Action</td>
-              </tr>
-              <tr v-for="(deadline, index) in deadlines" :key="index">
-                <td>1 Oct 2023</td>
-                <td>Task A</td>
-                <td>Action</td>
-              </tr>
+              <% (@upcoming_deadlines || []).each do |task| %>
+                <tr>
+                  <td><%= task.deadline.strftime('%d %B') %></td>
+                  <td><%= task.task_description %>></td>
+                </tr>
+              <% end %>
             </tbody>
         </table>
       </div>
@@ -150,12 +146,13 @@
 
 <script>
 
+  var labels = "<%= @project_names.collect { |x| x.short_name }.join(",") %>"
   new Chart(document.getElementById("loeTargetPie"), {
       type : 'doughnut',
       data : {
-          labels : [ "MEDU", "SINTHA-MW", "Oxygen Alliance", "GHII"],
+          labels : labels.split(','),
           datasets : [ {
-              data : [ 50, 30, 10, 10]
+              data : <%= @loe_targets.collect { |x| (x.allocated_effort * 100) }.to_s %>
           } ]
       },
       options : {
@@ -167,12 +164,13 @@
           }
       }
   });
+  var currLabels = "<%= @current_prj_names.collect { |x| x.short_name }.join(",") %>"
   new Chart(document.getElementById("loeActualPie"), {
       type : 'doughnut',
       data : {
-          labels : [ "MEDU", "SINTHA-MW", "Oxygen Alliance", "GHII"],
+          labels : currLabels.split(','),
           datasets : [ {
-              data : [ 20, 40, 30, 5 ]
+              data : <%= @loe_current.collect { |x| (x.duration) }.to_s %>
           } ]
       },
       options : {

@@ -1,0 +1,35 @@
+<table class="table">
+  <thead class="table-secondary">
+    <tr>
+      <td>Project</td>
+      <% (1..@num_of_weeks).each do |week| %>
+        <td class="text-center" colspan="7"><%= "#{week.ordinalize} Week"%></td>
+      <% end %>
+    </tr>
+    <tr>
+      <td>Day</td>
+
+      <% (0..(@last_day-1)).each do |i| %>
+        <td><%= Date.today.beginning_of_month.advance(days: i).strftime("%a") %></td>
+      <% end %>
+    </tr>
+    <tr>
+      <td>Date</td>
+
+      <% (1..@last_day).each do |i| %>
+        <td class="text-center"><%= i %></td>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <% (@daily_summary || []).each do |project, summary| %>
+      <tr>
+        <th><%= Project.find(project).short_name %></th>
+
+        <% (1..@last_day).each do |i| %>
+          <td><%= (summary[i] || '-' ) %></td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

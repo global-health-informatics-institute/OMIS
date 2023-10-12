@@ -1,5 +1,5 @@
 ﻿Number,First Name,Middle Name,Last Name,DOB,Gender,Position,Date Joined,Department,Supervisor,Marital Status,Departure Date,Contract End
-1,Angela,Chifundo,Chindevu,1986/03/22,Female,Human Resources & Administrative Officer,3 January 2023,Finance & Administration,Mvula,Single,,
+1,Angela,Chifundo,Chindebvu,1986/03/22,Female,Human Resources & Administrative Officer,3 January 2023,Finance & Administration,Mvula,Single,,
 2,Aubrey,,Chinkunda,1998-02-08,Male,Team Leader,01 October 2021,Programs,Lungu,Single,,
 3,Beatrice,,Matambo,1986/05/29,Female,Data Analyst,28 November 2022,Programs,Nkhoma,Single,,
 4,Blessings,,Chidambe,1993/11/29,Male,Software Engineer,28 November 2022,Programs,Namagonya,Married,6 September 2023,
@@ -10,7 +10,7 @@
 9,Dereck,,Katuli,1995/12/29,Male,Data Analyst,28 November 2022,Programs,Nkhoma,Single,,
 10,Dokiso,,Makwawa,1985/06/23,Male,Driver,26 September 2022,Finance & Administration,Kadzakumanja,Married,,
 11,Timothy,Mayamiko,Mtonga,1991/09/11,Male,Director,26 January 2022,Finance & Administration,,Married,,
-12,Elizabeth,Towela,Nthapala,1999/01/25,Female,Engineering Intern,11 April 2023,Programs,Lungu,Single,,10 October 2023
+12,Elizabeth,Towela,Nthapalapa,1999/01/25,Female,Engineering Intern,11 April 2023,Programs,Lungu,Single,,10 October 2023
 13,Emmanuel,,Chauya,1994/01/03,Male,Oxygen Alliance Technician,3 April 2023,Programs,Lungu,Single,25 August 2023,2 April 2024
 14,Eunice,,Msiska,1999/01/21,Female,Engineering Intern,10 October 2022,Programs,Lungu,Single,28 April 2023,28 April 2023
 15,Evance,,Mose,1995/05/19,Male,Jnr Applications Developer,27 June 2022,Programs,Sinjani,Single,31 January 2023,
@@ -19,7 +19,7 @@
 18,Goodluck,Halord,Banda,1996/02/19,Male,Engineering Intern,11 April 2023,Programs,Lungu,Single,,10 October 2023
 19,Grace,Favour,Bwanali,1996/02/09,Female,Engineering Intern,11 April 2023,Programs,Lungu,Single,25 August 2023,10 October 2023
 20,Innocent,,Kumwenda,1999/03/16,Male,Jnr Applications Developer,22 November 2022,Programs,Sinjani,Single,,
-21,Israel,,Ng`ambi,1999/05/01,Male,Informatics Intern,19 June 2023,Programs,Sinjani,Single,25 August 2023,18 December 2023
+21,Israel,,Ghambi,1999/05/01,Male,Informatics Intern,19 June 2023,Programs,Sinjani,Single,25 August 2023,18 December 2023
 22,John,,Abudul,1973/04/05,Male,Driver,01 November 2021,Finance & Administration,Kadzakumanja,Married,,
 23,Joseph,,Sakala,1987/10/01,Male,M & E Officer,20 February 2023,Programs,Mtonga,Married,22 May 2023,19 February 2024
 24,Kelvin,,Msiska,2000/07/01,Male,Data Analyst,28 November 2022,Programs,Lungu,Single,,
@@ -45,4 +45,5 @@
 44,Foster,,Sentala,1997/07/28,Male,Oxygen Alliance Technician,3 July 2023,Programs,Lungu,Single,,2 July 2024
 45,Lloyd,,Kayembe,1999/06/29,Male,Oxygen Alliance Technician,21 August 2023,Programs,Lungu,Single,,31 July 2023
 46,Yusuf,Joseph,Mtila,1993/01/20,Male,M & E Officer,6 June 2023,Research & Evaluation,Mtonga,Married,,
-,Julius,,Chimphampa,1999/09/29,Male,Industrial Attache,3 July 2023,Programs,Lungu,Single,,
+47,Julius,,Chimphampa,1999/09/29,Male,Industrial Attache,3 July 2023,Programs,Lungu,Single,,
+48,Brenda,,Luhanga,2000/03/17,Female,Industrial Attache,18 January 2023,Programs,Lungu,Single,,

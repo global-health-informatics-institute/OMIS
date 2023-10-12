@@ -9,7 +9,11 @@ class UserSessionsController < ApplicationController
     
     if @user && @user.authenticate(params[:user][:password])
       session[:user_id] = @user.id
-      redirect_to root_path
+      if @user.reset_needed
+        redirect_to "/users/#{@user.user_id}/password_reset"
+      else
+        redirect_to root_path
+      end
     else
       flash[:alert] = "Login failed"
       redirect_to new_user_session_path

@@ -13,6 +13,11 @@ Rails.application.routes.draw do
   resources :project_task_assignments
   resources :user_sessions, only: [:new, :create, :destroy]
 
+  put 'timesheets/:id/submit_timesheet', to: 'timesheets#submit_timesheet'
+  put 'timesheets/:id/approve_timesheet', to: 'timesheets#approve_timesheet'
+  put 'timesheets/:id/reject_timesheet', to: 'timesheets#recall_timesheet'
+  put 'timesheets/:id/recall_timesheet', to: 'timesheets#recall_timesheet'
+
   get 'settings/index'
   get 'settings/new'
   get 'settings/create'
@@ -28,6 +33,8 @@ Rails.application.routes.draw do
   get 'reports/create'
   get 'reports/edit'
   get 'users/index'
+  get 'users/:id/password_reset', to: 'users#password_reset'
+  put 'users/:id/password_reset', to: 'users#password_reset'
   get 'main/home'
 
   get "logout", to: "user_sessions#destroy"

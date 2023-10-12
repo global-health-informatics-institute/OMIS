@@ -15,6 +15,11 @@ gem 'bcrypt', '~> 3.1.7'
 
 gem "pg"
 
+gem "spreadsheet"
+
+gem "prawn"
+
+gem "prawn-table"
 # Use sqlite3 as the database for Active Record
 #gem "sqlite3", "~> 1.4"
 
