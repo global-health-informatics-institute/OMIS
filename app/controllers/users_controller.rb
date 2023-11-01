@@ -4,7 +4,10 @@ class UsersController < ApplicationController
   end
 
   def password_reset
-
+    if request.method.to_s == "POST"
+      user = User.find(params[:id]).update(password: params[:user][:password], reset_needed: false)
+      redirect_to "/"
+    end
   end
 
   private

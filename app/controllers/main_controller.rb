@@ -33,7 +33,8 @@ class MainController < ApplicationController
 
     else
       employees = Employee.where(still_employed: true)
-      @gender_summary = Person.where(person_id: employees.collect{|x| x.person_id}).group(:gender).count
+      people = employees.collect{|x| x.person_id}
+      @gender_summary, @age_summary = helpers.categorize_employees(Person.where(person_id: people))
       @upcoming_deadlines = ProjectTask.where.not(task_status: "Complete")
     end
   end

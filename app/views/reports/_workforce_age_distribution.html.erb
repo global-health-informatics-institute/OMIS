@@ -15,8 +15,11 @@
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['18-24', '25-30', '30-45', '45-60', '60+'],
-            datasets: [{ data: [25, 10, 12, 5, 4, 0], label: "Age Categories", borderWidth: 1}]
+            labels: ['18-24', '25-29', '30-44', '45-60', '60+'],
+            datasets: [{ data: [<%= (@age_summary['18-24'] || 0)%>,<%= (@age_summary['25-29'] || 0)%>,
+                    <%= (@age_summary[ '30-44'] || 0) %>, <%= (@age_summary['45-60'] || 0)%>,
+                    <%= (@age_summary['60+'] || 0)%>],
+                label: "Age Categories", borderWidth: 1}]
         },
         options: {
             scales: {
