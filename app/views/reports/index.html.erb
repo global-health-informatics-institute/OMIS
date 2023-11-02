@@ -16,12 +16,12 @@
     </div>
     <div class="col">
       <%= link_to "Generate Report", new_business_asset_path, class: "btn btn-success",
-                  data: { turbo_frame: "remote_modal" } %>
+                  data: { turbo_frame: "report_content" } %>
     </div>
   </div>
 </div>
 
 <div class="border p-2 mt-2">
-  <%= render partial: "employee_monthly_timesheet_summary" %>
-  <%= turbo_frame_tag "report_modal", target: "_top" %>
+  <%#= render partial: "employee_monthly_timesheet_summary" %>
+  <%= turbo_frame_tag "report_content", target: "_top" %>
 </div>
