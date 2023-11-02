@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col">
-    <p class="h3">Personal Dashboard</p>
+    <p class="h4">Personal Dashboard</p>
   </div>
   <div class="col text-end">
     Welcome <%= @person.first_name %>!
@@ -10,7 +10,7 @@
 <div class="row">
   <div class="col-sm-3">
     <div class="card h-100">
-      <div class="card-body">
+      <div class="card-body p-2">
         <h5 class="card-title text-dark" id="empName"><%= @person.full_name %></h5>
         <p><small class="fs-6 fst-italic" id="role"><%= @employee.current_position %></small></p>
         <p><%= @employee.current_department %></p>
@@ -75,7 +75,6 @@
       <div class="card-header card-header-dark">
       <nav>
         <div class="nav nav-tabs " id="nav-tab" role="tablist">
-          <button class="nav-link active" id="nav-timeSheet-tab" data-bs-toggle="tab" data-bs-target="#nav-timeSheet" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Time Sheet</button>
           <button class="nav-link" id="nav-requisition-tab" data-bs-toggle="tab" data-bs-target="#nav-requisition" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Requisitions</button>
           <button class="nav-link" id="nav-assignedTasks-tab" data-bs-toggle="tab" data-bs-target="#nav-assignedTasks" type="button" role="tab" aria-controls="nav-assignedTasks" aria-selected="false">Assigned Tasks</button>
           <button class="nav-link" id="nav-project-tab" data-bs-toggle="tab" data-bs-target="#nav-project" type="button" role="tab" aria-controls="nav-project" aria-selected="true">Projects</button>
@@ -85,9 +84,6 @@
       </div>
       <div class="card-body">
         <div class="tab-content" id="nav-tabContent">
-          <div class="tab-pane fade show active" id="nav-timeSheet" role="tabpanel" aria-labelledby="nav-timeSheet-tab">
-            <%= render partial: 'timesheets/time_sheet_summary' %>
-          </div>
           <div class="tab-pane fade" id="nav-requisition" role="tabpanel" aria-labelledby="nav-requisition-tab">
             <h3>Requisitions</h3>
             <p>Paris is the capital of France.</p>
@@ -111,7 +107,7 @@
     </div>
   </div>
   <div class="col-sm-2">
-    <div class="card p-2">
+    <div class="card p-2 h-75">
       <h6 class="is-primary">Key Performance Indicators</h6>
       <div class="tableContainer">
         <div class="box m-1">
@@ -141,8 +137,6 @@
       font-size: medium;
   }
 </style>
-<script
-  src="https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js"></script>
 
 <script>
 

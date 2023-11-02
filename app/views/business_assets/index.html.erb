@@ -31,7 +31,6 @@
         <th><abbr title="Lost">Asset ID</abbr></th>
         <th><abbr title="Lost">Category</abbr></th>
         <th><abbr title="Goals for">Description </abbr></th>
-        <th><abbr title="Goals against">Make & Model</abbr></th>
         <th><abbr title="Goal difference">Serial Num.</abbr></th>
         <th><abbr title="Points">Location</abbr></th>
         <th>Action</th>
@@ -43,7 +42,6 @@
           <td><%= asset.tag_id %></td>
           <td><%= @categories[asset.asset_category_id] %></td>
           <td><%= asset.description %></td>
-          <td><%= "#{asset.make} #{asset.model}"%></td>
           <td><%= asset.serial_number %></td>
           <td><%= asset.location %></td>
           <td>

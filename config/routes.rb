@@ -36,6 +36,7 @@ Rails.application.routes.draw do
   get 'users/:id/password_reset', to: 'users#password_reset'
   put 'users/:id/password_reset', to: 'users#password_reset'
   get 'main/home'
+  get 'about', to: 'main#about'
 
   get "logout", to: "user_sessions#destroy"
   resources :asset_categories
