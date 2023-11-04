@@ -1,8 +1,56 @@
 class ReportsController < ApplicationController
   def index
     #@current_timesheet.timesheet_tasks.select("project_id, task_date, sum(duration) as duration").group('project_id, task_date')
-    start_day = Date.parse("1-Sep-2023").beginning_of_month
-    end_day = Date.parse("1-Sep-2023").end_of_month
+
+  end
+
+  def show
+    @selected_report = params["report_type"]
+    case @selected_report
+    when 'HR'
+      hr_report()
+    when 'Assets'
+      assets_report
+    when 'Employee LOE'
+      monthly_employee_loe_report()
+    when 'Org LOE'
+      monthly_employee_loe_report
+    when 'Project Report'
+      project_progress_report
+    end
+  end
+  def new
+  end
+
+  def create
+  end
+
+  def edit
+  end
+
+  private
+  def monthly_loe_report
+
+  end
+  def assets_report
+
+  end
+  def hr_report
+
+  end
+
+  def project_progress_report
+
+  end
+  def monthly_employee_loe_report
+    if params[:employee].blank?
+      @person = Employee.find(current_user.employee_id)
+    else
+      @person = Employee.find(params[:employee])
+    end
+
+    start_day = Date.parse(params[:datetime_ida]).beginning_of_month
+    end_day = Date.parse(params[:datetime_ida]).end_of_month
     @num_of_weeks = (end_day.strftime("%W").to_i - start_day.strftime("%W").to_i)+1
     sheets = Timesheet.where("employee_id = ? and timesheet_week between ? and ?",
                              current_user.employee_id, start_day.advance(weeks: -1), end_day)
@@ -23,15 +71,5 @@ class ReportsController < ApplicationController
         @daily_summary[record.project_id][record.task_date.day] = (check.blank? ? record.duration.to_f.floor(2) : (check + record.duration.to_f.floor(2)))
       end
     end
-
-  end
-
-  def new
-  end
-
-  def create
-  end
-
-  def edit
   end
 end

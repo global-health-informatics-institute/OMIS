@@ -38,6 +38,8 @@ Rails.application.routes.draw do
   get 'main/home'
   get 'about', to: 'main#about'
 
+  get "generate_report", to: 'reports#show', as: "generate_report", defaults: { format: :turbo_stream }
+
   get "logout", to: "user_sessions#destroy"
   resources :asset_categories
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
