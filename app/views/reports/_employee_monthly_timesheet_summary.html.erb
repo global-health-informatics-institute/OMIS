@@ -1,3 +1,18 @@
+
+<div class="row">
+  <div class="col-5">
+    <span class="fs-6 fw-bold">Employee: </span> <%= @person.person.full_name %><br/>
+    <span class="fs-6 fw-bold">Role: </span> <%= @person.current_position %>
+  </div>
+  <div class="col-4">
+    <span class="fs-6 fw-bold">Period: </span> <%= @first_day %><br/>
+    <span class="fs-6 fw-bold">Status: </span> <%#= @timesheet.status %>
+  </div>
+  <div class="col-3">
+    <input type="date" class="form-control" id="period">
+  </div>
+</div>
+
 <table class="table">
   <thead class="table-secondary">
     <tr>

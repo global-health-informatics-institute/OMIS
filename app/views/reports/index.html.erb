@@ -1,27 +1,32 @@
 <p class="h5 ">Reports Center</p>
 <div class="border p-2">
   <h6>Report Specification</h6>
-  <div class="row pt-2 pb-2">
-    <div class="col fs-5 fw-bold">
-      Report Type:
+  <%= form_tag(generate_report_path, method: "GET") do %>
+    <div class="row pt-2 pb-2">
+      <div class="col-2 fs-5 fw-bold">
+        Report Type:
+      </div>
+      <div class="col">
+        <%= select_tag(:report_type, options_for_select(select_report), class: "form-select") %>
+      </div>
+      <div class="col-2 fs-5 fw-bold">
+        Report Period:
+      </div>
+      <div class="col">
+        <%= date_field_tag(:datetime_ida, Date.today)%>
+      </div>
+      <div class="col-2">
+        <%= submit_tag("Generate Report", class: "btn btn-success") %>
+      </div>
     </div>
-    <div class="col">
-      <select class="form-select">
-        <option>HR Report</option>
-        <option>Asset Status</option>
-        <option>Monthly Individual LOE Report</option>
-        <option>Monthly Organization LOE Report</option>
-        <option>Project Progress Report</option>
-      </select>
-    </div>
-    <div class="col">
-      <%= link_to "Generate Report", new_business_asset_path, class: "btn btn-success",
-                  data: { turbo_frame: "report_content" } %>
-    </div>
-  </div>
+  <% end %>
 </div>
 
 <div class="border p-2 mt-2">
   <%#= render partial: "employee_monthly_timesheet_summary" %>
-  <%= turbo_frame_tag "report_content", target: "_top" %>
+  <%= turbo_stream_from "reports" %>
+
+  <div id="report_content">
+    <%= render partial: "show" %>
+  </div>
 </div>
