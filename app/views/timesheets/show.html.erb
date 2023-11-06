@@ -149,12 +149,10 @@
     {
         const newDate = new Date(picker.value);
         const dateDifference = parseInt((currentDate - newDate) / (1000 * 60 * 60 * 24));
-        console.log(dateDifference);
         if((dateDifference > 0) || (dateDifference < -6))
         {
             window.location = "/timesheets/show?period=" + picker.value
         }
-
     }
 
     function onLoad(){
