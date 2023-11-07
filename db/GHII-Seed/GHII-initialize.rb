@@ -40,7 +40,7 @@ def add_designations(dept_id, dept_name)
                             'Technician Assistant', 'Engineering Intern', 'Applications Development Intern',
                             'Informatics Intern', 'Jnr Applications Developer', 'Applications Developer',
                              'Engineering Volunteer','Industrial Attache', 'Senior Applications Developer',
-                             'Data Access Center Lead', 'Systems Architecture Lead', 'Data Analyst',
+                             'Data Access Center Lead', 'Systems Architecture Lead', 'Data Analyst','Volunteer Intern',
                              'Program Specialist', 'Software Engineer', 'Oxygen Alliance Technician'],
                 'Research & Evaluation'=>['Research & Evaluation Lead','Product Owner', 'Product Development Manager',
                                          'M & E Manager','Mechanical Engineering Intern','Product Developer' ,

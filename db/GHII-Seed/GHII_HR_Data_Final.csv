@@ -1,5 +1,5 @@
 ﻿Number,First Name,Middle Name,Last Name,DOB,Gender,Position,Date Joined,Department,Supervisor,Marital Status,Departure Date,Contract End
-1,Angela,Chifundo,Chindebvu,1986/03/22,Female,Human Resources & Administrative Officer,3 January 2023,Finance & Administration,Mvula,Single,,
+1,Angela,Chifundo,Chindebvu,1986/03/22,Female,Human Resources & Administrative Officer,3 January 2023,Finance & Administration,Mvula,Single,4 November 2023,
 2,Aubrey,,Chinkunda,1998-02-08,Male,Team Leader,01 October 2021,Programs,Lungu,Single,,
 3,Beatrice,,Matambo,1986/05/29,Female,Data Analyst,28 November 2022,Programs,Nkhoma,Single,,
 4,Blessings,,Chidambe,1993/11/29,Male,Software Engineer,28 November 2022,Programs,Namagonya,Married,6 September 2023,
@@ -47,3 +47,5 @@
 46,Yusuf,Joseph,Mtila,1993/01/20,Male,M & E Officer,6 June 2023,Research & Evaluation,Mtonga,Married,,
 47,Julius,,Chimphampa,1999/09/29,Male,Industrial Attache,3 July 2023,Programs,Lungu,Single,,
 48,Brenda,,Luhanga,2000/03/17,Female,Industrial Attache,18 January 2023,Programs,Lungu,Single,,
+49,Cossam,,Kabaghe,,Male,Informatics Intern,11 September 2023,Programs,Sinjani,Single,,25 December 2023
+50,Hazel,,Nanchinga,,Female,Volunteer Intern,25 September,Programs,Sinjani,Single,,25 December 2023
