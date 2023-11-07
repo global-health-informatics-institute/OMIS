@@ -88,7 +88,7 @@
     <% (0..6).each do |day| %>
       <th><%= week_total[day] %></th>
     <% end %>
-    <th>Total</th>
+    <th><%= week_total.values.sum %></th>
     </tfoot>
   </table>
 </div>
