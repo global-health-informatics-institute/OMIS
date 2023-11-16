@@ -1,0 +1,15 @@
+<h4 class="modal-title">Leave Request</h4>
+<%= form_with model: @requisition, url: requisitions_new_path do |form| %>
+  <div class="row">
+
+  </div>
+  <div class="row">
+
+  </div>
+  <div class="row">
+
+  </div>
+  <hr>
+  <%= form.submit "Submit Request", class: "btn btn-success btn-block" %>
+  <button class="btn btn-danger">Cancel</button>
+<% end %>
