@@ -24,7 +24,7 @@ Rails.application.routes.draw do
   get 'settings/edit'
 
   get 'requisitions/index'
-  get 'requisitions/new'
+  get 'requisitions/new', defaults: { format: :turbo_stream }
   get 'requisitions/create'
   get 'requisitions/edit'
 

@@ -1,9 +1,44 @@
-<h1>Requisitions#index</h1>
-<p>Find me in app/views/requisitions/index.html.erb</p>
+<p class="h5 ">Requisitions Center</p>
+<div class="border p-2">
+  <div class="row p-2 pb-1">
+    <div class="card border-dark m-1 col-4">
+      <div class="card-body text-dark">
+        <h5 class="card-title">Current Requests</h5>
+        <p class="card-text">5</p>
+      </div>
+    </div>
+    <div class="card border-dark m-1 col-4" >
+      <div class="card-body text-dark">
+        <h5 class="card-title">Closed Requests</h5>
+        <p class="card-text">5</p>
+      </div>
+    </div>
+    <div class="card border-dark m-1 col-3" >
+      <div class="card-body text-dark">
+        <h5 class="card-title">Rejected Requests</h5>
+        <p class="card-text">5</p>
+      </div>
+    </div>
+  </div>
+</div>
 
-
-Petty cash
-Asset
-Purchase
-Travel
-Vacancy
+<div class="border p-2 mt-2">
+  <%= turbo_stream_from "requisitions" %>
+  <%= form_tag(requisitions_new_path, method: "GET") do %>
+    <div class="row pt-2 pb-2">
+      <div class="col-2 fs-5 fw-bold">
+        Requisition Type:
+      </div>
+      <div class="col">
+        <%= select_tag(:request_type, options_for_select(select_requisition), class: "form-select") %>
+      </div>
+      <div class="col-2">
+        <%= submit_tag("Initiate Requisition", class: "btn btn-success") %>
+      </div>
+    </div>
+  <% end %>
+  <hr/>
+  <div id="request_content">
+    <%= render partial: "requisitions/new" %>
+  </div>
+</div>

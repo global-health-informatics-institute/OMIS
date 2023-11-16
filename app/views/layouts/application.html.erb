@@ -34,6 +34,9 @@
                           <%= link_to "Projects", "/projects", class: "nav-link text-white align-middle px-0" %>
                         </li>
                         <li class="nav-item">
+                          <%= link_to "Requisitions", "/requisitions/index", class: "nav-link text-white align-middle px-0" %>
+                        </li>
+                        <li class="nav-item">
                           <%= link_to "Reports", "/reports/index", class: "nav-link text-white align-middle px-0" %>
                         </li>
                         <li class="nav-item">
@@ -66,6 +69,7 @@
             </div>
             <div class="col py-3">
               <%= yield %>
+
               <%= turbo_frame_tag "remote_modal", target: "_top" %>
             </div>
         </div>
