@@ -10,4 +10,9 @@ class User < ApplicationRecord
     def person_name
         return self.employee.person.first_name
     end
+
+    def full_name
+        person = self.employee.person
+        return (person.first_name + ' ' + person.last_name)
+    end
 end

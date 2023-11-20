@@ -32,8 +32,7 @@ class MainController < ApplicationController
       @projects = Project.where(project_id: records.collect{|p| p.project_id}.uniq).collect { |x| [x.project_id, x.short_name] }.to_h
 
     else
-      employees = Employee.where(still_employed: true)
-      people = employees.collect{|x| x.person_id}
+      people = Employee.where(still_employed: true).pluck(:person_id)
       @gender_summary, @age_summary = helpers.categorize_employees(Person.where(person_id: people))
       @upcoming_deadlines = ProjectTask.where.not(task_status: "Complete")
     end
