@@ -7,7 +7,7 @@
   <% elsif @selected_report == 'Employee LOE' %>
     <%= render partial: "employee_monthly_timesheet_summary", locals: {selected_report: @selected_report} %>
   <% elsif @selected_report == 'Org LOE' %>
-    <%= render partial: "show", locals: {selected_report: @selected_report} %>
+    <%= render partial: "organization_monthly_loe", locals: {selected_report: @selected_report} %>
   <% end %>
 <% end %>
 
