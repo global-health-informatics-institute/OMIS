@@ -13,10 +13,7 @@ class MainController < ApplicationController
 
       @loe_targets = ProjectTeam.where("employee_id = ? and project_id in (?)", current_user.employee_id, Project.select(:project_id).where(is_active: true))
       @project_names = Project.select(:short_name).where(project_id: @loe_targets.collect { |x| x.project_id })
-      @loe_current = TimesheetTask.select("project_id, SUM(duration) as duration").where(
-        "task_date between ? and ? ", Date.today.at_beginning_of_month, Date.today.at_end_of_month).group(:project_id)
-      @current_prj_names = Project.select(:short_name).where(project_id: @loe_current.collect { |x| x.project_id })
-
+      @loe_current = @employee.loe()
 =begin
       #The next block will need to be put in a function as it is repeated elsewhere
       @records = {}

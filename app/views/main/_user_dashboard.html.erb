@@ -155,13 +155,13 @@
           }
       }
   });
-  var currLabels = "<%= @current_prj_names.collect { |x| x.short_name }.join(",") %>"
+  var currLabels = "<%= @loe_current.keys.join(",") %>"
   new Chart(document.getElementById("loeActualPie"), {
       type : 'doughnut',
       data : {
           labels : currLabels.split(','),
           datasets : [ {
-              data : <%= @loe_current.collect { |x| (x.duration) }.to_s %>
+              data : <%= @loe_current.collect { |x,y| y }.to_s %>
           } ]
       },
       options : {
