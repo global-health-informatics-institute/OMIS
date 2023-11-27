@@ -3,6 +3,30 @@ class UsersController < ApplicationController
     @users = User.all
   end
 
+  def show
+
+  end
+
+  def edit
+
+  end
+
+  def update
+
+  end
+
+  def new
+
+  end
+
+  def create
+
+  end
+
+  def destroy
+
+  end
+
   def password_reset
     if request.method.to_s == "POST"
       if params[:user][:password] == params[:user][:password_confirmation]

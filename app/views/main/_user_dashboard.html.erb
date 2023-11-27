@@ -83,14 +83,12 @@
         <div class="tab-content" id="nav-tabContent">
           <div class="tab-pane fade" id="nav-requisition" role="tabpanel" aria-labelledby="nav-requisition-tab">
             <h3>Requisitions</h3>
-            <p>Paris is the capital of France.</p>
           </div>
           <div class="tab-pane fade" id="nav-assignedTasks" role="tabpanel" aria-labelledby="nav-assignedTasks-tab">
             <%= render partial: 'project_task_assignments/index' %>
           </div>
           <div class="tab-pane fade" id="nav-project" role="tabpanel" aria-labelledby="nav-project-tab">
             <h3>Projects</h3>
-            <p>Tokyo is the capital of Japan.</p>
           </div>
           <div class="tab-pane fade" id="nav-approval" role="tabpanel" aria-labelledby="nav-approval-tab">
             <% if (@approvals || []).empty? %>

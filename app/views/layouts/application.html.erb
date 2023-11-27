@@ -192,15 +192,15 @@
         <li><%#= link_to "Assets", "/business_assets" %></li>
         <li><%#= link_to "Projects", "/projects"%></li>
         <li><%= link_to "Timesheets", "/timesheets/#{ current_timesheet.timesheet_id }" %></li>
-        <li><%= link_to "Requisitions", "/requisitions/index"%></li>
-        <li><%= link_to "Reports", "/reports/index" %></li>
+        <li><%#= link_to "Requisitions", "/requisitions/index"%></li>
+        <li><%#= link_to "Reports", "/reports/index" %></li>
         <li><%#= link_to "Settings", "/settings/index" %></li>
       <% end %>
 
       <li><%= link_to "About", "/about" %></li>
 
       <% if current_user %>
-        <li><%#= link_to "User Profile", '/users' %></li>
+        <li><%= link_to "User Profile", "/users/#{ current_user.user_id }" %></li>
         <li><%= link_to "Sign Out", '/logout' %></li>
       <% else %>
         <li><%= link_to "Sign In", "/user_sessions/new" %></li>
