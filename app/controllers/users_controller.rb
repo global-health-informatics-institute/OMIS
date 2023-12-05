@@ -3,8 +3,10 @@ class UsersController < ApplicationController
     @users = User.all
   end
 
-  def show
 
+  def show
+    @user = current_user
+    @person = @user.person
   end
 
   def edit
@@ -28,13 +30,19 @@ class UsersController < ApplicationController
   end
 
   def password_reset
-    if request.method.to_s == "POST"
+
+    @user = User.find(params[:id])
+    if @user && @user.authenticate(params[:user][:old_password])
       if params[:user][:password] == params[:user][:password_confirmation]
         user = User.find(params[:id]).update(password: params[:user][:password], reset_needed: false)
+        flash[:notice] = "Password successfully updated"
         redirect_to "/"
       else
         flash[:error] = "Passwords mismatch"
+        redirect_to current_user
       end
+    else
+      flash[:error] = "Original Password did not match "
     end
   end
 
