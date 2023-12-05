@@ -33,7 +33,6 @@ Rails.application.routes.draw do
   get 'reports/create'
   get 'reports/edit'
   get 'users/index'
-  get 'users/:id/password_reset', to: 'users#password_reset'
   put 'users/:id/password_reset', to: 'users#password_reset'
   get 'main/home'
   get 'about', to: 'main#about'

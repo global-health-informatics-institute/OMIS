@@ -10,12 +10,14 @@ class UserSessionsController < ApplicationController
     if @user && @user.authenticate(params[:user][:password])
       session[:user_id] = @user.id
       if @user.reset_needed
-        redirect_to "/users/#{@user.user_id}/password_reset"
+        redirect_to "/users/#{@user.user_id}"
+        flash[:info] = "Please reset password."
       else
+        flash[:notice] = "Successfully logged in."
         redirect_to root_path
       end
     else
-      flash[:alert] = "Login failed"
+      flash[:error] = "Login failed. Wrong password/username"
       redirect_to new_user_session_path
     end
   end

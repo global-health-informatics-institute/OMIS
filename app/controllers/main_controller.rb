@@ -1,5 +1,5 @@
 class MainController < ApplicationController
-  skip_before_action :logged_in?, only: [:home]
+  skip_before_action :logged_in?, only: [:home, :about]
   def home
     if current_user
       @employee = current_user.employee
@@ -35,5 +35,10 @@ class MainController < ApplicationController
       @gender_summary, @age_summary = helpers.categorize_employees(Person.where(person_id: people))
       @upcoming_deadlines = ProjectTask.where.not(task_status: "Complete")
     end
+  end
+
+  def about
+    @current_timesheet = Timesheet.where(employee_id: current_user.employee_id,
+                                         timesheet_week: Date.today.beginning_of_week).first_or_create
   end
 end

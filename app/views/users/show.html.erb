@@ -1,7 +1,128 @@
 <h5>My Account</h5>
-
-Change Personal Details
-
-Change Account Details
-
-Change Password
+<div class="row mt-4 p-0">
+  <div class="col p-0">
+    <div class="card ">
+      <div class="card-header card-header-dark">
+        <nav>
+          <div class="nav nav-tabs " id="nav-tab" role="tablist">
+            <button class="nav-link <%= @user.reset_needed == true ? '' : 'active'%>" id="nav-user-details-tab" data-bs-toggle="tab" data-bs-target="#nav-user-details" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">User Details</button>
+            <button class="nav-link" id="nav-personal-details-tab" data-bs-toggle="tab" data-bs-target="#nav-personal-details" type="button" role="tab" aria-controls="nav-assignedTasks" aria-selected="false">Personal Details</button>
+            <button class="nav-link <%= @user.reset_needed == true ? 'active' : ''%>" id="nav-password-tab" data-bs-toggle="tab" data-bs-target="#nav-password" type="button" role="tab" aria-controls="nav-project" aria-selected="true">Change Password</button>
+          </div>
+        </nav>
+      </div>
+      <div class="card-body">
+        <div class="tab-content" id="nav-tabContent">
+          <div class="tab-pane text-center <%= @user.reset_needed == false ? 'active' : 'fade'%>" id="nav-user-details" role="tabpanel" aria-labelledby="nav-user-details-tab">
+            <div class="row mt-3">
+              <div class="col-2 fw-normal">Username</div>
+              <div class="col-1 fw-bold">:</div>
+              <div class="col fw-light fst-italic text-start"><%= @user.username %></div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-2 fw-normal">Status</div>
+              <div class="col-1 fw-bold">:</div>
+              <div class="col fw-light fst-italic text-start"><%= @user.activated? ? 'Active' : 'Deactivated' %></div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-2 fw-normal">Activated at</div>
+              <div class="col-1 fw-bold">:</div>
+              <div class="col fw-light fst-italic text-start"><%= @user.activated_at.strftime('%d %B, %Y %H:%M') %></div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-2 fw-normal">User Role</div>
+              <div class="col-1 fw-bold">:</div>
+              <div class="col fw-light fst-italic text-start"><%= @user.employee.current_position %></div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="nav-personal-details" role="tabpanel" aria-labelledby="nav-personal-details-tab">
+            <div class="row mt-3">
+              <div class="col-2 fw-normal">First Name</div>
+              <div class="col-2 fw-light fst-italic"><%= @person.first_name %></div>
+              <div class="col-2 fw-normal">Middle Name</div>
+              <div class="col-2 fw-light fst-italic"><%= @person.middle_name %></div>
+              <div class="col-2 fw-normal">Last Name</div>
+              <div class="col-2 fw-light fst-italic"><%= @person.last_name %></div>
+            </div>
+            <div class="row mt-4 mb-4">
+              <div class="col-2 fw-normal">Gender</div>
+              <div class="col-2 fw-light fst-italic"><%= @person.gender %></div>
+              <div class="col-2 fw-normal">Marital Status</div>
+              <div class="col-2 fw-light fst-italic"><%= @person.marital_status %></div>
+              <div class="col-2 fw-normal">DOB</div>
+              <div class="col-2 fw-light fst-italic"><%= @person.birth_date.strftime('%d %b %Y') %></div>
+            </div>
+            <div class="row mt-4 mb-4">
+              <div class="col-2 fw-normal">Res. Address</div>
+              <div class="col-2 fw-light fst-italic"><%= @person.residential_address %></div>
+              <div class="col-2 fw-normal">Landmark</div>
+              <div class="col-2 fw-light fst-italic"><%= @person.landmark %></div>
+              <div class="col-2 fw-normal">Postal Address</div>
+              <div class="col-2 fw-light fst-italic"><%= @person.postal_address %></div>
+            </div>
+            <div class="row mt-4 mb-4">
+              <div class="col-2 fw-normal">Primary Num.</div>
+              <div class="col-4 fw-light fst-italic"> <%= @person.primary_phone %></div>
+              <div class="col-2 fw-normal">Secondary Num.</div>
+              <div class="col-4 fw-light fst-italic"> <%= @person.alt_phone %></div>
+            </div>
+            <div class="row mt-4 mb-4">
+              <div class="col-2 fw-normal">Official Email</div>
+              <div class="col-4 fw-light fst-italic"> <%= @person.official_email %></div>
+              <div class="col-2 fw-normal">Personal Email</div>
+              <div class="col-4 fw-light fst-italic"> <%= @person.email_address %></div>
+            </div>
+          </div>
+          <div class="tab-pane <%= @user.reset_needed == false ? 'fade' : 'active'%>" id="nav-password" role="tabpanel" aria-labelledby="nav-password-tab">
+            <%= form_with model: @user, url: "/users/#{current_user.user_id}/password_reset",method: 'PUT' ,scope: :user do |form| %>
+              <div class="row g-3 align-items-center">
+                <div class="col-4">
+                  <label for="inputPassword6" class="col-form-label">Old Password</label>
+                </div>
+                <div class="col-auto">
+                  <%= form.password_field :old_password, required: true, class: "form-control" %>
+                </div>
+                <div class="col-auto">
+                  <span id="passwordHelpInline" class="form-text">
+                    &nbsp;
+                  </span>
+                </div>
+              </div>
+              <div class="row g-3 align-items-center mt-2">
+                <div class="col-4">
+                  <label for="inputPassword6" class="col-form-label">New Password</label>
+                </div>
+                <div class="col-auto">
+                  <%= form.password_field :password, required: true, class: "form-control" %>
+                </div>
+                <div class="col-auto">
+                  <span id="passwordHelpInline" class="form-text">
+                    Must be 8-20 characters long.
+                  </span>
+                </div>
+              </div>
+              <div class="row g-3 align-items-center mt-2">
+                <div class="col-4">
+                  <label for="inputPassword6" class="col-form-label">Password Confirmation</label>
+                </div>
+                <div class="col-auto">
+                  <%= form.password_field :password_confirmation, required: true, class: "form-control" %>
+                </div>
+                <div class="col-auto">
+                  <span id="passwordHelpInline" class="form-text">
+                    &nbsp;
+                  </span>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-9 ">
+                  <%= form.submit "Save", class: "btn btn-success w-50" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
