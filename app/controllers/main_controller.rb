@@ -31,14 +31,22 @@ class MainController < ApplicationController
 
 
     else
-      people = Employee.where(still_employed: true).pluck(:person_id)
-      @gender_summary, @age_summary = helpers.categorize_employees(Person.where(person_id: people))
+      people = Employee.select(:employee_id, :person_id).where(still_employed: true)
+      @gender_summary, @age_summary = helpers.categorize_employees(
+        Person.where(person_id: people.collect{|x|x.person_id}))
       @upcoming_deadlines = ProjectTask.where.not(task_status: "Complete")
+      @employment_summary = Hash.new(0)
+
+      (people || []).each do |person|
+        @employment_summary[person.employment_type.to_s] += 1
+      end
     end
   end
 
   def about
-    @current_timesheet = Timesheet.where(employee_id: current_user.employee_id,
-                                         timesheet_week: Date.today.beginning_of_week).first_or_create
+    if !current_user.blank?
+      @current_timesheet = Timesheet.where(employee_id: current_user.employee_id,
+                                           timesheet_week: Date.today.beginning_of_week).first_or_create
+    end
   end
 end
