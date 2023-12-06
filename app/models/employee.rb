@@ -48,6 +48,17 @@ class Employee < ApplicationRecord
         self.employee_designations.where("end_date is null")
     end
 
+    def employment_type
+        designation = current_position
+        if (designation.downcase.include? "intern") & !(designation.downcase.include? "volunteer")
+            return "Internship"
+        elsif designation.downcase.include? "volunteer"
+            return "Volunteer"
+        else
+            return "Full-time"
+        end
+    end
+
     def employee_affiliations
         all_afflliations = self.affiliations
         return all_afflliations

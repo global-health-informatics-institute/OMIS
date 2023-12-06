@@ -7,16 +7,16 @@
   </div>
 </div>
 
-<script
-  src="https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js"></script>
-
 <script>
     const ctxType = document.getElementById('typeBar');
     new Chart(ctxType, {
         type: 'bar',
         data: {
             labels: ['Full-time', 'Part-time', 'Internship', 'Volunteers'],
-            datasets: [{ data: [25, 10, 12, 5], label: "Employment Types", borderWidth: 1}]
+            datasets: [{ data: [<%= @employment_summary["Full-time"] %>,
+                    <%= @employment_summary['Part-time'] %>, <%= @employment_summary['Internship'] %>,
+                    <%= @employment_summary['Volunteer'] %>],
+                label: "Employment Types", borderWidth: 1}]
         },
         options: {
             scales: {
