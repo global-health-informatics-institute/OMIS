@@ -12,6 +12,7 @@ class TimeSheetTasksController < ApplicationController
                                                 timesheet_id: params[:time_sheet_id],
                                                 description: params[:description], duration: params[:duration])
 
+    flash[:notice] = "Successfully recorded task in time sheet."
     redirect_to "/time_sheets/#{new_time_sheet_task.timesheet_id}"
 
   end
