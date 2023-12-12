@@ -1,22 +1,47 @@
 <div class="card h-100">
   <div class="card-body p-2">
     <h6>Workforce Retention Rate</h6>
-    <table class="table table-bordered table-striped">
-      <thead>
-      <tr>
-        <th>Period</th>
-        <th>Q1</th>
-        <th>Q2</th>
-        <th>Q3</th>
-        <th>Q4</th>
-        <th>Year</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr><td>2021</td><td>16</td><td>14</td><td>16</td><td>14</td><td>16</td></tr>
-      <tr><td>2022</td><td>16</td><td>14</td><td>16</td><td>14</td><td>16</td></tr>
-      <tr><td>2023</td><td>16</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>16</td></tr>
-      </tbody>
-    </table>
+    <div class="text-center">
+      <canvas id="retentionLineChart" style="height: 30vh !important; width: 30vw;margin-left: auto; margin-right: auto;"></canvas>
+    </div>
   </div>
 </div>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js"></script>
+
+<script>
+
+    new Chart(document.getElementById("retentionLineChart"), {
+        type : 'line',
+        data : {
+            labels : [ `Q1-2022`,`Q2-2022`,`Q3-2022`,`Q4-2022`,`Q1-2023`,`Q2-2023`,`Q3-2023`,`Q4-2023` ],
+            datasets : [ {
+                data : [ 70, 75,80,80, 60, 50, 80, 90],
+                pointStyle: 'circle',
+                pointRadius: 10,
+                pointHoverRadius: 15,
+                borderColor: 'rgb(246, 78, 192)',
+                backgroundColor: 'rgb(246, 78, 192)',
+            } ]
+        },
+        options : {
+            scales: {
+                x: {
+                    offset: true
+                },
+                y: {
+                    min: 0,
+                    max: 100
+                }
+            },
+            responsive: true  ,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>
+
