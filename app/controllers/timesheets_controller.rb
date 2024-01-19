@@ -12,6 +12,8 @@ class TimesheetsController < ApplicationController
   end
   def update
   end
+  def destroy
+  end
   def show
     if !params[:period].nil?
       week = Date.parse(params[:period]).beginning_of_week.strftime("%Y-%m-%d")
@@ -22,16 +24,16 @@ class TimesheetsController < ApplicationController
     @person = Employee.find(@timesheet.employee_id)
 
     @records = {}
-    records = @timesheet.timesheet_tasks.select("project_id, task_date,description, sum(duration) as duration").group(
-      'project_id, task_date,description').each do |v|
+    records = @timesheet.timesheet_tasks.select("project_id, task_date,description, duration, id").each do |v|
       if @records[v.project_id].blank?
         @records[v.project_id] = {v.description => { v.task_date.cwday => v.duration.floor(2)}}
       elsif @records[v.project_id][v.description].blank?
         @records[v.project_id][v.description] = { v.task_date.cwday => v.duration.floor(2)}
       end
-      @records[v.project_id][v.description][v.task_date.cwday] = v.duration.floor(2)
+      @records[v.project_id][v.description][v.task_date.cwday] = {duration: v.duration.floor(2),id: v.id}
     end
 
+    #raise @records.inspect
     @projects = Project.where(project_id: records.collect{|p| p.project_id}.uniq).collect { |x| [x.project_id, x.short_name] }.to_h
     @project_options = Project.all.collect { |x| [x.project_name, x.id] }
 
