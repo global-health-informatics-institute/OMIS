@@ -73,9 +73,36 @@
             <%= task %>
           </td>
           <% (0..6).each do |day| %>
-            <td><%= entries[day].blank? ? '-' : entries[day] %></td>
-            <% total +=  (entries[day].blank? ? 0 : entries[day]) %>
-            <% week_total[day] +=  (entries[day].blank? ? 0 : entries[day]) %>
+            <td>
+              <div class="row">
+                <div class="col d-inline-block">
+                  <div class="me-0" style = "display: inline-block">
+                  <%= entries[day].blank? ? '-' : entries[day][:duration] %>
+                  </div>
+                  <div class="dropdown" style="display: inline-block; padding:0;">
+                  <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="editDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="editDropdown">
+                    <li>
+                      <% if !entries[day].blank? %>
+                        <%= link_to 'Edit', edit_time_sheet_task_path(time_sheet_task_id: entries[day][:id]), class: 'dropdown-item', data: { turbo_frame: "remote_modal" } %>
+                      <% else %>
+                        <%= link_to "Add Task", new_time_sheet_task_path(time_sheet: @timesheet.id), class: 'dropdown-item',
+                            data: { turbo_frame: "remote_modal" } %>
+                      <% end %>                      
+                    </li>
+                    <li>
+                      <% if !entries[day].blank? %>
+                        <%= button_to 'Delete', "/time_sheet_tasks/#{entries[day][:id]}", method: :delete, class: 'dropdown-item btn btn-dark', data: { turbo_confirm: 'Are you sure?' } %>
+                      <% end %>                    
+                    </li>
+                  </ul>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <% total +=  (entries[day].blank? ? 0 : entries[day][:duration]) %>
+            <% week_total[day] +=  (entries[day].blank? ? 0 : entries[day][:duration]) %>
           <% end %>
           <td><%= total %></td>
         </tr>
