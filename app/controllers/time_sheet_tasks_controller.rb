@@ -20,45 +20,22 @@ class TimeSheetTasksController < ApplicationController
   def edit
     @time_sheet_task = TimesheetTask.find(params[:time_sheet_task_id])
     @project_options = Project.all.collect { |x| [x.project_name, x.id] }
-    
-    #if @time_sheet_id.nil?
-     # flash[:alert] = "Task not found"
-     # redirect_to timesheet_path(@time_sheet_id.timesheet_id)
-    #end
-    #@selected_project_id = @time_sheet_id.project_id  
-    #@project_options = Project.all.collect { |x| [x.project_name, x.id] }
-    #respond_to do |format|
-     # format.html # regular HTML response (rendering a view)
-     # format.js   # JavaScript response (for AJAX)
-      #end
   end
 
   def update
     @time_sheet_task = TimesheetTask.find(params[:id])
-
-    
-    if @time_sheet_task.update(project_id: params[:project_id], duration: params[:duration], 
-      description:  params[:description], task_date:  params[:task_date])
-      
+    if @time_sheet_task.update(task_date: params[:task_date], project_id: params[:project_id] ,
+      timesheet_id: params[:time_sheet_id],
+      description: params[:description], duration: params[:duration])
       flash[:notice] = "Successfully updated task in time sheet."
-      redirect_to "/time_sheets/#{@time_sheet_task.timesheet_id}"
-      
+      redirect_to "/time_sheets/#{@time_sheet_task.id}"
     else
-      flash[:alert] = "Error updating task."
+      flash[:notice] = "Error updating task."
       respond_to do |format|
-        #format.turbo_stream { render turbo_stream: turbo_stream.replace('time_sheet_task', partial: "form")}
-        format.html {render :edit}
+        format.html { redirect_to "/time_sheets/#{@time_sheet_task.id}" }
+        format.js
       end
-      
     end
-      #respond_to do |format|
-       # format.html { redirect_to timesheet_path(@time_sheet_id.timesheet_id) }
-        #format.js   # assuming you have an update.js.erb file to handle AJAX response
-      #end
-    #else
-     # flash[:alert] = "Error updating task."
-      #render :edit
-    #end
   end
 
   def destroy
