@@ -9,6 +9,7 @@ class RequisitionsController < ApplicationController
   def new
     @requisition = Requisition.new()
     @selected_request = params["request_type"]
+    @employees = Employee.where(still_employed: true).collect{|x| x.person.full_name}
 
     case @selected_request
     when 'Petty Cash'

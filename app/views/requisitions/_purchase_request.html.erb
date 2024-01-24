@@ -7,8 +7,8 @@
       <%= form.date_field :request_date, value: Date.today,  class: 'form-control', required: true %>
     </div>
     <div class="col-md-3 mb-3">
-      <%= form.label :Department %>
-      <%= form.text_field :Department,  class: 'form-control', required: true %>
+      <%= form.label :name_of_supplier %>
+      <%= form.text_field :name_of_supplier,  class: 'form-control', required: true %>
     </div>
     <div class="col-md-6 mb-4">
       <%= form.label :purpose_of_purchase %>
@@ -20,56 +20,24 @@
   </div>
 
   <div class="row">
-    <div class="col-md-3 mb-2">
-        <%= form.label :name_of_supplier%>
-        <%= form.text_field :Department, class: 'form-control', required: true %>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-8 mb-3">
-      <table class="table table-striped ml-4 table-hover">
+    <div class="border p-2 mt-2">
+      <table class="table table-striped ml-8 table-hover", style="width: 100%">
         <thead class="table-dark">
-            <th >Quantinty</th>        
+            <th width=30%>Quantinty</th>        
             <th>Description</th>     
-            <th>Unit Price (MWK)</th>
-            <th>Total (MWK)</th>      
         </thead>
         <tbody>
             <tr>
                 <td><%= form.number_field :amount, step:0.00, max: 100000.00, class: 'form-control', required: true %></td>        
-                <td><%= form.text_field :description, class: 'form-control', required: true %></td>     
-                <td><%= form.text_field :unit_price, class: 'form-control', required: true %></td>
-                <td><%= form.text_field :total, class: 'form-control', required: true %></td>      
+                <td><%= form.text_field :description, class: 'form-control', required: true %></td>        
             </tr>
             <tr>
                 <td><%= form.number_field :amount, step:0.00, max: 100000.00, class: 'form-control'%></td>        
                 <td><%= form.text_field :description, class: 'form-control'%></td>     
-                <td><%= form.text_field :unit_price, class: 'form-control'%></td>
-                <td><%= form.text_field :total, class: 'form-control'%></td>      
             </tr>
             <tr>
                 <td><%= form.number_field :amount, step:0.00, max: 100000.00, class: 'form-control'%></td>        
                 <td><%= form.text_field :description, class: 'form-control'%></td>     
-                <td><%= form.text_field :unit_price, class: 'form-control'%></td>
-                <td><%= form.text_field :total, class: 'form-control'%></td>       
-            </tr>
-            <tr>
-                <td></td>        
-                <td><%= form.label :sub_total%></td>
-                <td></td>   
-                <td></td>      
-            </tr>
-             <tr>
-                <td></td>        
-                <td><%= form.label :vat%></td>     
-                <td></td>
-                <td></td>      
-            </tr>
-            <tr>
-                <td></td>        
-                <td><%= form.label :total%></td>     
-                <td></td>
-                <td></td>      
             </tr>
         </tbody>
       </table>
