@@ -26,18 +26,47 @@
       <%= form.date_field :departure_date, class: 'input', required: true, class: 'form-control' %>
     </div>
     <div class="col-md-4 mb-4">
-      <%= form.label :Purpose%>
+      Purpose
       <%= form.text_field :purpose, class: 'form-control', required: true %>
     </div>
   </div>
   <div class="row mt-4">
     <div class="col-md-4 mb-4">
-      <%= form.label :Amount%>
-      <%= form.number_field :amount, step:0.00, max: 100000.00, class: 'form-control', required: true %>
+      Amount Requested
+      <%= form.number_field :amount_requested, step:0.00, max: 100000.00, class: 'form-control', required: true %>
     </div>
     <div class="col-md-4 mb-4">
-      <%= form.label :Name_of_Traveller%>
-      <%= form.text_field :requested_by, value: current_user.full_name,  class: 'form-control', required: true %>
+      Name of Internal Travellers
+      <%= form.select(:project_id, @employees, {include_blank: "Select travellers"}, { :class => 'form-select', :multiple => true}) %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="border p-2 mt-2">
+      <table class="table table-striped ml-8 table-hover", style="width: 100%">
+        <thead class="table-dark">
+            <th width=40%>Name of External Travellers</th>        
+            <th>Oraganization</th>     
+        </thead>
+        <tbody>
+            <tr>
+                <td><%= form.text_field :name_of_external_travellers, class: 'form-control', required: true %></td>        
+                <td><%= form.text_field :organization, class: 'form-control', required: true %></td>        
+            </tr>
+            <tr>
+                <td><%= form.text_field :name_of_external_traveller, class: 'form-control'%></td>        
+                <td><%= form.text_field :organization, class: 'form-control'%></td>     
+            </tr>
+            <tr>
+                <td><%= form.text_field :name_of_external_traveller, class: 'form-control'%></td>        
+                <td><%= form.text_field :organization, class: 'form-control'%></td>     
+            </tr>
+            <tr>
+                <td><%= form.text_field :name_of_external_traveller, class: 'form-control'%></td>        
+                <td><%= form.text_field :organization, class: 'form-control'%></td>     
+            </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
