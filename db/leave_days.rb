@@ -1,7 +1,8 @@
 
 
 def main 
-   create_summaries
+   #create_summaries
+   update_summary
 end
 
 
@@ -18,10 +19,15 @@ def create_summaries
     end
 end
 
-def update_summary(employee_id)
+def update_summary
     leave_types = ['Sick Leave','Annual Leave', 'Compassionate Leave']
 
-
+    
+    (Employee.all || []).each do |employee|
+        leave_summary = LeaveSummary.where(employee_id: employee.id, leave_type: "Annual Leave", financial_year: 2024).first
+        leave_summary.leave_days_balance -= total_days
+        leave_summary.save
+    end
 
 end
 

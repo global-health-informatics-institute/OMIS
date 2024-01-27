@@ -32,6 +32,7 @@ class TimesheetsController < ApplicationController
       end
       @records[v.project_id][v.description][v.task_date.cwday] = {duration: v.duration.floor(2),id: v.id}
     end
+    
 
     #raise @records.inspect
     @projects = Project.where(project_id: records.collect{|p| p.project_id}.uniq).collect { |x| [x.project_id, x.short_name] }.to_h
