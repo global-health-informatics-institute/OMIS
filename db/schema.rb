@@ -112,7 +112,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_01_12_104007) do
   end
 
   create_table "leave_summaries", primary_key: "leave_summary_id", force: :cascade do |t|
-    t.integer "leave_type_id", null: false
+    t.string "leave_type", null: false
     t.integer "employee_id", null: false
     t.float "leave_days_total", null: false
     t.float "leave_days_balance", null: false
