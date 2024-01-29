@@ -82,7 +82,7 @@ class Employee < ApplicationRecord
                                   task_date BETWEEN  ? and ?", timesheets ,start_date, end_date).group(:project_id)
 
         cost_shared = Project.where("short_name in (?)", ['Crosscutting','Public Holiday','Annual Leave',
-                                                          'Paternity Leave','Compassionate Leave',
+                                                          'Paternity Leave','Compassionate Leave','Study Leave',
                                                           'Sick Leave']).collect { |x| x.project_id }
         cost_shared_amount = 0.0
 
