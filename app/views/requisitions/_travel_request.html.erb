@@ -1,19 +1,79 @@
 <h4>Travel Request</h4>
+<hr>
+<%= form_with model: @requisition, url: requisitions_new_path do |form| %>
 
-Department
+  <div class="row">
+    <div class="col-3">
+        <%= form.label :Department%>
+        <%= form.text_field :Department, class: 'form-control', required: true %>
+    </div>
+    <div class="col-md-4">
+        <%= form.label :Destination %>
+        <%= form.text_field :Destination, class: 'form-control', required: true %>
+    </div>
+    <div class="col-md-4">
+        <%= form.label :Project%>
+        <%= form.text_field :Project, class: 'form-control', required: true %>
+    </div>
+  </div>
+  <div class="row mt-4">
+    <div class="col-4">
+      Departure Date
+      <%= form.date_field :departure_date, class: 'input', required: true, class: 'form-control' %>
+    </div>
+    <div class="col-4">
+      Return Date
+      <%= form.date_field :departure_date, class: 'input', required: true, class: 'form-control' %>
+    </div>
+    <div class="col-md-4 mb-4">
+      Purpose
+      <%= form.text_field :purpose, class: 'form-control', required: true %>
+    </div>
+  </div>
+  <div class="row mt-4">
+    <div class="col-md-4 mb-4">
+      Amount Requested
+      <%= form.number_field :amount_requested, step:0.00, max: 100000.00, class: 'form-control', required: true %>
+    </div>
+    <div class="col-md-4 mb-4">
+      Name of Internal Travellers
+      <%= form.select(:project_id, @employees, {include_blank: "Select travellers"}, { :class => 'form-select', :multiple => true}) %>
+    </div>
+  </div>
 
-Project Name
+  <div class="row">
+    <div class="border p-2 mt-2">
+      <table class="table table-striped ml-8 table-hover", style="width: 100%">
+        <thead class="table-dark">
+            <th width=40%>Name of External Travellers</th>        
+            <th>Oraganization</th>     
+        </thead>
+        <tbody>
+            <tr>
+                <td><%= form.text_field :name_of_external_travellers, class: 'form-control', required: true %></td>        
+                <td><%= form.text_field :organization, class: 'form-control', required: true %></td>        
+            </tr>
+            <tr>
+                <td><%= form.text_field :name_of_external_traveller, class: 'form-control'%></td>        
+                <td><%= form.text_field :organization, class: 'form-control'%></td>     
+            </tr>
+            <tr>
+                <td><%= form.text_field :name_of_external_traveller, class: 'form-control'%></td>        
+                <td><%= form.text_field :organization, class: 'form-control'%></td>     
+            </tr>
+            <tr>
+                <td><%= form.text_field :name_of_external_traveller, class: 'form-control'%></td>        
+                <td><%= form.text_field :organization, class: 'form-control'%></td>     
+            </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-Destination
+</hr>
+<%= form.submit "Submit Request", class: "btn btn-success btn-block" %>
+<button class="btn btn-danger">Cancel</button>
+<% end %>
 
-Departure Date
-
-Return Date
-
-Purpose of travel
-
-Amount requested
-
-Names of Travellers
 
 

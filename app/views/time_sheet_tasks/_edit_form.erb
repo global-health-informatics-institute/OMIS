@@ -1,0 +1,34 @@
+<%= form_with model: @timesheet, method: "PUT",  url: "/time_sheet_tasks/#{@time_sheet_task.id}" , data: {'turbo-frame' => '_top'} do |form|%>
+
+  <div class="row">
+    <div class="col mb-3">
+      Select Project
+    </div>
+    <div class="col mb-3">
+      <%= form.label :project_id%>
+      <%#= form.text_field :project_id, value: @time_sheet_task.project.short_name,  class: 'form-control', required: true %>
+      <%= form.select :project_id, options_for_select(@project_options), prompt:@time_sheet_task.project.short_name, :class => 'form-select', required: true   %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :task_date %>
+      <%= form.date_field :task_date, value: @time_sheet_task.task_date,  class: 'form-control', required: true %>
+    </div>
+    <div class="col mb-3">
+      <%= form.label :duration %>
+      <%= form.number_field :duration, value: @time_sheet_task.duration, step:0.25, max: 18, class: 'form-control', required: true %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <%= form.label :description %> 
+      <%= form.text_field :description, value: @time_sheet_task.description, class: 'form-control', required: true %>
+    </div>
+  </div>
+  <div class="mb-3 mt-4">
+    <%= form.hidden_field :time_sheet_id, value: @time_sheet_task.timesheet_id %>
+    <%= form.submit "Save", class: "btn btn-success btn-block" %>
+    <button id="close" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+  </div>
+<% end %>
