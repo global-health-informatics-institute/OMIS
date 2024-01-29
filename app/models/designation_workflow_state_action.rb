@@ -1,0 +1,2 @@
+class DesignationWorkflowStateAction < ApplicationRecord
+end
