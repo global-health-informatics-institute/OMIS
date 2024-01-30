@@ -94,7 +94,26 @@
             <% if (@approvals || []).empty? %>
               <h3>No Pending Approvals</h3>
             <% else%>
-              <%= render partial: 'requisitions/index' %>
+
+            <table class="table table-striped ml-8 table-hover", style="width: 100%">
+              <thead class="table">
+                  <th>Requisition Type</th>
+                  <th>Person / Stakeholder</th>        
+                  <th>Date Submitted</th>  
+                  <th>Action</th>  
+              </thead>
+              <tbody>
+                <% (@approvals || []).each do |approval| %>
+                  <tr>
+                      <td>Timesheet</td>        
+                      <td><%= approval.employee.person.full_name%></td> 
+                      <td><%= approval.submitted_on %></td>    
+                      <td><%= link_to 'View', approval %></td>    
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+              <%#= render partial: 'requisitions/index' %>
             <% end%>  
           </div>
         </div>

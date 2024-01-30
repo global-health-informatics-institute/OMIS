@@ -73,6 +73,10 @@ class Employee < ApplicationRecord
         return ProjectTeam.where(employee_id: self.employee_id, voided: false)
     end
 
+    def current_supervisees
+        people = Supervision.where(supervisor: self.employee_id, ended_on: nil)
+    end
+
     def loe (start_date = Date.today.beginning_of_month, end_date = Date.today.end_of_month)
         results = Hash.new(0.0)
         timesheets = Timesheet.select('timesheet_id').where("employee_id = ? and timesheet_week BETWEEN ? and ?",

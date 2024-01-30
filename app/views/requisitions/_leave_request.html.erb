@@ -1,73 +1,67 @@
 <h4 class="modal-title">Leave Request</h4>
 <hr>
 
-<%= form_with model: @requisition, url: requisitions_new_path do |form| %>
-
-  <div class="row">
-    <div class = "card m-1 col-6">
-      <div class="row mt-6">
-        <div class="col-4 mt-3">
-          Select Leave Type
-        </div>
-        <div class="col-6 mt-3 mb-4">
-          <%= select_tag(:request_type, options_for_select(leave_types), class: "form-select") %>
-        </div>
+<%= form_with model: @requisition, url: '/requisitions/create' do |form| %>
+<div class="row">
+  <div class = "card m-1 col-6">
+    <div class="row mt-6">
+      <div class="col-4 mt-3">
+        Select Leave Type
       </div>
-    
-      <div class="row mt-6">
-        <div class="col-4">
-          Start Date and Time
-        </div>
-        <div class="col-6 mb-4">
-          <%= form.datetime_field("start_date", value: DateTime.now.strftime("%Y-%m-%dT%H:%M"), class: "form-control") %>
-        </div>
-      </div>
-      <div class="row mt-6">
-        <div class="col-4">
-          End Date and Time
-        </div>
-        <div class="col-6 mb-4">
-          <%= form.datetime_field("end_date", value: DateTime.now.strftime("%Y-%m-%dT%H:%M"), class: "form-control") %>
-        </div>
+      <div class="col-6 mt-3 mb-4">
+        <%= select_tag(:request_type, options_for_select(leave_types), class: "form-select") %>
       </div>
     </div>
-    <div class = "card m-1 col-5">
-      <div class="col">
-        <table class="table table-striped ml-8 table-hover", style="width: 100%">
-          <thead class="table">
-              <th>Leave Type</th>
-              <th>Total leave days</th>        
-              <th>Balance</th>  
-          </thead>
-          <tbody>
-              <tr>
-                  <td><%= form.label :Annual_leave%></td>        
-                  <td><%= @annual_leave_bal.leave_days_total %></td> 
-                  <td><%= @annual_leave_bal.leave_days_balance %></td>       
-              </tr>
-              <tr>
-                  <td><%= form.label :Sick_leave%></td>        
-                  <td><%= @sick_leave_bal.leave_days_total %></td>   
-                  <td><%= @sick_leave_bal.leave_days_balance %></td>  
-              </tr>
-              <tr>
-                  <td><%= form.label :Compassionate%></td>        
-                  <td><%= @sick_leave_bal.leave_days_total %></td> 
-                  <td><%= @sick_leave_bal.leave_days_balance %></td>    
-              </tr>
-          </tbody>
-        </table>
-        <%#= total_duration = 0.%>
-        <%#= form.label :duration 
-        <%#= form.number_field :duration, value: @TimeSheetTasks.duration, step:0.25, max: 18, class: 'form-control', required: true %>
-        <% week_total = Hash.new(0.0) %>
-        <%#= week_total[day] +=  (entries[day].blank? ? 0 : entries[day][:duration]) %>
-        <%#= form.text_field(week_total, value: week_total[day], class: 'form-control') %>
-        
+  
+    <div class="row mt-6">
+      <div class="col-4">
+        Start Date and Time
+      </div>
+      <div class="col-6 mb-4">
+        <%= form.datetime_field("start_date", value: DateTime.now.strftime("%Y-%m-%dT%H:%M"), class: "form-control") %>
+      </div>
+    </div>
+    <div class="row mt-6">
+      <div class="col-4">
+        End Date and Time
+      </div>
+      <div class="col-6 mb-4">
+        <%= form.datetime_local_field("end_date", value: DateTime.now.strftime("%Y-%m-%dT%H:%M"), class: "form-control") %>
+      </div>
+      <hr>
+      <div class="col-6 mb-2">
+        <%= form.submit "Submit Request", class: "btn btn-success btn-block" %>
+        <button class="btn btn-danger">Cancel</button>
       </div>
     </div>
   </div>
-  <hr>
-  <%= form.submit "Submit Request", class: "btn btn-success btn-block" %>
-  <button class="btn btn-danger">Cancel</button>
+  <div class = "card m-1 col-5">
+    <div class="col">
+      <table class="table table-striped ml-8 table-hover", style="width: 100%">
+        <thead class="table">
+            <th>Leave Type</th>
+            <th>Total leave days</th>        
+            <th>Balance</th>  
+        </thead>
+        <tbody>
+            <tr>
+                <td><%= form.label :Annual_leave%></td>        
+                <td><%= @annual_leave_bal.leave_days_total %></td> 
+                <td><%= @annual_leave_bal.leave_days_balance %></td>       
+            </tr>
+            <tr>
+                <td><%= form.label :Sick_leave%></td>        
+                <td><%= @sick_leave_bal.leave_days_total %></td>   
+                <td><%= @sick_leave_bal.leave_days_balance %></td>  
+            </tr>
+            <tr>
+                <td><%= form.label :Compassionate%></td>        
+                <td><%= @sick_leave_bal.leave_days_total %></td> 
+                <td><%= @sick_leave_bal.leave_days_balance %></td>    
+            </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 <% end %>
