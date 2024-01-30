@@ -14,6 +14,12 @@ class MainController < ApplicationController
       @loe_targets = ProjectTeam.where("employee_id = ? and project_id in (?)", current_user.employee_id, Project.select(:project_id).where(is_active: true))
       @project_names = Project.select(:short_name).where(project_id: @loe_targets.collect { |x| x.project_id })
       @loe_current = @employee.loe()
+
+      e = @employee
+      jnrs = e.current_supervisees.collect{|x| x.supervisee}
+      
+      @approvals = Timesheet.select("timesheet_id, employee_id, submitted_on").where("employee_id in (?) and submitted_on is not NULL and approved_on is NULL", jnrs)
+
 =begin
       #The next block will need to be put in a function as it is repeated elsewhere
       @records = {}
