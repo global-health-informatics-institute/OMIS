@@ -15,10 +15,20 @@ class MainController < ApplicationController
       @project_names = Project.select(:short_name).where(project_id: @loe_targets.collect { |x| x.project_id })
       @loe_current = @employee.loe()
 
+      @projects = Project.select(:project_id, :project_name)
+
+      #@project_list = ProjectTask.where(voided:false)
+      p = Project.where(manager: current_user.employee_id)
+      @upcoming_deadlines = []
+      p.each do |proj|
+        @upcoming_deadlines += proj.upcoming_deadlines
+      end
+
       e = @employee
       jnrs = e.current_supervisees.collect{|x| x.supervisee}
       
       @approvals = Timesheet.select("timesheet_id, employee_id, submitted_on").where("employee_id in (?) and submitted_on is not NULL and approved_on is NULL", jnrs)
+      
 
 =begin
       #The next block will need to be put in a function as it is repeated elsewhere
@@ -42,6 +52,7 @@ class MainController < ApplicationController
         Person.where(person_id: people.collect{|x|x.person_id}))
       @upcoming_deadlines = ProjectTask.where.not(task_status: "Complete")
       @employment_summary = Hash.new(0)
+      @project_tasks = ProjectTask.where(voided:false)
 
       (people || []).each do |person|
         @employment_summary[person.employment_type.to_s] += 1
