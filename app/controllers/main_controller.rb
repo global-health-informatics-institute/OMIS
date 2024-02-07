@@ -16,7 +16,7 @@ class MainController < ApplicationController
       @loe_current = @employee.loe()
 
       @projects = Project.select(:project_id, :project_name)
-
+      
       #@project_list = ProjectTask.where(voided:false)
       p = Project.where(manager: current_user.employee_id)
       @upcoming_deadlines = []
