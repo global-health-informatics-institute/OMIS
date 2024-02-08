@@ -8,6 +8,11 @@ module ReportsHelper
     return options
   end
 
+  def employees_LOE_list
+    employees = Employee.where(still_employed: true).collect{|x| [x.person.full_name, x.employee_id]}
+    return employees
+  end
+
   def monthly_loe_report(records, projects)
     book = Spreadsheet::Workbook.new # We have created a new object of the Spreadsheet book
 

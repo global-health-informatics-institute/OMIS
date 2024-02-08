@@ -42,18 +42,20 @@ class ReportsController < ApplicationController
   def project_progress_report
 
   end
+
   def monthly_employee_loe_report
-    if params[:employee].blank?
-      @person = Employee.find(current_user.employee_id)
+    @selected_employee_id = params[:employee_loe_type]
+    if @selected_employee_id.blank?
+      @person = Employee.find(selected_employee_id.employee_id)
     else
-      @person = Employee.find(params[:employee])
+      @person = Employee.find(@selected_employee_id)
     end
 
     start_day = Date.parse(params[:datetime_ida]).beginning_of_month
     end_day = Date.parse(params[:datetime_ida]).end_of_month
     @num_of_weeks = (end_day.strftime("%W").to_i - start_day.strftime("%W").to_i)+1
     sheets = Timesheet.where("employee_id = ? and timesheet_week between ? and ?",
-                             current_user.employee_id, start_day.advance(weeks: -1), end_day)
+                             (params[:employee_loe_type].blank? ? current_user.employee_id : params[:employee_loe_type]), start_day.advance(weeks: -1), end_day)
     records = TimesheetTask.where("timesheet_id in (?) and task_date between ? and ? ",
                                   sheets.collect { |x| x.timesheet_id },start_day, end_day)
 
