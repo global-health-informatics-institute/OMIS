@@ -14,12 +14,10 @@
       <div class="row">
         <div class="col col-md-8"><small class="fs-6 fw-bold text-primary">Export Report</small></div>
         <div class="col col-md-2">
-          <%= link_to image_tag("/assets/xls-file.png")%>
-          <%#= link_to image_tag("/assets/xls-file.png"), "/reports/monthly_employee_loe_report.xsl"%>
+          <%= link_to image_tag("/assets/xls-file.png"), "/generate_report.xsl?report_type=Employee+LOE&employee_loe_type=#{@selected_employee_id}&selected_employee_id=#{@selected_employee_id}&datetime_ida=2023-12-11&format=xsl"%>
         </div>
         <div class="col col-md-1">
-          <%= link_to image_tag("/assets/pdf.png")%>
-          <%#= link_to image_tag("/assets/pdf.png"), "/reports/monthly_employee_loe_report.pdf"%>
+          <%= link_to image_tag("/assets/pdf.png"), "/generate_report.pdf?report_type=Employee+LOE&employee_loe_type=#{@selected_employee_id}&selected_employee_id=#{@selected_employee_id}&datetime_ida=2023-12-03&format=pdf"%>
         </div>
       </div>
     </div>
