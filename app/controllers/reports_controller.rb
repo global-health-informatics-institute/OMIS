@@ -45,8 +45,9 @@ class ReportsController < ApplicationController
 
   def monthly_employee_loe_report
     @selected_employee_id = params[:employee_loe_type]
+    #raise @selected_employee_id.inspect
     if @selected_employee_id.blank?
-      @person = Employee.find(selected_employee_id.employee_id)
+      @person = Employee.find(current_user.employee_id)
     else
       @person = Employee.find(@selected_employee_id)
     end
@@ -55,7 +56,7 @@ class ReportsController < ApplicationController
     end_day = Date.parse(params[:datetime_ida]).end_of_month
     @num_of_weeks = (end_day.strftime("%W").to_i - start_day.strftime("%W").to_i)+1
     sheets = Timesheet.where("employee_id = ? and timesheet_week between ? and ?",
-                             (params[:employee_loe_type].blank? ? current_user.employee_id : params[:employee_loe_type]), start_day.advance(weeks: -1), end_day)
+                             (@selected_employee_id), start_day.advance(weeks: -1), end_day)
     records = TimesheetTask.where("timesheet_id in (?) and task_date between ? and ? ",
                                   sheets.collect { |x| x.timesheet_id },start_day, end_day)
 
@@ -71,6 +72,18 @@ class ReportsController < ApplicationController
       else
         check = @daily_summary[record.project_id][record.task_date.day]
         @daily_summary[record.project_id][record.task_date.day] = (check.blank? ? record.duration.to_f.floor(2) : (check + record.duration.to_f.floor(2)))
+      end
+    end
+
+    respond_to do |format|
+      format.turbo_stream
+      format.xsl do
+        helpers.monthly_employee_loe_spreadsheet(@daily_summary, @first_day, @last_day, @person)
+        send_file('tmp/monthly_employee_loe_report.xls', filename: "#{@person.person.full_name}_monthly_employee_loe_report.xls")
+      end
+      format.pdf do
+        helpers.monthly_employee_loe_pdf(@daily_summary, @first_day, @last_day, @person)
+        send_file('tmp/monthly_employee_loe_report.pdf', filename: "#{@person.person.full_name}_monthly_loe_report.pdf")
       end
     end
   end
