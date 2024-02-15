@@ -12,7 +12,7 @@ class RequisitionsController < ApplicationController
 
     case @selected_request
     when 'Petty Cash'
-      @petty_cash_limit = 5000
+      @petty_cash_limit = 500000
     when 'Asset Request'
       @asset_types = AssetCategory.all.collect{|x| x.category}
     when 'Purchase Request'
