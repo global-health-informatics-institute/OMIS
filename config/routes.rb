@@ -20,12 +20,12 @@ Rails.application.routes.draw do
 
   get 'settings/index'
   get 'settings/new'
-  get 'settings/create'
+  post 'settings/create'
   get 'settings/edit'
 
   get 'requisitions/index'
   get 'requisitions/new', defaults: { format: :turbo_stream }
-  get 'requisitions/create'
+  post 'requisitions/create'
   get 'requisitions/edit'
 
   get 'reports/index'
