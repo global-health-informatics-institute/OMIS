@@ -1,0 +1,2 @@
+class WorkflowStateAction < ApplicationRecord
+end
