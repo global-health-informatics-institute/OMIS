@@ -11,6 +11,10 @@ gem "sprockets-rails"
 
 gem 'bootstrap', '~> 5.1', '>= 5.1.3'
 
+gem 'flatpickr_rails'
+
+gem 'ransack'
+
 gem 'bcrypt', '~> 3.1.7'
 
 gem "pg"

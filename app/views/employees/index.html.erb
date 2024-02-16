@@ -1,2 +1,59 @@
-<h1>Employees#index</h1>
-<p>Find me in app/views/employees/index.html.erb</p>
+<%= javascript_include_tag 'custom/jquery-3.6.1.min', 'data-turbolinks-track' => false %>
+
+<h2>Employee Contacts</h2>
+<div style="display: flex; justify-content: flex-end">
+    <div class="col">
+        <input class="form-control" type="text" placeholder="Search for Contact" id="textFilter">
+    </div>
+    <div class="col">
+        <button class="btn btn-success">
+            Search
+        </button>
+    </div>
+</div>
+
+<div class="row mt-4 p-0">
+  <div class="col p-0">
+    <table class="table table-stripped" id="contactsTable">
+      <tbody>
+        <% (@list_employees || []).each do |list| %>
+          <tr>
+            <td>
+              <div class="card mb-2">
+                <div class="card-header card-header-dark">
+                  <div class="row mt-4 mb-4">
+                    <div class="col-2 fw-normal">First name</div>
+                      <div class="col-4 fw-light fst-italic"><%= list.first_name %></div>
+                      <div class="col-2 fw-normal">Last name</div>
+                      <div class="col-4 fw-light fst-italic"><%= list.last_name %></div>
+                    </div>
+                    <div class="row mt-4 mb-4">
+                      <div class="col-2 fw-normal">Primary Num.</div>
+                      <div class="col-4 fw-light fst-italic"><%= list.primary_phone %></div>
+                      <div class="col-2 fw-normal">Secondary Num.</div>
+                      <div class="col-4 fw-light fst-italic"><%= list.alt_phone %></div>
+                    </div>
+                    <div class="row mt-4 mb-4">
+                      <div class="col-2 fw-normal">Email</div>
+                      <div class="col-4 fw-light fst-italic"><%= list.email_address %></div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#textFilter").on("keyup", function () {
+            const value = $(this).val().toLowerCase();
+            $("#contactsTable tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
+        });
+    });
+</script>

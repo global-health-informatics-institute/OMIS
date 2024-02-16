@@ -1,7 +1,8 @@
 class Timesheet < ApplicationRecord
   has_many :timesheet_tasks, foreign_key: :timesheet_id
-  has_one :employee, foreign_key: :employee_id
+  belongs_to :employee, foreign_key: :employee_id
   has_one :project, foreign_key: :project_id
+
   def status
     if !self.approved_on.blank?
       return "Approved"
