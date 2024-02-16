@@ -1,0 +1,54 @@
+﻿Branch,Department,DesignatedRole
+HeadQuarters,Administration,Executive Director
+HeadQuarters,Administration,Cheif Operations Officer
+HeadQuarters,Administration,Administration Manager
+HeadQuarters,Administration,Administration Officer
+HeadQuarters,Administration,Junior Administration Officer
+HeadQuarters,Administration,Procurement & Logistics Officer
+HeadQuarters,Administration,Driver
+HeadQuarters,Finance,Chief Finance Officer
+HeadQuarters,Finance,Senior Accountant
+HeadQuarters,Finance,Accountant
+HeadQuarters,Finance,Finance Officer
+HeadQuarters,Finance,Debt Collector
+HeadQuarters,Sales,Sales Manager
+HeadQuarters,Sales,Sales Associate
+HeadQuarters,Sales,Sales Representative
+HeadQuarters,Sales,Sales Support
+HeadQuarters,Marketing,Business Development Manager
+HeadQuarters,Marketing,Marketing Assistant
+HeadQuarters,Marketing,Marketing Executive
+HeadQuarters,Marketing,Digital Marketing Coordinator
+HeadQuarters,Marketing,Marketing Analyst
+HeadQuarters,Training,Training Manager
+HeadQuarters,Training,Training Officer
+HeadQuarters,Implementations and Support,Implementation Officer
+HeadQuarters,Implementations and Support,Implementation Manager
+HeadQuarters,Implementations and Support,Network Engineer
+HeadQuarters,Implementations and Support,Power Engineer
+HeadQuarters,Implementations and Support,Quality Assessment Specialist
+HeadQuarters,Implementations and Support,Implementation Officer
+HeadQuarters,Engineering,Product Development Manager
+HeadQuarters,Engineering,Product Developer
+HeadQuarters,Engineering,CAD-CAM Specialist
+HeadQuarters,Engineering,Machinist
+HeadQuarters,Engineering,Software Developer
+HeadQuarters,Engineering,Quality Assurance Specialist
+Lilongwe Office,Administration,Administration Officer
+Lilongwe Office,Administration,Procurement & Logistics Officer
+Lilongwe Office,Implementations and Support,Implementation Officer
+Lilongwe Office,Implementations and Support,Support Officer
+Lilongwe Office,Sales,Sales Associate
+Lilongwe Office,Sales,Sales Representative
+Lilongwe Office,Sales,Sales Support
+Lilongwe Office,Marketing,Marketing Assistant
+Lilongwe Office,Marketing,Marketing Executive
+Mzuzu Office,Administration,Administration Officer
+Mzuzu Office,Administration,Procurement & Logistics Officer
+Mzuzu Office,Implementations and Support,Implementation Officer
+Mzuzu Office,Implementations and Support,Support Officer
+Mzuzu Office,Sales,Sales Associate
+Mzuzu Office,Sales,Sales Representative
+Mzuzu Office,Sales,Sales Support
+Mzuzu Office,Marketing,Marketing Assistant
+Mzuzu Office,Marketing,Marketing Executive

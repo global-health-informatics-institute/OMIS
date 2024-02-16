@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_11_06_090654) do
+ActiveRecord::Schema[7.0].define(version: 2024_01_12_104007) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -64,6 +64,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_06_090654) do
     t.string "department_name", null: false
     t.boolean "is_active", default: true
     t.integer "created_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "designation_workflow_state_actions", force: :cascade do |t|
+    t.integer "workflow_state_id", null: false
+    t.integer "designation_id", null: false
+    t.boolean "voided", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -177,7 +185,17 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_06_090654) do
   create_table "requisition_items", primary_key: "requisition_item_id", force: :cascade do |t|
     t.integer "requisition_id", null: false
     t.decimal "quantity"
+    t.decimal "value"
     t.string "item_description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "requisition_notes", force: :cascade do |t|
+    t.integer "requisition_id", null: false
+    t.integer "user_id", null: false
+    t.text "note"
+    t.boolean "voided", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -189,6 +207,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_06_090654) do
     t.string "requisition_type", null: false
     t.integer "reviewed_by"
     t.integer "approved_by"
+    t.integer "workflow_state_id", null: false
     t.boolean "voided", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -234,6 +253,45 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_06_090654) do
     t.boolean "reset_needed", default: false, null: false
     t.boolean "activated", default: false
     t.datetime "last_login", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "workflow_processes", primary_key: "workflow_process_id", force: :cascade do |t|
+    t.string "workflow", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "active", default: true
+  end
+
+  create_table "workflow_state_actions", force: :cascade do |t|
+    t.integer "workflow_state_id", null: false
+    t.string "state_action", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "workflow_state_actors", force: :cascade do |t|
+    t.integer "workflow_state_id", null: false
+    t.integer "employee_designation_id", null: false
+    t.boolean "voided", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "workflow_state_transitions", force: :cascade do |t|
+    t.integer "workflow_state_id", null: false
+    t.integer "next_state", null: false
+    t.boolean "voided", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "workflow_states", primary_key: "workflow_state_id", force: :cascade do |t|
+    t.integer "workflow_process_id"
+    t.string "state", null: false
+    t.string "description"
+    t.boolean "voided", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

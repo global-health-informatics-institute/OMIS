@@ -1,8 +1,8 @@
 def start
 
   dates = []
-  start_date = Date.parse('2023-05-07')
-  (0..21).each do |i|
+  start_date = Date.parse('2023-12-01')
+  (0..6).each do |i|
     dates.append(start_date.advance(weeks: i).cweek)
   end
   employees = Employee.where(still_employed: true)

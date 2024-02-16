@@ -7,6 +7,7 @@ class CreateRequisitions < ActiveRecord::Migration[7.0]
       t.string :requisition_type, null: false
       t.integer :reviewed_by
       t.integer :approved_by
+      t.integer :workflow_state_id, null: false
       t.boolean :voided, null: false, default: false
       t.timestamps
     end

@@ -21,7 +21,7 @@ Rails.application.routes.draw do
 
   get 'settings/index'
   get 'settings/new'
-  get 'settings/create'
+  post 'settings/create'
   get 'settings/edit'
 
   get 'requisitions/index'
