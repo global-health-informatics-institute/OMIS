@@ -43,23 +43,23 @@
     </div>
   </div>
   <div class="col-sm-4">
-    <div class="card h-100">
+    <div class="card h-100" style="max-height: 280px; overflow-y: auto;">
       <div class="card-body p-2">
-        <h6 class="card-title">Upcoming Deadlines</h6>
+        <h6 class="card-title" style= "font-size: 18px">Upcoming Deadlines</h6>
           <table class="table m-0">
-            <thead>
+            <thead style= "font-size: 14px">
               <tr>
-                <th>Date</th>
+                <th style="width:25%">Date</th>
                 <th>Task</th>
               </tr>
             </thead>
-            <tbody>
-              <% (@upcoming_deadlines || []).each do |task| %>
-                <tr>
-                  <td><%= task.deadline.strftime('%d %B') %></td>
-                  <td><%= task.task_description %>></td>
-                </tr>
-              <% end %>
+            <tbody style= "font-size: 12px">
+            <% (@upcoming_deadlines || []).each do |list| %>
+              <tr >
+                <td><%= list.deadline.strftime('%d %b,%y')%></td>
+                <td><%= list.task_description %></td>
+              </tr>
+            <% end %>
             </tbody>
         </table>
       </div>
@@ -94,7 +94,26 @@
             <% if (@approvals || []).empty? %>
               <h3>No Pending Approvals</h3>
             <% else%>
-              <%= render partial: 'requisitions/index' %>
+
+            <table class="table table-striped ml-8 table-hover", style="width: 100%">
+              <thead class="table">
+                  <th>Requisition Type</th>
+                  <th>Person / Stakeholder</th>        
+                  <th>Date Submitted</th>  
+                  <th>Action</th>  
+              </thead>
+              <tbody>
+                <% (@approvals || []).each do |approval| %>
+                  <tr>
+                      <td>Timesheet</td>        
+                      <td><%= approval.employee.person.full_name%></td> 
+                      <td><%= approval.submitted_on %></td>    
+                      <td><%= link_to 'View', approval %></td>    
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+              <%#= render partial: 'requisitions/index' %>
             <% end%>  
           </div>
         </div>

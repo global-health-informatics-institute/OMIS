@@ -35,6 +35,9 @@ class RequisitionsController < ApplicationController
   end
 
   def create
+    raise params.inspect
+    new_requisition = Requisition.new()
+
   end
 
   def edit

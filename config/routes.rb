@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   resources :branches
   resources :employees
   resources :timesheets
+  #resources :requisitions
   resources :project_tasks
   resources :business_assets
   resources :time_sheet_tasks
@@ -25,7 +26,7 @@ Rails.application.routes.draw do
 
   get 'requisitions/index'
   get 'requisitions/new', defaults: { format: :turbo_stream }
-  get 'requisitions/create'
+  post 'requisitions/create'
   get 'requisitions/edit'
 
   get 'reports/index'

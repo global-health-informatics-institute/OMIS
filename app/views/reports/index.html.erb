@@ -1,3 +1,5 @@
+<%= javascript_include_tag 'custom/jquery-3.6.1.min', 'data-turbolinks-track' => false %>
+
 <p class="h5 ">Reports Center</p>
 <div class="border p-2">
   <h6>Report Specification</h6>
@@ -7,7 +9,11 @@
         Report Type:
       </div>
       <div class="col">
-        <%= select_tag(:report_type, options_for_select(select_report), class: "form-select") %>
+        <%= select_tag(:report_type, options_for_select(select_report), class: "form-select", id:"reportTypeSelect") %>
+        <div id="employeeLOElist" style="display: none;">
+          <%= select_tag(:employee_loe_type, options_for_select(employees_LOE_list), class: "form-select mt-2", id: "employeeLOESelect") %>
+        </div>
+        <%= hidden_field_tag(:selected_employee_id, "", id: "selected_employee_id") %>
       </div>
       <div class="col-2 fs-5 fw-bold">
         Report Period:
@@ -30,3 +36,22 @@
     <%= render partial: "show" %>
   </div>
 </div>
+
+<script>
+  // JavaScript to toggle visibility of the nested dropdown based on the selected option
+  $(document).ready(function() {
+    $("#reportTypeSelect").change(function() {
+      var selectedReport = $(this).val();
+      if (selectedReport === "Employee LOE") {
+        $("#employeeLOElist, #employeeLOEArrow").show();
+      } else {
+        $("#employeeLOElist").hide();
+      }
+    });
+    // Update the hidden field when the nested dropdown changes
+    $("#employeeLOESelect").change(function() {
+      var selectedEmployeeId = $(this).val();
+      $("#employee_loe_type").val(selectedEmployeeId);
+    });
+  });
+</script>

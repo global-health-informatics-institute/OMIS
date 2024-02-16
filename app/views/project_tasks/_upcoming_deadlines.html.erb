@@ -1,4 +1,4 @@
-<div class="card h-100">
+<div class="card h-100" style="max-height: 280px; overflow-y: auto;">
   <div class="card-body p-2">
     <h6 class="card-title">Upcoming Deadlines</h6>
     <table class="table m-0">
@@ -9,22 +9,14 @@
         <th>Action</th>
       </tr>
       </thead>
-      <tbody>
-      <tr v-for="(deadline, index) in deadlines" :key="index">
-        <td>1 Oct 2023</td>
-        <td>Task A</td>
-        <td>Action</td>
-      </tr>
-      <tr v-for="(deadline, index) in deadlines" :key="index">
-        <td>1 Oct 2023</td>
-        <td>Task A</td>
-        <td>Action</td>
-      </tr>
-      <tr v-for="(deadline, index) in deadlines" :key="index">
-        <td>1 Oct 2023</td>
-        <td>Task A</td>
-        <td>Action</td>
-      </tr>
+      <tbody style= "font-size: 13px">
+      <% (@project_tasks || []).each do |task| %>
+        <tr >
+          <td><%= task.deadline.strftime('%d %B %y')%></td>
+          <td><%= task.task_description %></td>
+          <td><%=link_to 'View', "/projects/#{task.project_id}"%></td>
+        </tr>
+      <% end %>
       </tbody>
     </table>
   </div>

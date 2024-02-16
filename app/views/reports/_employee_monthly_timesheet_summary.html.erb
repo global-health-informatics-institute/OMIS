@@ -1,20 +1,31 @@
 
-<div class="row">
-  <div class="col-5">
-    <span class="fs-6 fw-bold">Employee: </span> <%= @person.person.full_name %><br/>
-    <span class="fs-6 fw-bold">Role: </span> <%= @person.current_position %>
-  </div>
+<div class="row mb-2">
   <div class="col-4">
+    <span class="fs-6 fw-bold">Employee: </span> <%= @person.person.full_name %><br/>
+  </div>
+  <div class="col-2">
     <span class="fs-6 fw-bold">Period: </span> <%= @first_day %><br/>
-    <span class="fs-6 fw-bold">Status: </span> <%#= @timesheet.status %>
   </div>
   <div class="col-3">
-    <input type="date" class="form-control" id="period">
+    <span class="fs-6 fw-bold">Role: </span> <%= @person.current_position %>
+  </div>
+  <div class="col-3">
+    <div class="col 3">
+      <div class="row">
+        <div class="col col-md-8"><small class="fs-6 fw-bold text-primary">Export Report</small></div>
+        <div class="col col-md-2">
+          <%= link_to image_tag("/assets/xls-file.png"), "/generate_report.xsl?report_type=Employee+LOE&employee_loe_type=#{@selected_employee_id}&selected_employee_id=#{@selected_employee_id}&datetime_ida=2023-12-11&format=xsl"%>
+        </div>
+        <div class="col col-md-1">
+          <%= link_to image_tag("/assets/pdf.png"), "/generate_report.pdf?report_type=Employee+LOE&employee_loe_type=#{@selected_employee_id}&selected_employee_id=#{@selected_employee_id}&datetime_ida=2023-12-03&format=pdf"%>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <table class="table">
-  <thead class="table-secondary">
+  <thead class="table-secondary" style="font-size:9px;">
     <tr>
       <td>Project</td>
       <% (1..@num_of_weeks).each do |week| %>
@@ -34,7 +45,7 @@
       <% end %>
     </tr>
   </thead>
-  <tbody>
+  <tbody style="font-size: 9px;">
     <% (@daily_summary || []).each do |project, summary| %>
       <tr>
         <th><%= Project.find(project).short_name %></th>
