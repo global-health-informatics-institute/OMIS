@@ -1,0 +1,2 @@
+class WorkflowStateActor < ApplicationRecord
+end
