@@ -18,7 +18,8 @@ end
 puts "Adding Designations"
 CSV.foreach("#{source}/designations.csv",:headers=>:true) do |row|
   department = Department.joins(:branch).where('branches.branch_name' => row[0],
-                                               department_name: row[1])
+                                               department_name: row[1]).first
+
   Designation.create(department_id: department.id, designated_role: row[2])
 end
 
@@ -40,18 +41,18 @@ CSV.foreach("#{source}/employees.csv",:headers=>:true) do |row|
                              landmark: row[12])
 
   new_employee = Employee.create(person_id: new_person.id, employment_date: row[13], departure_date: row[14],
-                                 still_employed: (row[14].downcase.strip == "" ? true : false))
+                                 still_employed: (row[14].blank? ? true : false))
 
-  User.create(employee_id: new_employee.id, activated_at: employee.employment_date, activated: true,
+  User.create(employee_id: new_employee.id, activated_at: new_employee.employment_date, activated: true,
               username: "#{new_person.last_name}#{new_person.first_name[0]}#{rand(100).to_s.rjust(3,"0")}",
               password: "#{new_person.last_name}#{new_person.first_name[0]}")
 end
 
 puts "Adding employee designations"
-CSV.create("#{source}/employee_designations.csv", :headers => :true) do |row|
+CSV.foreach("#{source}/employee_designations.csv", :headers => :true) do |row|
   employee = Person.where(first_name: row[0].strip, last_name:row[2].strip,
                           middle_name: (row[1].blank? ? nil : row[1])).first.employee
-  dept = Department.select(:department_id).joins(:branch).where(branch_name: row[3]).collec{|x| x.id}
+  dept = Department.select(:department_id).joins(:branch).where("branches.branch_name": row[3]).collect{|x| x.id}
   designation = Designation.where(department_id: dept, designated_role: row[4]).first
   EmployeeDesignation.create(employee_id: employee.id,
                              designation_id: designation.id,
@@ -60,7 +61,7 @@ CSV.create("#{source}/employee_designations.csv", :headers => :true) do |row|
 end
 
 puts "Adding supervision"
-CSV.create("#{source}/supervision.csv", :headers => :true) do |row|
+CSV.foreach("#{source}/supervision.csv", :headers => :true) do |row|
   supervisor = Person.where(first_name: row[0].strip.split(" ")[0],
                             last_name:row[2].strip,
                             middle_name: (row[1].blank? ? nil : row[1])).first.employee
@@ -68,22 +69,26 @@ CSV.create("#{source}/supervision.csv", :headers => :true) do |row|
   supervisee = Person.where(first_name: row[0].strip, last_name:row[2].strip,
                           middle_name: (row[1].blank? ? nil : row[1])).first.employee
 
-  Supervision(supervisor: integer, supervisee: supervisee.id,
+  Supervision.create(supervisor: supervisor.id, supervisee: supervisee.id,
               started_on: row[4], ended_on: (row[5].blank? ? nil : row[5]),
               is_terminated: (row[5].blank? ? false : true))
 
 end
 
 puts "Adding projects"
-CSV.create("#{source}/projects.csv", :headers => :true) do |row|
+CSV.foreach("#{source}/projects.csv", :headers => :true) do |row|
   manager = Person.where(first_name: row[2].split(" ")[0].strip, last_name: row[2].split(" ")[1].strip).first
   Project.create(project_name: row[0], short_name: row[3], project_description: row[1],
                  manager: manager.employee.id, created_at: row[5], completed_at: (row[4].blank? ? nil : row[4]))
 end
 
 puts "Adding loe"
-CSV.create("#{source}/loe.csv", :headers => :true) do |row|
-  ProjectTeam.create(project_id: integer, employee_id: integer, allocated_effort: float, voided: boolean)
+CSV.foreach("#{source}/loe.csv", :headers => :true) do |row|
+  employee = Person.where(first_name: row[0].strip, last_name:row[2].strip,
+                            middle_name: (row[1].blank? ? nil : row[1])).first.employee
+
+  ProjectTeam.create(project_id: Project.find_by_project_name(row[3]).id, employee_id: employee.id,
+                     allocated_effort: (row[4].to_i/100))
 end
 
 puts "Adding time sheets"
