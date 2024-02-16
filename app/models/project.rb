@@ -1,3 +1,3 @@
 class Project < ApplicationRecord
-  belongs_to :person, :foreign_key => :manager
+  belongs_to :employee, :foreign_key => :manager
 end
