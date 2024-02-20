@@ -65,7 +65,9 @@ class ReportsController < ApplicationController
     @days = %w[Sun Mon Tue Wed Thu Fri Sat]
     @first_day = start_day
     @last_day = end_day.day
+    @last_date = end_day
     @daily_summary = {}
+    @total = 0.0
     (records || []).each do |record|
       if @daily_summary[record.project_id].blank?
         @daily_summary[record.project_id] = {record.task_date.day => record.duration.to_f.floor(2)}
@@ -73,14 +75,16 @@ class ReportsController < ApplicationController
         check = @daily_summary[record.project_id][record.task_date.day]
         @daily_summary[record.project_id][record.task_date.day] = (check.blank? ? record.duration.to_f.floor(2) : (check + record.duration.to_f.floor(2)))
       end
+      @total += record.duration.round(2)
     end
 
     respond_to do |format|
       format.turbo_stream
       format.xsl do
-        helpers.monthly_employee_loe_spreadsheet(@daily_summary, @first_day, @last_day, @person)
+        helpers.monthly_loe_report(@daily_summary, @first_day, @last_day, @person)
         send_file('tmp/monthly_employee_loe_report.xls', filename: "#{@person.person.full_name}_monthly_employee_loe_report.xls")
       end
+      
       format.pdf do
         helpers.monthly_employee_loe_pdf(@daily_summary, @first_day, @last_day, @person)
         send_file('tmp/monthly_employee_loe_report.pdf', filename: "#{@person.person.full_name}_monthly_loe_report.pdf")

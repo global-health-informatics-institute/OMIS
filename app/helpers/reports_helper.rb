@@ -13,7 +13,7 @@ module ReportsHelper
     return employees
   end
 
-  def monthly_loe_report(records, projects)
+  def monthly_loe_report(records, projects, employee_name)
     book = Spreadsheet::Workbook.new # We have created a new object of the Spreadsheet book
 
     sheet = book.create_worksheet(name: 'First sheet') # We are creating new sheet in the Spreadsheet(We can create multiple sheets in one Spreadsheet book)
@@ -21,7 +21,7 @@ module ReportsHelper
     # syntax to create new row is as the following:
     # sheet.row(row_number).push(column first', 'column second', 'column third')
 
-    sheet.row(0).push('Employee Name')
+    sheet.row(0).push("Employee Namessss:  #{@person.person.full_name}")
     (projects || []).each do |project|
       sheet.row(0).push(project)
     end
@@ -39,39 +39,21 @@ module ReportsHelper
 
   end
 
-  def monthly_employee_loe_spreadsheet(records, start_day, end_day, employee_name)
-    book = Spreadsheet::Workbook.new
-    sheet = book.create_worksheet(name: 'Monthly Employee LOE Report')
-
-    # Add headers and data to the sheet based on the records and projects
-    sheet.row(0).push('Employee Name')
-    (records || []).each do |employee_name, project|
-      sheet.row(0).push(project)
-    end
-
-    i = 1
-    (records || []).each do |employee_name, project_data|
-      sheet.row(i).push(employee_name)
-      (project_data || []).each do |project, loe|
-        sheet.row(i).push(loe || 0.0)
-      end
-      i += 1
-    end
-
-    # Write the sheet to the Excel file
-    book.write 'tmp/monthly_employee_loe_report.xls'
-  end
-
   def monthly_employee_loe_pdf(records, start_day, end_day, employee_name)
-    Prawn::Document.generate('tmp/monthly_employee_loe_report.pdf', :page_layout => :landscape) do |pdf|
-      pdf.text 'Monthly Employee LOE Report', style: :bold, size: 16
+    Prawn::Document.generate('tmp/monthly_employee_loe_report.pdf',:page_size => 'A3', :page_layout => :landscape,
+                             left_margin: 40, right_margin: 30) do |pdf|
+      pdf.image "app/assets/images/GHII-Letterhead.png", width: 1100, height: 120
       pdf.move_down 20
-  
-      # Table headers
       pdf.font_size 12
-      pdf.text "Employee Name: #{@person.person.full_name}", style: :bold
-  
-      table_data = [['Project'] + (1..@last_day).map { |day| "Day #{day}" }]
+      pdf.text "<font size='16'><b>Employee Monthly Timesheet Report</b></font>", align: :center, inline_format: true
+      pdf.move_down 20
+      pdf.text "<b>Period:</b> #{@first_day}   -   #{@last_date}", inline_format: true
+      pdf.move_down 10
+
+      table_data = [['Project' + " "*30, {:content => "First Week", :colspan => 7}, {:content => "Second Week", :colspan => 7},
+      {:content => "Third Week", :colspan => 7}, {:content => "Fourth Week", :colspan => 7},
+      {:content => "Fifth Week", :colspan =>7}],
+     %w[Day Sun Mon Tue Wed Thu Fri Sat Sun Mon Tue Wed Thu Fri Sat Sun Mon Tue Wed Thu Fri Sat Sun Mon Tue Wed Thu Fri Sat Sun Mon Tue Wed Thu Fri Sat]]
   
       (records || []).each do |project_id, loe|
         project = Project.find(project_id)
@@ -87,6 +69,15 @@ module ReportsHelper
         row(0).font_style = :bold
         columns(0).align = :center
       end
+      pdf.font_size 10
+      pdf.move_down 60
+      pdf.text "Total Hours: #{Prawn::Text::NBSP*1}#{@total}"
+      pdf.move_down 40
+      pdf.text "Employee Name: #{Prawn::Text::NBSP*1}#{@person.person.full_name} #{Prawn::Text::NBSP*150}Supervisor Name: ___________________________________"
+      pdf.move_down 40
+      pdf.text "Date: #{Prawn::Text::NBSP*1}_____________________________________________ #{Prawn::Text::NBSP*100}Date: _____________________________________________"
+      pdf.move_down 60
+      pdf.text "Signature:  #{Prawn::Text::NBSP*1}________________________________________ #{Prawn::Text::NBSP*100}Signature: __________________________________________"
     end
   end
   

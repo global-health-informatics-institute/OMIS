@@ -185,7 +185,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_01_12_104007) do
   create_table "requisition_items", primary_key: "requisition_item_id", force: :cascade do |t|
     t.integer "requisition_id", null: false
     t.decimal "quantity"
-    t.decimal "value"
     t.string "item_description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -207,7 +206,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_01_12_104007) do
     t.string "requisition_type", null: false
     t.integer "reviewed_by"
     t.integer "approved_by"
-    t.integer "workflow_state_id", null: false
     t.boolean "voided", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
