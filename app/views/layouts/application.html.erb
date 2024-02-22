@@ -189,7 +189,7 @@
     <ul class="sidebar-nav" id="sidebar">
       <li><%= link_to "Home", "/"%></li>
       <% if current_user %>
-        <li><%#= link_to "Assets", "/business_assets" %></li>
+        <li><%= link_to "Assets", "/business_assets" %></li>
         <li><%#= link_to "Projects", "/projects"%></li>
         <li><%= link_to "Timesheets", "/timesheets/#{ current_timesheet.timesheet_id }" %></li>
         <li><%= link_to "Requisitions", "/requisitions/index"%></li>
