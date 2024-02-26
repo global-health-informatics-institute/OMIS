@@ -62,9 +62,6 @@ module ReportsHelper
           duration = loe[day].blank? ? '-' : loe[day].floor(2)
           row << duration
         end
-        (0..30).each do |i|
-          row.append(records[@first_day.advance(days: i).strftime('%d').to_i])
-        end
         table_data << row
       end
   
