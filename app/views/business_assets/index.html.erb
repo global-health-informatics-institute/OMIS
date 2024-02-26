@@ -47,9 +47,10 @@
           <td>
             <%= link_to image_tag("/assets/info.png"), "business_assets/#{asset.id}", data: { turbo_frame: "remote_model"}%>
             <%= link_to image_tag("/assets/edit.png"), "business_assets/#{asset.id}/edit", data: { turbo_frame: "remote_model"} %>
+            <%= link_to image_tag("/assets/print_icon.png"), "business_assets/#{asset.id}.lbl", data: { turbo_frame: "remote_model"} %>
             <%= link_to image_tag("/assets/delete.png"), "business_assets/#{asset.id}", data: { turbo_frame: "remote_model"} %>
             <%= link_to image_tag("/assets/request.png"), "business_assets/#{asset.id}", data: { turbo_frame: "remote_model"} %>
-            <button onclick="
+            <!--<button onclick="
             var tagId = '<%= asset.tag_id %>';
             var category = '<%= @categories[asset.asset_category_id] %>';
             var description = '<%= asset.description %>';
@@ -72,7 +73,7 @@
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-          "><img src="/assets/print_icon.png"</button>
+          "><img src="/assets/print_icon.png"></button>-->
           </td>
         </tr>
       <% end %>
