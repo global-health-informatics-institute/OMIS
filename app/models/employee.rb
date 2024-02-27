@@ -99,7 +99,7 @@ class Employee < ApplicationRecord
         end
 
         (self.current_projects || []).each do |proj|
-           results[proj.project.short_name] += (proj.allocated_effort * cost_shared_amount)
+           results[proj.project.short_name] += ((proj.allocated_effort/100) * cost_shared_amount)
         end
 
         return results

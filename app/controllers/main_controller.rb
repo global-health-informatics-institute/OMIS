@@ -11,9 +11,15 @@ class MainController < ApplicationController
                                                                           revoked: false )
                                               ).where.not(task_status: "Complete").order("deadline DESC").limit(5)
 
-      @loe_targets = ProjectTeam.where("employee_id = ? and project_id in (?)", current_user.employee_id, Project.select(:project_id).where(is_active: true))
+      @loe_targets = ProjectTeam.where("employee_id = ? and project_id in (?) and end_date is NULL",
+                                       current_user.employee_id, Project.select(:project_id).where(is_active: true))
       @project_names = Project.select(:short_name).where(project_id: @loe_targets.collect { |x| x.project_id })
       @loe_current = @employee.loe()
+
+      @total_hrs = 0.0
+      (@loe_current || []).each do |k,v|
+        @total_hrs += v
+      end
 
       @projects = Project.select(:project_id, :project_name)
       
