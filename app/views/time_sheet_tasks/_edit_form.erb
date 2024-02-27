@@ -17,7 +17,7 @@
     </div>
     <div class="col mb-3">
       <%= form.label :duration %>
-      <%= form.number_field :duration, value: @time_sheet_task.duration, step:0.25, max: 18, class: 'form-control', required: true %>
+      <%= form.number_field :duration, value: @time_sheet_task.duration, step:0.25, max: 18, min: 0, class: 'form-control', required: true %>
     </div>
   </div>
   <div class="row">
