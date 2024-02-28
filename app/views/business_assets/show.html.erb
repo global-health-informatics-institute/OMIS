@@ -1,2 +1,99 @@
-</p><h1>BusinessAssets#show</h1>
-<p>Find me in app/views/business_assets/show.html.erb</p>
+<h4>Asset Tracking</h4>
+
+<div class="row">
+  <div class="col-sm-5">
+    <div class="card h-80">
+      <div class="card-body p-2">
+        <span class="fs-5 fw-bold">Asset Details
+      </div>
+      <div class="card-body">
+        <span class="fs-6 italic">Asset Description: <%= @asset.description %>
+      </div>
+      <div class="card-body">
+        <span class="fs-6 italic">Make: <%= @asset.make %>
+      </div>
+      <div class="card-body">
+        <span class="fs-6 italic">Model: <%= @asset.model %>
+      </div>
+      <div class="card-body">
+        <span class="fs-6 italic">Tag ID: <%= @asset.tag_id %>
+      </div>
+      <div class="card-body">
+        <span class="fs-6 italic">Location: <%= @asset.location %>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-5">
+    <div class="card h-100">
+      <div class="card-body p-2">
+        <span class="fs-5 fw-bold">Value over time </span>
+      </div>
+      <div class="card-body p-6">
+        <div class="card h-100">
+  <div class="card-body p-6">
+    <h6>Item Values Over Time</h6>
+        <div class="text-center">
+        <canvas id="itemValuesChart" style="height: 35vh !important;"></canvas>
+        </div>
+    </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+
+<script>
+  const ctx = document.getElementById('itemValuesChart');
+  new Chart(ctx, {
+    type: 'line', // Change to 'line' for a line chart representing values over time
+    data: {
+      labels: ['2022', '2023', '2024', '2025', '2026'], // Replace with your time period labels
+      datasets: [{
+        data: [50, 60, 45, 70, 80], // Replace with your actual values over time
+        label: "Item Values",
+        borderColor: 'rgb(75, 192, 192)',
+        borderWidth: 2,
+        fill: true
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top'
+        }
+      }
+    }
+  });
+</script>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="border p-2 mt-2">
+    <table class="table table-stripped" id="assetTable">
+    <thead class="thead-light">
+      <tr>
+        <th><abbr title="reg">Registered on</abbr></th>
+        <th><abbr title="Lost">Current custodian</abbr></th>
+        <th><abbr title="Goals for">Location </abbr></th>
+        <th><abbr title="Goal difference">Status</abbr></th>
+        <th><abbr title="Points">Disposal reason</abbr></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><%= @asset.created_at%></td>
+          <td><%= @person.full_name%></td>
+          <td><%= @asset.location %></td>
+          <td><%= @asset.status %></td>
+          <td><%= @asset.disposal_reason %></td>
+        </tr>
+    </tbody>
+  </table>
+</div>
