@@ -161,7 +161,7 @@
       data : {
           labels : labels.split(','),
           datasets : [ {
-              data : <%= @loe_targets.collect { |x| (x.allocated_effort * 100) }.to_s %>
+              data : <%= @loe_targets.collect { |x| (x.allocated_effort) }.to_s %>
           } ]
       },
       options : {
@@ -179,7 +179,7 @@
       data : {
           labels : currLabels.split(','),
           datasets : [ {
-              data : <%= @loe_current.collect { |x,y| y }.to_s %>
+              data : <%= @loe_current.collect { |x,y| ((y/@total_hrs)*100).floor(2) }.to_s %>
           } ]
       },
       options : {
