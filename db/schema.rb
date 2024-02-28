@@ -164,6 +164,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_01_12_104007) do
     t.integer "project_id", null: false
     t.integer "employee_id", null: false
     t.float "allocated_effort", default: 0.0
+    t.date "start_date", null: false
+    t.date "end_date"
     t.boolean "voided", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

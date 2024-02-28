@@ -21,6 +21,8 @@ gem "pg"
 
 gem "spreadsheet"
 
+gem 'writeexcel'
+
 gem "prawn"
 
 gem 'puredocx'

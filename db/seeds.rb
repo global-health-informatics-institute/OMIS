@@ -4,6 +4,7 @@ require 'csv'
 source = "#{Rails.root}/db/data/#{ENV['data'] || 'demo'}"
 puts "Seeding the database with #{ENV['data']} data"
 
+
 puts "Adding Branches"
 CSV.foreach("#{source}/branches.csv",:headers=>:true) do |row|
   Branch.create(branch_name: row[0], city: row[2], country: row[1], location: row[3])
@@ -60,8 +61,10 @@ CSV.foreach("#{source}/employee_designations.csv", :headers => :true) do |row|
                              end_date: (row[6].blank? ? nil : row[6]))
 end
 
+
 puts "Adding supervision"
 CSV.foreach("#{source}/supervision.csv", :headers => :true) do |row|
+
   supervisor = Person.where(first_name: row[3].strip.split(" ")[0],
                             last_name:row[3].strip.split(" ").last,
                             middle_name: (row[3].strip.split(" ").length == 3 ? row[3].strip.split(" ")[1] : nil)).first.employee
@@ -87,16 +90,18 @@ CSV.foreach("#{source}/loe.csv", :headers => :true) do |row|
   employee = Person.where(first_name: row[0].strip, last_name:row[2].strip,
                             middle_name: (row[1].blank? ? nil : row[1])).first.employee
 
-  ProjectTeam.create(project_id: Project.find_by_project_name(row[3]).id, employee_id: employee.id,
-                     allocated_effort: (row[4].to_i/100))
+  ProjectTeam.create(employee_id: employee.id,  allocated_effort: (row[4].to_f), start_date: row[5],
+                     end_date: (row[6].blank? ? nil : row[6]),
+                     project_id: Project.where("(short_name = '#{row[3].squish}') OR (project_name = '#{row[3].squish}')").first.id
+                     )
 end
 
 puts "Adding time sheets"
 
 CSV.foreach("#{source}/timesheets.csv",:headers=>:true) do |row|
-  puts "#{row[0].split( " ")[0].strip} #{row[0].split( " ")[1].strip} #{row[1]} #{row[3]}"
-  employee = Person.where(first_name: row[0].split( " ")[0].strip.titlecase,
-                          last_name: row[0].split( " ")[1].strip.titlecase).first.employee
+
+  employee = Person.where(first_name: row[0].split( " ").first.strip.titlecase,
+                          last_name: row[0].split( " ").last.strip.titlecase).first.employee
 
   day = Date.parse(row[1])
 
@@ -111,6 +116,21 @@ CSV.foreach("#{source}/timesheets.csv",:headers=>:true) do |row|
                          timesheet_id: timesheet.id, description: row[4], duration: row[col+5])
   end
 end
+
+puts "Adding Asset Categories"
+
+CSV.foreach("#{source}/asset_categories.csv",:headers=>:true) do |row|
+  AssetCategory.create(category: row[0], description: row[1])
+end
+
+puts "Adding Assets"
+
+CSV.foreach("#{source}/assets.csv",:headers=>:true) do |row|
+  Asset.create(tag_id: row[1] , description: row[2], make: row[3], model: row[4],
+               serial_number: row[5], location: row[6], value: row[7],status: row[8],
+               asset_category_id: AssetCategory.find_by_category(row[0]).id)
+end
+
 =begin
 puts "Adding project management data"
 CSV.foreach("#{source}/project_data.csv", headers: true) do |row|

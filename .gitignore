@@ -40,4 +40,4 @@
 .ruby-version
 node_modules
 .idea
-
+reports/*
