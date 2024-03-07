@@ -1,6 +1,6 @@
 class EmployeesController < ApplicationController
   def index
-    @list_employees = Person.select(:primary_phone, :alt_phone, :first_name, :last_name, :email_address)
+    @list_employees = Employee.where(still_employed: true).collect { |x| x.person }
   end
 
   def show 
