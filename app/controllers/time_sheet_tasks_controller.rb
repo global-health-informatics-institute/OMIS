@@ -30,7 +30,7 @@ class TimeSheetTasksController < ApplicationController
 
   def update
     @time_sheet_task = TimesheetTask.find(params[:id])
-    if @time_sheet_task.update(task_date: params[:task_date],
+    if @time_sheet_task.update(project_id: params[:project_id], task_date: params[:task_date],
       timesheet_id: params[:time_sheet_id],
       description: params[:description], duration: params[:duration])
       flash[:notice] = "Successfully updated task in time sheet."
