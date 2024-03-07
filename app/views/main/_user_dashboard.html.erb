@@ -107,7 +107,7 @@
                   <tr>
                       <td>Timesheet</td>        
                       <td><%= approval.employee.person.full_name%></td> 
-                      <td><%= approval.submitted_on %></td>    
+                      <td><%= approval.submitted_on.strftime("%d %b %Y") %></td>
                       <td><%= link_to 'View', approval %></td>    
                   </tr>
                 <% end %>

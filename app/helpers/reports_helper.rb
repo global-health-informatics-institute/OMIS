@@ -55,6 +55,11 @@ module ReportsHelper
       {:content => "Fifth Week", :colspan =>7}],
      %w[Day Sun Mon Tue Wed Thu Fri Sat Sun Mon Tue Wed Thu Fri Sat Sun Mon Tue Wed Thu Fri Sat Sun Mon Tue Wed Thu Fri Sat Sun Mon Tue Wed Thu Fri Sat]]
   
+      date_row = ['Date']
+      (1..31).each do |day|
+        date_row << day.to_s
+      end
+      table_data << date_row
       (records || []).each do |project_id, loe|
         project = Project.find(project_id)
         row = ["#{project.short_name}"]
