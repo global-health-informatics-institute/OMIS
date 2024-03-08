@@ -12,7 +12,7 @@
   <div class="row">
     <div class="col mb-3">
       <%= form.label :task_date %>
-      <%= form.date_field :task_date, value: params[:day], class: 'form-control', required: true %>
+      <%= form.date_field :task_date, value: params[:day], max: Date.today.end_of_week, class: 'form-control', required: true %>
     </div>
     <div class="col mb-3">
       <%= form.label :duration %>
