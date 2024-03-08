@@ -23,13 +23,13 @@ class RequisitionsController < ApplicationController
 
     when 'Leave Request'
       @annual_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id, 
-      leave_type: "Annual Leave", financial_year: Date.today.year).first_or_create
+      leave_type: "Annual Leave", financial_year: Date.today.year).first_or_create(leave_days_balance: 0.0, leave_days_total: 0.0)
 
       @sick_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id, 
-      leave_type: "Sick Leave", financial_year: Date.today.year).first_or_create
+      leave_type: "Sick Leave", financial_year: Date.today.year).first_or_create(leave_days_balance: 0.0, leave_days_total: 0.0)
 
       @compassionate_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id, 
-      leave_type: "Compassionate Leave", financial_year: Date.today.year).first_or_create
+      leave_type: "Compassionate Leave", financial_year: Date.today.year).first_or_create(leave_days_balance: 0.0, leave_days_total: 0.0)
 
     end
   end

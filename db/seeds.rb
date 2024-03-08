@@ -131,18 +131,22 @@ CSV.foreach("#{source}/assets.csv",:headers=>:true) do |row|
                asset_category_id: AssetCategory.find_by_category(row[0]).id)
 end
 
-=begin
-puts "Adding project management data"
-CSV.foreach("#{source}/project_data.csv", headers: true) do |row|
 
-  ProjectTask.create({
-                       project_id: project.id,
-                       task_description: row[1],
-                       created_at: row[2],
-                       deadline: Date.strptime(row[3], '%m/%d/%Y'),
-                       #estimated_duration: (Date.strptime(row[3], '%m/%d/%Y') - row[2])
-                     })
-end
-=end
 puts "Seeding database done"
 
+GlobalProperty.create(property: 'number.of.hours', property_value:'7.5', description: "Number of hours " )
+GlobalProperty.create(property: 'month.start.date', property_value:'25', description: "Number of hours " )
+GlobalProperty.create(property: 'full.time.annual.leave', property_value:'1.75',
+                      description: "Number of leave days per month" )
+GlobalProperty.create(property: 'part.time.annual.leave', property_value:'1.25',
+                      description: "leave days for part time employee" )
+GlobalProperty.create(property: 'petty.cash.limit', property_value:'40000',
+                      description: "Amount that can be transacted using petty cash" )
+GlobalProperty.create(property: 'per.diem.lunch', property_value:'6000',
+                      description: "Allocated amount for lunch allowance" )
+GlobalProperty.create(property: 'per.diem.dinner', property_value:'8000',
+                      description: "Allocated amount for dinner allowance" )
+GlobalProperty.create(property: 'per.diem.incidental', property_value:'1.25',
+                      description: "Allocated amount for incidental allowance" )
+GlobalProperty.create(property: 'per.diem.accommodation', property_value:'30000',
+                      description: "Allocated amount for accommodation" )
