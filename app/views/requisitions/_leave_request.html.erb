@@ -46,18 +46,18 @@
         <tbody>
             <tr>
                 <td><%= form.label :Annual_leave%></td>        
-                <td><%= @annual_leave_bal.leave_days_total %></td> 
-                <td><%= @annual_leave_bal.leave_days_balance %></td>       
+                <td><%= @annual_leave_bal.leave_days_total.floor(2) %></td>
+                <td><%= @annual_leave_bal.leave_days_balance.floor(2) %></td>
             </tr>
             <tr>
                 <td><%= form.label :Sick_leave%></td>        
-                <td><%= @sick_leave_bal.leave_days_total %></td>   
-                <td><%= @sick_leave_bal.leave_days_balance %></td>  
+                <td><%= @sick_leave_bal.leave_days_total.floor(2) %></td>
+                <td><%= @sick_leave_bal.leave_days_balance.floor(2) %></td>
             </tr>
             <tr>
                 <td><%= form.label :Compassionate%></td>        
-                <td><%= @sick_leave_bal.leave_days_total %></td> 
-                <td><%= @sick_leave_bal.leave_days_balance %></td>    
+                <td><%= @sick_leave_bal.leave_days_total.floor(2) %></td>
+                <td><%= @sick_leave_bal.leave_days_balance.floor(2) %></td>
             </tr>
         </tbody>
       </table>

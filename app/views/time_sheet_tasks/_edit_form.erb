@@ -7,7 +7,7 @@
     <div class="col mb-3">
       <%= form.label :project_id%>
       <%#= form.text_field :project_id, value: @time_sheet_task.project.short_name,  class: 'form-control', required: true %>
-      <%= form.select :project_id, options_for_select(@project_options, (@selected_project.id rescue nil)), prompt:@time_sheet_task.project.short_name, :class => 'form-select', required: true   %>
+      <%= form.select :project_id, options_for_select(@project_options, (@time_sheet_task.project_id rescue nil)), prompt:@time_sheet_task.project.short_name, :class => 'form-select', required: true   %>
     </div>
   </div>
   <div class="row">
