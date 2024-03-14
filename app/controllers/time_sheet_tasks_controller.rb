@@ -6,7 +6,7 @@ class TimeSheetTasksController < ApplicationController
     #raise @date.inspect
     @time_sheet_task = TimesheetTask.find(params[:time_sheet_id]) rescue nil
     @project_options = Project.all.collect { |x| [x.project_name, x.id] }
-    @selected_project = Project.find_by_project_name(params[:prj])
+    @selected_project = Project.find_by_short_name(params[:prj])
   end
 
   def create    

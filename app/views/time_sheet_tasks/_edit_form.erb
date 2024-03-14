@@ -6,14 +6,13 @@
     </div>
     <div class="col mb-3">
       <%= form.label :project_id%>
-      <%#= form.text_field :project_id, value: @time_sheet_task.project.short_name,  class: 'form-control', required: true %>
-      <%= form.select :project_id, options_for_select(@project_options, (@time_sheet_task.project_id rescue nil)), prompt:@time_sheet_task.project.short_name, :class => 'form-select', required: true   %>
+      <%= form.select :project_id, options_for_select(@project_options, (@time_sheet_task.project_id rescue nil)), prompt:@time_sheet_task.project.full_name, :class => 'form-select', required: true   %>
     </div>
   </div>
   <div class="row">
     <div class="col mb-3">
       <%= form.label :task_date %>
-      <%= form.date_field :task_date, value: @time_sheet_task.task_date,  class: 'form-control', required: true %>
+      <%= form.date_field :task_date, value: @time_sheet_task.task_date, max: Date.today.end_of_week, class: 'form-control', required: true %>
     </div>
     <div class="col mb-3">
       <%= form.label :duration %>
