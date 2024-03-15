@@ -1,8 +1,8 @@
 module ReportsHelper
   def select_report
     options = [['HR Report', 'HR'], ['Asset Status', 'Assets'],
-               ['Monthly Individual LOE Report', 'Employee LOE'],
-               ['Monthly Organization LOE Report', 'Org LOE'],
+               ['Individual LOE Report', 'Employee LOE'],
+               ['Organization LOE Report', 'Org LOE'],
                ['Project Progress Report','Project Report']
     ]
     return options
@@ -85,5 +85,7 @@ module ReportsHelper
       pdf.text "Signature:  #{Prawn::Text::NBSP*1}________________________________________ #{Prawn::Text::NBSP*100}Signature: __________________________________________"
     end
   end
-  
+  def monthly_loe_report_pdf
+
+  end
 end
