@@ -1,24 +1,55 @@
 <div class="row">
   <div class="col col-md-3">
     <div class="row">
-      <div class="col col-md-8"><small class="fs-6 fw-bold text-primary">Export Timesheet</small></div>
+      <div class="col col-md-8"><small class="fs-6 fw-bold text-primary">Export Report</small></div>
       <div class="col col-md-2">
-        <%#= link_to image_tag("/assets/xls-file.png"), "/timesheets/#{@timesheet.timesheet_id}.xsl"%>
+        <%= link_to image_tag("/assets/xls-file.png"), "/reports/monthly_org_loe_report.xsl?start_date=#{params[:start_date]}&end_date=#{params[:end_date]}"%>
       </div>
       <div class="col col-md-2">
-        <%#= link_to image_tag("/assets/pdf.png"), "/timesheets/#{@timesheet.timesheet_id}.pdf"%>
+        <%= link_to image_tag("/assets/pdf.png"), "/generate_report.pdf?report_type=Org%20LOE&start_date=#{params[:start_date]}&end_date=#{params[:end_date]}"%>
       </div>
     </div>
   </div>
 </div>
-
+<div style="display: table; width: 100%;">
+  <% (@results || []).each do |project, records| %>
+    <div style="display: table-row">
+      <div style="display: table-cell; background-color: <%= cycle('#26495c','#c4a35a','#c66b3d','#e5e5dc') %>" class="col col-2 align-middle text-center">
+        <%= @projects_array[project] %>
+      </div>
+      <div style="display: table-cell" class="col col-10">
+        <table class="table table-bordered" style="width: 100%">
+          <thead>
+          <tr>
+            <th>Employee Name</th>
+            <th class="text-center">Number of Hours</th>
+            <th class="text-center">Actual LOE</th>
+            <th class="text-center">Projected LOE</th>
+          </tr>
+          </thead>
+          <tbody>
+            <% (records || []).each do |record| %>
+              <tr>
+                <td><%= @people[record[:employee]] %></td>
+                <td class="text-center"><%= record[:hours].floor(2) %></td>
+                <td class="text-center"><%=  %></td>
+                <td class="text-center"><%= record[:projected_loe] %>%</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+</div>
+<!--
 <div>
   <table>
     <thead>
       <tr>
         <th>Employee Name</th>
         <% (@projects_array || []).each do |project| %>
-          <th><%= project %></th>
+          <th><%#= project %></th>
         <% end %>
       </tr>
     </thead>
@@ -27,10 +58,11 @@
         <tr>
           <td><%= k %></td>
           <% (@projects_array || []).each do |project| %>
-            <td><%= v[project] %></td>
+            <td><%#= v[project].floor(2) %></td>
           <% end %>
         </tr>
       <% end %>
     </tbody>
   </table>
 </div>
+//-->

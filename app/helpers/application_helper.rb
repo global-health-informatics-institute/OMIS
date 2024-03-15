@@ -14,4 +14,12 @@ module ApplicationHelper
                       timesheet_week: Date.today.beginning_of_week).first_or_create
     end
   end
+
+  def bg_colors
+
+  end
+
+  def text_colors
+
+  end
 end
