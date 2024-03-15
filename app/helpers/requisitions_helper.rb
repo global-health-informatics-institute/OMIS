@@ -4,7 +4,8 @@ module RequisitionsHelper
                ['Purchase Request', 'Purchase Request'],
                ['Travel Requisition','Travel Request',],
                ['Personnel Requests','Personnel Request'],
-               ['Leave Request', 'Leave Request']
+               ['Leave Request', 'Leave Request'],
+               ['Token Request', 'Token Request'],
     ]
     return options
   end
