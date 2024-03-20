@@ -35,7 +35,7 @@ module XslMonthlyLoeReport
 
     sheet.row(count).push(count, emp_name)
     (projects || []).keys.each do |project|
-      temp_add_hrs = loes[project].blank? ? 0.0 : (cost_shared_hrs * loes[project]) rescue 0.0
+      temp_add_hrs = loes[project].blank? ? 0.0 : (cost_shared_hrs * (loes[project]/100)) rescue 0.0
       main_hrs = records[project].blank? ? 0.0 : records[project]
       sheet.row(count).push(( main_hrs + temp_add_hrs))
     end
