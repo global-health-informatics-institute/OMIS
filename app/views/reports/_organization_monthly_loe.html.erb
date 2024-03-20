@@ -32,7 +32,7 @@
               <tr>
                 <td><%= @people[record[:employee]] %></td>
                 <td class="text-center">
-                  <%= (record[:hours] + (record[:projected_loe] * @cost_shared_hours[record[:employee]])).floor(2) rescue record[:hours].floor(2)%>
+                  <%= (record[:hours] + ((record[:projected_loe]/100) * @cost_shared_hours[record[:employee]])).floor(2) rescue record[:hours].floor(2)%>
                 </td>
                 <td class="text-center"><%=  %></td>
                 <td class="text-center"><%= record[:projected_loe] %>%</td>
