@@ -7,7 +7,7 @@ module PdfMonthlyLoeReport
     period = "#{Date.parse(start_date).strftime('%d %b, %Y')} - #{Date.parse(end_date).strftime('%d %b, %Y')}"
     Prawn::Document.generate("tmp/#{file_name}", page_size: 'A3', page_layout: :landscape,
                              left_margin: 40, right_margin: 30) do |pdf_object|
-      pdf_object.image 'public/letterhead_landscape.png', width: 1100, height: 100
+      pdf_object.image 'app/assets/images/GHII-Letterhead.png', width: 1100, height: 100
       pdf_object.move_down 20
       pdf_object.text "<font size='16'><b>Monthly LOE Report</b></font>", align: :center, inline_format: true
       pdf_object.move_down 20
@@ -27,8 +27,8 @@ module PdfMonthlyLoeReport
 
       (employees || []).each do |employee_id,  name|
         data, total = get_emp_details(employee_id, start_date, end_date)
-        pre_processed= pdf_preprocess(padding, data, Date.parse(start_date))
-        pdf_object.image 'public/letterhead_landscape.png', width: 1100, height: 100
+        pre_processed = pdf_preprocess(padding, data, Date.parse(start_date), Date.parse(end_date))
+        pdf_object.image 'app/assets/images/GHII-Letterhead.png', width: 1100, height: 100
         pdf_object.move_down 20
         pdf_object.font_size 12
         pdf_object.text "<font size='16'><b>Employee Monthly Timesheet Report</b></font>", align: :center, inline_format: true
@@ -36,6 +36,7 @@ module PdfMonthlyLoeReport
         pdf_object.text "<b>Period:</b> #{period}", inline_format: true
         pdf_object.font_size 10
         pdf_object.move_down 20
+        #raise pre_processed.inspect
         pdf_object.table(pre_processed)
         pdf_object.move_down 60
         pdf_object.text "Total Hours: #{Prawn::Text::NBSP*1}#{total}"
@@ -51,20 +52,26 @@ module PdfMonthlyLoeReport
     file_name
   end
 
-  def self.pdf_preprocess(padding,data, start_date)
+  def self.pdf_preprocess(padding,data, start_date, end_date)
+    # dataset = [
+    #   ["Project#{' '*40}", {content: 'First Week', colspan: 7}, {content: 'Second Week', colspan: 7},
+    #    {content: 'Third Week', colspan: 7}, {content: 'Fourth Week', colspan: 7},
+    #    {content: 'Fifth Week', colspan: 7}, {content: 'Sixth Week', colspan: 7}],
+    #   ['Day'] + %w[Sun Mon Tue Wed Thu Fri Sat]*6
+    # ]
 
-    dataset = [
-      ["Project#{' '*30}", {content: 'First Week', colspan: 7}, {content: 'Second Week', colspan: 7},
-       {content: 'Third Week', colspan: 7}, {content: 'Fourth Week', colspan: 7},
-       {content: 'Fifth Week', colspan: 7}],
-      ['Day'] + %w[Sun Mon Tue Wed Thu Fri Sat]*5
-    ]
+    number_of_weeks = ((end_date - start_date).to_i / 7.0).ceil
+    number_of_days = (end_date - start_date).to_i + 1
+
+    dataset = [["Project#{' '*30}"] + (1..number_of_weeks).flat_map { |week|
+              [{content: "Week#{week}", colspan: 7}]}] + [['Day'] + 
+              %w[Sun Mon Tue Wed Thu Fri Sat] * number_of_weeks]
 
     header = ['Date']
     (0..padding).each do |pad|
       header.append(' ')
     end
-    (0..30).each do |i|
+    (0..number_of_days - 1).each do |i|
       header.append(start_date.advance(days: i).strftime('%d'))
     end
     (0..(35-header.length)).each do |pad|
@@ -77,7 +84,7 @@ module PdfMonthlyLoeReport
       (0..padding).each do |pad|
         project_record.append(' ')
       end
-      (0..30).each do |i|
+      (0..number_of_days - 1).each do |i|
         project_record.append(records[start_date.advance(days: i).strftime('%d').to_i])
       end
       (0..(35-project_record.length)).each do |pad|
