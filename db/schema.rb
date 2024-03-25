@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_15_124907) do
+ActiveRecord::Schema[7.0].define(version: 2024_03_24_144057) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -184,6 +184,16 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_15_124907) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "report_statistics", primary_key: "statistic_id", force: :cascade do |t|
+    t.date "period_start", null: false
+    t.date "period_end", null: false
+    t.string "period_label", null: false
+    t.string "statistic_description", null: false
+    t.decimal "statistic_value", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "requisition_items", primary_key: "requisition_item_id", force: :cascade do |t|
     t.integer "requisition_id", null: false
     t.decimal "quantity"
@@ -243,6 +253,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_15_124907) do
     t.datetime "approved_on"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "state"
   end
 
   create_table "token_logs", primary_key: "token_id", force: :cascade do |t|

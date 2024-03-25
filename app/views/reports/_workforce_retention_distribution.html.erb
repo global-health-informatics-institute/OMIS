@@ -1,6 +1,6 @@
 <div class="card h-100">
   <div class="card-body p-2">
-    <h6>Workforce Retention Rate</h6>
+    <h6>Workforce Retention and Turnover Rate</h6>
     <div class="text-center">
       <canvas id="retentionLineChart" style="height: 30vh !important; width: 30vw;margin-left: auto; margin-right: auto;"></canvas>
     </div>
@@ -28,7 +28,12 @@
         options : {
             scales: {
                 x: {
-                    offset: true
+                    offset: true,
+                    ticks: {
+                        autoSkip: false,
+                        maxRotation: 60,
+                        minRotation: 45
+                    }
                 },
                 y: {
                     min: 0,
