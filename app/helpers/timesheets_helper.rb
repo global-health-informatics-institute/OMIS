@@ -13,7 +13,7 @@ module TimesheetsHelper
     end
 
     i = 1
-    
+
     (records || []).each do |k, v|
       (v || []).each do |task, entries|
         sheet.row(i).push(projects[k].to_s)
