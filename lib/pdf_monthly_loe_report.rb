@@ -23,7 +23,7 @@ module PdfMonthlyLoeReport
         pdf_object.start_new_page
       end
 
-      (employees || []).each do |employee_id,  name|
+      (employees || []).each do |employee_id, name|
         data, total = get_emp_details(employee_id, start_date, end_date)
         weeks = ((Date.parse(end_date) - Date.parse(start_date)) / 7.0).floor
         required_pages = (weeks / 5).floor
@@ -65,7 +65,7 @@ module PdfMonthlyLoeReport
     # ]
 
     number_of_weeks = ((end_date - start_date).to_i / 7.0).floor
-    number_of_days = (end_date - start_date).to_i
+    number_of_days = (end_date - start_date).to_i - 2
 
     dataset = [["Project#{' '*30}"] + (1..number_of_weeks).flat_map { |week|
               [{content: "Week#{week}", colspan: 7}]}] + [['Day'] + 
@@ -75,7 +75,7 @@ module PdfMonthlyLoeReport
     (0..padding).each do |pad|
       header.append(' ')
     end
-    (0..number_of_days - 2).each do |i|
+    (0..number_of_days).each do |i|
       header.append(start_date.advance(days: i).strftime('%d'))
     end
     (0..(35-header.length)).each do |pad|
@@ -88,8 +88,9 @@ module PdfMonthlyLoeReport
       (0..padding).each do |pad|
         project_record.append(' ')
       end
-      (0..number_of_days - 2).each do |i|
-        project_record.append(records[start_date.advance(days: i).strftime('%d').to_i])
+      (0..number_of_days).each do |i|
+        temp_date = start_date.advance(days: i)
+        project_record.append(records["#{temp_date.day}#{temp_date.month}"])
       end
       (0..(35-project_record.length)).each do |pad|
         project_record.append(' ')
@@ -111,14 +112,14 @@ module PdfMonthlyLoeReport
     daily_summary = {}
     (records || []).each do |record|
       if daily_summary[record.project_id].blank?
-        daily_summary[record.project_id] = {record.task_date.day => record.duration.round(2)}
+        daily_summary[record.project_id] = {"#{record.task_date.day}#{record.task_date.month}" => record.duration.round(2)}
       else
-        check = daily_summary[record.project_id][record.task_date.day]
-        daily_summary[record.project_id][record.task_date.day] = (check.blank? ? record.duration.round(2) : (check + record.duration.round(2)))
+        check = daily_summary[record.project_id]["#{record.task_date.day}#{record.task_date.month}"]
+        daily_summary[record.project_id]["#{record.task_date.day}#{record.task_date.month}"] = (check.blank? ? record.duration.round(2) : (check + record.duration.round(2)))
       end
       total += record.duration.round(2)
     end
-    #raise daily_summary.inspect
+    
     [daily_summary, total]
   end
 end
