@@ -1,6 +1,6 @@
 <div class="card h-100">
   <div class="card-body p-2">
-    <h6>Workforce Retention Rate</h6>
+    <h6>Workforce Retention and Turnover Rate</h6>
     <div class="text-center">
       <canvas id="retentionLineChart" style="height: 30vh !important; width: 30vw;margin-left: auto; margin-right: auto;"></canvas>
     </div>
@@ -11,28 +11,48 @@
   src="https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js"></script>
 
 <script>
+    labels = []
+    <% (@retention.keys.reverse || []).each do |label| %>
+        labels.push('<%= label %>')
+    <% end %>
 
     new Chart(document.getElementById("retentionLineChart"), {
         type : 'line',
         data : {
-            labels : [ `Q1-2022`,`Q2-2022`,`Q3-2022`,`Q4-2022`,`Q1-2023`,`Q2-2023`,`Q3-2023`,`Q4-2023` ],
+            labels :  labels ,
             datasets : [ {
-                data : [ 70, 75,80,80, 60, 50, 80, 90],
+                label: 'Employee Retention',
+                data :  <%= @retention.values.reverse %>,
                 pointStyle: 'circle',
-                pointRadius: 10,
-                pointHoverRadius: 15,
-                borderColor: 'rgb(246, 78, 192)',
-                backgroundColor: 'rgb(246, 78, 192)',
-            } ]
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                borderColor: 'rgb(250, 103, 117)',
+                backgroundColor: 'rgb(204, 49, 61)',
+            },{
+                label: 'Employee Turnover',
+                data :  <%= @turnover.values.reverse %>,
+                pointStyle: 'circle',
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                borderColor: 'rgb(161, 214, 226)',
+                backgroundColor: 'rgb(25, 149, 173)',
+            }
+            ]
         },
         options : {
             scales: {
                 x: {
-                    offset: true
+                    offset: false,
+                    ticks: {
+                        autoSkip: false,
+                        maxRotation: 60,
+                        minRotation: 45
+                    }
                 },
                 y: {
                     min: 0,
-                    max: 100
+                    max: 100,
+                    offset: true
                 }
             },
             responsive: true  ,

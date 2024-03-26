@@ -13,12 +13,13 @@ module TimesheetsHelper
     end
 
     i = 1
+
     (records || []).each do |k, v|
       (v || []).each do |task, entries|
         sheet.row(i).push(projects[k].to_s)
         sheet.row(i).push(task.to_s)
         (0..6).each do |day|
-          sheet.row(i).push((entries[day].blank? ? '-'.to_s : entries[day]).to_s)
+          sheet.row(i).push((entries[day].blank? ? '-'.to_s : entries[day][:duration]).to_s)
         end
         i+=1
       end

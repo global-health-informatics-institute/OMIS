@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col col-md-8"><small class="fs-6 fw-bold text-primary">Export Report</small></div>
       <div class="col col-md-2">
-        <%= link_to image_tag("/assets/xls-file.png"), "/reports/monthly_org_loe_report.xsl?start_date=#{params[:start_date]}&end_date=#{params[:end_date]}"%>
+        <%= link_to image_tag("/assets/xls-file.png"), "/generate_report.xsl?report_type=Org%20LOE&start_date=#{params[:start_date]}&end_date=#{params[:end_date]}"%>
       </div>
       <div class="col col-md-2">
         <%= link_to image_tag("/assets/pdf.png"), "/generate_report.pdf?report_type=Org%20LOE&start_date=#{params[:start_date]}&end_date=#{params[:end_date]}"%>
@@ -31,7 +31,9 @@
             <% (records || []).each do |record| %>
               <tr>
                 <td><%= @people[record[:employee]] %></td>
-                <td class="text-center"><%= record[:hours].floor(2) %></td>
+                <td class="text-center">
+                  <%= (record[:hours] + ((record[:projected_loe]/100) * @cost_shared_hours[record[:employee]])).floor(2) rescue record[:hours].floor(2)%>
+                </td>
                 <td class="text-center"><%=  %></td>
                 <td class="text-center"><%= record[:projected_loe] %>%</td>
               </tr>

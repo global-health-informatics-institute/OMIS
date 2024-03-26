@@ -1,0 +1,2 @@
+class TokenLog < ApplicationRecord
+end
