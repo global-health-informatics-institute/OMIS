@@ -4,8 +4,6 @@ class MainController < ApplicationController
     if current_user
       @employee = current_user.employee
       @person = @employee.person
-      #@current_timesheet = Timesheet.where(employee_id: @employee.id,
-      #                                     timesheet_week: Date.today.beginning_of_week).first_or_create
       @upcoming_deadlines = ProjectTask.where("project_task_id in (?)",
                                               ProjectTaskAssignment.select(:project_task_id).where(assigned_to: current_user.employee_id,
                                                                           revoked: false )
@@ -34,23 +32,6 @@ class MainController < ApplicationController
       jnrs = e.current_supervisees.collect{|x| x.supervisee}
       
       @approvals = Timesheet.select("timesheet_id, employee_id, submitted_on").where("employee_id in (?) and submitted_on is not NULL and approved_on is NULL", jnrs)
-      
-
-=begin
-      #The next block will need to be put in a function as it is repeated elsewhere
-      @records = {}
-      records = @current_timesheet.timesheet_tasks.select("project_id, task_date,description, sum(duration) as duration").group(
-        'project_id, task_date,description').each do |v|
-        if @records[v.project_id].blank?
-          @records[v.project_id] = {v.description => { v.task_date.cwday => v.duration}}
-        elsif @records[v.project_id][v.description].blank?
-          @records[v.project_id][v.description] = { v.task_date.cwday => v.duration}
-        end
-        @records[v.project_id][v.description][v.task_date.cwday] = v.duration
-      end
-      @projects = Project.where(project_id: records.collect{|p| p.project_id}.uniq).collect { |x| [x.project_id, x.short_name] }.to_h
-=end
-
 
     else
       people = Employee.select(:employee_id, :person_id).where(still_employed: true)
@@ -59,7 +40,13 @@ class MainController < ApplicationController
       @upcoming_deadlines = ProjectTask.where.not(task_status: "Complete")
       @employment_summary = Hash.new(0)
       @project_tasks = ProjectTask.where(voided:false)
+      @retention = ReportStatistic.where(statistic_description: 'Retention Rate')
+                                  .order('period_start desc').limit(12)
+                                  .collect{|x| [x.period_label, (x.statistic_value*100)]}.to_h
 
+      @turnover = ReportStatistic.where(statistic_description: 'Turnover Rate')
+                                 .order('period_start desc').limit(12)
+                                 .collect{|x| [x.period_label, (x.statistic_value*100)]}.to_h
       (people || []).each do |person|
         @employment_summary[person.employment_type.to_s] += 1
       end
