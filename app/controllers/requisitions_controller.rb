@@ -22,9 +22,9 @@ class RequisitionsController < ApplicationController
     when 'Personnel Requests'
 
     when 'Token Request'
-      token = SecureRandom.alphanumeric
-      TokenLog.create(token: token)
-      send_data token,  :filename => "requested_token.txt"
+      @token = SecureRandom.alphanumeric
+      TokenLog.create(token: @token)
+      #send_data @token,  :filename => "requested_token.txt"
 
     when 'Leave Request'
       @annual_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id, 
