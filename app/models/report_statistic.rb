@@ -1,0 +1,2 @@
+class ReportStatistic < ApplicationRecord
+end
