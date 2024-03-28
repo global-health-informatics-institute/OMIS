@@ -253,7 +253,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_24_144057) do
     t.datetime "approved_on"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "state"
   end
 
   create_table "token_logs", primary_key: "token_id", force: :cascade do |t|
@@ -298,23 +297,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_24_144057) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "workflow_state_transitioners", force: :cascade do |t|
-    t.integer "workflow_state_transition"
-    t.boolean "owner"
-    t.integer "stakeholder"
-    t.boolean "voided"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "workflow_state_transitions", force: :cascade do |t|
     t.integer "workflow_state_id", null: false
     t.integer "next_state", null: false
     t.boolean "voided", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "action", null: false
-    t.boolean "by_owner", default: false
   end
 
   create_table "workflow_states", primary_key: "workflow_state_id", force: :cascade do |t|
@@ -326,6 +314,4 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_24_144057) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "departments", "branches", primary_key: "branch_id"
-  add_foreign_key "employees", "people", primary_key: "person_id"
 end
