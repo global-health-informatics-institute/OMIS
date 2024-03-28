@@ -25,13 +25,14 @@ module PdfMonthlyLoeReport
       end
 
       (employees || []).each do |employee_id, name|
-        data, total = get_emp_details(employee_id, start_date, end_date)
         weeks = ((Date.parse(end_date) - Date.parse(start_date)) / 7.0).floor
         required_pages = (weeks / 5).floor
         (0..required_pages).each do |i|
           temp_start_date = Date.parse(start_date).advance(weeks: (5 * i))
           temp_end_date = temp_start_date.advance(weeks: 5)
-          period = "#{temp_start_date.strftime('%d %b, %Y')} - #{temp_end_date.strftime('%d %b, %Y')}"
+          t_end_date =  temp_end_date - 1
+          period = "#{temp_start_date.strftime('%d %b, %Y')} - #{t_end_date.strftime('%d %b, %Y')}"
+          data, total = get_emp_details(employee_id, temp_start_date, temp_end_date)
           pre_processed = pdf_preprocess(padding, data, temp_start_date, temp_end_date)
           pdf_object.image 'public/letterhead_landscape.png', width: 1100, height: 100
           pdf_object.move_down 20
@@ -102,7 +103,7 @@ module PdfMonthlyLoeReport
   def self.get_emp_details(employee_id, start_date, end_date)
 
     sheets = Timesheet.where("employee_id = ? and timesheet_week between ? and ?",
-                             employee_id, Date.parse(start_date).advance(weeks: -1), end_date)
+                             employee_id, start_date, end_date)
     records = TimesheetTask.where("timesheet_id in (?) and task_date between ? and ? ",
                                   sheets.collect { |x| x.timesheet_id },start_date, end_date)
 
