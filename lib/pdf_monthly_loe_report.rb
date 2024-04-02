@@ -4,7 +4,7 @@ module PdfMonthlyLoeReport
   def self.initialize_report(employees, results, projects, start_date, end_date)
 
     file_name = "#{start_date.gsub('-', '').squish}_#{end_date.gsub('-', '').squish}_org_loe_report.pdf"
-    padding = Date.parse(start_date).cwday == 7 ? 0 : (Date.parse(start_date).cwday.to_i - 1)
+    padding = Date.parse(start_date).cwday == 7 ? 0 : (Date.parse(start_date).cwday.to_i - 2)
 
     Prawn::Document.generate("tmp/#{file_name}", page_size: 'A3', page_layout: :landscape,
                              left_margin: 40, right_margin: 30) do |pdf_object|
@@ -63,11 +63,11 @@ module PdfMonthlyLoeReport
   def self.pdf_preprocess(padding,data, start_date, end_date)
 
     number_of_weeks = ((end_date - start_date).to_i / 7.0).floor
-    number_of_days = (end_date - start_date).to_i - 2
+    number_of_days = (end_date - start_date).to_i - 1
 
     dataset = [["Project#{' '*30}"] + (1..number_of_weeks).flat_map { |week|
               [{content: "Week#{week}", colspan: 7}]}] + [['Day'] + 
-              %w[Sun Mon Tue Wed Thu Fri Sat] * number_of_weeks]
+              %w[Mon Tue Wed Thu Fri Sat Sun] * number_of_weeks]
 
     header = ['Date']
     (0..padding).each do |pad|
