@@ -1,58 +1,68 @@
 <%= javascript_include_tag 'custom/jquery-3.6.1.min', 'data-turbolinks-track' => false %>
 
-<h2>Employee Contacts</h2>
-<div style="display: flex; justify-content: flex-end">
-    <div class="col">
+<p class="h5 ">Personnel Center</p>
+<div class="border p-2">
+  <%= form_tag(generate_report_path, method: "GET") do %>
+    <div class="row pt-2 pb-2">
+      <div class="col-1 fs-7 fw-bold">
+        Search:
+      </div>
+      <div class="col">
         <input class="form-control" type="text" placeholder="Search for Contact" id="textFilter">
-    </div>
-    <div class="col">
-        <button class="btn btn-success">
-            Search
+      </div>
+      <div class="col-2">
+        <button class="btn btn-primary">
+          Search
         </button>
+      </div>
+      <div class="col-4">
+        <%= submit_tag("Add New Employee", class: "btn btn-success") %>
+      </div>
     </div>
+  <% end %>
 </div>
 
-<div class="row mt-4 p-0">
-  <div class="col p-0">
-    <table class="table table-stripped" id="contactsTable">
-      <tbody>
-        <% (@list_employees || []).each do |list| %>
-          <tr>
-            <td>
-              <div class="card mb-2">
-                <div class="card-header card-header-dark">
-                  <div class="row mt-4 mb-4">
-                    <div class="col-2 fw-normal">First name</div>
-                      <div class="col-4 fw-light fst-italic"><%= list.first_name %></div>
-                      <div class="col-2 fw-normal">Last name</div>
-                      <div class="col-4 fw-light fst-italic"><%= list.last_name %></div>
-                    </div>
-                    <div class="row mt-4 mb-4">
-                      <div class="col-2 fw-normal">Primary Num.</div>
-                      <div class="col-4 fw-light fst-italic"><%= list.primary_phone %></div>
-                      <div class="col-2 fw-normal">Secondary Num.</div>
-                      <div class="col-4 fw-light fst-italic"><%= list.alt_phone %></div>
-                    </div>
-                    <div class="row mt-4 mb-4">
-                      <div class="col-2 fw-normal">Email</div>
-                      <div class="col-4 fw-light fst-italic"><%= list.email_address %></div>
-                  </div>
-                </div>
-              </div>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
+<div class="border p-2 mt-2 fs-6">
+  <table class="table table-stripped table-sm" id="empTable">
+    <thead class="thead-light">
+    <tr>
+      <th><abbr title="fName">First Name</abbr></th>
+      <th><abbr title="mName">Middle Name</abbr></th>
+      <th><abbr title="lName">Last Name</abbr></th>
+      <th><abbr title="Post">Position</abbr></th>
+      <th><abbr title="Emp. Date">Date Employed</abbr></th>
+      <th><abbr title="Prim. #">Primary Phone</abbr></th>
+      <th><abbr title="Alt. #">Alternative Phone</abbr></th>
+      <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% (@list_employees || []).each do |person| %>
+      <tr>
+        <td><abbr title="fName"><%= person.first_name %></abbr></td>
+        <td><abbr title="mName"><%= person.middle_name %></abbr></td>
+        <td><abbr title="lName"><%= person.last_name %></abbr></td>
+        <td><abbr title="Post"><%= person.employee.current_position %></abbr></td>
+        <td><abbr title="Emp. Date"><%= person.employee.employment_date.strftime('%d %b, %Y') %></abbr></td>
+        <td><abbr title="Prim. #"><%= person.primary_phone %></abbr></td>
+        <td><abbr title="Alt. #"><%= person.alt_phone %></abbr></td>
+        <th>
+          <%= link_to image_tag("/assets/info.png"), "employees/#{person.id}", data: { turbo_frame: "remote_model"}%>
+          <%= link_to image_tag("/assets/edit.png"), "employees/#{person.id}/edit", data: { turbo_frame: "remote_model"} %>
+          <%= link_to image_tag("/assets/delete.png"), "business_assets/#{person.id}", data: { turbo_frame: "remote_model"} %>
+        </th>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
 </div>
 
 <script>
-    $(document).ready(function () {
-        $("#textFilter").on("keyup", function () {
+    $(document).ready(function(){
+        $("#textFilter").on("keyup", function() {
             const value = $(this).val().toLowerCase();
-            $("#contactsTable tbody tr").filter(function () {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            $("#empTable tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
             });
         });
     });

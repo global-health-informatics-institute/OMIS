@@ -1,248 +1,249 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>OMIS</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <%= csrf_meta_tags %>
-  <%= csp_meta_tag %>
-  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-  <%= javascript_importmap_tags %>
-  <style>
-      .row{
-          margin-left:0px;
-          margin-right:0px;
+  <head>
+    <title>OMIS</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    <style>
+      div {
+          -webkit-user-select: none; /* Safari */
+          -ms-user-select: none; /* IE 10 and IE 11 */
+          user-select: none; /* Standard syntax */
       }
+        #wrapper.active {
+            padding-left: 150px;
+        }
+        #wrapper.active #sidebar-wrapper {
+            left: 150px;
+        }
 
-      #wrapper {
-          padding-left: 70px;
-          transition: all .4s ease 0s;
-          height: 100%
-      }
+        #sidebar_menu li a, .sidebar-nav li a {
+            color: #F7F7F7 !important;
+            display: block;
+            float: left;
+            text-decoration: none;
+            width: 150px;
+            background: #252525;
+            border-top: 1px solid #373737;
+            border-bottom: 1px solid #1A1A1A;
+            -webkit-transition: background .5s;
+            -moz-transition: background .5s;
+            -o-transition: background .5s;
+            -ms-transition: background .5s;
+            transition: background .5s;
+        }
+        .sidebar_name {
+            padding-top: 25px;
+            color: #fff;
+            opacity: .7;
+        }
 
-      #sidebar-wrapper {
-          margin-left: -150px;
-          left: 70px;
-          width: 150px;
-          background: #222;
-          position: fixed;
-          height: 100%;
-          z-index: 10000;
-          transition: all .4s ease 0s;
-      }
+        .sidebar-nav li {
+            line-height: 40px;
+            text-indent: 20px;
+        }
 
-      .sidebar-nav {
-          display: block;
-          float: left;
-          width: 150px;
-          list-style: none;
-          margin: 0;
-          padding: 0;
-      }
-      #page-content-wrapper {
-          padding-left: 0;
-          margin-left: 0;
-          width: 100%;
-          height: auto;
-      }
-      #wrapper.active {
-          padding-left: 150px;
-      }
-      #wrapper.active #sidebar-wrapper {
-          left: 150px;
-      }
+        .sidebar-nav li a {
+            color: #F7F7F7;
+            display: block;
+            text-decoration: none;
+        }
 
-      #page-content-wrapper {
-          width: 100%;
-      }
+        .sidebar-nav li a:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.2);
+            text-decoration: none;
+        }
 
-      #sidebar_menu li a, .sidebar-nav li a {
-          color: #F7F7F7 !important;
-          display: block;
-          float: left;
-          text-decoration: none;
-          width: 150px;
-          background: #252525;
-          border-top: 1px solid #373737;
-          border-bottom: 1px solid #1A1A1A;
-          -webkit-transition: background .5s;
-          -moz-transition: background .5s;
-          -o-transition: background .5s;
-          -ms-transition: background .5s;
-          transition: background .5s;
-      }
-      .sidebar_name {
-          padding-top: 25px;
-          color: #fff;
-          opacity: .7;
-      }
+        .sidebar-nav li a:active,
+        .sidebar-nav li a:focus {
+            text-decoration: none;
+        }
 
-      .sidebar-nav li {
-          line-height: 40px;
-          text-indent: 20px;
-      }
+        .sidebar-nav > .sidebar-brand {
+            height: 65px;
+            line-height: 60px;
+            font-size: 18px;
+        }
 
-      .sidebar-nav li a {
-          color: #F7F7F7;
-          display: block;
-          text-decoration: none;
-      }
+        .sidebar-nav > .sidebar-brand a {
+            color: #F7F7F7;
+        }
 
-      .sidebar-nav li a:hover {
-          color: #fff;
-          background: rgba(255,255,255,0.2);
-          text-decoration: none;
-      }
+        .sidebar-nav > .sidebar-brand a:hover {
+            color: #fff;
+            background: none;
+        }
 
-      .sidebar-nav li a:active,
-      .sidebar-nav li a:focus {
-          text-decoration: none;
-      }
+        #main_icon
+        {
+            float:right;
+            padding-right: 0.8vw;
+            text-align: center;
+            padding-top: 1.5vh;
+        }
+        .sub_icon
+        {
+            float:right;
+            padding-right: 65px;
+            padding-top:10px;
+        }
+        .content-header {
+            height: 65px;
+            line-height: 65px;
+        }
 
-      .sidebar-nav > .sidebar-brand {
-          height: 65px;
-          line-height: 60px;
-          font-size: 18px;
-      }
+        .content-header h1 {
+            margin: 0;
+            margin-left: 20px;
+            line-height: 65px;
+            display: inline-block;
+        }
 
-      .sidebar-nav > .sidebar-brand a {
-          color: #F7F7F7;
-      }
-
-      .sidebar-nav > .sidebar-brand a:hover {
-          color: #fff;
-          background: none;
-      }
-
-      #main_icon
-      {
-          float:right;
-          padding-right: 0.8vw;
-          text-align: center;
-          padding-top: 1.5vh;
-      }
-      .sub_icon
-      {
-          float:right;
-          padding-right: 65px;
-          padding-top:10px;
-      }
-      .content-header {
-          height: 65px;
-          line-height: 65px;
-      }
-
-      .content-header h1 {
-          margin: 0;
-          margin-left: 20px;
-          line-height: 65px;
-          display: inline-block;
-      }
-
-      @media (max-width:767px) {
-          #wrapper {
-              padding-left: 20px;
-              transition: all .4s ease 0s;
-          }
-          #sidebar-wrapper {
-              left: 20px;
-          }
-          #wrapper.active {
-              padding-left: 150px;
-          }
-          #wrapper.active #sidebar-wrapper {
-              left: 150px;
-              width: 150px;
-              transition: all .4s ease 0s;
-          }
-      }
-      div.stripes {
-          width: 35px;
-          height: 5px;
-          background-color: green;
-          margin: 6px 0;
-      }
-      a.mainLink {
-          font-size: 25px !important;
-      }
-  </style>
-</head>
-<body>
-<div id="wrapper" class="active">
-
-  <!-- Sidebar -->
-  <!-- Sidebar -->
-  <div id="sidebar-wrapper">
-    <ul id="sidebar_menu" class="sidebar-nav">
-      <li class="sidebar-brand">
-        <a id="menu-toggle" href="#">
-          <img src="/assets/ic_omis.png" style="height: 4vh; width: 3vw; margin-left: -1vw;">
-          <span class="fs-6 fw-bolder">OMIS</span>
-          <span id="main_icon" onmousedown="toggleMenu()">
-            <div class="stripes"></div>
-            <div class="stripes"></div>
-            <div class="stripes"></div>
-          </span>
-        </a>
-      </li>
-    </ul>
-
-    <ul class="sidebar-nav" id="sidebar">
-      <li><%= link_to "Home", "/"%></li>
-      <% if current_user %>
-        <li><%= link_to "Assets", "/business_assets" %></li>
-        <li><%#= link_to "Projects", "/projects"%></li>
-        <li><%= link_to "Timesheets", "/timesheets/#{ current_timesheet.timesheet_id }" %></li>
-        <li><%= link_to "Requisitions", "/requisitions/index"%></li>
-        <li><%= link_to "Directory", "/employees" %></li>
-        <li><%= link_to "Reports", "/reports/index" %></li>
-        <li><%#= link_to "Settings", "/settings/index" %></li>
-      <% end %>
-
-      <li><%= link_to "About", "/about" %></li>
-
-      <% if current_user %>
-        <li><%= link_to "User Profile", "/users/#{ current_user.user_id }" %></li>
-        <li><%= link_to "Sign Out", '/logout' %></li>
-      <% else %>
-        <li><%= link_to "Sign In", "/user_sessions/new" %></li>
-      <% end %>
-    </ul>
-
-  </div>
-
-  <!-- Page content -->
-  <div id="page-content-wrapper">
-    <!-- Keep all page content within the page-content inset div! -->
-    <div class="page-content inset">
+        @media (max-width:767px) {
+            #wrapper {
+                padding-left: 20px;
+                transition: all .4s ease 0s;
+            }
+            #sidebar-wrapper {
+                left: 20px;
+            }
+            #wrapper.active {
+                padding-left: 150px;
+            }
+            #wrapper.active #sidebar-wrapper {
+                left: 150px;
+                width: 150px;
+                transition: all .4s ease 0s;
+            }
+        }
+        div.stripes {
+            width: 35px;
+            height: 5px;
+            background-color: green;
+            margin: 6px 0;
+        }
+        a.mainLink {
+            font-size: 25px !important;
+        }
+    </style>
+  </head>
+  <body style="">
+    <div class="container-fluid d-flex flex-column">
       <div class="row">
-        <div class="col-md-12">
+        <nav style=" background-color: #252525 !important;" class="navbar sticky-top navbar-expand-sm bg-dark navbar-dark">
+          <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="/">
+              <img src="/assets/ic_omis.png" style="height: 4vh; width: 3vw; margin: 0px 2px;">OMIS
+            </a>
+            <!-- Links -->
+            <ul class="navbar-nav">
+              <a class="nav-link" href="/about">
+                <img src="/assets/Info-icon.png" alt="About" style="height: 4vh; width: 3vw; margin: 0px 1px;">
+              </a>
+              <% if current_user %>
+                <li class="nav-item">
+                  <a class="nav-link" href="/settings/index">
+                    <img src="/assets/Settings-icon.png" alt="Settings" style="height: 4vh; width: 3vw; margin: 0px 2px;">
+                  </a>
+                </li>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <img src="/assets/User-icon.png" alt="Profile" style="height: 4vh; width: 3vw; margin: 0px 4px;">
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><%= link_to "User Profile", "/users/#{ current_user.user_id }", class:"dropdown-item" %></li>
+                    <li><%= link_to "Sign Out", '/logout', class:"dropdown-item" %></li>
+                  </ul>
+                </li>
+              <% else %>
+                <li class="nav-item">
+                  <a class="nav-link" href="/user_sessions/new">
+                    <img src="/assets/login.png" alt="Login" style="height: 4vh; width: 3vw; margin: 0px 4px;">
+                  </a>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </nav>
+      </div>
+      <div class="row">
+        <div class="col-auto m-0 p-1 bg-dark navbar-dark" style=" background-color: #252525 !important;">
+          <ul class="nav navbar-nav">
+            <li class ="nav-item ms-1">
+              <a class ="nav-link" href="#">
+                <img src="/assets/menu.png" alt="Menu">
+                <span style="font-size: 0.8rem; color: #a3cfbb">Menu</span>
+              </a>
+            </li>
+            <li class ="nav-item ms-1">
+              <a class ="nav-link" href="/">
+                <img src="/assets/home.png" alt="Home">
+                <span style="font-size: 0.8rem; color: #a3cfbb">Home</span>
+              </a>
+            </li>
+            <li class ="nav-item ms-1">
+              <a class ="nav-link" href="/timesheets/#{ current_timesheet.timesheet_id }">
+                <img src="/assets/schedule.png" alt="Timesheets">
+                <span style="font-size: 0.8rem; color: #a3cfbb">Timesheet</span>
+              </a>
+            </li>
+            <li class ="nav-item ms-1">
+              <a class ="nav-link" href="/requisitions/index">
+                <img src="/assets/request.png" alt="Requisitions">
+                <span style="font-size: 0.8rem; color: #a3cfbb">Requistions</span>
+              </a>
+            </li>
+            <li class ="nav-item ms-1">
+              <a class ="nav-link" href="/projects">
+                <img src="/assets/program.png" alt="Programs">
+                <span style="font-size: 0.8rem; color: #a3cfbb">Programs</span>
+              </a>
+            </li>
+            <li class ="nav-item ms-1">
+              <a class ="nav-link" href="/employees">
+                <img src="/assets/personnel.png" alt="Personnel">
+                <span style="font-size: 0.8rem; color: #a3cfbb">Personnel</span>
+              </a>
+            </li>
+            <li class ="nav-item ms-1">
+              <a class ="nav-link" href="/reports/index">
+                <img src="/assets/report.png" alt="Reports">
+                <span style="font-size: 0.8rem; color: #a3cfbb">Reports</span>
+              </a>
+            </li>
+            <li class ="nav-item ms-1">
+              <a class ="nav-link" href="#">
+                <img src="/assets/Complaint.png" alt="Complaints">
+                <span style="font-size: 0.8rem; color: #a3cfbb">Complaint</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="col">
+          <%= render partial: 'layouts/notices' %>
           <%= yield %>
           <%= turbo_frame_tag "remote_modal", target: "_top" %>
         </div>
       </div>
     </div>
-  </div>
-</div>
-
-<%= render partial: 'layouts/notices' %>
-
-<script>
-    function toggleMenu()
-    {
-        const wrapper = document.getElementById('wrapper')
-
-        if (wrapper.classList.contains("active")){
-            wrapper.classList.remove("active")
-            wrapper.setAttribute('style', 'font-size: 0px !important');
-            console.log('off')
+    <script>
+        function toggleMenu()
+        {
+            const wrapper = document.getElementById('wrapper')
+            if (wrapper.classList.contains("active")){
+                wrapper.classList.remove("active")
+                wrapper.setAttribute('style', 'font-size: 0px !important');
+                console.log('off')
+            }
+            else{
+                wrapper.classList.add("active")
+                wrapper.setAttribute('style', 'font-size: 0px !important');
+            }
         }
-        else{
-            wrapper.classList.add("active")
-            wrapper.setAttribute('style', 'font-size: 0px !important');
-
-        }
-    }
-
-</script>
-</body>
+    </script>
+  </body>
 </html>
