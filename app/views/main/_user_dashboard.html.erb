@@ -72,15 +72,69 @@
       <div class="card-header card-header-dark">
       <nav>
         <div class="nav nav-tabs " id="nav-tab" role="tablist">
+          <button class="nav-link active" id="nav-stats-tab" data-bs-toggle="tab" data-bs-target="#nav-stats" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">My Stats</button>
           <button class="nav-link" id="nav-requisition-tab" data-bs-toggle="tab" data-bs-target="#nav-requisition" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Requisitions</button>
           <button class="nav-link" id="nav-assignedTasks-tab" data-bs-toggle="tab" data-bs-target="#nav-assignedTasks" type="button" role="tab" aria-controls="nav-assignedTasks" aria-selected="false">Assigned Tasks</button>
           <button class="nav-link" id="nav-project-tab" data-bs-toggle="tab" data-bs-target="#nav-project" type="button" role="tab" aria-controls="nav-project" aria-selected="true">Projects</button>
-          <button class="nav-link" id="nav-approval-tab" data-bs-toggle="tab" data-bs-target="#nav-approval" type="button" role="tab" aria-controls="nav-approval" aria-selected="false">Pending Approvals</button>
+          <button class="nav-link" id="nav-approval-tab" data-bs-toggle="tab" data-bs-target="#nav-approval"
+                  type="button" role="tab" aria-controls="nav-approval" aria-selected="false">
+            Pending Approvals
+          </button>
         </div>
       </nav>
       </div>
       <div class="card-body">
         <div class="tab-content" id="nav-tabContent">
+          <div class="tab-pane show active" id="nav-stats" role="tabpanel" aria-labelledby="nav-stats-tab">
+            <div class="container">
+              <div class="row pt-3">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body">
+                      Accumulated Leave Days
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body">
+                      Accumulated Compensatory Days
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body">
+                      Unsubmitted Timesheets
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row pt-3">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body">
+                      Overdue Tasks
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body">
+                      This is some text within a card body.
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body">
+                      This is some text within a card body.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="tab-pane fade" id="nav-requisition" role="tabpanel" aria-labelledby="nav-requisition-tab">
             <h3>Requisitions</h3>
           </div>
