@@ -133,54 +133,7 @@
   </table>
 </div>
 
-<div class="container" id="app">
-  <div id="image-modal" class="modal">
-    <%= form_for "time_sheet_task", url: time_sheet_tasks_path  do |form| %>
-      <div class="modal-background"></div>
-      <div class="modal-content">
-        <div class="modal-card">
-          <header class="modal-card-head">
-            <p class="modal-card-title">Add Task</p>
-          </header>
-          <section class="modal-card-body">
-            <div class="columns">
-              <div class="column">
-                Select Project
-              </div>
-              <div class="column">
-                <div class="select is-fullwidth">
-                  <%= form.select :project_id, @project_options %>
-                </div>
-              </div>
-            </div>
-            <div class="columns">
-              <div class="column">
-                <%= form.label :task_date %>
-                <%= form.date_field :task_date, class: 'input', required: true %>
-              </div>
-              <div class="column">
-                <%= form.label :duration %>
-                <%= form.number_field :duration, step:0.25, class: 'input', required: true %>
-              </div>
-            </div>
-            <div class="columns">
-              <div class="column">
-                <%= form.label :description %>
-                <%= form.text_field :description, class: 'input', required: true %>
-              </div>
-            </div>
-          </section>
-          <footer class="modal-card-foot">
-            <%= form.submit "Save", class: "button is-success" %>
-            <button id="close" class="button">Cancel</button>
-          </footer>
-        </div>
-      </div>
-      <%= form.hidden_field :time_sheet_id, value: @timesheet.timesheet_id %>
-    <% end %>
-    <button id="image-modal-close" class="modal-close"></button>
-  </div>
-</div>
+
 
 <script>
     const picker  = document.getElementById('period');
