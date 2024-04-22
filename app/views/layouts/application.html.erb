@@ -62,7 +62,7 @@
             </li>
             <% if current_user %>
               <li class ="nav-item ms-1">
-                <a class ="nav-link" href="/timesheets/<%=current_timesheet.timesheet_id %>" data-bs-toggle="tooltip" title="Timesheets">
+                <a class ="nav-link" href="/timesheets/<%=current_timesheet.timesheet_id rescue ''%>" data-bs-toggle="tooltip" title="Timesheets">
                   <img src="/assets/schedule.png" alt="Timesheets">
                   <span class="collapse multi-collapse" style="font-size: 0.8rem; color: #a3cfbb">Timesheet</span>
                 </a>
