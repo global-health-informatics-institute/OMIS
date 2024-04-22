@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_24_144057) do
+ActiveRecord::Schema[7.0].define(version: 2024_04_18_133311) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -107,6 +107,57 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_24_144057) do
     t.string "property"
     t.string "property_value"
     t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "inventory_item_categories", primary_key: "inventory_item_category_id", force: :cascade do |t|
+    t.string "category", null: false
+    t.boolean "voided", default: false, null: false
+    t.integer "created_by", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "inventory_item_issues", force: :cascade do |t|
+    t.integer "requisition_id", null: false
+    t.integer "inventory_item_id", null: false
+    t.decimal "quantity_issued", default: "0.0", null: false
+    t.date "issue_date", null: false
+    t.integer "issued_by", null: false
+    t.integer "issued_to", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "inventory_item_thresholds", primary_key: "inventory_item_threshold_id", force: :cascade do |t|
+    t.integer "inventory_item_id", null: false
+    t.decimal "minimum_quantity", default: "0.0"
+    t.decimal "maximum_quantity", default: "0.0"
+    t.boolean "voided", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "inventory_item_types", primary_key: "inventory_item_type_id", force: :cascade do |t|
+    t.integer "inventory_item_category_id", null: false
+    t.string "item_name", null: false
+    t.string "manufacturer", null: false
+    t.integer "created_by", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "inventory_items", primary_key: "inventory_item_id", force: :cascade do |t|
+    t.integer "item_type_id", null: false
+    t.integer "quantity", default: 0, null: false
+    t.integer "quantity_used", default: 0, null: false
+    t.string "supplier", null: false
+    t.decimal "unit_price", precision: 10, scale: 2
+    t.string "storage_location"
+    t.integer "created_by", null: false
+    t.integer "voided_by"
+    t.boolean "voided", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

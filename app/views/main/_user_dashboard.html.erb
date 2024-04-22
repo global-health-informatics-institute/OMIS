@@ -67,113 +67,101 @@
   </div>
 </div>
 <div class="row mt-4">
-  <div class="col-sm-12">
-    <div class="card ">
-      <div class="card-header card-header-dark">
-      <nav>
-        <div class="nav nav-tabs " id="nav-tab" role="tablist">
-          <button class="nav-link active" id="nav-stats-tab" data-bs-toggle="tab" data-bs-target="#nav-stats" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">My Stats</button>
-          <button class="nav-link" id="nav-requisition-tab" data-bs-toggle="tab" data-bs-target="#nav-requisition" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Requisitions</button>
-          <button class="nav-link" id="nav-assignedTasks-tab" data-bs-toggle="tab" data-bs-target="#nav-assignedTasks" type="button" role="tab" aria-controls="nav-assignedTasks" aria-selected="false">Assigned Tasks</button>
-          <button class="nav-link" id="nav-project-tab" data-bs-toggle="tab" data-bs-target="#nav-project" type="button" role="tab" aria-controls="nav-project" aria-selected="true">Projects</button>
-          <button class="nav-link" id="nav-approval-tab" data-bs-toggle="tab" data-bs-target="#nav-approval"
-                  type="button" role="tab" aria-controls="nav-approval" aria-selected="false">
-            Pending Approvals
-          </button>
-        </div>
-      </nav>
+  <div class="col-sm-4">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="card-title text-dark">
+          Pending Actions
+          <span class="badge rounded-pill bg-danger">
+            <%= (@pending_actions || []).length %>
+            <span class="visually-hidden">actions to perform</span>
+          </span>
+        </h5>
       </div>
-      <div class="card-body">
-        <div class="tab-content" id="nav-tabContent">
-          <div class="tab-pane show active" id="nav-stats" role="tabpanel" aria-labelledby="nav-stats-tab">
-            <div class="container">
-              <div class="row pt-3">
-                <div class="col">
-                  <div class="card">
-                    <div class="card-body">
-                      Accumulated Leave Days
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card">
-                    <div class="card-body">
-                      Accumulated Compensatory Days
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card">
-                    <div class="card-body">
-                      Unsubmitted Timesheets
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row pt-3">
-                <div class="col">
-                  <div class="card">
-                    <div class="card-body">
-                      Overdue Tasks
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card">
-                    <div class="card-body">
-                      This is some text within a card body.
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card">
-                    <div class="card-body">
-                      This is some text within a card body.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="tab-pane fade" id="nav-requisition" role="tabpanel" aria-labelledby="nav-requisition-tab">
-            <h3>Requisitions</h3>
-          </div>
-          <div class="tab-pane fade" id="nav-assignedTasks" role="tabpanel" aria-labelledby="nav-assignedTasks-tab">
-            <%= render partial: 'project_task_assignments/index' %>
-          </div>
-          <div class="tab-pane fade" id="nav-project" role="tabpanel" aria-labelledby="nav-project-tab">
-            <h3>Projects</h3>
-          </div>
-          <div class="tab-pane fade" id="nav-approval" role="tabpanel" aria-labelledby="nav-approval-tab">
-            <% if (@approvals || []).empty? %>
-              <h3>No Pending Approvals</h3>
-            <% else%>
+      <div class="card-body p-2 overflow-y-scroll" style="height:25vh;">
+        <% if (@pending_actions || []).empty? %>
+          <span class="fw-normal">No tasks assigned</span>
+        <% else%>
+          <ul class="list-group list-group-flush">
+            <% (@pending_actions || []).each do |action| %>
+              <li class="list-group-item"><%= action %></li>
+            <% end %>
+          </ul>
+        <% end %>
 
-            <table class="table table-striped ml-8 table-hover", style="width: 100%">
-              <thead class="table">
-                  <th>Requisition Type</th>
-                  <th>Person / Stakeholder</th>        
-                  <th>Date Submitted</th>  
-                  <th>Action</th>  
-              </thead>
-              <tbody>
-                <% (@approvals || []).each do |approval| %>
-                  <tr>
-                      <td>Timesheet</td>        
-                      <td><%= approval.employee.person.full_name%></td> 
-                      <td><%= approval.submitted_on.strftime("%d %b %Y") %></td>
-                      <td><%= link_to 'View', approval %></td>    
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-              <%#= render partial: 'requisitions/index' %>
-            <% end%>  
-          </div>
-        </div>
       </div>
     </div>
   </div>
+  <div class="col-sm-3">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="card-title text-dark">Personal Statistics</h5>
+      </div>
+      <div class="card-body p-2">
+        <ul class="list-group ">
+          <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+              <div class="fw-bold">Compensatory Leave</div>
+              Days accumulated of working extra hours
+            </div>
+            <span class="badge bg-primary rounded-pill">14</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+              <div class="fw-bold">Unused Leave </div>
+              Cras justo odio
+            </div>
+            <span class="badge bg-primary rounded-pill">14</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+              <div class="fw-bold">Unsubmitted Timesheets</div>
+              Overdue timesheets
+            </div>
+            <span class="badge bg-primary rounded-pill">14</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-3">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="card-title text-dark">Assigned Tasks
+          <span class="badge rounded-pill bg-danger">
+            <%= (@approvals || []).length %>
+            <span class="visually-hidden">actions to perform</span>
+          </span>
+        </h5>
+      </div>
+      <div class="card-body p-2">
+        <% if (@approvals || []).empty? %>
+          <span class="fw-normal">No tasks assigned</span>
+        <% else%>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-2">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="card-title text-dark">Current Projects</h5>
+      </div>
+      <div class="card-body p-2">
+        <% if (@project_names || []).empty? %>
+          <h3>No Current Projects</h3>
+        <% else %>
+          <ul class="list-group">
+            <% (@project_names || []).each do |project| %>
+              <li class="list-group-item"><%= project.short_name %></li>
+            <% end %>
+          </ul>
+        <%end%>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!--
   <div class="col-sm-2">
     <div class="card p-2 h-75">
@@ -190,9 +178,7 @@
       </div>
     </div>
   </div>!-->
-</div>  
 
-      
 
 <style>
   .tableContainer {
