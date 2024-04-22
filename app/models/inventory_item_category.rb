@@ -1,0 +1,2 @@
+class InventoryItemCategory < ApplicationRecord
+end

@@ -1,248 +1,126 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>OMIS</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <%= csrf_meta_tags %>
-  <%= csp_meta_tag %>
-  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-  <%= javascript_importmap_tags %>
-  <style>
-      .row{
-          margin-left:0px;
-          margin-right:0px;
-      }
-
-      #wrapper {
-          padding-left: 70px;
-          transition: all .4s ease 0s;
-          height: 100%
-      }
-
-      #sidebar-wrapper {
-          margin-left: -150px;
-          left: 70px;
-          width: 150px;
-          background: #222;
-          position: fixed;
-          height: 100%;
-          z-index: 10000;
-          transition: all .4s ease 0s;
-      }
-
-      .sidebar-nav {
-          display: block;
-          float: left;
-          width: 150px;
-          list-style: none;
-          margin: 0;
-          padding: 0;
-      }
-      #page-content-wrapper {
-          padding-left: 0;
-          margin-left: 0;
-          width: 100%;
-          height: auto;
-      }
-      #wrapper.active {
-          padding-left: 150px;
-      }
-      #wrapper.active #sidebar-wrapper {
-          left: 150px;
-      }
-
-      #page-content-wrapper {
-          width: 100%;
-      }
-
-      #sidebar_menu li a, .sidebar-nav li a {
-          color: #F7F7F7 !important;
-          display: block;
-          float: left;
-          text-decoration: none;
-          width: 150px;
-          background: #252525;
-          border-top: 1px solid #373737;
-          border-bottom: 1px solid #1A1A1A;
-          -webkit-transition: background .5s;
-          -moz-transition: background .5s;
-          -o-transition: background .5s;
-          -ms-transition: background .5s;
-          transition: background .5s;
-      }
-      .sidebar_name {
-          padding-top: 25px;
-          color: #fff;
-          opacity: .7;
-      }
-
-      .sidebar-nav li {
-          line-height: 40px;
-          text-indent: 20px;
-      }
-
-      .sidebar-nav li a {
-          color: #F7F7F7;
-          display: block;
-          text-decoration: none;
-      }
-
-      .sidebar-nav li a:hover {
-          color: #fff;
-          background: rgba(255,255,255,0.2);
-          text-decoration: none;
-      }
-
-      .sidebar-nav li a:active,
-      .sidebar-nav li a:focus {
-          text-decoration: none;
-      }
-
-      .sidebar-nav > .sidebar-brand {
-          height: 65px;
-          line-height: 60px;
-          font-size: 18px;
-      }
-
-      .sidebar-nav > .sidebar-brand a {
-          color: #F7F7F7;
-      }
-
-      .sidebar-nav > .sidebar-brand a:hover {
-          color: #fff;
-          background: none;
-      }
-
-      #main_icon
-      {
-          float:right;
-          padding-right: 0.8vw;
-          text-align: center;
-          padding-top: 1.5vh;
-      }
-      .sub_icon
-      {
-          float:right;
-          padding-right: 65px;
-          padding-top:10px;
-      }
-      .content-header {
-          height: 65px;
-          line-height: 65px;
-      }
-
-      .content-header h1 {
-          margin: 0;
-          margin-left: 20px;
-          line-height: 65px;
-          display: inline-block;
-      }
-
-      @media (max-width:767px) {
-          #wrapper {
-              padding-left: 20px;
-              transition: all .4s ease 0s;
-          }
-          #sidebar-wrapper {
-              left: 20px;
-          }
-          #wrapper.active {
-              padding-left: 150px;
-          }
-          #wrapper.active #sidebar-wrapper {
-              left: 150px;
-              width: 150px;
-              transition: all .4s ease 0s;
-          }
-      }
-      div.stripes {
-          width: 35px;
-          height: 5px;
-          background-color: green;
-          margin: 6px 0;
-      }
-      a.mainLink {
-          font-size: 25px !important;
-      }
-  </style>
-</head>
-<body>
-<div id="wrapper" class="active">
-
-  <!-- Sidebar -->
-  <!-- Sidebar -->
-  <div id="sidebar-wrapper">
-    <ul id="sidebar_menu" class="sidebar-nav">
-      <li class="sidebar-brand">
-        <a id="menu-toggle" href="#">
-          <img src="/assets/ic_omis.png" style="height: 4vh; width: 3vw; margin-left: -1vw;">
-          <span class="fs-6 fw-bolder">OMIS</span>
-          <span id="main_icon" onmousedown="toggleMenu()">
-            <div class="stripes"></div>
-            <div class="stripes"></div>
-            <div class="stripes"></div>
-          </span>
-        </a>
-      </li>
-    </ul>
-
-    <ul class="sidebar-nav" id="sidebar">
-      <li><%= link_to "Home", "/"%></li>
-      <% if current_user %>
-        <li><%= link_to "Assets", "/business_assets" %></li>
-        <li><%#= link_to "Projects", "/projects"%></li>
-        <li><%= link_to "Timesheets", "/timesheets/#{ current_timesheet.timesheet_id }" %></li>
-        <li><%= link_to "Requisitions", "/requisitions/index"%></li>
-        <li><%= link_to "Directory", "/employees" %></li>
-        <li><%= link_to "Reports", "/reports/index" %></li>
-        <li><%#= link_to "Settings", "/settings/index" %></li>
-      <% end %>
-
-      <li><%= link_to "About", "/about" %></li>
-
-      <% if current_user %>
-        <li><%= link_to "User Profile", "/users/#{ current_user.user_id }" %></li>
-        <li><%= link_to "Sign Out", '/logout' %></li>
-      <% else %>
-        <li><%= link_to "Sign In", "/user_sessions/new" %></li>
-      <% end %>
-    </ul>
-
-  </div>
-
-  <!-- Page content -->
-  <div id="page-content-wrapper">
-    <!-- Keep all page content within the page-content inset div! -->
-    <div class="page-content inset">
-      <div class="row">
-        <div class="col-md-12">
+  <head>
+    <title>OMIS</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body>
+    <main role="main" class="d-flex flex-column vh-100 vw-100">
+      <nav class="navbar navbar-expand-sm bg-dark navbar-dark py-0">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">
+            <img src="/assets/ic_omis.png" alt="" width="30" height="24" class="d-inline-block align-text-top">
+            OMIS
+          </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link" href="/about">About</a>
+              </li>
+              <% if current_user %>
+                <!--
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Settings</a>
+                </li> !-->
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <%= current_user.username %>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="/users/<%= current_user.user_id%>">User Profile</a></li>
+                    <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                  </ul>
+                </li>
+              <% else %>
+                <a class="nav-link" href="/user_sessions/new" >Login</a>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <div class="flex-grow-1 row vw-100">
+        <div class="col-md-auto p-2" style="background: #252525 !important;">
+          <ul class="nav navbar-nav">
+            <li class ="nav-item ms-1">
+              <button class ="nav-link" type="button" data-bs-toggle="collapse" data-bs-target=".multi-collapse" title="Menu">
+                <img src="/assets/menu.png" alt="Menu">
+                <span class="collapse multi-collapse" style="font-size: 0.8rem; color: #a3cfbb">Menu</span>
+              </button>
+            </li>
+            <li class ="nav-item ms-1">
+              <a class ="nav-link" href="/" data-bs-toggle="tooltip" title="Home">
+                <img src="/assets/home.png" alt="Home">
+                <span class="collapse multi-collapse" style="font-size: 0.8rem; color: #a3cfbb">Home</span>
+              </a>
+            </li>
+            <% if current_user %>
+              <li class ="nav-item ms-1">
+                <a class ="nav-link" href="/timesheets/<%=current_timesheet.timesheet_id %>" data-bs-toggle="tooltip" title="Timesheets">
+                  <img src="/assets/schedule.png" alt="Timesheets">
+                  <span class="collapse multi-collapse" style="font-size: 0.8rem; color: #a3cfbb">Timesheet</span>
+                </a>
+              </li>
+              <li class ="nav-item ms-1">
+                <a class ="nav-link" href="/requisitions/index" data-bs-toggle="tooltip" title="Requisitions">
+                  <img src="/assets/requestion.png" alt="Requisitions">
+                  <span class="collapse multi-collapse" style="font-size: 0.8rem; color: #a3cfbb">Requistions</span>
+                </a>
+              </li>
+              <!--
+              <li class ="nav-item ms-1">
+                <a class ="nav-link" href="/projects" data-bs-toggle="tooltip" title="Programs">
+                  <img src="/assets/program.png" alt="Programs">
+                  <span class="collapse multi-collapse" style="font-size: 0.8rem; color: #a3cfbb">Programs</span>
+                </a>
+              </li> !-->
+              <li class ="nav-item ms-1">
+                <a class ="nav-link" href="/employees" data-bs-toggle="tooltip" title="Personnel">
+                  <img src="/assets/personnel.png" alt="Personnel">
+                  <span class="collapse multi-collapse" style="font-size: 0.8rem; color: #a3cfbb">Personnel</span>
+                </a>
+              </li>
+              <!--
+              <li class ="nav-item ms-1">
+                <a class ="nav-link" href="/inventory_items/index" data-bs-toggle="tooltip" title="Inventory">
+                  <img src="/assets/inventory.png" alt="Inventory">
+                  <span class="collapse multi-collapse" style="font-size: 0.8rem; color: #a3cfbb">Inventory</span>
+                </a>
+              </li> !-->
+              <li class ="nav-item ms-1">
+                <a class ="nav-link" href="/business_assets" data-bs-toggle="tooltip" title="Assets">
+                  <img src="/assets/asset.png" alt="Assets">
+                  <span class="collapse multi-collapse" style="font-size: 0.8rem; color: #a3cfbb">Assets</span>
+                </a>
+              </li>
+              <li class ="nav-item ms-1">
+                <a class ="nav-link" href="/reports/index" data-bs-toggle="tooltip" title="Reports">
+                  <img src="/assets/report.png" alt="Reports">
+                  <span class="collapse multi-collapse" style="font-size: 0.8rem; color: #a3cfbb">Reports</span>
+                </a>
+              </li>
+              <!--
+              <li class ="nav-item ms-1">
+                <a class ="nav-link" href="#" data-bs-toggle="tooltip" title="Complaints">
+                  <img src="/assets/Complaint.png" alt="Complaints">
+                  <span class="collapse multi-collapse" style="font-size: 0.8rem; color: #a3cfbb">Complaint</span>
+                </a>
+              </li> !-->
+            <% end %>
+          </ul>
+        </div>
+        <div class="col overflow-y-scroll" style="max-height: 90vh;">
+          <%= render partial: 'layouts/notices' %>
           <%= yield %>
           <%= turbo_frame_tag "remote_modal", target: "_top" %>
         </div>
       </div>
-    </div>
-  </div>
-</div>
-
-<%= render partial: 'layouts/notices' %>
-
-<script>
-    function toggleMenu()
-    {
-        const wrapper = document.getElementById('wrapper')
-
-        if (wrapper.classList.contains("active")){
-            wrapper.classList.remove("active")
-            wrapper.setAttribute('style', 'font-size: 0px !important');
-            console.log('off')
-        }
-        else{
-            wrapper.classList.add("active")
-            wrapper.setAttribute('style', 'font-size: 0px !important');
-
-        }
-    }
-
-</script>
-</body>
+    </main>
+  </body>
 </html>
