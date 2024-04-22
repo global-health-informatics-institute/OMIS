@@ -22,6 +22,8 @@ class ReportsController < ApplicationController
       project_progress_report
     when 'Tokens'
       token_requests
+    when 'Leave days'
+      leave_days
     end
   end
 
@@ -40,6 +42,19 @@ class ReportsController < ApplicationController
   def hr_report; end
 
   def project_progress_report; end
+
+  def leave_days
+    @list_employees = Employee.where(still_employed: true).collect { |x| x.person }
+    #raise @list_employees.inspect
+    @annual_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id, 
+    leave_type: "Annual Leave", financial_year: Date.today.year).first
+    
+    @sick_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id, 
+    leave_type: "Sick Leave", financial_year: Date.today.year).first
+
+    @compassionate_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id, 
+    leave_type: "Compassionate Leave", financial_year: Date.today.year).first
+  end
 
   def token_requests
     #raise Date.parse(params[:start_date]).inspect
