@@ -118,7 +118,7 @@ class Employee < ApplicationRecord
 
         actions += Timesheet.select("timesheet_id, employee_id, submitted_on")
                             .where("employee_id in (?) and submitted_on is not NULL and approved_on is NULL", jnrs)
-                            .collect{|x| "Review #{x..employee.person.first_name}\'s #{x.timesheet_week.strftime('%d %b, %Y')} timesheet"}
+                            .collect{|x| "Review #{x.employee.person.first_name}\'s #{x.timesheet_week.strftime('%d %b, %Y')} timesheet"}
         # requisition reviews
 
         return actions
