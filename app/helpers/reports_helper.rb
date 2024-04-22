@@ -3,7 +3,8 @@ module ReportsHelper
     options = [['HR Report', 'HR'], ['Asset Status', 'Assets'],
                ['Individual LOE Report', 'Employee LOE'],
                ['Organization LOE Report', 'Org LOE'],
-               ['Project Progress Report','Project Report']
+               ['Project Progress Report','Project Report'],
+               ['Token Request Report', 'Tokens']
     ]
     return options
   end
