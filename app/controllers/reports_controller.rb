@@ -20,6 +20,8 @@ class ReportsController < ApplicationController
       monthly_org_loe_report
     when 'Project Report'
       project_progress_report
+    when 'Tokens'
+      token_requests
     end
   end
 
@@ -38,6 +40,11 @@ class ReportsController < ApplicationController
   def hr_report; end
 
   def project_progress_report; end
+
+  def token_requests
+    #raise Date.parse(params[:start_date]).inspect
+    @tokens = TokenLog.where("created_at >= '#{Date.parse(params[:start_date])}' and created_at <= '#{Date.parse(params[:end_date])}'")
+  end
 
   def monthly_employee_loe_report
     @selected_employee_id = params[:employee_loe_type]

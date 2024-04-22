@@ -4,7 +4,6 @@ module PdfMonthlyLoeReport
   def self.initialize_report(employees, results, projects, start_date, end_date)
 
     file_name = "#{start_date.gsub('-', '').squish}_#{end_date.gsub('-', '').squish}_org_loe_report.pdf"
-    padding = Date.parse(start_date).cwday == 7 ? 0 : (Date.parse(start_date).cwday.to_i - 1)
 
     Prawn::Document.generate("tmp/#{file_name}", page_size: 'A3', page_layout: :landscape,
                              left_margin: 40, right_margin: 30) do |pdf_object|
@@ -25,13 +24,16 @@ module PdfMonthlyLoeReport
       end
 
       (employees || []).each do |employee_id, name|
-        data, total = get_emp_details(employee_id, start_date, end_date)
         weeks = ((Date.parse(end_date) - Date.parse(start_date)) / 7.0).floor
         required_pages = (weeks / 5).floor
         (0..required_pages).each do |i|
           temp_start_date = Date.parse(start_date).advance(weeks: (5 * i))
           temp_end_date = temp_start_date.advance(weeks: 5)
+          #t_end_date =  temp_end_date - 1
+          padding = temp_start_date.cwday == 7 ? 0 : temp_start_date.cwday.to_i
+          #raise padding.inspect
           period = "#{temp_start_date.strftime('%d %b, %Y')} - #{temp_end_date.strftime('%d %b, %Y')}"
+          data, total = get_emp_details(employee_id, temp_start_date, temp_end_date)
           pre_processed = pdf_preprocess(padding, data, temp_start_date, temp_end_date)
           pdf_object.image 'public/letterhead_landscape.png', width: 1100, height: 100
           pdf_object.move_down 20
@@ -62,15 +64,17 @@ module PdfMonthlyLoeReport
   def self.pdf_preprocess(padding,data, start_date, end_date)
 
     number_of_weeks = ((end_date - start_date).to_i / 7.0).floor
-    number_of_days = (end_date - start_date).to_i - 2
+    number_of_days = (end_date - start_date).to_i - 1
 
     dataset = [["Project#{' '*30}"] + (1..number_of_weeks).flat_map { |week|
               [{content: "Week#{week}", colspan: 7}]}] + [['Day'] + 
               %w[Sun Mon Tue Wed Thu Fri Sat] * number_of_weeks]
 
     header = ['Date']
-    (0..padding).each do |pad|
-      header.append(' ')
+    if padding > 0
+      (0..padding).each do |pad|
+        header.append(' ')
+      end
     end
     (0..number_of_days).each do |i|
       header.append(start_date.advance(days: i).strftime('%d'))
@@ -102,7 +106,7 @@ module PdfMonthlyLoeReport
   def self.get_emp_details(employee_id, start_date, end_date)
 
     sheets = Timesheet.where("employee_id = ? and timesheet_week between ? and ?",
-                             employee_id, Date.parse(start_date).advance(weeks: -1), end_date)
+                             employee_id, start_date, end_date)
     records = TimesheetTask.where("timesheet_id in (?) and task_date between ? and ? ",
                                   sheets.collect { |x| x.timesheet_id },start_date, end_date)
 

@@ -1,0 +1,39 @@
+<div class="row">
+  <div class="col col-md-3">
+    <div class="row">
+      <div class="col col-md-8"><small class="fs-6 fw-bold text-primary">Export Report</small></div>
+      <div class="col col-md-2">
+        <%= link_to image_tag("/assets/xls-file.png"), "/generate_report.xsl?report_type=Org%20LOE&start_date=#{params[:start_date]}&end_date=#{params[:end_date]}"%>
+      </div>
+      <div class="col col-md-2">
+        <%= link_to image_tag("/assets/pdf.png"), "/generate_report.pdf?report_type=Org%20LOE&start_date=#{params[:start_date]}&end_date=#{params[:end_date]}"%>
+      </div>
+    </div>
+  </div>
+</div>
+<div style="display: table; width: 100%;">
+    <div style="display: table-row">
+      <div style="display: table-cell" class="col col-10">
+        <table class="table table-striped table-bordered" style="width: 100%">
+          <thead>
+          <tr>
+            <th class="text-center">Token</th>
+            <th class="text-center">Date</th>
+            <th class="text-center">Token</th>
+            <th class="text-center">Date</th>
+          </tr>
+          </thead>
+          <tbody>
+            <% @tokens.each_slice(2) do |token_pair| %>
+              <tr>
+                <% token_pair.each do |token| %>
+                  <td class="text-center"><%= token.token %></td>
+                  <td class="text-center"><%= token.created_at.strftime('%d %b, %Y %H:%m') %></td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+</div>
