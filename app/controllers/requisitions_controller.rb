@@ -40,9 +40,15 @@ class RequisitionsController < ApplicationController
   end
 
   def create
-    raise params.inspect
-    new_requisition = Requisition.new()
 
+    new_requisition = Requisition.create(purpose: params[:purpose], initiated_by: params[:initiated_by].to_i,
+                                      initiated_on: Date.current, requisition_type: params[:requisition_type])
+
+    if params[:requisition_type] == "Petty Cash"
+       RequisitionItem.create(requisition_id: new_requisition.id, quantity: params[:quantity],
+                           value: params[:amount_requested], item_description: "Petty Cash")
+    end
+    raise new_requisition.errors.inspect
   end
 
   def edit

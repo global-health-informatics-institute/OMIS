@@ -1,16 +1,19 @@
 #this file is a monthly script to update different parameters
 
 def main
-  #add_leave_days
-  #subtract_leave_days
+  add_leave_days
+  subtract_leave_days
   update_retention_turnover_rate
 end
 
 def add_leave_days
   puts "Adding leave days"
-  employees = Employee.where("employment_date <= ? and COALESCE(departure_date, Date.today.end_of_month.strftime('%Y-%m-%d')) >= ?",
-                             Date.today.beginning_of_month.strftime('%Y-%m-%d'),
-                             Date.today.end_of_month.strftime('%Y-%m-%d'))
+  start_day = Date.today.advance(month: -1).beginning_of_month
+  end_day = Date.today.advance(month: -1).end_of_month
+  employees = Employee.where("employment_date <= ? and COALESCE(departure_date, '#{Date.today.end_of_month.strftime('%Y-%m-%d')}') >= ?",
+                             start_day.strftime('%Y-%m-%d'),
+                             end_day.strftime('%Y-%m-%d'))
+
   ft_rate = GlobalProperty.find_by_property('full.time.annual.leave')
   pt_rate = GlobalProperty.find_by_property('part.time.annual.leave')
   (employees || []).each do |employee|
@@ -39,10 +42,13 @@ def subtract_leave_days
                                             'Sick Leave']).collect{|x| [x.id, x.short_name]}.to_h
 
   hrs = GlobalProperty.find_by_property('number.of.hours').property_value.to_f
+  start_day = Date.today.advance(month: -1).beginning_of_month
+  end_day = Date.today.advance(month: -1).end_of_month
+
   summaries=  TimesheetTask.joins("inner join timesheets on timesheet_tasks.timesheet_id=timesheets.timesheet_id").select(
     "timesheets.employee_id, project_id, sum(duration) as duration").where(
-    "task_date between ? and ? and project_id in (?)", Date.today.beginning_of_month.strftime('%Y-%m-%d'),
-    Date.today.end_of_month.strftime('%Y-%m-%d'), prj.keys).group(:employee_id,:project_id)
+    "task_date between ? and ? and project_id in (?)", start_day.strftime('%Y-%m-%d'), end_day.strftime('%Y-%m-%d'),
+    prj.keys).group(:employee_id,:project_id)
 
   (summaries || []).each do |summary|
     leave = LeaveSummary.where(employee_id: summary.employee_id, leave_type: prj[summary.project_id],
