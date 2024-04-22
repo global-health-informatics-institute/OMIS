@@ -15,6 +15,13 @@ module ApplicationHelper
     end
   end
 
+  def gender_options
+    %w[Male Female TransMale TransFemale Queer Other]
+  end
+
+  def marital_options
+    %w[Single Married Divorced]
+  end
   def bg_colors
 
   end

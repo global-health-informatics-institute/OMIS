@@ -2,24 +2,22 @@
 
 <p class="h5 ">Personnel Center</p>
 <div class="border p-2">
-  <%= form_tag(generate_report_path, method: "GET") do %>
-    <div class="row pt-2 pb-2">
-      <div class="col-1 fs-7 fw-bold">
-        Search:
-      </div>
-      <div class="col">
-        <input class="form-control" type="text" placeholder="Search for Contact" id="textFilter">
-      </div>
-      <div class="col-2">
-        <button class="btn btn-primary">
-          Search
-        </button>
-      </div>
-      <div class="col-4">
-        <%= submit_tag("Add New Employee", class: "btn btn-success") %>
-      </div>
+  <div class="row pt-2 pb-2">
+    <div class="col-1 fs-7 fw-bold">
+      Search:
     </div>
-  <% end %>
+    <div class="col">
+      <input class="form-control" type="text" placeholder="Search for Contact" id="textFilter">
+    </div>
+    <div class="col-2">
+      <button class="btn btn-primary">
+        Search
+      </button>
+    </div>
+    <div class="col-4">
+      <%= link_to "Add New Employee",'/employees/new' ,class: "btn btn-success" %>
+    </div>
+  </div>
 </div>
 
 <div class="border p-2 mt-2 fs-6">
