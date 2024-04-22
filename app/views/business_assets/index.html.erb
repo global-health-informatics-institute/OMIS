@@ -25,7 +25,7 @@
 </div>
 
 <div class="border p-2 mt-2 fs-6">
-  <table class="table table-stripped" id="assetTable">
+  <table class="table table-stripped table-sm" id="assetTable">
     <thead class="thead-light">
       <tr>
         <th><abbr title="Lost">Asset ID</abbr></th>
@@ -39,7 +39,7 @@
     <tbody>
       <% @assets.each do |asset| %>
         <tr>
-          <td><%= asset.tag_id %></td>
+          <td class="fw-light"><%= asset.tag_id %></td>
           <td><%= @categories[asset.asset_category_id] %></td>
           <td><%= asset.description %></td>
           <td><%= asset.serial_number %></td>

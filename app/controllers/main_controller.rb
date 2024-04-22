@@ -2,6 +2,7 @@ class MainController < ApplicationController
   skip_before_action :logged_in?, only: [:home, :about]
   def home
     if current_user
+      @page_title = "User Dashboard"
       @employee = current_user.employee
       @person = @employee.person
       @upcoming_deadlines = ProjectTask.where("project_task_id in (?)",
@@ -19,6 +20,7 @@ class MainController < ApplicationController
         @total_hrs += v
       end
 
+      @pending_actions = current_user.employee.pending_actions
       @projects = Project.select(:project_id, :project_name)
       
       #@project_list = ProjectTask.where(voided:false)
@@ -28,12 +30,8 @@ class MainController < ApplicationController
         @upcoming_deadlines += proj.upcoming_deadlines
       end
 
-      e = @employee
-      jnrs = e.current_supervisees.collect{|x| x.supervisee}
-      
-      @approvals = Timesheet.select("timesheet_id, employee_id, submitted_on").where("employee_id in (?) and submitted_on is not NULL and approved_on is NULL", jnrs)
-
     else
+      @page_title = "Application Dashboard"
       people = Employee.select(:employee_id, :person_id).where(still_employed: true)
       @gender_summary, @age_summary = helpers.categorize_employees(
         Person.where(person_id: people.collect{|x|x.person_id}))
