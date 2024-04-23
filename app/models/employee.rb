@@ -111,14 +111,16 @@ class Employee < ApplicationRecord
         # outstanding timesheets
         actions += Timesheet.select("timesheet_id, employee_id, timesheet_week")
                             .where("employee_id in (?) and submitted_on is NULL", self.id)
-                            .collect{|x| "Submit #{x.timesheet_week.strftime('%d %b, %Y')} timesheet"}
+                            .collect{|x| ["Submit #{x.timesheet_week.strftime('%d %b, %Y')} timesheet",
+                                          "/timesheets/#{x.id}"]}
         # timesheet reviews
 
         jnrs = self.current_supervisees.collect{|x| x.supervisee}
 
         actions += Timesheet.select("timesheet_id, employee_id, submitted_on, timesheet_week")
                             .where("employee_id in (?) and submitted_on is not NULL and approved_on is NULL", jnrs)
-                            .collect{|x| "Review #{x.employee.person.first_name}\'s #{x.timesheet_week.strftime('%d %b, %Y')} timesheet"}
+                            .collect{|x| ["Review #{x.employee.person.first_name}\'s #{x.timesheet_week.strftime('%d %b, %Y')} timesheet",
+                                          "/timesheets/#{x.id}"]}
         # requisition reviews
 
         return actions
