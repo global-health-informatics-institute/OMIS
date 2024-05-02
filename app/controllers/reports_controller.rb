@@ -44,16 +44,49 @@ class ReportsController < ApplicationController
   def project_progress_report; end
 
   def leave_days
-    @list_employees = Employee.where(still_employed: true).collect { |x| x.person }
-    #raise @list_employees.inspect
-    @annual_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id, 
-    leave_type: "Annual Leave", financial_year: Date.today.year).first
-    
-    @sick_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id, 
-    leave_type: "Sick Leave", financial_year: Date.today.year).first
+    #@list_employees = Employee.where(still_employed: true).collect { |x| x.person}
+    @leave_proj_ids = Project.where('short_name in (?)', ['Annual Leave', 'Compassionate Leave', 'Sick Leave']).collect(&:project_id)
+    #req_tasks = TimesheetTask.where(project_id: leave_proj_ids)
+    #raise @leave_proj_ids.inspect
 
-    @compassionate_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id, 
-    leave_type: "Compassionate Leave", financial_year: Date.today.year).first
+    sheets = Timesheet.find_by_sql("SELECT employee_id, project_id, sum(duration) as duration from timesheet_tasks
+    as tst inner join (select timesheet_id, employee_id from timesheets where timesheet_week
+        BETWEEN '#{Date.parse(params[:start_date])}' and '#{params[:end_date]}') as tt_ts on
+            tt_ts.timesheet_id = tst.timesheet_id where tst.project_id in (#{@leave_proj_ids.join(',')}) and tst.task_date 
+            BETWEEN '#{params[:start_date]}' and '#{params[:end_date]}' group by employee_id,project_id")
+
+    @people = Person.joins('inner join employees on people.person_id=employees.person_id')
+                    .where('employees.employee_id in (?)', sheets.collect(&:employee_id).uniq)
+                    .collect { |x| [x.person_id, "#{x.first_name} #{x.last_name}"] }.to_h
+
+    tmp_leave_balances = LeaveSummary.select("employee_id,leave_type, sum(leave_days_total)  as leave_days_total, 
+                                              sum(leave_days_balance) as leave_days_balance")
+                                     .where("employee_id in (?) and financial_year between ? and ? ",
+                                            sheets.collect(&:employee_id).uniq, Date.parse(params[:start_date]).year, 
+                                            Date.parse(params[:end_date]).year)
+                                     .group(:employee_id, :leave_type)
+
+    @leave_balances = {}
+    @leave_taken = {}
+
+    (tmp_leave_balances || []).each do |balance|
+      if @leave_balances[balance.employee_id].blank?
+        @leave_balances[balance.employee_id] = { balance.leave_type => balance.leave_days_total }
+      else
+        @leave_balances[balance.employee_id][balance.leave_type] = balance.leave_days_total
+      end
+    end
+
+    (sheets || []).each do |task|
+      if @leave_taken[task.employee_id].blank?
+        @leave_taken[task.employee_id] = { task.project_id => (task.duration / 7.5).round(2) }
+      else
+        @leave_taken[task.employee_id][task.project_id] = (task.duration / 7.5).round(2)
+        #@leave_taken_duration = (task.duration / 7.5)
+
+        #raise @leave_taken.inspect
+      end
+    end
   end
 
   def token_requests
