@@ -33,15 +33,16 @@
           </tr>
           </thead>
           <tbody>
-            <% (@list_employees || []).each do |list| %>
+            
+            <% (@people || []).each do |list| %>
               <tr>
-                <td><%= list.full_name%></td>
-                <td class="text-center"><%= @annual_leave_bal.leave_days_total.floor(2) %></td>
-                <td class="text-center"><%= @annual_leave_bal.leave_days_balance.floor(2) %></td>
-                <td class="text-center"><%= @annual_leave_bal.leave_days_total.floor(2) %></td>
-                <td class="text-center"><%= @annual_leave_bal.leave_days_balance.floor(2) %></td>
-                <td class="text-center"><%= @annual_leave_bal.leave_days_total.floor(2) %></td>
-                <td class="text-center"><%= @annual_leave_bal.leave_days_balance.floor(2) %></td>
+                <td><%= list[1]%></td>
+                <td class="text-center"><%= @leave_taken[list[0]][@leave_proj_ids[0]] rescue 0.0 %></td>
+                <td class="text-center"><%= @leave_balances[list[0]]['Annual Leave'] rescue 0.0 %></td>
+                <td class="text-center"><%= @leave_taken[list[0]][@leave_proj_ids[1]] rescue 0.0 %></td>
+                <td class="text-center"><%= @leave_balances[list[0]]['Compassionate Leave'] rescue 0.0 %></td>
+                <td class="text-center"><%= @leave_taken[list[0]][@leave_proj_ids[2]] rescue 0.0 %></td>
+                <td class="text-center"><%= @leave_balances[list[0]]['Sick Leave'] rescue 0.0 %></td>
               </tr>
             <%end%>
           </tbody>
