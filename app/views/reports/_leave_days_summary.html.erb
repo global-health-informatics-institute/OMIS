@@ -1,0 +1,53 @@
+<div class="row">
+  <div class="col col-md-3">
+    <div class="row">
+      <div class="col col-md-8"><small class="fs-6 fw-bold text-primary">Export Report</small></div>
+      <div class="col col-md-2">
+        <%= link_to image_tag("/assets/xls-file.png"), "/generate_report.xsl?report_type=Org%20LOE&start_date=#{params[:start_date]}&end_date=#{params[:end_date]}"%>
+      </div>
+      <div class="col col-md-2">
+        <%= link_to image_tag("/assets/pdf.png"), "/generate_report.pdf?report_type=Org%20LOE&start_date=#{params[:start_date]}&end_date=#{params[:end_date]}"%>
+      </div>
+    </div>
+  </div>
+</div>
+<div style="display: table; width: 100%;">
+  <%# (@results || []).each do |project, records| %>
+    <div style="display: table-row">
+      <div style="display: table-cell" class="col col-10">
+        <table class="table table-bordered" style="width: 100%">
+          <thead>
+          <tr>
+            <th rowspan="2">Employee Name</th>
+            <th class="text-center" colspan="2">Annual</th>
+            <th class="text-center" colspan="2">Compassionate</th>
+            <th class="text-center" colspan="2">Sick</th>
+          </tr>
+          <tr>
+            <th class="text-center">Taken</th>
+            <th class="text-center">Balance</th>
+            <th class="text-center">Taken</th>
+            <th class="text-center">Balance</th>
+            <th class="text-center">Taken</th>
+            <th class="text-center">Balance</th>
+          </tr>
+          </thead>
+          <tbody>
+            
+            <% (@people || []).each do |list| %>
+              <tr>
+                <td><%= list[1]%></td>
+                <td class="text-center"><%= @leave_taken[list[0]][@leave_proj_ids[0]] rescue 0.0 %></td>
+                <td class="text-center"><%= @leave_balances[list[0]]['Annual Leave'] rescue 0.0 %></td>
+                <td class="text-center"><%= @leave_taken[list[0]][@leave_proj_ids[1]] rescue 0.0 %></td>
+                <td class="text-center"><%= @leave_balances[list[0]]['Compassionate Leave'] rescue 0.0 %></td>
+                <td class="text-center"><%= @leave_taken[list[0]][@leave_proj_ids[2]] rescue 0.0 %></td>
+                <td class="text-center"><%= @leave_balances[list[0]]['Sick Leave'] rescue 0.0 %></td>
+              </tr>
+            <%end%>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <%# end %>
+</div>
