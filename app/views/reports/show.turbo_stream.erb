@@ -10,6 +10,8 @@
     <%= render partial: "organization_monthly_loe", locals: {selected_report: @selected_report} %>
   <% elsif @selected_report == 'Tokens' %>
     <%= render partial: "token_requests_summary", locals: {selected_report: @selected_report} %>
+  <% elsif @selected_report == 'Leave days' %>
+    <%= render partial: "leave_days_summary", locals: {selected_report: @selected_report} %>
   <% end %>
 <% end %>
 

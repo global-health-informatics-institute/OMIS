@@ -67,7 +67,7 @@ module PdfMonthlyLoeReport
     number_of_days = (end_date - start_date).to_i - 1
 
     dataset = [["Project#{' '*30}"] + (1..number_of_weeks).flat_map { |week|
-              [{content: "Week#{week}", colspan: 7}]}] + [['Day'] + 
+              [{content: "Week #{week}", colspan: 7}]}] + [['Day'] +
               %w[Sun Mon Tue Wed Thu Fri Sat] * number_of_weeks]
 
     header = ['Date']

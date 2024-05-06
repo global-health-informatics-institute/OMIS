@@ -82,11 +82,11 @@
         <% if (@pending_actions || []).empty? %>
           <span class="fw-normal">No tasks assigned</span>
         <% else%>
-          <ul class="list-group list-group-flush">
+          <div class="list-group-item list-group-flush">
             <% (@pending_actions || []).each do |action| %>
-              <li class="list-group-item"><%= action %></li>
+              <a href="<%= action[1] %>" class="list-group-item list-group-item-action"><%= action[0] %></a>
             <% end %>
-          </ul>
+          </div>
         <% end %>
 
       </div>
@@ -112,7 +112,7 @@
               Paid leave days remaining
             </div>
             <span class="badge bg-primary rounded-pill">
-              <%= @unused_leave.leave_days_balance rescue 0.0%>
+              <%= @unused_leave.leave_days_balance.floor(2) rescue 0.0%>
             </span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-start">
