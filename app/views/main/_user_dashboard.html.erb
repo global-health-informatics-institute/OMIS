@@ -82,11 +82,11 @@
         <% if (@pending_actions || []).empty? %>
           <span class="fw-normal">No tasks assigned</span>
         <% else%>
-          <div class="list-group-item list-group-flush">
+          <ul class="list-group list-group-flush">
             <% (@pending_actions || []).each do |action| %>
               <a href="<%= action[1] %>" class="list-group-item list-group-item-action"><%= action[0] %></a>
             <% end %>
-          </div>
+          </ul>
         <% end %>
 
       </div>
