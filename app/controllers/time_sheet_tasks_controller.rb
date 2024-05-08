@@ -7,6 +7,7 @@ class TimeSheetTasksController < ApplicationController
     @time_sheet_task = TimesheetTask.find(params[:time_sheet_id]) rescue nil
     @project_options = Project.all.collect { |x| [x.project_name, x.id] }
     @selected_project = Project.find_by_short_name(params[:prj])
+    @timesheet = Timesheet.find(params[:time_sheet])
   end
 
   def create    
@@ -20,12 +21,12 @@ class TimeSheetTasksController < ApplicationController
     end
        
     redirect_to "/time_sheets/#{new_time_sheet_task.timesheet_id}"
-
   end
 
   def edit
     @time_sheet_task = TimesheetTask.find(params[:time_sheet_task_id])
     @project_options = Project.all.collect { |x| [x.project_name, x.id] }
+    @timesheet = Timesheet.find(params[:id])
   end
 
   def update
