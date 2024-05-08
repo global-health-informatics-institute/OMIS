@@ -23,7 +23,7 @@
     <div class="border p-2 mt-2">
       <table class="table table-striped ml-8 table-hover", style="width: 100%">
         <thead class="table-dark">
-            <th width=30%>Quantinty</th>        
+            <th width=30%>Quantity</th>
             <th>Description</th>     
         </thead>
         <tbody>
@@ -43,23 +43,6 @@
       </table>
     </div>
   </div>
-
-  <div class="row">
-    <div class="col-md-4 mb-2">
-      <%= form.label :requested_by %>
-      <%= form.text_field :requested_by, value: current_user.full_name,  class: 'form-control', required: true %>
-      <br/>
-      <span class="mt-2">16 -Nov 2023 12:56 PM</span>
-
-    </div>
-    <div class="col-md-4 mb-2">
-      <%= form.label :approved_by %>
-      <%= form.text_field :approved_by, class: 'form-control', readonly: true %>
-      <br/>
-      <span class="mt-2">16 -Nov 2023 12:56 PM</span>
-    </div>
-  </div>
-
   <hr>
 
   <%= form.submit "Submit Request", class: "btn btn-success btn-block" %>
