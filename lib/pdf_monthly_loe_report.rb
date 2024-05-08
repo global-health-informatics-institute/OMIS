@@ -99,9 +99,9 @@ module PdfMonthlyLoeReport
   def self.get_emp_details(employee_id, start_date, end_date)
 
     sheets = Timesheet.where("employee_id = ? and timesheet_week between ? and ?",
-                             employee_id, start_date, end_date)
+                             employee_id, start_date.beginning_of_week.advance(week: -1), end_date).collect { |x| x.id }
     records = TimesheetTask.where("timesheet_id in (?) and task_date between ? and ? ",
-                                  sheets.collect { |x| x.timesheet_id },start_date, end_date)
+                                  sheets,start_date, end_date)
 
     total = 0.0
 
