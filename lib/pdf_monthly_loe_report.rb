@@ -26,12 +26,12 @@ module PdfMonthlyLoeReport
       (employees || []).each do |employee_id, name|
         weeks = ((Date.parse(end_date) - Date.parse(start_date)) / 7.0).floor
         required_pages = (weeks / 5).floor
+
         (0..required_pages).each do |i|
-          temp_start_date = Date.parse(start_date).advance(weeks: (5 * i))
-          temp_end_date = temp_start_date.advance(weeks: 5)
-          #t_end_date =  temp_end_date - 1
+          temp_start_date = Date.parse(start_date).advance(weeks: (5 * i)) #.beginning_of_week
+          temp_end_date = (required_pages > 0 ? temp_start_date.advance(weeks: 5) :  Date.parse(end_date)).end_of_week
           padding = temp_start_date.cwday == 7 ? 0 : temp_start_date.cwday.to_i
-          #raise padding.inspect
+
           period = "#{temp_start_date.strftime('%d %b, %Y')} - #{temp_end_date.strftime('%d %b, %Y')}"
           data, total = get_emp_details(employee_id, temp_start_date, temp_end_date)
           pre_processed = pdf_preprocess(padding, data, temp_start_date, temp_end_date)
@@ -66,17 +66,13 @@ module PdfMonthlyLoeReport
     number_of_weeks = ((end_date - start_date).to_i / 7.0).floor
     number_of_days = (end_date - start_date).to_i - 1
 
-    dataset = [["Project#{' '*30}"] + (1..number_of_weeks).flat_map { |week|
+    dataset = [["Project#{' '*30}"] + (1..(number_of_weeks+1)).flat_map { |week|
               [{content: "Week #{week}", colspan: 7}]}] + [['Day'] +
-              %w[Sun Mon Tue Wed Thu Fri Sat] * number_of_weeks]
+              %w[Sun Mon Tue Wed Thu Fri Sat] * (number_of_weeks+1)]
 
-    header = ['Date']
-    if padding > 0
-      (0..padding).each do |pad|
-        header.append(' ')
-      end
-    end
-    (0..number_of_days).each do |i|
+    header = ['Date'] + ([''] * padding)
+
+    (0..(number_of_days+1)).each do |i|
       header.append(start_date.advance(days: i).strftime('%d'))
     end
     (0..(35-header.length)).each do |pad|
@@ -85,16 +81,13 @@ module PdfMonthlyLoeReport
     dataset.append(header)
 
     (data || []).each do |project_id, records|
-      project_record = [Project.find(project_id).short_name]
-      (0..padding).each do |pad|
-        project_record.append(' ')
-      end
+      project_record = [Project.find(project_id).short_name] + ([''] * padding)
 
       (0..number_of_days).each do |i|
         temp_date = start_date.advance(days: i)
         project_record.append(records["#{temp_date.day}#{temp_date.month}"])
-
       end
+
       (0..(35-project_record.length)).each do |pad|
         project_record.append(' ')
       end
@@ -106,9 +99,9 @@ module PdfMonthlyLoeReport
   def self.get_emp_details(employee_id, start_date, end_date)
 
     sheets = Timesheet.where("employee_id = ? and timesheet_week between ? and ?",
-                             employee_id, start_date, end_date)
+                             employee_id, start_date.beginning_of_week.advance(week: -1), end_date).collect { |x| x.id }
     records = TimesheetTask.where("timesheet_id in (?) and task_date between ? and ? ",
-                                  sheets.collect { |x| x.timesheet_id },start_date, end_date)
+                                  sheets,start_date, end_date)
 
     total = 0.0
 
