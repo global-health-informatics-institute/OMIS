@@ -40,6 +40,7 @@ Rails.application.routes.draw do
 
   get 'users/index'
   put 'users/:id/password_reset', to: 'users#password_reset'
+  get 'clear_password', to: 'users#clear_password'
   get 'main/home'
   get 'about', to: 'main#about'
 
