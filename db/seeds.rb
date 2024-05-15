@@ -131,6 +131,25 @@ CSV.foreach("#{source}/assets.csv",:headers=>:true) do |row|
                asset_category_id: AssetCategory.find_by_category(row[0]).id)
 end
 
+puts "Adding Inventory Categories"
+
+CSV.foreach("#{source}/inventory_item_categories.csv",:headers=>:true) do |row|
+  InventoryItemCategory.create( category: row[0], created_by: row[1])
+end
+
+puts "Adding Inventory Type"
+
+CSV.foreach("#{source}/inventory_item_type.csv",:headers=>:true) do |row|
+  InventoryItemType.create( inventory_item_category_id: row[0], item_name: row[1], manufacturer: row[2],
+                            created_by: row[3])
+end
+
+puts "Adding Inventory Item"
+
+CSV.foreach("#{source}/inventory_item.csv",:headers=>:true) do |row|
+  InventoryItem.create( item_type_id: row[0], quantity: row[1], quantity_used: row[2], supplier: row[3],
+                        unit_price: row[4], storage_location: row[5], created_by: row[6])
+end
 
 puts "Seeding database done"
 
