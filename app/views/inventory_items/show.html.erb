@@ -1,4 +1,28 @@
+<%= javascript_include_tag 'custom/jquery-3.6.1.min', 'data-turbolinks-track' => false %>
+
 <p class="h5">Inventory Dashboard<p>
+<div class="border p-2">
+  <h6>Inventory Filter</h6>
+  <div class="row pt-2 pb-2">
+    <div class="col">
+      <select class="form-select" id="categoryFilter">
+        <% ( @inventory_items || []).each do |item| %>
+          <option value="<%= item.category %>"><%= item.category %></option>
+        <%end %>
+      </select>
+    </div>
+    <div class="col">
+      <input class="form-control" type="text" placeholder="Search for Inventory Item" id="textFilter">
+    </div>
+    <div class="col">
+      <button class="btn btn-success">
+        Search
+      </button>
+      <%#= link_to "Register Asset", new_business_asset_path, class: "btn btn-primary",
+                  data: { turbo_frame: "remote_modal" } %>
+    </div>
+  </div>
+</div>
 <div>
   <div class="border p-2">
     <table class="table table-striped table-sm" id="inventoryTable">
@@ -16,8 +40,8 @@
           <tr>
             <td class="text-center"><%= item.inventory_item_id %></td>
             <td class="text-center"><%= item.storage_location %></td>
-            <td class="text-center"><%= item %></td>
-            <td class="text-center"><%= item %></td>
+            <td class="text-center"><%= item.item_name %></td>
+            <td class="text-center"><%= item.category %></td>
             <td class="text-center"><%= (item.quantity - item.quantity_used) %></td>
           </tr>
         <%end %>
@@ -25,3 +49,21 @@
     </table>
   </div>
 </div>
+
+<script>
+    $(document).ready(function(){
+        $("#textFilter").on("keyup", function() {
+            const value = $(this).val().toLowerCase();
+            $("#inventoryTable tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+        $("#categoryFilter").on("change", function() {
+            console.log(this.value)
+            const value = $(this).val();
+            $("#inventoryTable tr").filter(function() {
+                $(this).toggle($(this).text().indexOf(value) > -1)
+            });
+        });
+    });
+</script>
