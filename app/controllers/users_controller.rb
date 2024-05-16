@@ -1,3 +1,4 @@
+
 class UsersController < ApplicationController
   skip_before_action :logged_in?, only: [:forgot_password, :password_reset_forget]
 
@@ -36,14 +37,27 @@ class UsersController < ApplicationController
   end
 
   def password_reset_forget
-    @user = Person.find_by(params[:email])
-    #raise @user.inspect
-    if @user
-      flash[:notice] = "Password reset instructions have been sent to your email."
-      redirect_to "/user_sessions/new"
+    person = Person.find_by_email_address(params[:user][:email])
+    user = person.employee.user
+
+    if user
+      password = SecureRandom.alphanumeric(10)
+      user.password = password
+      user.reset_needed = true
     else
       flash[:error] = "User with this email address not found."
       redirect_to forgot_password_path
+    end
+
+    respond_to do |format|
+      if user.save
+        UserMailer.password_reset_email(user, person, password).deliver_now
+        format.html
+        format.json { render :show, status: :created, location: user }
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: user.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -63,6 +77,7 @@ class UsersController < ApplicationController
       flash[:error] = "Original Password did not match "
     end
   end
+
 
   private
 
