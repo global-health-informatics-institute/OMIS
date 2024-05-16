@@ -1,4 +1,4 @@
 class ApplicationMailer < ActionMailer::Base
-  default from: "ghii_omis@outlook.com"
+  default from: "omis@ghii.org"
   layout "mailer"
 end
