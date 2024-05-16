@@ -4,9 +4,10 @@ class UserMailer < ApplicationMailer
     mail(to: @user.employee.person.email_address, subject: 'Welcome to OMIS')
   end
 
-  def password_reset_email(user, password)
+  def password_reset_email(user, person, password)
     @user = user
+    @person = person
     @password = password
-    mail(to: 'timmtonga@gmail.com', from: 'ghii_omis@outlook.com', subject: 'OMIS Password Reset')
+    mail(to: @person.email_address, from: 'ghii_omis@outlook.com', subject: 'OMIS Password Reset')
   end
 end
