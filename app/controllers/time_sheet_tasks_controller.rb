@@ -36,7 +36,8 @@ class TimeSheetTasksController < ApplicationController
       old_description = @time_sheet_task.description
       #find all related tasks with the old
       #batch update timesheettask with new description
-      if TimesheetTask.where(description: old_description, project_id: @time_sheet_task.project_id, timesheet_id: @time_sheet_task.timesheet_id).update_all(description: params[:description])
+      if TimesheetTask.where(description: old_description, project_id: @time_sheet_task.project_id,
+                             timesheet_id: @time_sheet_task.timesheet_id).update_all(description: params[:description])
 
         flash[:notice] = "Successfully updated task and related tasks in time sheet."
         redirect_to timesheet_path(@time_sheet_task.timesheet_id)

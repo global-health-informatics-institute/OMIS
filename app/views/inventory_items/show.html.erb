@@ -1,6 +1,17 @@
 <%= javascript_include_tag 'custom/jquery-3.6.1.min', 'data-turbolinks-track' => false %>
 
 <p class="h5">Inventory Dashboard<p>
+<div class="row pt-2 pb-2">
+  <div class="col col-4">
+    <%= render partial: "stock_levels" %>
+  </div>
+  <div class="col col-4">
+    <%= render partial: "category_stock" %>
+  </div>
+  <div class="col col-4">
+    <%= render partial: "stock_location" %>
+  </div>
+</div>
 <div class="border p-2">
   <h6>Inventory Filter</h6>
   <div class="row pt-2 pb-2">
@@ -18,7 +29,7 @@
       <button class="btn btn-success">
         Search
       </button>
-      <%#= link_to "Register Asset", new_business_asset_path, class: "btn btn-primary",
+      <%= link_to "Register Item", new_inventory_item_path, class: "btn btn-primary",
                   data: { turbo_frame: "remote_modal" } %>
     </div>
   </div>
@@ -28,21 +39,27 @@
     <table class="table table-striped table-sm" id="inventoryTable">
       <thead class="thead-light">
       <tr>
-        <th class="text-center">Product ID</th>
-        <th class="text-center">Location</th>
         <th class="text-center">Product Name</th>
         <th class="text-center">Category</th>
+        <th class="text-center">Location</th>
         <th class="text-center">Available</th>
+        <th class="text-center">Action</th>
       </tr>
       </thead>
       <tbody>
         <% (@inventory_items || []).each do |item| %>
           <tr>
-            <td class="text-center"><%= item.inventory_item_id %></td>
-            <td class="text-center"><%= item.storage_location %></td>
             <td class="text-center"><%= item.item_name %></td>
             <td class="text-center"><%= item.category %></td>
+            <td class="text-center"><%= item.storage_location %></td>
             <td class="text-center"><%= (item.quantity - item.quantity_used) %></td>
+            <td class="text-center">
+              <%= link_to image_tag("/assets/info.png"), "/inventory_items/info", data: { turbo_frame: "remote_model"}%>
+              <%= link_to image_tag("/assets/edit.png"), "#{item.id}/edit", data: { turbo_frame: "remote_modal" }%>
+              <%= link_to image_tag("/assets/print_icon.png"), "inventory_items/#{item.inventory_item_id}.lbl", data: { turbo_frame: "remote_model"} %>
+              <%= link_to image_tag("/assets/delete.png"), "inventory_items/#{item.inventory_item_id}", data: { turbo_frame: "remote_model"} %>
+              <%= link_to image_tag("/assets/request.png"), "inventory_items/#{item.inventory_item_id}", data: { turbo_frame: "remote_model"} %>
+            </td>
           </tr>
         <%end %>
       </tbody>

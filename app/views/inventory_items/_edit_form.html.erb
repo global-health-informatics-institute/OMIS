@@ -1,0 +1,49 @@
+<%= form_with model: @inventory_item, url: "/inventory_items/#{@inventory_item.id}" do |form| %>
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :category, style: "display: block", class: "form-label" %>
+      <%#= form.select(:category, @category_options, {include_blank: "Select inventory category"},
+                      { :class => 'form-select' }) %>
+      <%= form.select :category, options_for_select(@category_options),
+                      prompt:@inventory_item_categories, :class => 'form-select', required: true   %>
+
+    </div>
+  </div>
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :item_name, style: "display: block", class: "form-label" %>
+      <%= form.text_field :item_name, value: @inventory_item_type[0], class: "form-control"%>
+    </div>
+    <div class="col mb-3">
+      <%= form.label :manufacturer, style: "display: block", class: "form-label" %>
+      <%= form.text_field :manufacturer, class: "form-control", value: @inventory_item_type[1] %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :storage_location, style: "display: block", class: "form-label" %>
+      <%= form.text_field :storage_location, value: @inventory_item.storage_location, class: "form-control"%>
+    </div>
+
+    <div class="col mb-3">
+      <%= form.label :supplier, style: "display: block", class: "form-label" %>
+      <%= form.text_field :supplier, value: @inventory_item.supplier, class: "form-control" %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :unit_price, style: "display: block", class: "form-label" %>
+      <%= form.text_field :unit_price, class: "form-control", value: @inventory_item.unit_price %>
+    </div>
+
+    <div class="col mb-3">
+      <%= form.label :quantity, style: "display: block", class: "form-label" %>
+      <%= form.number_field :quantity, value: (@inventory_item.quantity - @inventory_item.quantity_used), class: "form-control" %>
+    </div>
+  </div>
+  <div class="mb-3">
+    <%#= form.hidden_field :inventory_item_id, value: params[:"time_sheet"] %>
+    <%= form.submit "Save", class: "btn btn-success btn-block" %>
+    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+  </div>
+<% end %>

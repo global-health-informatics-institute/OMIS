@@ -1,0 +1,32 @@
+<div class="card h-100">
+  <div class="card-body p-2">
+    <h6>Stock values by Category</h6>
+    <div class="text-center">
+      <canvas id="categoryStockPie" style="height: 30vh !important; width: 15vw;margin-left: auto; margin-right: auto;"></canvas>
+    </div>
+  </div>
+</div>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js"></script>
+
+<script>
+
+    new Chart(document.getElementById("categoryStockPie"), {
+        type : 'doughnut',
+        data : {
+            labels : <%= @category_data.map { |data| data[:category]}.to_json.html_safe %>,
+            datasets : [ {
+                data : <%= @category_data.map { |data| data[:total_quantity] }.to_json.html_safe %>,
+            } ]
+        },
+        options : {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>
