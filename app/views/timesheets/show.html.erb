@@ -96,7 +96,7 @@
                   <ul class="dropdown-menu" aria-labelledby="editDropdown">
                     <li>
                       <% if !entries[day].blank? %>
-                        <%= link_to 'Edit', edit_time_sheet_task_path(time_sheet_task_id: entries[day][:id]), class: 'dropdown-item', data: { turbo_frame: "remote_modal" } %>
+                        <%= link_to 'Edit',edit_time_sheet_task_path(time_sheet_task_id: entries[day][:id]), class: 'dropdown-item', data: { turbo_frame: "remote_modal" } %>
                       <% else %>
                         <%= link_to "Add Duration", new_time_sheet_task_path(prj: @projects[k], tsk_desc:task, 
                             day: @timesheet.timesheet_week.advance(:days => day), time_sheet: @timesheet.id), class: 'dropdown-item',

@@ -38,7 +38,7 @@
 
     <div class="col mb-3">
       <%= form.label :quantity, style: "display: block", class: "form-label" %>
-      <%= form.number_field :quantity, value: (@inventory_item.quantity - @inventory_item.quantity_used), class: "form-control" %>
+      <%= form.number_field :quantity, value: @inventory_item.quantity, class: "form-control" %>
     </div>
   </div>
   <div class="mb-3">

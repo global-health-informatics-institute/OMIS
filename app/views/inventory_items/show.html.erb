@@ -1,15 +1,28 @@
 <%= javascript_include_tag 'custom/jquery-3.6.1.min', 'data-turbolinks-track' => false %>
 
-<p class="h5">Inventory Dashboard<p>
-<div class="row pt-2 pb-2">
+<p class="h4">Inventory Dashboard<p>
+<div class="row mt-1 pt-2 pb-2" style="height: 30vh">
   <div class="col col-4">
-    <%= render partial: "stock_levels" %>
+    <%= render partial: "total_stock" %>
   </div>
   <div class="col col-4">
+    <%= render partial: "low_stock" %>
+  </div>
+  <div class="col col-4">
+    <%= render partial: "expiring_soon" %>
+  </div>
+
+</div>
+
+<div class="row mt-4 pt-2 pb-2" style="height: 50vh;">
+  <div class="col col-4.5">
     <%= render partial: "category_stock" %>
   </div>
-  <div class="col col-4">
+  <div class="col col-4.5">
     <%= render partial: "stock_location" %>
+  </div>
+  <div class="col col-3">
+    <%= render partial: "stock_levels" %>
   </div>
 </div>
 <div class="border p-2">
@@ -56,7 +69,7 @@
             <td class="text-center">
               <%= link_to image_tag("/assets/info.png"), "/inventory_items/info", data: { turbo_frame: "remote_model"}%>
               <%= link_to image_tag("/assets/edit.png"), "#{item.id}/edit", data: { turbo_frame: "remote_modal" }%>
-              <%= link_to image_tag("/assets/print_icon.png"), "inventory_items/#{item.inventory_item_id}.lbl", data: { turbo_frame: "remote_model"} %>
+              <%= link_to image_tag("/assets/print_icon.png"), "#{item.inventory_item_id}.lbl", data: { turbo_frame: "remote_model"} %>
               <%= link_to image_tag("/assets/delete.png"), "inventory_items/#{item.inventory_item_id}", data: { turbo_frame: "remote_model"} %>
               <%= link_to image_tag("/assets/request.png"), "inventory_items/#{item.inventory_item_id}", data: { turbo_frame: "remote_model"} %>
             </td>

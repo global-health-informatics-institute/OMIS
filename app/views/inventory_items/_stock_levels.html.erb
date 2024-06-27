@@ -19,17 +19,13 @@
             datasets : [ {
                 data : [ <%= (@inventory_items[1]["quantity"] || 0) %>, <%= (@inventory_items[1]["quantity"] || 0) %>,
                 <%= (@inventory_items[2]["quantity"] || 0) %>,<%= (@inventory_items[3]["quantity"] || 0) %>,
-                    <%= (@inventory_items[4]["quantity"] || 0) %>,<%= (@inventory_items[5]["quantity"] || 0) %>,
-                    <%= (@inventory_items[6]["quantity"] || 0) %>, <%= (@inventory_items[7]["quantity"] || 0) %>,
-                    <%= (@inventory_items[8]["quantity"] || 0) %>],
+                    <%= (@inventory_items[4]["quantity"] || 0) %>,<%= (@inventory_items[5]["quantity"] || 0) %>],
                 backgroundColor: ['#7A2048'],
             },
                 {
                 data : [<%= (@inventory_items[0]["quantity_used"] || 0) %>,<%= (@inventory_items[1]["quantity_used"] || 0) %>,
                 <%= (@inventory_items[2]["quantity_used"] || 0) %>,<%= (@inventory_items[3]["quantity_used"] || 0) %>,
-                    <%= (@inventory_items[4]["quantity_used"] || 0) %>,<%= (@inventory_items[5]["quantity_used"] || 0) %>,
-                    <%= (@inventory_items[6]["quantity_used"] || 0) %>, <%= (@inventory_items[7]["quantity_used"] || 0) %>,
-                    <%= (@inventory_items[8]["quantity_used"] || 0) %>],
+                    <%= (@inventory_items[4]["quantity_used"] || 0) %>,<%= (@inventory_items[5]["quantity_used"] || 0) %>],
                 backgroundColor: ['#337474'],
     }]
         },

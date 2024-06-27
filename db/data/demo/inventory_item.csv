@@ -1,7 +1,7 @@
 Item type,Quantity,Quantity Used,Supplier,Unit_price,Storage location,Created_by
-24,50,15,Radio Exchange,30000,Electronics lab,13
-25,30,10,Chipiku,10000,Admin SR,13
-26,25,3,Radio Exchange,20000,Electronics lab,13
-27,40,4,Chipiku,50000,Admin SR,12
-28,20,2,Chipiku,40000,Admin SR,12
-23,100,30,Chipiku,15000,Admin SR,22
+1,50,15,Radio Exchange,30000,Electronics lab,13
+2,30,10,Chipiku,10000,Admin SR,13
+3,25,3,Radio Exchange,20000,Electronics lab,13
+4,40,4,Chipiku,50000,Admin SR,12
+5,20,2,Chipiku,40000,Admin SR,12
+6,100,30,Chipiku,15000,Admin SR,22
