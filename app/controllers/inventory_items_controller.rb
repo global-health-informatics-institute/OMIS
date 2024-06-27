@@ -39,6 +39,10 @@ class InventoryItemsController < ApplicationController
                       inner join (select inventory_item_category_id, category from inventory_item_categories)
                       as iic on iit.inventory_item_category_id = iic.inventory_item_category_id")
 
+    (@inventory_items || []).each do |item|
+      @item = item
+    end
+
     @inventory_item_category = InventoryItemCategory.all
     @category_data = @inventory_items.group_by(&:category).map do |category, items|
       {
@@ -51,6 +55,20 @@ class InventoryItemsController < ApplicationController
         location: storage_location,
         total_quantity: items.sum { |item| (item.quantity - item.quantity_used) || 0}
       }
+    end
+    @threshold_data = @inventory_items.select { |item| item.quantity && item.quantity < 10 }.map do |item|
+      item.quantity = item.quantity.abs
+      item
+    end
+    @total_low_stock = @threshold_data.size
+    @total_stock = @inventory_items.sum { |item| (item.quantity || 0).abs }
+
+    respond_to do |format|
+      format.html
+      format.lbl do
+        content = generate_inventory_label_content(@item)
+        send_data content, filename: "inventory_label.lbl", type: 'application/lbl'
+      end
     end
   end
 
@@ -94,6 +112,16 @@ class InventoryItemsController < ApplicationController
 
   def destroy
 
+  end
+
+  def generate_inventory_label_content(inventory_item)
+    "\nN\nq609\nQ406,026\nZT\nI8,0,001\nB610,10,1,1,3,6,80,N,\"GN#{inventory_item.id}\"\n" \
+    "A30,30,0,1,2,2,N,\"Tag_id: #{inventory_item.id}\"\n" \
+    "A30,76,0,1,2,2,N,\"Make: #{inventory_item.item_name}\"\n" \
+    "A30,122,0,1,2,2,N,\"Model : #{inventory_item.category}\"\n" \
+    "A30,168,0,1,2,2,N,\"S/N: #{inventory_item.created_at}\"\n" \
+    #****add expiry date for consumables****
+    "P1\n"
   end
 
   def item_params

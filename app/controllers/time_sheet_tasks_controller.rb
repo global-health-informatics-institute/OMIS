@@ -26,13 +26,13 @@ class TimeSheetTasksController < ApplicationController
   def edit
     @time_sheet_task = TimesheetTask.find(params[:time_sheet_task_id])
     @project_options = Project.all.collect { |x| [x.project_name, x.id] }
-    @timesheet = Timesheet.find(params[:id])
+    @timesheet = @time_sheet_task.timesheet
   end
 
   def update
     @time_sheet_task = TimesheetTask.find(params[:id])
     #checking if description has changed
-    if @time_sheet_task.description != params[:description]
+    if @time_sheet_task.description != params[:description] || @time_sheet_task.project_id != params[:project_id]
       old_description = @time_sheet_task.description
       #find all related tasks with the old
       #batch update timesheettask with new description
@@ -40,22 +40,18 @@ class TimeSheetTasksController < ApplicationController
                              timesheet_id: @time_sheet_task.timesheet_id).update_all(description: params[:description])
 
         flash[:notice] = "Successfully updated task and related tasks in time sheet."
-        redirect_to timesheet_path(@time_sheet_task.timesheet_id)
-      else
-        flash[:error] = "Error updating task."
-        redirect_to timesheet_path(@time_sheet_task.timesheet_id)
-      end
-    else
-      if @time_sheet_task.update(project_id: params[:project_id], task_date: params[:task_date],
-        timesheet_id: params[:time_sheet_id],duration: params[:duration])
-        flash[:notice] = "Successfully updated task and related tasks in time sheet."
-        redirect_to timesheet_path(@time_sheet_task.timesheet_id)
-      else
-        flash[:error] = "Error updating task."
-        redirect_to timesheet_path(@time_sheet_task.timesheet_id)
+
       end
     end
-    
+
+    if @time_sheet_task.update(project_id: params[:project_id], task_date: params[:task_date],
+                               timesheet_id: params[:time_sheet_id],duration: params[:duration])
+      flash[:notice] = "Successfully updated task and related tasks in time sheet."
+      redirect_to timesheet_path(@time_sheet_task.timesheet_id)
+    else
+      flash[:error] = "Error updating task."
+      redirect_to timesheet_path(@time_sheet_task.timesheet_id)
+    end
   end
 
   def destroy

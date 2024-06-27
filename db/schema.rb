@@ -163,7 +163,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_18_133311) do
   end
 
   create_table "leave_summaries", primary_key: "leave_summary_id", force: :cascade do |t|
-    t.integer "leave_type_id", null: false
+    t.string "leave_type", null: false
     t.integer "employee_id", null: false
     t.float "leave_days_total", null: false
     t.float "leave_days_balance", null: false
@@ -215,6 +215,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_18_133311) do
     t.integer "project_id", null: false
     t.integer "employee_id", null: false
     t.float "allocated_effort", default: 0.0
+    t.date "start_date", null: false
+    t.date "end_date"
     t.boolean "voided", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -246,6 +248,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_18_133311) do
   create_table "requisition_items", primary_key: "requisition_item_id", force: :cascade do |t|
     t.integer "requisition_id", null: false
     t.decimal "quantity"
+    t.decimal "value"
     t.string "item_description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -267,6 +270,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_18_133311) do
     t.string "requisition_type", null: false
     t.integer "reviewed_by"
     t.integer "approved_by"
+    t.integer "workflow_state_id", null: false
     t.boolean "voided", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
