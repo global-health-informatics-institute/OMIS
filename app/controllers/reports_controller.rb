@@ -59,7 +59,7 @@ class ReportsController < ApplicationController
                     .where('employees.employee_id in (?)', sheets.collect(&:employee_id).uniq)
                     .collect { |x| [x.person_id, "#{x.first_name} #{x.last_name}"] }.to_h
 
-    tmp_leave_balances = LeaveSummary.select("employee_id,leave_type, sum(leave_days_total)  as leave_days_total, 
+    tmp_leave_balances = LeaveSummary.select("employee_id,leave_type, sum(leave_days_total)  as leave_days_total,
                                               sum(leave_days_balance) as leave_days_balance")
                                      .where("employee_id in (?) and financial_year between ? and ? ",
                                             sheets.collect(&:employee_id).uniq, Date.parse(params[:start_date]).year, 
@@ -82,9 +82,6 @@ class ReportsController < ApplicationController
         @leave_taken[task.employee_id] = { task.project_id => (task.duration / 7.5).round(2) }
       else
         @leave_taken[task.employee_id][task.project_id] = (task.duration / 7.5).round(2)
-        #@leave_taken_duration = (task.duration / 7.5)
-
-        #raise @leave_taken.inspect
       end
     end
   end

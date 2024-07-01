@@ -5,7 +5,8 @@
       Select Project
     </div>
     <div class="col mb-3">
-      <%= form.select :project_id, options_for_select(@project_options, (@selected_project.id rescue nil)), prompt:(@selected_project.full_name rescue params[:"prj"]), 
+      <%= form.select :project_id, options_for_select(@project_options, (@selected_project.id rescue nil)),
+                      prompt:(@selected_project.full_name rescue params[:"prj"]),
       :class => 'form-select', required: true %>
     </div>
   </div>

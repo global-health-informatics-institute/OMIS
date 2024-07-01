@@ -39,6 +39,8 @@ Rails.application.routes.draw do
   get 'reports/monthly_org_loe_report'
 
   get 'users/index'
+  get 'forgot_password', to: 'users#forgot_password'
+  post 'password_reset_forget', to: 'users#password_reset_forget'
   put 'users/:id/password_reset', to: 'users#password_reset'
   get 'main/home'
   get 'about', to: 'main#about'

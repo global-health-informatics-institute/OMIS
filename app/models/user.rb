@@ -19,4 +19,8 @@ class User < ApplicationRecord
         person = self.employee.person
         return (person.first_name + ' ' + person.last_name)
     end
+
+    def email
+        self.employee.person.email_address
+    end
 end
