@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   resources :inventory_items
   resources :inventory_item_categories
   resources :inventory_item_thresholds
+  resources :inventory_item_types
   resources :project_tasks
   resources :business_assets
   resources :time_sheet_tasks
