@@ -87,7 +87,7 @@
                 </a>
               </li>
               <li class ="nav-item ms-1">
-                <a class ="nav-link" href="/inventory_items/index" data-bs-toggle="tooltip" title="Inventory">
+                <a class ="nav-link" href="/inventory_items" data-bs-toggle="tooltip" title="Inventory">
                   <img src="/assets/inventory.png" alt="Inventory">
                   <span class="collapse multi-collapse" style="font-size: 0.8rem; color: #a3cfbb">Inventory</span>
                 </a>
@@ -114,7 +114,7 @@
             <% end %>
           </ul>
         </div>
-        <div class="col overflow-y-scroll" style="max-height: 90vh;">
+        <div class="col overflow-y-scroll-auto" style="max-height: 90vh;">
           <%= render partial: 'layouts/notices' %>
           <%= yield %>
           <%= turbo_frame_tag "remote_modal", target: "_top" %>
