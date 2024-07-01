@@ -30,13 +30,6 @@ class InventoryItemsController < ApplicationController
   end
 
   def index
-  end
-
-  def info
-
-  end
-
-  def show
     @inventory_items = InventoryItem.find_by_sql("SELECT * from inventory_items as ii inner join (select
                       inventory_item_type_id, inventory_item_category_id, item_name from
                       inventory_item_types) as iit on ii.item_type_id = iit.inventory_item_type_id
@@ -74,6 +67,10 @@ class InventoryItemsController < ApplicationController
         send_data content, filename: "inventory_label.lbl", type: 'application/lbl'
       end
     end
+  end
+
+  def show
+    
   end
 
   def edit
