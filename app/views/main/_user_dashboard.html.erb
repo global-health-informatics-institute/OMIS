@@ -211,6 +211,17 @@
           plugins: {
               legend: {
                   display: false
+              },
+              tooltip: {
+                  callbacks: {
+                      // Custom label for tooltip
+                      label: function (tooltipItem) {
+                          let label = tooltipItem.label;
+                          let value = tooltipItem.
+                              formattedValue;
+                          return `${value} %`
+                      }
+                  }
               }
           }
       }
