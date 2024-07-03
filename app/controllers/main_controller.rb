@@ -17,6 +17,7 @@ class MainController < ApplicationController
 
       @loe_targets = ProjectTeam.where("employee_id = ? and project_id in (?) and end_date is NULL",
                                        current_user.employee_id, Project.select(:project_id).where(is_active: true))
+      @unallocated_loe = 100 - @loe_targets.collect { |x| (x.allocated_effort)}.sum
       @project_names = Project.select(:short_name).where(project_id: @loe_targets.collect { |x| x.project_id })
       @loe_current = @employee.loe()
 
