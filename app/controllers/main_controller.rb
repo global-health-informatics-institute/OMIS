@@ -10,6 +10,37 @@ class MainController < ApplicationController
       @unused_leave = LeaveSummary.where(employee_id: @employee.id, leave_type: 'Annual Leave',
                                          financial_year: Date.today.year).first
 
+      #overtime hours calculation
+      overtime_start_date = 6.weeks.ago.to_date
+      end_date = Date.today
+      records = TimesheetTask.where('task_date between ? and ?', overtime_start_date, end_date)
+      total_hours_worked = 0.0
+      weekdays_count = 0
+      working_hours = GlobalProperty.select("property_value")
+                                     .where(property: "number.of.hours")
+                                     .collect(&:property_value).first.to_f
+      records.each do |record|
+        total_hours_worked += record.duration.round
+      end
+      (overtime_start_date..end_date).each do |date|
+        weekdays_count += 1 if (1..5).include?(date.wday)
+      end
+      total_expected_hours = weekdays_count * working_hours
+      total_extra_hours = total_hours_worked - total_expected_hours
+      if total_extra_hours.positive?
+        @overtime_hours = total_extra_hours
+      else
+        @overtime_hours = 0.0
+      end
+
+      #taken leave days calculations
+      leave_days_start_date = Date.today.beginning_of_month
+      leave_records = TimesheetTask.where('project_id = ? AND task_date between ? and ?',
+                                          2, leave_days_start_date, end_date)
+      leave_hours_taken = leave_records.sum { |record| record.duration.round(2)}
+      @leave_days_taken = (leave_hours_taken / 7.5).to_i
+
+
       @upcoming_deadlines = ProjectTask.where("project_task_id in (?)",
                                               ProjectTaskAssignment.select(:project_task_id).where(assigned_to: current_user.employee_id,
                                                                           revoked: false )

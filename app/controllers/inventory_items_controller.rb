@@ -104,7 +104,7 @@ class InventoryItemsController < ApplicationController
       created_by: current_user.employee_id
     )
       flash[:notice] = "Successfully updated inventory item"
-      redirect_to "/inventory_items/show"
+      redirect_to "/inventory_items"
     else
       flash[:error] = "Failed to update inventory item"
       render :edit
