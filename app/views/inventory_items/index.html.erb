@@ -85,7 +85,7 @@
                     <%= link_to image_tag("/assets/edit.png"), "inventory_items/#{item.id}/edit", data: { turbo_frame: "remote_modal" }%>
                     <%= link_to image_tag("/assets/print_icon.png"), "inventory_items/#{item.inventory_item_id}.lbl", data: { turbo_frame: "remote_model"} %>
                     <%= link_to image_tag("/assets/delete.png"), "inventory_items/#{item.inventory_item_id}", data: { turbo_frame: "remote_model"} %>
-                    <%= link_to image_tag("/assets/request.png"), "inventory_items/#{item.inventory_item_id}", data: { turbo_frame: "remote_model"} %>
+                    <%#= link_to image_tag("/assets/request.png"), "inventory_items/#{item.inventory_item_id}", data: { turbo_frame: "remote_model"} %>
                     </td>
                 </tr>
                 <%end %>

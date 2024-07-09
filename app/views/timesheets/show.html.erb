@@ -32,7 +32,7 @@
                     data: { turbo_frame: "remote_modal" } %>
         <%= link_to "Submit Timesheet", "/timesheets/#{ @timesheet.id}/submit_timesheet", class: "btn btn-success",method: :put,
                     data: { turbo_method: :put, turbo_confirm: "Are you sure?" } %>
-      <% elsif @timesheet.status == "Pending Approval" %>
+      <% elsif @timesheet.status == "Pending Approval" || @timesheet.status == "Approved" %>
         <% if @timesheet.employee_id == current_user.employee_id %>
           <%= link_to "Recall Timesheet", "/timesheets/#{ @timesheet.id}/recall_timesheet", class: "btn btn-info",method: :put,
                       data: { turbo_method: :put, turbo_confirm: "Are you sure you want to recall this timesheet?" } %>
@@ -72,6 +72,7 @@
         <tr>
           <td>
             <%= task %>
+            <% if (@timesheet.status == "Pending Submit") && (@timesheet.employee_id == current_user.employee_id) %>
             <div class="dropdown" style="display: inline-block; padding:0;">
             <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="taskDropdown" data-bs-toggle="dropdown" aria-expanded="false">
             </button>
@@ -81,6 +82,7 @@
               </li>
             </ul>
             </div>
+            <%end %>
           </td>
           <%[7,1,2,3,4,5,6].each do |day| %>
             <td>
