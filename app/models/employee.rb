@@ -91,7 +91,6 @@ class Employee < ApplicationRecord
         timesheets = Timesheet.select('timesheet_id').where("employee_id = ?", self.employee_id).collect { |x| x.timesheet_id }
         total_hours_worked = TimesheetTask.where('task_date between ? and ? and timesheet_id in (?)',
                                                       start_date, end_date, timesheets).sum('duration')
-        total_hours_worked = 0.0
         weekdays_count = (start_date..end_date).count { |date| (1..5).include?(date.wday) }
         working_hours = GlobalProperty.find_by_property("number.of.hours").property_value.to_f
 
