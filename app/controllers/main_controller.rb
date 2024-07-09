@@ -9,7 +9,7 @@ class MainController < ApplicationController
                                          .where("employee_id in (?) and submitted_on is NULL", @employee.id).length
       @unused_leave = LeaveSummary.where(employee_id: @employee.id, leave_type: 'Annual Leave',
                                          financial_year: Date.today.year).first
-      
+
       @upcoming_deadlines = ProjectTask.where("project_task_id in (?)",
                                               ProjectTaskAssignment.select(:project_task_id).where(assigned_to: current_user.employee_id,
                                                                           revoked: false )
