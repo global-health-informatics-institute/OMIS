@@ -204,13 +204,13 @@
 
 <script>
 
-  var labels = "<%= @project_names.collect { |x| x.short_name }.join(",") %>"
+  var labels = "<%= ((@project_names.collect { |x| x.short_name }) + ['Unallocated']).join(",") %>"
   new Chart(document.getElementById("loeTargetPie"), {
       type : 'doughnut',
       data : {
           labels : labels.split(','),
           datasets : [ {
-              data : <%= @loe_targets.collect { |x| (x.allocated_effort) }.to_s %>
+              data : <%= (@loe_targets.collect { |x| (x.allocated_effort)} + [@unallocated_loe ]).to_s  %>
           } ]
       },
       options : {
@@ -218,6 +218,17 @@
           plugins: {
               legend: {
                   display: false
+              },
+              tooltip: {
+                  callbacks: {
+                      // Custom label for tooltip
+                      label: function (tooltipItem) {
+                          let label = tooltipItem.label;
+                          let value = tooltipItem.
+                              formattedValue;
+                          return `${value} %`
+                      }
+                  }
               }
           }
       }
