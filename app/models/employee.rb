@@ -77,6 +77,34 @@ class Employee < ApplicationRecord
         people = Supervision.where(supervisor: self.employee_id, ended_on: nil)
     end
 
+    def used_leave_days (leave_days_start_date = Date.today.beginning_of_month, end_date = Date.today, leave_type: 'Annual Leave')
+        timesheets = Timesheet.select('timesheet_id').where("employee_id = ?", self.employee_id)
+        leave_records = TimesheetTask.where('project_id = ? AND task_date between ? and ? and timesheet_id in (?)',
+                                            Project.find_by_short_name(leave_type).project_id,
+                                            leave_days_start_date, end_date, timesheets)
+        leave_hours_taken = leave_records.sum { |record| record.duration}
+        leave_days_taken = (leave_hours_taken/7.5).to_i
+        return leave_days_taken
+    end
+
+    def compensatory_leave(start_date = 6.weeks.ago.to_date, end_date = Date.today)
+        timesheets = Timesheet.select('timesheet_id').where("employee_id = ?", self.employee_id).collect { |x| x.timesheet_id }
+        total_hours_worked = TimesheetTask.where('task_date between ? and ? and timesheet_id in (?)',
+                                                      start_date, end_date, timesheets).sum('duration')
+        total_hours_worked = 0.0
+        weekdays_count = (start_date..end_date).count { |date| (1..5).include?(date.wday) }
+        working_hours = GlobalProperty.find_by_property("number.of.hours").property_value.to_f
+
+        total_expected_hours = weekdays_count * working_hours
+        total_extra_hours = total_hours_worked - total_expected_hours
+        if total_extra_hours.positive?
+            overtime_hours = total_extra_hours
+        else
+            overtime_hours = 0.0
+        end
+        return overtime_hours
+    end
+
     def loe (start_date = Date.today.beginning_of_month, end_date = Date.today.end_of_month)
         results = Hash.new(0.0)
         timesheets = Timesheet.select('timesheet_id').where("employee_id = ? and timesheet_week BETWEEN ? and ?",
