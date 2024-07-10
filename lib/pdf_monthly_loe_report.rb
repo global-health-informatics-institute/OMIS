@@ -51,7 +51,7 @@ module PdfMonthlyLoeReport
     file_name
   end
 
-  def self.pdf_preprocess(padding,data, start_date)
+  def self.pdf_preprocess(padding, data, start_date)
 
     dataset = [
       ["Project#{' '*30}", {content: 'First Week', colspan: 7}, {content: 'Second Week', colspan: 7},

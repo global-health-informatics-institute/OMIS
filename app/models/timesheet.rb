@@ -2,6 +2,7 @@ class Timesheet < ApplicationRecord
   has_many :timesheet_tasks, foreign_key: :timesheet_id
   belongs_to :employee, foreign_key: :employee_id
   has_one :project, foreign_key: :project_id
+  has_one :workflow_state, foreign_key: :state
 
   def status
     if !self.approved_on.blank?
@@ -13,12 +14,18 @@ class Timesheet < ApplicationRecord
     end
   end
 
+  def current_status
+    self.workflow_state.state rescue status
+  end
+
   def project_name
     self.project.project_name
   end
+
   def period
     return "#{self.timesheet_week.strftime('%d %b %Y')} to #{self.timesheet_week.end_of_week.strftime('%d %b %Y')}"
   end
+
   def full_details
     tasks = self.timesheet_tasks
     full_timesheet = {}
@@ -37,5 +44,8 @@ class Timesheet < ApplicationRecord
     end
     return full_timesheet
   end
+
+  private
+
 
 end

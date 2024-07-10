@@ -21,6 +21,10 @@ class TimesheetsController < ApplicationController
     else
       @timesheet = Timesheet.find(params[:id])
     end
+
+    is_owner = (@timesheet.employee_id == current_user.employee_id)
+    @possible_actions = WorkflowStateTransition.possible_actions(@timesheet.state, current_user, is_owner)
+
     @person = Employee.find(@timesheet.employee_id)
 
     @records = {}
