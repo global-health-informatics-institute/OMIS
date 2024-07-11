@@ -3,8 +3,12 @@ class Timesheet < ApplicationRecord
   belongs_to :employee, foreign_key: :employee_id
   has_one :project, foreign_key: :project_id
   has_one :workflow_state, foreign_key: :state
+  before_create :assign_state
 
   def status
+    return WorkflowState.find(self.state).state rescue ''
+
+=begin
     if !self.approved_on.blank?
       return "Approved"
     elsif !self.submitted_on.blank?
@@ -12,10 +16,17 @@ class Timesheet < ApplicationRecord
     else
       return "Pending Submit"
     end
+=end
+  end
+
+  def assign_state
+    self.state = InitialState.find_by_workflow_process_id(WorkflowProcess.find_by_workflow('Timesheet')).workflow_state_id
+
   end
 
   def current_status
-    self.workflow_state.state rescue status
+    return WorkflowState.find(self.state).state rescue ''
+    #self.workflow_state.state rescue status
   end
 
   def project_name
