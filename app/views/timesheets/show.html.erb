@@ -28,10 +28,26 @@
     </div>
     <div class="col text-end">
       <% (@possible_actions || []).each do |action| %>
-        <%= link_to action, "/timesheets/#{ @timesheet.id}/recall_timesheet", class: "btn btn-info",method: :put,
+        <% path = case action
+                  when "Submit"
+                    "/timesheets/#{ @timesheet.id}/submit_timesheet"
+                  when "Recall Timesheet"
+                    "/timesheets/#{ @timesheet.id}/recall_timesheet"
+                  when "Approve Timesheet"
+                    "/timesheets/#{ @timesheet.id}/approve_timesheet"
+                  when "Reject Timesheet"
+                    "/timesheets/#{ @timesheet.id}/reject_timesheet"
+                  when "Re-submit Timesheet"
+                    "/timesheets/#{ @timesheet.id}/resubmit_timesheet"
+                  when "Re-open Timesheet"
+                    "/timesheets/#{ @timesheet.id}/reopen_timesheet"
+                  else
+                    ""
+        end %>
+        <%= link_to action, path , class: "btn btn-info",method: :put,
                     data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action} this timesheet?" } %>
       <% end %>
-      <% if (@timesheet.status == "Pending Submission") && (@timesheet.employee_id == current_user.employee_id) %>
+      <% if (@timesheet.status == "Pending Submission") || (@timesheet.status == "Recalled") && (@timesheet.employee_id == current_user.employee_id) %>
         <%= link_to "Add Task", new_time_sheet_task_path(time_sheet: @timesheet.id), class: "btn btn-primary",
                     data: { turbo_frame: "remote_modal" } %>
         <%#= link_to "Submit Timesheet", "/timesheets/#{ @timesheet.id}/submit_timesheet", class: "btn btn-success",method: :put,

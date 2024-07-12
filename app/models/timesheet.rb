@@ -21,7 +21,6 @@ class Timesheet < ApplicationRecord
 
   def assign_state
     self.state = InitialState.find_by_workflow_process_id(WorkflowProcess.find_by_workflow('Timesheet')).workflow_state_id
-
   end
 
   def current_status

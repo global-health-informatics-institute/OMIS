@@ -1,4 +1,5 @@
 class TimesheetsController < ApplicationController
+  before_action :show
   def index
   end
 
@@ -24,6 +25,9 @@ class TimesheetsController < ApplicationController
 
     is_owner = (@timesheet.employee_id == current_user.employee_id)
     @possible_actions = WorkflowStateTransition.possible_actions(@timesheet.state, current_user, is_owner)
+
+    @transition_state = WorkflowStateTransition.find_by(workflow_state_id: @timesheet.state)
+    #raise @transition_state.next_state.inspect
 
     @person = Employee.find(@timesheet.employee_id)
 
@@ -56,17 +60,23 @@ class TimesheetsController < ApplicationController
   end
 
   def submit_timesheet
-    @timesheet = Timesheet.find(params[:id]).update(submitted_on: Time.now())
+    @timesheet = Timesheet.find(params[:id]).update(submitted_on: Time.now(), state: @transition_state.next_state)
     redirect_to "/time_sheets/#{params[:id]}"
   end
 
   def approve_timesheet
-    @timesheet = Timesheet.find(params[:id]).update(approved_on: Time.now(), approved_by: current_user.user_id)
+    @timesheet = Timesheet.find(params[:id]).update(approved_on: Time.now(), approved_by: current_user.user_id,
+                                                    state: @transition_state.next_state)
     redirect_to "/time_sheets/#{params[:id]}"
   end
 
   def recall_timesheet
-    @timesheet = Timesheet.find(params[:id]).update(submitted_on: nil)
+    @timesheet = Timesheet.find(params[:id]).update(submitted_on: nil, state: @transition_state.next_state)
+    redirect_to "/time_sheets/#{params[:id]}"
+  end
+
+  def resubmit_timesheet
+    @timesheet = Timesheet.find(params[:id]).update(submitted_on: Time.now(), state: @transition_state.next_state)
     redirect_to "/time_sheets/#{params[:id]}"
   end
 end
