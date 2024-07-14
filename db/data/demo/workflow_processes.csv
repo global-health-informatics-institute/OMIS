@@ -1,0 +1,22 @@
+WorkFlow,State,Description,IntialState
+Asset Request,Requested,Initial State of requesting an asset,TRUE
+Asset Request,Approved,Request for the asset has been approved and asset can be given,FALSE
+Asset Request,Rejected,Request for the asset has been rejected,FALSE
+Asset Request,Prepared,Asset approved for use is ready for collection,FALSE
+Asset Request,Collected,Approved asset has been collected by requester,FALSE
+Timesheet,Pending Submission,State where the timesheet is open for editing by the user,TRUE
+Timesheet,Submitted,State where the timesheet has been submitted by the employee to the supervisor for review,FALSE
+Timesheet,Recalled,State where the timesheet was previously submitted by the employee to the supervisor for review but the employee requested the timesheet to be re-opened for editing,FALSE
+Timesheet,Rejected,State where a submitted timesheet has been sent back by the supervisor for the employee to fix something,FALSE
+Timesheet,Approved,State where a submitted timesheet has been cleared by the supervisor,FALSE
+Timesheet,Re-opened,State where a previously approved timesheet is made available for editing by the supervisor or designated official,FALSE
+Timesheet,Re-submitted,State where a timesheet has been resubmitted and has to be approves by the supervisor or designated official,FALSE
+Asset Request,Rescinded,Request for asset has been withdrawn,FALSE
+Transport Request,Initiated,Initial state were someone has requested travel,TRUE
+Transport Request,Program Approved,State where the program manager has approved the trip as being necessary,FALSE
+Transport Request,Budget Approved,State where the finance team has confirmed that the necessary budget for the travel is available,FALSE
+Transport Request,Approved,The travel has been fully approved and can take place,FALSE
+Transport Request,Rescinded,Original Requester has withdrawn the request for the travel,FALSE
+Transport Request,Program Rejected,Travel rejected for programmatic reasons,FALSE
+Transport Request,Budget Rejected,Travel rejected for budget or financial reasons,FALSE
+Transport Request,Denied,Travel not approved and shouldn’t take place,FALSE

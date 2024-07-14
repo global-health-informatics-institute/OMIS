@@ -133,6 +133,26 @@ CSV.foreach("#{source}/assets.csv",:headers=>:true) do |row|
                asset_category_id: AssetCategory.find_by_category(row[0]).id)
 end
 
+puts 'Adding Workflows and States'
+CSV.foreach("#{source}/workflow_processes.csv",:headers=>:true) do |row|
+  wp = WorkflowProcess.where(workflow: row[0]).first_or_create
+  wfs = WorkflowState.where(workflow_process_id: wp.id, state: row[1], description: row[2]).first_or_create
+
+  if row[3].upcase.strip == 'TRUE'
+    puts "Adding initial state"
+    InitialState.create(workflow_process_id: wp.id, workflow_state_id: wfs.id)
+  end
+end
+
+puts 'Adding workflow transitions'
+CSV.foreach("#{source}/workflow_state_transitions.csv",:headers=>:true) do |row|
+  wp = WorkflowProcess.where(workflow: row[0]).first_or_create
+  wps_1 = WorkflowState.where(workflow_process_id: wp.id, state: row[1]).first_or_create
+  wps_2 = WorkflowState.where(workflow_process_id: wp.id, state: row[2]).first_or_create
+  WorkflowStateTransition.where(workflow_state_id: wps_1, next_state: wps_2, action:row[3],
+                                by_owner: (row[4].upcase == "TRUE" ? true : false),
+                                by_supervisor: (row[5].upcase == "TRUE" ? true : false)).first_or_create
+end
 
 puts 'Seeding database done'
 
@@ -152,7 +172,7 @@ GlobalProperty.create(property: 'per.diem.incidental', property_value:'1.25',
                       description: 'Allocated amount for incidental allowance' )
 GlobalProperty.create(property: 'per.diem.accommodation', property_value:'30000',
                       description: 'Allocated amount for accommodation' )
-
+=begin
 wp = WorkflowProcess.create(workflow: 'Timesheet')
 WorkflowState.create(workflow_process_id: wp.id, state: 'Pending Submission',
                      description: 'State where the timesheet is open for editing by the user')
@@ -179,4 +199,4 @@ WorkflowStateTransition.create(workflow_state_id: 4, next_state: 7, action:'Re-s
 WorkflowStateTransition.create(workflow_state_id: 5, next_state: 6, action:'Re-open Timesheet')
 WorkflowStateTransition.create(workflow_state_id: 6, next_state: 7, action:'Re-submit Timesheet', by_owner: true)
 WorkflowStateTransition.create(workflow_state_id: 7, next_state: 5, action:'Approve Timesheet')
-
+=end

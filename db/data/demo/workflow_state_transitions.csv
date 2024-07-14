@@ -1,0 +1,27 @@
+Workflow,State,NextState,Action,ByOwner,BySupervisor
+Timesheet,Pending Submission,Submitted,Submit,True,False
+Timesheet,Submitted,Recalled,Recall Timesheet,True,False
+Timesheet,Submitted,Rejected,Reject Timesheet,False,True
+Timesheet,Submitted,Approved,Approve Timesheet,False,True
+Timesheet,Recalled,Re-submitted,Re-submit Timesheet,True,False
+Timesheet,Rejected,Re-submitted,Re-submit Timesheet,True,False
+Timesheet,Approved,Re-opened,Re-open Timesheet,False,True
+Timesheet,Re-opened,Re-submitted,Re-submit Timesheet,True,False
+Timesheet,Re-submitted,Approved,Approve Timesheet,False,True
+Asset Request,Requested,Approved,Approve Request,False,True
+Asset Request,Requested,Rejected,Reject Request,False,True
+Asset Request,Requested,Rescinded,Withdrawal Request,True,False
+Asset Request,Approved,Rescinded,Withdrawal Request,True,False
+Asset Request,Approved,Prepared,Asset Prepared,False,False
+Asset Request,Prepared,Rescinded,Withdrawal Request,True,False
+Asset Request,Prepared,Collected,Collect Asset,True,False
+Asset Request,Prepared,Collected,Release Asset,True,False
+Transport Request,Initiated,Rescinded,Rescind Request,True,False
+Transport Request,Initiated,Program Approved,Approve Travel,False,True
+Transport Request,Initiated,Program Rejected,Deny Travel,False,True
+Transport Request,Program Approved,Budget Approved,Approve Travel,False,False
+Transport Request,Program Approved,Budget Rejected,Deny Travel,False,False
+Transport Request,Budget Approved,Approved,Approve ,False,False
+Transport Request,Budget Approved,Denied,Deny Travel,False,False
+Transport Request,Program Approved,Rescinded,Rescind Request,True,False
+Transport Request,Budget Approved,Rescinded,Rescind Request,True,False
