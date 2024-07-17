@@ -28,6 +28,7 @@
     </div>
     <div class="col text-end">
       <% (@possible_actions || []).each do |action| %>
+        <%#= raise action.inspect %>
         <% path = case action
                   when "Submit"
                     "/timesheets/#{ @timesheet.id}/submit_timesheet"
@@ -38,14 +39,14 @@
                   when "Reject Timesheet"
                     "/timesheets/#{ @timesheet.id}/reject_timesheet"
                   when "Re-submit Timesheet"
-                    "/timesheets/#{ @timesheet.id}/resubmit_timesheet"
+                    "/timesheets/#{ @timesheet.id}/submit_timesheet"
                   when "Re-open Timesheet"
-                    "/timesheets/#{ @timesheet.id}/reopen_timesheet"
+                    "/timesheets/#{ @timesheet.id}/submit_timesheet"
                   else
                     ""
         end %>
         <%= link_to action, path , class: "btn btn-info",method: :put,
-                    data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action} this timesheet?" } %>
+                    data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action.split(" ")[0]} this timesheet?" } %>
       <% end %>
       <% if (@timesheet.status == "Pending Submission") || (@timesheet.status == "Recalled") && (@timesheet.employee_id == current_user.employee_id) %>
         <%= link_to "Add Task", new_time_sheet_task_path(time_sheet: @timesheet.id), class: "btn btn-primary",
@@ -99,7 +100,7 @@
                   <div class="me-0" style = "display: inline-block">
                   <%= entries[day].blank? ? '-' : entries[day][:duration] %>
                   </div>
-                  <% if (@timesheet.status == "Pending Submit") && (@timesheet.employee_id == current_user.employee_id) %>
+                  <% if (@timesheet.status == "Pending Submit") || (@timesheet.status == "Recalled") && (@timesheet.employee_id == current_user.employee_id) %>
                   <div class="dropdown" style="display: inline-block; padding:0;">
                   <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="editDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                   </button>

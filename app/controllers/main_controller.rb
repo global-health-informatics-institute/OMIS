@@ -28,7 +28,14 @@ class MainController < ApplicationController
 
       e = @employee
       jnrs = e.current_supervisees.collect{|x| x.supervisee}
-      @approvals = Timesheet.select("timesheet_id, employee_id, submitted_on").where("employee_id in (?) and submitted_on is not NULL and approved_on is NULL", jnrs)
+      # by_s = WorkflowStateTransition.select(:workflow_state_id).where(by_supervisor: true).collect{|x| x.workflow_state_id }
+      wp = WorkflowProcess.find_by(workflow: 'Timesheet')
+      by_s = WorkflowStateTransition.joins("INNER JOIN workflow_states ON workflow_states.workflow_state_id = workflow_state_transitions.workflow_state_id")
+                                    .where("workflow_states.workflow_process_id = ? AND workflow_state_transitions.by_supervisor = ?", wp.id, true)
+                                    .collect{|x| x.workflow_state_id }
+      # raise by_s.inspect
+      @approvals = Timesheet.select("timesheet_id, employee_id, submitted_on, state").where("employee_id in (?) and submitted_on is not NULL and state in (?)", jnrs, by_s)
+      # raise @approvals.inspect
 
     else
       people = Employee.select(:employee_id, :person_id).where(still_employed: true)
