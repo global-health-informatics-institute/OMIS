@@ -18,6 +18,8 @@ Rails.application.routes.draw do
   put 'timesheets/:id/approve_timesheet', to: 'timesheets#approve_timesheet'
   put 'timesheets/:id/reject_timesheet', to: 'timesheets#recall_timesheet'
   put 'timesheets/:id/recall_timesheet', to: 'timesheets#recall_timesheet'
+  put 'timesheets/:id/re-open_timesheet', to: 'timesheets#recall_timesheet'  
+  put 'timesheets/:id/re-submit_timesheet', to: 'timesheets#submit_timesheet'
 
   get 'settings/index'
   get 'settings/new'

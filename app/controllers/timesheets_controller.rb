@@ -27,7 +27,6 @@ class TimesheetsController < ApplicationController
     @possible_actions = WorkflowStateTransition.possible_actions(@timesheet.state, current_user, is_owner)
 
     @transition_state = WorkflowStateTransition.find_by(workflow_state_id: @timesheet.state)
-    #raise @transition_state.next_state.inspect
 
     @person = Employee.find(@timesheet.employee_id)
 
