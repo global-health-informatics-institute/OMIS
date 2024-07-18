@@ -28,23 +28,7 @@
     </div>
     <div class="col text-end">
       <% (@possible_actions || []).each do |action| %>
-        <%#= raise action.inspect %>
-        <% path = case action
-                  when "Submit"
-                    "/timesheets/#{ @timesheet.id}/submit_timesheet"
-                  when "Recall Timesheet"
-                    "/timesheets/#{ @timesheet.id}/recall_timesheet"
-                  when "Approve Timesheet"
-                    "/timesheets/#{ @timesheet.id}/approve_timesheet"
-                  when "Reject Timesheet"
-                    "/timesheets/#{ @timesheet.id}/reject_timesheet"
-                  when "Re-submit Timesheet"
-                    "/timesheets/#{ @timesheet.id}/submit_timesheet"
-                  when "Re-open Timesheet"
-                    "/timesheets/#{ @timesheet.id}/submit_timesheet"
-                  else
-                    ""
-        end %>
+        <% path = "/timesheets/#{ @timesheet.id}/#{action.parameterize(separator: '_')}" %>
         <%= link_to action, path , class: "btn btn-info",method: :put,
                     data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action.split(" ")[0]} this timesheet?" } %>
       <% end %>
