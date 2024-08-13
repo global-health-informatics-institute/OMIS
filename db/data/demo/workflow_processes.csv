@@ -20,3 +20,11 @@ Transport Request,Rescinded,Original Requester has withdrawn the request for the
 Transport Request,Program Rejected,Travel rejected for programmatic reasons,FALSE
 Transport Request,Budget Rejected,Travel rejected for budget or financial reasons,FALSE
 Transport Request,Denied,Travel not approved and shouldn’t take place,FALSE
+Petty Cash Request,Requested,State where petty cash has been requested,TRUE
+Petty Cash Request,Rescinded,State where request for petty cash has been withdrawn,FALSE
+Petty Cash Request,Approved,State where supervisor has approved request for petty cash,FALSE
+Petty Cash Request,Finances Approved,State where finance team has confirmed availability of funds,FALSE
+Petty Cash Request,Rejected,State where supervisor has rejected the request for petty cash,FALSE
+Petty Cash Request,Finances Rejected,State where finance team has rejected request due to insufficient funds,FALSE
+Petty Cash Request,Prepared,State where petty cash is ready for collection,FALSE
+Petty Cash Request,Collected,State where petty cash has been collected,FALSE

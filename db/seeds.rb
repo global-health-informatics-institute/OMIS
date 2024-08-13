@@ -149,9 +149,15 @@ CSV.foreach("#{source}/workflow_state_transitions.csv",:headers=>:true) do |row|
   wp = WorkflowProcess.where(workflow: row[0]).first_or_create
   wps_1 = WorkflowState.where(workflow_process_id: wp.id, state: row[1]).first_or_create
   wps_2 = WorkflowState.where(workflow_process_id: wp.id, state: row[2]).first_or_create
-  WorkflowStateTransition.where(workflow_state_id: wps_1, next_state: wps_2, action:row[3],
+  wft = WorkflowStateTransition.where(workflow_state_id: wps_1, next_state: wps_2, action:row[3],
                                 by_owner: (row[4].upcase == "TRUE" ? true : false),
-                                by_supervisor: (row[5].upcase == "TRUE" ? true : false)).first_or_create
+                                by_supervisor: (row[5].upcase == "TRUE" ? true : false),
+                                ).first_or_create
+
+ (row[6].split(';')).each do |transitioner|
+   WorkflowStateActor.create(workflow_state_transition: wft.id,
+                          employee_designation_id: Designation.find_by_designated_role(transitioner).id)
+ end
 end
 
 puts 'Seeding database done'
