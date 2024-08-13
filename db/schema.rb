@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_07_11_131049) do
+ActiveRecord::Schema[7.0].define(version: 2024_08_13_121334) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -220,6 +220,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_11_131049) do
     t.boolean "voided", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "project_id"
+    t.float "amount"
   end
 
   create_table "supervisions", primary_key: "supervision_id", force: :cascade do |t|
@@ -283,7 +285,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_11_131049) do
   end
 
   create_table "workflow_state_actors", force: :cascade do |t|
-    t.integer "workflow_state_id", null: false
+    t.integer "workflow_state_transition"
     t.integer "employee_designation_id", null: false
     t.boolean "voided", default: false
     t.datetime "created_at", null: false
@@ -293,6 +295,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_11_131049) do
   create_table "workflow_state_transitioners", force: :cascade do |t|
     t.integer "workflow_state_transition"
     t.integer "stakeholder"
+    t.date "start_date"
+    t.date "end_date"
     t.boolean "voided"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -307,6 +311,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_11_131049) do
     t.string "action", null: false
     t.boolean "by_owner", default: false
     t.boolean "by_supervisor"
+    t.string "transitioners"
   end
 
   create_table "workflow_states", primary_key: "workflow_state_id", force: :cascade do |t|

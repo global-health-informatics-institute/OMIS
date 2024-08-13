@@ -91,24 +91,34 @@
             <h3>Projects</h3>
           </div>
           <div class="tab-pane fade" id="nav-approval" role="tabpanel" aria-labelledby="nav-approval-tab">
-            <% if (@approvals || []).empty? %>
+            <% if (@approvals || []).empty? && (@requests || []).empty?%>
               <h3>No Pending Approvals</h3>
             <% else%>
 
-            <table class="table table-striped ml-8 table-hover", style="width: 100%">
+            <table class="table table-striped ml-8 table-hover" style="width: 100%">
               <thead class="table">
+                <tr>
                   <th>Requisition Type</th>
-                  <th>Person / Stakeholder</th>        
-                  <th>Date Submitted</th>  
-                  <th>Action</th>  
+                  <th>Person / Stakeholder</th>
+                  <th>Date Submitted</th>
+                  <th>Action</th>
+                </tr>
               </thead>
               <tbody>
                 <% (@approvals || []).each do |approval| %>
                   <tr>
-                      <td>Timesheet</td>        
-                      <td><%= approval.employee.person.full_name%></td> 
-                      <td><%= approval.submitted_on.strftime("%d %b %Y") %></td>
-                      <td><%= link_to 'View', approval %></td>    
+                    <td>Timesheet</td>
+                    <td><%= approval.employee.person.full_name%></td>
+                    <td><%= approval.submitted_on.strftime("%d %b %Y") %></td>
+                    <td><%= link_to 'View', approval %></td>
+                  </tr>
+                <% end %>
+                <% (@requests || []).each do |request| %>
+                  <tr>
+                    <td><%= request.requisition_type %></td>
+                    <td><%= request.user.full_name%></td>
+                    <td><%= request.initiated_on.strftime("%d %b %Y") %></td>
+                    <td><%= link_to 'View', "/requisitions/#{request.id}" %></td>
                   </tr>
                 <% end %>
               </tbody>
