@@ -11,6 +11,8 @@ gem "sprockets-rails"
 
 gem 'bootstrap', '~> 5.1', '>= 5.1.3'
 
+gem 'turbo-rails' 
+
 gem 'flatpickr_rails'
 
 gem 'ransack'

@@ -30,12 +30,20 @@ class MainController < ApplicationController
       jnrs = e.current_supervisees.collect{|x| x.supervisee}
       # by_s = WorkflowStateTransition.select(:workflow_state_id).where(by_supervisor: true).collect{|x| x.workflow_state_id }
       wp = WorkflowProcess.find_by(workflow: 'Timesheet')
+      wpr= WorkflowProcess.find_by(workflow: 'Petty Cash Request')
       by_s = WorkflowStateTransition.joins("INNER JOIN workflow_states ON workflow_states.workflow_state_id = workflow_state_transitions.workflow_state_id")
                                     .where("workflow_states.workflow_process_id = ? AND workflow_state_transitions.by_supervisor = ?", wp.id, true)
                                     .collect{|x| x.workflow_state_id }
-      # raise by_s.inspect
+      by_s_r = WorkflowStateTransition.joins("INNER JOIN workflow_states ON workflow_states.workflow_state_id = workflow_state_transitions.workflow_state_id")
+                                      .where("workflow_states.workflow_process_id = ? AND workflow_state_transitions.by_supervisor = ?", wpr.id, true)
+                                      .collect{|x| x.workflow_state_id }
+      # actor = WorkflowStateActor.select("workflow_state_transition, employee_designation_id").where("voided = ?", false).collect{|x| x.employee_designation_id }
+      # raise actor.inspect
       @approvals = Timesheet.select("timesheet_id, employee_id, submitted_on, state").where("employee_id in (?) and submitted_on is not NULL and state in (?)", jnrs, by_s)
-      # raise @approvals.inspect
+      @requests = Requisition.select("requisition_id, initiated_by, initiated_on, workflow_state_id, requisition_type")
+                             .where("initiated_by in (?) and approved_by is NULL and workflow_state_id in (?) and voided = ?", jnrs, by_s_r, false)
+
+      # raise @requests.inspect
 
     else
       people = Employee.select(:employee_id, :person_id).where(still_employed: true)
