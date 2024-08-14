@@ -28,6 +28,11 @@ class RequisitionsController < ApplicationController
       @employees = Employee.where(still_employed: true).collect{|x| x.person.full_name}
     when 'Personnel Requests'
 
+    when 'Token Request'
+      @token = SecureRandom.alphanumeric
+      TokenLog.create(token: @token)
+      #send_data @token,  :filename => "requested_token.txt"
+
     when 'Leave Request'
       @annual_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id,
       leave_type: "Annual Leave", financial_year: Date.today.year).first_or_create(leave_days_balance: 0.0, leave_days_total: 0.0)
@@ -42,7 +47,7 @@ class RequisitionsController < ApplicationController
   end
 
   def create
-    # raise params.inspect
+
     state_id = InitialState.find_by_workflow_process_id(WorkflowProcess.find_by_workflow('Petty Cash Request')).workflow_state_id
     ActiveRecord::Base.transaction do
       @requisition = Requisition.create(purpose: params[:requisition][:purpose],
@@ -63,6 +68,7 @@ class RequisitionsController < ApplicationController
     else
       flash[:error] = "Request failed"
     end
+
   end
 
   def edit
