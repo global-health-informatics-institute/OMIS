@@ -154,10 +154,12 @@ CSV.foreach("#{source}/workflow_state_transitions.csv",:headers=>:true) do |row|
                                 by_supervisor: (row[5].upcase == "TRUE" ? true : false),
                                 ).first_or_create
 
- (row[6].split(';')).each do |transitioner|
-   WorkflowStateActor.create(workflow_state_transition: wft.id,
-                          employee_designation_id: Designation.find_by_designated_role(transitioner).id)
- end
+  if !row[6].blank?
+    (row[6].split(';')).each do |transitioner|
+      WorkflowStateActor.create(workflow_state_transition: wft.id,
+                                employee_designation_id: Designation.find_by_designated_role(transitioner).id)
+    end
+  end
 end
 
 puts 'Seeding database done'
