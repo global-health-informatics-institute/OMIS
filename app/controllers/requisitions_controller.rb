@@ -79,6 +79,16 @@ class RequisitionsController < ApplicationController
     redirect_to "/requisitions/#{params[:id]}"
   end
 
+  def funds_available
+    # raise @transition_state.inspect
+    new_state = WorkflowState.where(state: 'Finances Approved',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
+    @requisition = Requisition.where(requisition_id: params[:id])
+                              .update(approved_by: current_user.user_id, workflow_state_id: new_state.first.id)
+
+    redirect_to "/requisitions/#{params[:id]}"
+  end
+
   def rescind_request
     @requisition = Requisition.find(params[:id]).update(voided: true)
     redirect_to "#"
