@@ -12,5 +12,7 @@
     <%= render partial: "personnel", locals: {selected_report: @selected_request} %>
   <% elsif @selected_request == 'Leave Request' %>
     <%= render partial: "leave_request", locals: {selected_report: @selected_request} %>
+  <% elsif @selected_request == 'Token Request' %>
+    <%= render partial: "token_request", locals: {selected_report: @selected_request} %>
   <% end %>
 <% end %>
