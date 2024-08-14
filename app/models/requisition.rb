@@ -13,4 +13,10 @@ class Requisition < ApplicationRecord
     return WorkflowState.find(self.state).state rescue ''
     #self.workflow_state.state rescue status
   end
+
+  def amount
+    if self.requisition_type == "Petty Cash"
+      return self.requisition_items.first.value
+    end
+  end
 end

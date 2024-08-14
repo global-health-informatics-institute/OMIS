@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_08_13_121334) do
+ActiveRecord::Schema[7.0].define(version: 2024_07_30_071915) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -221,7 +221,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_13_121334) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "project_id"
-    t.float "amount"
   end
 
   create_table "supervisions", primary_key: "supervision_id", force: :cascade do |t|
@@ -311,7 +310,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_13_121334) do
     t.string "action", null: false
     t.boolean "by_owner", default: false
     t.boolean "by_supervisor"
-    t.string "transitioners"
   end
 
   create_table "workflow_states", primary_key: "workflow_state_id", force: :cascade do |t|
