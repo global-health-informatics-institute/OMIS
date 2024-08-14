@@ -7,7 +7,6 @@ class RequisitionsController < ApplicationController
     @requisition = Requisition.find(params[:id])
     is_owner = (@requisition.initiated_by == current_user.employee_id)
     @possible_actions = WorkflowStateTransition.possible_actions(@requisition.workflow_state_id, current_user, is_owner)
-
     @transition_state = WorkflowStateTransition.find_by(workflow_state_id: @requisition.workflow_state_id)
   end
 
@@ -45,16 +44,22 @@ class RequisitionsController < ApplicationController
   def create
     # raise params.inspect
     state_id = InitialState.find_by_workflow_process_id(WorkflowProcess.find_by_workflow('Petty Cash Request')).workflow_state_id
-    @requisition = Requisition.new(purpose: params[:requisition][:purpose],
-                                   amount: params[:amount],
-                                   initiated_by: current_user.id,
-                                   initiated_on: Date.today,
-                                   requisition_type: params[:requisition][:requisition_type],
-                                   workflow_state_id: state_id,
-                                   project_id: params[:project_id])
-    if @requisition.save
+    ActiveRecord::Base.transaction do
+      @requisition = Requisition.create(purpose: params[:requisition][:purpose],
+                                     initiated_by: current_user.id,
+                                     initiated_on: Date.today,
+                                     requisition_type: params[:requisition][:requisition_type],
+                                     workflow_state_id: state_id,
+                                     project_id: params[:requisition][:project_id])
+      RequisitionItem.create(requisition_id: @requisition.id, value: params[:requisition][:amount], quantity: 1.0,
+                             item_description: 'Petty Cash'
+                             )
+    end
+
+
+    if @requisition.errors.empty?
       flash[:notice] = "Request successful"
-      redirect_to "/requisitions"
+      redirect_to "/requisitions/#{@requisition.id}"
     else
       flash[:error] = "Request failed"
     end
@@ -66,9 +71,10 @@ class RequisitionsController < ApplicationController
 
   def approve_request
     # raise @transition_state.inspect
-    @requisition = Requisition.find(params[:id])
-                              .update(reviewed_by: current_user.user_id,
-                                      workflow_state_id: WorkflowState.where(state: 'Approved', workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id).first.id )
+    new_state = WorkflowState.where(state: 'Approved',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
+    @requisition = Requisition.where(requisition_id: params[:id])
+                              .update(reviewed_by: current_user.user_id, workflow_state_id: new_state.first.id)
 
     redirect_to "/requisitions/#{params[:id]}"
   end
