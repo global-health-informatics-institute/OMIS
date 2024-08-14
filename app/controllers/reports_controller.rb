@@ -2,6 +2,7 @@
 class ReportsController < ApplicationController
 
   include PdfMonthlyLoeReport
+  include XslMonthlyLoeReport
   def index
     # @current_timesheet.timesheet_tasks.select("project_id, task_date, sum(duration) as duration").group('project_id, task_date')
   end
@@ -19,6 +20,10 @@ class ReportsController < ApplicationController
       monthly_org_loe_report
     when 'Project Report'
       project_progress_report
+    when 'Tokens'
+      token_requests
+    when 'Leave days'
+      leave_days
     end
   end
 
@@ -37,6 +42,54 @@ class ReportsController < ApplicationController
   def hr_report; end
 
   def project_progress_report; end
+
+  def leave_days
+    #@list_employees = Employee.where(still_employed: true).collect { |x| x.person}
+    @leave_proj_ids = Project.where('short_name in (?)', ['Annual Leave', 'Compassionate Leave', 'Sick Leave']).collect(&:project_id)
+    #req_tasks = TimesheetTask.where(project_id: leave_proj_ids)
+    #raise @leave_proj_ids.inspect
+
+    sheets = Timesheet.find_by_sql("SELECT employee_id, project_id, sum(duration) as duration from timesheet_tasks
+    as tst inner join (select timesheet_id, employee_id from timesheets where timesheet_week
+        BETWEEN '#{Date.parse(params[:start_date])}' and '#{params[:end_date]}') as tt_ts on
+            tt_ts.timesheet_id = tst.timesheet_id where tst.project_id in (#{@leave_proj_ids.join(',')}) and tst.task_date 
+            BETWEEN '#{params[:start_date]}' and '#{params[:end_date]}' group by employee_id,project_id")
+
+    @people = Person.joins('inner join employees on people.person_id=employees.person_id')
+                    .where('employees.employee_id in (?)', sheets.collect(&:employee_id).uniq)
+                    .collect { |x| [x.person_id, "#{x.first_name} #{x.last_name}"] }.to_h
+
+    tmp_leave_balances = LeaveSummary.select("employee_id,leave_type, sum(leave_days_total)  as leave_days_total,
+                                              sum(leave_days_balance) as leave_days_balance")
+                                     .where("employee_id in (?) and financial_year between ? and ? ",
+                                            sheets.collect(&:employee_id).uniq, Date.parse(params[:start_date]).year, 
+                                            Date.parse(params[:end_date]).year)
+                                     .group(:employee_id, :leave_type)
+
+    @leave_balances = {}
+    @leave_taken = {}
+
+    (tmp_leave_balances || []).each do |balance|
+      if @leave_balances[balance.employee_id].blank?
+        @leave_balances[balance.employee_id] = { balance.leave_type => balance.leave_days_total }
+      else
+        @leave_balances[balance.employee_id][balance.leave_type] = balance.leave_days_total
+      end
+    end
+
+    (sheets || []).each do |task|
+      if @leave_taken[task.employee_id].blank?
+        @leave_taken[task.employee_id] = { task.project_id => (task.duration / 7.5).round(2) }
+      else
+        @leave_taken[task.employee_id][task.project_id] = (task.duration / 7.5).round(2)
+      end
+    end
+  end
+
+  def token_requests
+    #raise Date.parse(params[:start_date]).inspect
+    @tokens = TokenLog.where("created_at >= '#{Date.parse(params[:start_date])}' and created_at <= '#{Date.parse(params[:end_date])}'")
+  end
 
   def monthly_employee_loe_report
     @selected_employee_id = params[:employee_loe_type]
@@ -86,7 +139,7 @@ class ReportsController < ApplicationController
   end
 
   def monthly_org_loe_report
-    cost_shared = Project.where('short_name in (?)', ['Crosscutting', 'Public Holiday', 'Annual Leave',
+    cost_shared_prjs = Project.where('short_name in (?)', ['Crosscutting', 'Public Holiday', 'Annual Leave',
                                                       'Paternity Leave', 'Compassionate Leave', 'Study Leave',
                                                       'Sick Leave']).collect(&:project_id)
 
@@ -94,40 +147,37 @@ class ReportsController < ApplicationController
     as tst inner join (select timesheet_id, employee_id from timesheets where timesheet_week
         BETWEEN '#{Date.parse(params[:start_date]).advance(weeks: -1)}' and '#{params[:end_date]}') as tt_ts on
             tt_ts.timesheet_id = tst.timesheet_id where tst.task_date BETWEEN '#{params[:start_date]}' and
-                '#{params[:end_date]}' and project_id not in (#{cost_shared.join(',')}) group by employee_id,project_id")
-
-    @results = {}
-
-    (sheets || []).each do |sheet|
-      prj_loe = begin
-        ProjectTeam.where("start_date <= ? and project_id = ? and employee_id = ? and
-           COALESCE(end_date, '#{Date.today}') >= ? ", params[:start_date], sheet.project_id,
-                          sheet.employee_id, params[:end_date]).first.allocated_effort
-      rescue StandardError
-        0.00
-      end
-
-      if @results[sheet.project_id].blank?
-        @results[sheet.project_id] = [{ employee: sheet.employee_id, hours: sheet.duration, projected_loe: prj_loe }]
-      else
-        @results[sheet.project_id].append({ employee: sheet.employee_id, hours: sheet.duration,
-                                            projected_loe: prj_loe })
-      end
-    end
-
-    @projects_array = Project.find(@results.keys).collect { |x| [x.id, x.short_name] }.to_h
+                '#{params[:end_date]}' group by employee_id,project_id")
 
     @people = Person.joins('inner join employees on people.person_id=employees.person_id')
                     .where('employees.employee_id in (?)', sheets.collect(&:employee_id).uniq)
                     .collect { |x| [x.person_id, "#{x.first_name} #{x.last_name}"] }.to_h
 
     respond_to do |format|
-      format.turbo_stream
+      format.turbo_stream do
+        @results, @cost_shared_hours, @projects_array = helpers.group_by_project(sheets, cost_shared_prjs)
+      end
       format.xsl do
-        # helpers.monthly_loe_report(@results, @projects_array)
-        send_file('tmp/loe_report.xls', filename: 'nove_loe.xls')
+
+        @projects_array = Project.find((sheets.collect(&:project_id).uniq - cost_shared_prjs)).collect { |x| [x.id, x.short_name] }.to_h
+        @results, @cost_shared_hours = helpers.group_by_person(sheets, cost_shared_prjs)
+        @loes = {}
+
+        (ProjectTeam.where("start_date <= ?  and employee_id in (?) and COALESCE(end_date, '#{Date.today}') >= ? ",
+                           params[:start_date], @results.keys, params[:end_date]) || []).each do |loe|
+          if @loes[loe.employee_id].blank?
+            @loes[loe.employee_id] = {loe.project_id => loe.allocated_effort}
+          else
+            @loes[loe.employee_id][loe.project_id] = loe.allocated_effort
+          end
+        end
+
+        file_name = XslMonthlyLoeReport.initialize_report(@people, @results, @projects_array, @cost_shared_hours,
+                                                          @loes, params[:start_date], params[:end_date])
+        send_file("tmp/#{file_name}", filename: "#{file_name}")
       end
       format.pdf do
+        @results, @cost_shared_hours, @projects_array = helpers.group_by_project(sheets, cost_shared_prjs)
         file_name = PdfMonthlyLoeReport.initialize_report(@people, @results, @projects_array, params[:start_date], params[:end_date])
         send_file("tmp/#{file_name}", filename: "#{file_name}")
       end

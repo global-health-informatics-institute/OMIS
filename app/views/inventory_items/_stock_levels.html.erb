@@ -1,0 +1,41 @@
+<div class="card h-100">
+  <div class="card-body p-2">
+    <h6>Stock Levels</h6>
+    <div class="text-center">
+      <canvas id="stockbar" style="height: 30vh !important; width: 15vw;margin-left: auto; margin-right: auto;"></canvas>
+    </div>
+  </div>
+</div>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js"></script>
+
+<script>
+
+    new Chart(document.getElementById("stockbar"), {
+        type : 'bar',
+        data : {
+            labels :  <%= @inventory_items.map { |item| item["item_name"] }.to_json.html_safe %>,
+            datasets : [ {
+                data : [ <%= (@inventory_items[1]["quantity"] || 0) %>, <%= (@inventory_items[1]["quantity"] || 0) %>,
+                <%= (@inventory_items[2]["quantity"] || 0) %>,<%= (@inventory_items[3]["quantity"] || 0) %>,
+                    <%= (@inventory_items[4]["quantity"] || 0) %>,<%= (@inventory_items[5]["quantity"] || 0) %>],
+                backgroundColor: ['#7A2048'],
+            },
+                {
+                data : [<%= (@inventory_items[0]["quantity_used"] || 0) %>,<%= (@inventory_items[1]["quantity_used"] || 0) %>,
+                <%= (@inventory_items[2]["quantity_used"] || 0) %>,<%= (@inventory_items[3]["quantity_used"] || 0) %>,
+                    <%= (@inventory_items[4]["quantity_used"] || 0) %>,<%= (@inventory_items[5]["quantity_used"] || 0) %>],
+                backgroundColor: ['#337474'],
+    }]
+        },
+        options : {
+            responsive: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>

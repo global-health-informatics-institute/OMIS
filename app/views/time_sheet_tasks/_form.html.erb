@@ -1,18 +1,20 @@
-<%= form_with model: @timesheet, url: time_sheet_tasks_path do |form| %>
+<%= form_with model: @timesheet_task, url: time_sheet_tasks_path do |form| %>
 
   <div class="row">
     <div class="col mb-3">
       Select Project
     </div>
     <div class="col mb-3">
-      <%= form.select :project_id, options_for_select(@project_options, (@selected_project.id rescue nil)), prompt:(@selected_project.full_name rescue params[:"prj"]), 
+      <%= form.select :project_id, options_for_select(@project_options, (@selected_project.id rescue nil)),
+                      prompt:(@selected_project.full_name rescue params[:"prj"]),
       :class => 'form-select', required: true %>
     </div>
   </div>
   <div class="row">
     <div class="col mb-3">
       <%= form.label :task_date %>
-      <%= form.date_field :task_date, value: params[:day], max: Date.today.end_of_week, class: 'form-control', required: true %>
+      <%= form.date_field :task_date, value: params[:day],min: @timesheet.timesheet_week.beginning_of_week,
+                          max: @timesheet.timesheet_week.end_of_week, class: 'form-control', required: true %>
     </div>
     <div class="col mb-3">
       <%= form.label :duration %>
@@ -28,6 +30,6 @@
   <div class="mb-3 mt-4">
     <%= form.hidden_field :time_sheet_id, value: params[:"time_sheet"] %>
     <%= form.submit "Save", class: "btn btn-success btn-block" %>
-    <button id="close" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
   </div>
 <% end %>

@@ -7,8 +7,10 @@ Rails.application.routes.draw do
   resources :branches
   resources :employees
   resources :timesheets
-  #resources :requisitions
-  #resources :requisition_item, only: [:show]
+  resources :inventory_items
+  resources :inventory_item_categories
+  resources :inventory_item_thresholds
+  resources :inventory_item_types
   resources :project_tasks
   resources :business_assets
   resources :time_sheet_tasks
@@ -42,6 +44,8 @@ Rails.application.routes.draw do
   get 'reports/monthly_org_loe_report'
 
   get 'users/index'
+  get 'forgot_password', to: 'users#forgot_password'
+  post 'password_reset_forget', to: 'users#password_reset_forget'
   put 'users/:id/password_reset', to: 'users#password_reset'
   get 'main/home'
   get 'about', to: 'main#about'

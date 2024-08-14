@@ -133,6 +133,26 @@ CSV.foreach("#{source}/assets.csv",:headers=>:true) do |row|
                asset_category_id: AssetCategory.find_by_category(row[0]).id)
 end
 
+puts "Adding Inventory Categories"
+
+CSV.foreach("#{source}/inventory_item_categories.csv",:headers=>:true) do |row|
+  InventoryItemCategory.create( category: row[0], created_by: row[1])
+end
+
+puts "Adding Inventory Type"
+
+CSV.foreach("#{source}/inventory_item_type.csv",:headers=>:true) do |row|
+  InventoryItemType.create( inventory_item_category_id: row[0], item_name: row[1], manufacturer: row[2],
+                            created_by: row[3])
+end
+
+puts "Adding Inventory Item"
+
+CSV.foreach("#{source}/inventory_item.csv",:headers=>:true) do |row|
+  InventoryItem.create( item_type_id: row[0], quantity: row[1], quantity_used: row[2], supplier: row[3],
+                        unit_price: row[4], storage_location: row[5], created_by: row[6])
+end
+
 puts 'Adding Workflows and States'
 CSV.foreach("#{source}/workflow_processes.csv",:headers=>:true) do |row|
   wp = WorkflowProcess.where(workflow: row[0]).first_or_create
@@ -180,31 +200,4 @@ GlobalProperty.create(property: 'per.diem.incidental', property_value:'1.25',
                       description: 'Allocated amount for incidental allowance' )
 GlobalProperty.create(property: 'per.diem.accommodation', property_value:'30000',
                       description: 'Allocated amount for accommodation' )
-=begin
-wp = WorkflowProcess.create(workflow: 'Timesheet')
-WorkflowState.create(workflow_process_id: wp.id, state: 'Pending Submission',
-                     description: 'State where the timesheet is open for editing by the user')
-WorkflowState.create(workflow_process_id: wp.id, state: 'Submitted',
-                     description: 'State where the timesheet has been submitted by the employee to the supervisor for review')
-WorkflowState.create(workflow_process_id: wp.id, state: 'Recalled',
-                     description: 'State where the timesheet was previously submitted by the employee to the supervisor for review but the employee requested the timesheet to be re-opened for editing')
-WorkflowState.create(workflow_process_id: wp.id, state: 'Rejected',
-                     description: 'State where a submitted timesheet has been sent back by the supervisor for the employee to fix something')
-WorkflowState.create(workflow_process_id: wp.id, state: 'Approved',
-                     description: 'State where a submitted timesheet has been cleared by the supervisor')
-WorkflowState.create(workflow_process_id: wp.id, state: 'Re-opened',
-                     description: 'State where a previously approved timesheet is made available for editing by the supervisor or designated official')
-WorkflowState.create(workflow_process_id: wp.id, state: 'Re-submitted',
-                     description: 'State where a timesheet has been resubmitted and has to be approves by the supervisor or designated official')
 
-
-WorkflowStateTransition.create(workflow_state_id: 1, next_state: 2, action:'Submit', by_owner: true)
-WorkflowStateTransition.create(workflow_state_id: 2, next_state: 3, action:'Recall Timesheet', by_owner: true)
-WorkflowStateTransition.create(workflow_state_id: 2, next_state: 4, action:'Reject Timesheet')
-WorkflowStateTransition.create(workflow_state_id: 2, next_state: 5, action:'Approve Timesheet')
-WorkflowStateTransition.create(workflow_state_id: 3, next_state: 7, action:'Re-submit Timesheet', by_owner: true)
-WorkflowStateTransition.create(workflow_state_id: 4, next_state: 7, action:'Re-submit Timesheet', by_owner: true)
-WorkflowStateTransition.create(workflow_state_id: 5, next_state: 6, action:'Re-open Timesheet')
-WorkflowStateTransition.create(workflow_state_id: 6, next_state: 7, action:'Re-submit Timesheet', by_owner: true)
-WorkflowStateTransition.create(workflow_state_id: 7, next_state: 5, action:'Approve Timesheet')
-=end

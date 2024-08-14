@@ -118,6 +118,57 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_30_071915) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "inventory_item_categories", primary_key: "inventory_item_category_id", force: :cascade do |t|
+    t.string "category", null: false
+    t.boolean "voided", default: false, null: false
+    t.integer "created_by", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "inventory_item_issues", force: :cascade do |t|
+    t.integer "requisition_id", null: false
+    t.integer "inventory_item_id", null: false
+    t.decimal "quantity_issued", default: "0.0", null: false
+    t.date "issue_date", null: false
+    t.integer "issued_by", null: false
+    t.integer "issued_to", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "inventory_item_thresholds", primary_key: "inventory_item_threshold_id", force: :cascade do |t|
+    t.integer "inventory_item_id", null: false
+    t.decimal "minimum_quantity", default: "0.0"
+    t.decimal "maximum_quantity", default: "0.0"
+    t.boolean "voided", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "inventory_item_types", primary_key: "inventory_item_type_id", force: :cascade do |t|
+    t.integer "inventory_item_category_id", null: false
+    t.string "item_name", null: false
+    t.string "manufacturer", null: false
+    t.integer "created_by", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "inventory_items", primary_key: "inventory_item_id", force: :cascade do |t|
+    t.integer "item_type_id", null: false
+    t.integer "quantity", default: 0, null: false
+    t.integer "quantity_used", default: 0, null: false
+    t.string "supplier", null: false
+    t.decimal "unit_price", precision: 10, scale: 2
+    t.string "storage_location"
+    t.integer "created_by", null: false
+    t.integer "voided_by"
+    t.boolean "voided", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "leave_summaries", primary_key: "leave_summary_id", force: :cascade do |t|
     t.string "leave_type", null: false
     t.integer "employee_id", null: false
@@ -191,6 +242,16 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_30_071915) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "report_statistics", primary_key: "statistic_id", force: :cascade do |t|
+    t.date "period_start", null: false
+    t.date "period_end", null: false
+    t.string "period_label", null: false
+    t.string "statistic_description", null: false
+    t.decimal "statistic_value", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "requisition_items", primary_key: "requisition_item_id", force: :cascade do |t|
     t.integer "requisition_id", null: false
     t.decimal "quantity"
@@ -252,6 +313,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_30_071915) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "state"
+  end
+
+  create_table "token_logs", primary_key: "token_id", force: :cascade do |t|
+    t.string "token", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", primary_key: "user_id", force: :cascade do |t|

@@ -3,7 +3,9 @@ module ReportsHelper
     options = [['HR Report', 'HR'], ['Asset Status', 'Assets'],
                ['Individual LOE Report', 'Employee LOE'],
                ['Organization LOE Report', 'Org LOE'],
-               ['Project Progress Report','Project Report']
+               ['Project Progress Report','Project Report'],
+               ['Token Request Report', 'Tokens'],
+               ['Leave Days Report', 'Leave days']
     ]
     return options
   end
@@ -85,7 +87,53 @@ module ReportsHelper
       pdf.text "Signature:  #{Prawn::Text::NBSP*1}________________________________________ #{Prawn::Text::NBSP*100}Signature: __________________________________________"
     end
   end
-  def monthly_loe_report_pdf
 
+  def group_by_project(sheets, cost_shared_prjs)
+    results = {}
+    cost_shared_hours = Hash.new(0)
+
+    (sheets || []).each do |sheet|
+      prj_loe = begin
+                  ProjectTeam.where("start_date <= ? and project_id = ? and employee_id = ? and
+           COALESCE(end_date, '#{Date.today}') >= ? ", params[:start_date], sheet.project_id,
+                                    sheet.employee_id, params[:end_date]).first.allocated_effort
+                rescue StandardError
+                  0.00
+                end
+
+      if cost_shared_prjs.include?(sheet.project_id)
+        cost_shared_hours[sheet.employee_id] += sheet.duration
+      else
+        if results[sheet.project_id].blank?
+          results[sheet.project_id] = [{ employee: sheet.employee_id, hours: sheet.duration, projected_loe: prj_loe }]
+        else
+          results[sheet.project_id].append({ employee: sheet.employee_id, hours: sheet.duration,
+                                              projected_loe: prj_loe })
+        end
+      end
+    end
+
+    projects_array = Project.find(results.keys).collect { |x| [x.id, x.short_name] }.to_h
+
+    return results, cost_shared_hours, projects_array
+  end
+
+  def group_by_person(data,crosscutting)
+
+    results = {}
+    cost_shared_hours = Hash.new(0)
+    (data || []).each do |record|
+      if crosscutting.include? record.project_id
+        cost_shared_hours[record.employee_id] +=  record.duration
+      else
+        if results[record.employee_id].blank?
+          results[record.employee_id] = {record.project_id => record.duration}
+        else
+          results[record.employee_id][record.project_id]  = record.duration
+        end
+      end
+    end
+
+    return results, cost_shared_hours
   end
 end
