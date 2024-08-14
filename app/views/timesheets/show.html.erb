@@ -1,4 +1,4 @@
-<h5>Timesheet</h5>
+<span class="fs-5 fw-semibold m-0 p-0">Timesheet</span>
 <div class="border p-2">
   <div class="row">
     <div class="col-5">
@@ -71,11 +71,21 @@
         <th rowspan="<%= (v.keys.length + 1) %>">
           <%= @projects[k] %>
         </th>
+
         <% (v || []).each do |task, entries| %>
           <% total = 0.0 %>
         <tr>
           <td>
             <%= task %>
+            <div class="dropdown" style="display: inline-block; padding:0;">
+            <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="taskDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="taskDropdown">
+              <li>
+                <%= link_to 'Edit', edit_time_sheet_task_path(time_sheet_task_id: entries.first.second[:id], time_sheet: @timesheet.id, prj: @projects[k], tsk_desc: task), class: 'dropdown-item', data: { turbo_frame: "remote_modal" } %>
+              </li>
+            </ul>
+            </div>
           </td>
           <%[7,1,2,3,4,5,6].each do |day| %>
             <td>
@@ -91,7 +101,7 @@
                   <ul class="dropdown-menu" aria-labelledby="editDropdown">
                     <li>
                       <% if !entries[day].blank? %>
-                        <%= link_to 'Edit', edit_time_sheet_task_path(time_sheet_task_id: entries[day][:id]), class: 'dropdown-item', data: { turbo_frame: "remote_modal" } %>
+                        <%= link_to 'Edit',edit_time_sheet_task_path(time_sheet_task_id: entries[day][:id]), class: 'dropdown-item', data: { turbo_frame: "remote_modal" } %>
                       <% else %>
                         <%= link_to "Add Duration", new_time_sheet_task_path(prj: @projects[k], tsk_desc:task, 
                             day: @timesheet.timesheet_week.advance(:days => day), time_sheet: @timesheet.id), class: 'dropdown-item',
@@ -128,54 +138,7 @@
   </table>
 </div>
 
-<div class="container" id="app">
-  <div id="image-modal" class="modal">
-    <%= form_for "time_sheet_task", url: time_sheet_tasks_path  do |form| %>
-      <div class="modal-background"></div>
-      <div class="modal-content">
-        <div class="modal-card">
-          <header class="modal-card-head">
-            <p class="modal-card-title">Add Task</p>
-          </header>
-          <section class="modal-card-body">
-            <div class="columns">
-              <div class="column">
-                Select Project
-              </div>
-              <div class="column">
-                <div class="select is-fullwidth">
-                  <%= form.select :project_id, @project_options %>
-                </div>
-              </div>
-            </div>
-            <div class="columns">
-              <div class="column">
-                <%= form.label :task_date %>
-                <%= form.date_field :task_date, class: 'input', required: true %>
-              </div>
-              <div class="column">
-                <%= form.label :duration %>
-                <%= form.number_field :duration, step:0.25, class: 'input', required: true %>
-              </div>
-            </div>
-            <div class="columns">
-              <div class="column">
-                <%= form.label :description %>
-                <%= form.text_field :description, class: 'input', required: true %>
-              </div>
-            </div>
-          </section>
-          <footer class="modal-card-foot">
-            <%= form.submit "Save", class: "button is-success" %>
-            <button id="close" class="button">Cancel</button>
-          </footer>
-        </div>
-      </div>
-      <%= form.hidden_field :time_sheet_id, value: @timesheet.timesheet_id %>
-    <% end %>
-    <button id="image-modal-close" class="modal-close"></button>
-  </div>
-</div>
+
 
 <script>
     const picker  = document.getElementById('period');

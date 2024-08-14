@@ -1,0 +1,2 @@
+module InventoryItemThresholdsHelper
+end

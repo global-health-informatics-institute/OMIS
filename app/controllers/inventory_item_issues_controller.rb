@@ -1,0 +1,2 @@
+class InventoryItemIssuesController < ApplicationController
+end
