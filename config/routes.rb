@@ -33,6 +33,7 @@ Rails.application.routes.draw do
   get 'requisitions/:id', to: 'requisitions#show'
   get 'requisitions/edit'
   put 'requisitions/:id/approve_request', to: 'requisitions#approve_request'
+  put 'requisitions/:id/funds_available', to: 'requisitions#funds_available'
   put 'requisitions/:id/rescind_request', to: 'requisitions#rescind_request'
 
   get 'reports/index'
