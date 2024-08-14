@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   resources :employees
   resources :timesheets
   #resources :requisitions
+  #resources :requisition_item, only: [:show]
   resources :project_tasks
   resources :business_assets
   resources :time_sheet_tasks
@@ -26,10 +27,13 @@ Rails.application.routes.draw do
   post 'settings/create'
   get 'settings/edit'
 
-  get 'requisitions/index'
-  get 'requisitions/new', defaults: { format: :turbo_stream }
+  get 'requisitions', to: 'requisitions#index'
+  get 'requisitions/new', to: 'requisitions#new', defaults: { format: :turbo_stream }
   post 'requisitions/create'
+  get 'requisitions/:id', to: 'requisitions#show'
   get 'requisitions/edit'
+  put 'requisitions/:id/approve_request', to: 'requisitions#approve_request'
+  put 'requisitions/:id/rescind_request', to: 'requisitions#rescind_request'
 
   get 'reports/index'
   get 'reports/new'

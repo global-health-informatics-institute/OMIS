@@ -1,0 +1,7 @@
+<script src="/assets/chart.umd.min.js"></script>
+
+<% if @requisition.requisition_type == 'Petty Cash' %>
+  <%= render partial: 'requested_petty_cash' %>
+<% else %>
+  <%= render partial: 'travel_request' %>
+<% end %>
