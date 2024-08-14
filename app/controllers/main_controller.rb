@@ -43,7 +43,8 @@ class MainController < ApplicationController
       @requests = Requisition.select("requisition_id, initiated_by, initiated_on, workflow_state_id, requisition_type")
                              .where("initiated_by in (?) and approved_by is NULL and workflow_state_id in (?) and voided = ?", jnrs, by_s_r, false)
 
-      # raise @requests.inspect
+      @my_requisitions = Requisition.select("requisition_id, purpose, requisition_type, reviewed_by, approved_by").where("initiated_by = ?", current_user.employee_id)
+      # raise @my_requisitions.inspect
 
     else
       people = Employee.select(:employee_id, :person_id).where(still_employed: true)
