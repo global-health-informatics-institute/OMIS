@@ -6,6 +6,24 @@ class ApplicationController < ActionController::Base
         @current_user ||= session[:user_id] && User.find_by(user_id: session[:user_id])
     end
 
+    def possible_actions(current_state, is_owner, is_supervisor)
+        actions = []
+        allowed_transitions = WorkflowStateActor.where(employee_designation_id:
+                                                         current_user.employee.current_designations.collect{|x| x.id})
+                                                .collect{|x| x.workflow_state_transition}
+
+        #need to know possible actions, know things you are owner of, supervisor on, need your role
+
+        (WorkflowStateTransition.where(workflow_state_id: current_state) || []).each do |transition|
+            if (is_owner && transition.by_owner) or (!is_owner && allowed_transitions.include?(transition.id))
+                actions.append(transition.action)
+            elsif (is_supervisor && transition.by_supervisor) and !is_owner
+                actions.append(transition.action)
+            end
+        end
+
+        return  actions
+    end
     def current_timesheet
         unless @current_user.blank?
             return Timesheet.where(employee_id: @current_user.employee.id,
