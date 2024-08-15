@@ -1,5 +1,5 @@
 Workflow,State,NextState,Action,ByOwner,BySupervisor,Transitioners
-Timesheet,Pending Submission,Submitted,Submit,True,False,Product Developer;CAD-CAM Specialist;Software Developer;Training Officer;Administration Officer
+Timesheet,Pending Submission,Submitted,Submit Timesheet,True,False,Product Developer;CAD-CAM Specialist;Software Developer;Training Officer;Administration Officer
 Timesheet,Submitted,Recalled,Recall Timesheet,True,False,
 Timesheet,Submitted,Rejected,Reject Timesheet,False,True,Executive Director;Product Development Manager;Administration Manager
 Timesheet,Submitted,Approved,Approve Timesheet,False,True,Executive Director;Product Development Manager;Administration Manager
