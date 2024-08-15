@@ -158,7 +158,7 @@ class Employee < ApplicationRecord
         # requisition reviews
         actions += Requisition.select("requisition_id, initiated_by, initiated_on, requisition_type")
                               .where("initiated_by in (?) and approved_by is NULL and voided = ?",jnrs, false)
-                              .collect { |x| ["Review  #{x.requisition_type} requisition",
+                              .collect { |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
                                               "/requisitions/#{x.id}"]}
         return actions
     end
