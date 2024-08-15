@@ -6,7 +6,10 @@ class RequisitionsController < ApplicationController
   def show
     @requisition = Requisition.find(params[:id])
     is_owner = (@requisition.initiated_by == current_user.employee_id)
-    @possible_actions = WorkflowStateTransition.possible_actions(@requisition.workflow_state_id, current_user, is_owner)
+    is_supervisor = current_user.employee.current_supervisees.collect{|x| x.supervisee}.include?(@requisition.initiated_by)
+    @possible_actions = possible_actions(@requisition.workflow_state_id, is_owner, is_supervisor)
+
+    #@possible_actions = WorkflowStateTransition.possible_actions(@requisition.workflow_state_id, current_user, is_owner)
     @transition_state = WorkflowStateTransition.find_by(workflow_state_id: @requisition.workflow_state_id)
   end
 

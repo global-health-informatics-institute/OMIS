@@ -73,6 +73,9 @@ class Employee < ApplicationRecord
         return ProjectTeam.where(employee_id: self.employee_id, voided: false)
     end
 
+    def current_supervisors
+        people = Supervision.where(supervisee: self.employee_id, ended_on: nil)
+    end
     def current_supervisees
         people = Supervision.where(supervisor: self.employee_id, ended_on: nil)
     end
