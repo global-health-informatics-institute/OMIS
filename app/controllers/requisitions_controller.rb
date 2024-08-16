@@ -95,9 +95,33 @@ class RequisitionsController < ApplicationController
     redirect_to "/requisitions/#{params[:id]}"
   end
 
+  def release_funds
+    new_state = WorkflowState.where(state: 'Prepared',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
+    @requisition = Requisition.where(requisition_id: params[:id])
+                              .update(workflow_state_id: new_state.first.id)
+
+    redirect_to "/requisitions/#{params[:id]}"
+  end
   def rescind_request
-    @requisition = Requisition.find(params[:id]).update(voided: true)
-    redirect_to "#"
+    new_state = WorkflowState.where(state: 'Rescinded',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
+    @requisition = Requisition.find(params[:id]).update(voided: true, workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+  end
+
+  def reject_request
+    new_state = WorkflowState.where(state: 'Rejected',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+  end
+
+  def collect_funds
+    new_state = WorkflowState.where(state: 'Collected',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
+    @requisition = Requisition.find(params[:id]).update(collected: true, workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
   end
 
   def task_params
