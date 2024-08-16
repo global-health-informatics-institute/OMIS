@@ -28,7 +28,8 @@ Transport Request,Budget Approved,Rescinded,Rescind Request,True,False,Product D
 Petty Cash Request,Requested,Rescinded,Rescind Request,TRUE,FALSE,
 Petty Cash Request,Requested,Rejected,Reject Request,FALSE,TRUE,Product Development Manager;Administration Manager
 Petty Cash Request,Requested,Approved,Approve Request,FALSE,TRUE,Product Development Manager;Administration Manager
-Petty Cash Request,Approved,Finances Approved,Funds Available,FALSE,FALSE,Finance Officer;Administration Officer;Junior Administration Officer
-Petty Cash Request,Approved,Finances Rejected,Funds Unavailable,FALSE,FALSE,Finance Officer;Administration Officer;Junior Administration Officer
-Petty Cash Request,Finances Approved,Prepared,Release Funds,FALSE,FALSE,Finance Officer;Administration Officer;Junior Administration Officer
-Petty Cash Request,Prepared,Collected,Collect Funds,TRUE,FALSE,Product Developer;CAD-CAM Specialist;Software Developer;Training Officer;Administration Officer
+Petty Cash Request,Approved,Finances Approved,Approve Funds,FALSE,FALSE,Finance Officer,Administration Officer,Junior Administration Officer,,
+Petty Cash Request,Approved,Finances Rejected,Deny Funds,FALSE,FALSE,Finance Officer,Administration Officer,Junior Administration Officer,,
+Petty Cash Request,Finances Approved,Prepared,Release Funds,FALSE,FALSE,Finance Officer,Administration Officer,Junior Administration Officer,,
+Petty Cash Request,Prepared,Collected,Collect Funds,TRUE,FALSE,,,,,
+Petty Cash Request,Rejected,Rescinded,Rescind Request,TRUE,FALSE,,,,,

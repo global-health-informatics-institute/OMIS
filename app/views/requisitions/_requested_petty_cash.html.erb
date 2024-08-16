@@ -1,75 +1,56 @@
 <%= form_with model: @requisition, url: "/requisition_item/#{@requisition.id}" do |form| %>
-  <div class="row">
-    <div class="col col-md-9">
-      <h4>Petty Cash Request</h4>
-    </div>
-      <div class="col col-md-2">
-        <span class="fs-6 fw-bold">Status: </span> <%= @requisition.current_state %>
-         <%#=raise @current_requisition.current_state.inspect %>
+  <div class="row mt-3 p-2">
+    <div class="col p-2">
+      <div class="card">
+        <div class="card-header card-header-dark">
+          <div class="row">
+            <div class="col col-md-9">
+              <h5>Petty Cash Request</h5>
+            </div>
+            <div class="col col-md-2">
+              <span class="fw-bold fst-italic">Status:  <%= @requisition.current_state %></span>
+            </div>
+          </div>
+
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="row mt-3">
+              <div class="col-2 fw-normal">Initiated On</div>
+              <div class="col-2 fw-bold fst-italic"><%=  @requisition.initiated_on.strftime("%m/%d/%Y") %></div>
+              <div class="col-2 fw-normal">Initiated By</div>
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.user.full_name %></div>
+              <div class="col-1 fw-normal">Project</div>
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.project.short_name %></div>
+            </div>
+            <div class="row mt-4 mb-4">
+              <div class="col-2 fw-normal">Purpose</div>
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.purpose %></div>
+              <div class="col-2 fw-normal">Amount (MWK)</div>
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.amount %></div>
+            </div>
+            <div class="row mt-3 mb-3">
+              <div class="col-2 fw-normal">Authorized By</div>
+<!--              <div class="col-2 fw-bold fst-italic"><%#= @requisition.employee.person.full_name %></div>-->
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.reviewer rescue nil %></div>
+              <div class="col-2 fw-normal">Paid By</div>
+<!--              <div class="col-2 fw-bold fst-italic"><%#= @requisition.approved_by %></div>-->
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.approver  rescue nil%></div>
+              <div class="col-2 fw-normal">Liquidated By</div>
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.approver rescue nil%></div>
+            </div>
+          </div>
+        </div>
       </div>
-  </div>
 
-  <div class="row">
-    <div class="col-md-3 mb-3">
-      <%= form.label :initiated_on %>
-      <%= form.text_field :initiated_on, value: @requisition.initiated_on.strftime("%m/%d/%Y"),  class: 'form-control', required: true %>
-    </div>
-    <div class="col-md-3 mb-3">
-      <%= form.label :requested_by %>
-      <%= form.text_field :requested_by, value: @requisition.user.full_name,  class: 'form-control', required: true %>
-    </div>
-    <div class="col-md-3 mb-3">
-      <div>
-        Project
-      </div>
-      <div>
-        <%#= form.select :project_id, options_for_select(@project_options, (@selected_project.id rescue nil)),-->
-                        prompt:(@selected_project.full_name rescue params[:"prj"]),-->
-                        :class => 'form-control', required: true %>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="row">
-    <div class="col-md-6 mb-4">
-      <%= form.label :purpose %>
-      <%= form.text_field :purpose, value: @requisition.purpose, class: 'form-control', required: true %>
-    </div>
-    <div class="col-md-3 mb-4">
-      <%= form.label :amount%>
-      <%= form.text_field :amount, value: @requisition.amount, class: 'form-control',required: true %>
+      <hr>
+      <%= form.hidden_field :requisition_type, value: "Petty Cash"%>
+      <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
+      <% (@possible_actions || []).each do |action| %>
+        <% path = "/requisitions/#{ @requisition.id}/#{action.parameterize(separator: '_')}" %>
+        <%= link_to action, path , class: "btn btn-info",method: :put,
+                    data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action.split(" ")[0]} this request?" } %>
+      <% end %>
     </div>
   </div>
-
-  <div class="row">
-    <div class="col-md-4 mb-2">
-      <%= form.label :authorized_by %>
-      <%= form.text_field :authorized_by, class: 'form-control', readonly: true %>
-      <br/>
-      <span class="mt-2">16 -Nov 2023 12:56 PM</span>
-
-    </div>
-    <div class="col-md-4 mb-2">
-      <%= form.label :paid_by %>
-      <%= form.text_field :paid_by, class: 'form-control', readonly: true %>
-      <br/>
-      <span class="mt-2">16 -Nov 2023 12:56 PM</span>
-    </div>
-    <div class="col-md-4 mb-2">
-      <%= form.label :liquidated_by %>
-      <%= form.text_field :liquidated_by, class: 'form-control', readonly: true %>
-      <br/>
-      <span class="mt-2">16 -Nov 2023 12:56 PM</span>
-    </div>
-  </div>
-
-  <hr>
-  <%= form.hidden_field :requisition_type, value: "Petty Cash"%>
-  <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
-  <% (@possible_actions || []).each do |action| %>
-  <% path = "/requisitions/#{ @requisition.id}/#{action.parameterize(separator: '_')}" %>
-      <%= link_to action, path , class: "btn btn-info",method: :put,
-                data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action.split(" ")[0]} this request?" } %>
-  <% end %>
 <% end %>
