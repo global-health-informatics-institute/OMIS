@@ -1,8 +1,8 @@
 <h4 class="modal-title">Leave Request</h4>
 <hr>
 
-<%= form_with model: @requisition, url: '/requisitions/create' do |form| %>
-<div class="row">
+<%= form_with model: @leave_request, url: leave_requests_path do |form| %>
+<div class="row ps-lg-3">
   <div class = "card m-1 col-6">
     <div class="row mt-6">
       <div class="col-4 mt-3">
@@ -12,7 +12,14 @@
         <%= select_tag(:request_type, options_for_select(leave_types), class: "form-select") %>
       </div>
     </div>
-  
+    <div class="row mt-6">
+      <div class="col-4 mt-3">
+        Select Stand-In
+      </div>
+      <div class="col-6 mt-3 mb-4">
+        <%= select_tag(:stand_in, options_for_select(@employees), class: "form-select") %>
+      </div>
+    </div>
     <div class="row mt-6">
       <div class="col-4">
         Start Date and Time
