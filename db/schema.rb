@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_07_30_071915) do
+ActiveRecord::Schema[7.0].define(version: 2024_08_16_090805) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -165,6 +165,21 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_30_071915) do
     t.integer "created_by", null: false
     t.integer "voided_by"
     t.boolean "voided", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "leave_requests", primary_key: "leave_request_id", force: :cascade do |t|
+    t.string "leave_type", null: false
+    t.integer "employee_id", null: false
+    t.datetime "start_on", null: false
+    t.datetime "end_on", null: false
+    t.integer "stand_in", null: false
+    t.boolean "reviewed_by"
+    t.boolean "reviewed_on"
+    t.boolean "approved_by"
+    t.boolean "approved_on"
+    t.integer "status", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
