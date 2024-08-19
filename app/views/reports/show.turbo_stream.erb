@@ -12,6 +12,8 @@
     <%= render partial: "token_requests_summary", locals: {selected_report: @selected_report} %>
   <% elsif @selected_report == 'Leave days' %>
     <%= render partial: "leave_days_summary", locals: {selected_report: @selected_report} %>
+  <% elsif @selected_report == 'Petty Cash' %>
+    <%= render partial: "petty_cash_report", locals: {selected_report: @selected_report} %>
   <% end %>
 <% end %>
 

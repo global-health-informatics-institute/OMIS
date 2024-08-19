@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   resources :branches
   resources :employees
   resources :timesheets
+  resources :leave_requests
   resources :inventory_items
   resources :inventory_item_categories
   resources :inventory_item_thresholds

@@ -28,3 +28,8 @@ Petty Cash Request,Rejected,State where supervisor has rejected the request for 
 Petty Cash Request,Finances Rejected,State where finance team has rejected request due to insufficient funds,FALSE
 Petty Cash Request,Prepared,State where petty cash is ready for collection,FALSE
 Petty Cash Request,Collected,State where petty cash has been collected,FALSE
+Leave Request,Requested,Initial State for leave requests,TRUE
+Leave Request,Approved,Leave request approved by supervisor and can be taken,FALSE
+Leave Request,Rejected,Leave rejected by supervisor,FALSE
+Leave Request,Rescinded,Leave Request rescinded,FALSE
+Leave Request,Canceled,Leave request canceled by supervisor,FALSE
