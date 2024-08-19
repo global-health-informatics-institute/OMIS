@@ -152,12 +152,13 @@ class Employee < ApplicationRecord
                             .collect{|x| ["Review #{x.employee.person.first_name}\'s #{x.timesheet_week.strftime('%d %b, %Y')} timesheet",
                                           "/timesheets/#{x.id}"]}
 
+=begin
         # self requisitions
         actions += Requisition.select("requisition_id, purpose, requisition_type, reviewed_by, approved_by")
                               .where("initiated_by = ? and voided = ? and collected = ?", self.id, false, false)
                               .collect{|x| ["Check #{x.requisition_type} request for #{x.purpose}",
                                             "/requisitions/#{x.id}"]}
-
+=end
         # requisition reviews
         actions += Requisition.select("requisition_id, initiated_by, initiated_on, requisition_type")
                               .where("initiated_by in (?) and reviewed_by is NULL and voided = ?",jnrs, false)
