@@ -43,7 +43,8 @@ class RequisitionsController < ApplicationController
 
       @compassionate_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id,
       leave_type: "Compassionate Leave", financial_year: Date.today.year).first_or_create(leave_days_balance: 0.0, leave_days_total: 0.0)
-      @employees = Employee.where(still_employed: true).collect{|x| x.person.full_name} - [current_user.employee.person.full_name]
+      @employees = Employee.where(still_employed: true)
+                           .collect{|x| [x.person.full_name, x.employee_id]} - [[current_user.employee.person.full_name, current_user.employee_id]]
     end
   end
 
