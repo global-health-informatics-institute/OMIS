@@ -377,7 +377,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_16_085558) do
     t.datetime "updated_at", null: false
     t.string "action", null: false
     t.boolean "by_owner", default: false
-    t.boolean "by_supervisor"
+    t.boolean "by_supervisor", default: false
   end
 
   create_table "workflow_states", primary_key: "workflow_state_id", force: :cascade do |t|

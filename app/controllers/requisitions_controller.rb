@@ -8,6 +8,7 @@ class RequisitionsController < ApplicationController
     is_owner = (@requisition.initiated_by == current_user.employee_id)
     is_supervisor = current_user.employee.current_supervisees.collect{|x| x.supervisee}.include?(@requisition.initiated_by)
     @possible_actions = possible_actions(@requisition.workflow_state_id, is_owner, is_supervisor)
+    # raise @possible_actions.inspect
 
     #@possible_actions = WorkflowStateTransition.possible_actions(@requisition.workflow_state_id, current_user, is_owner)
     @transition_state = WorkflowStateTransition.find_by(workflow_state_id: @requisition.workflow_state_id)
@@ -88,9 +89,9 @@ class RequisitionsController < ApplicationController
     redirect_to "/requisitions/#{params[:id]}"
   end
 
-  def funds_available
+  def approve_funds
     # raise @transition_state.inspect
-    new_state = WorkflowState.where(state: 'Finances Approved',
+    new_state = WorkflowState.where(state: 'Funds Approved',
                                     workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
     @requisition = Requisition.where(requisition_id: params[:id])
                               .update(approved_by: current_user.user_id, workflow_state_id: new_state.first.id)
