@@ -1,9 +1,9 @@
 <h4 class="modal-title">Leave Request</h4>
 <hr>
 
-<%= form_with model: @leave_request, url: leave_requests_path do |form| %>
 <div class="row ps-lg-3">
   <div class = "card m-1 col-6">
+    <%= form_with model: @leave_request, url: leave_requests_path do |form| %>
     <div class="row mt-6">
       <div class="col-4 mt-3">
         Select Leave Type
@@ -40,10 +40,12 @@
       </div>
       <hr>
       <div class="col-6 mb-2">
+        <%= form.hidden_field :requester, value: current_user.employee_id %>
         <%= form.submit "Submit Request", class: "btn btn-success btn-block" %>
         <button class="btn btn-danger">Cancel</button>
       </div>
     </div>
+    <% end %>
   </div>
   <div class = "card m-1 col-5">
     <div class="col">
@@ -55,17 +57,17 @@
         </thead>
         <tbody>
             <tr>
-                <td><%= form.label :Annual_leave%></td>        
+                <td>Annual_leave</td>
                 <td><%= @annual_leave_bal.leave_days_total.floor(2) %></td>
                 <td><%= @annual_leave_bal.leave_days_balance.floor(2) %></td>
             </tr>
             <tr>
-                <td><%= form.label :Sick_leave%></td>        
+                <td>Sick_leave</td>
                 <td><%= @sick_leave_bal.leave_days_total.floor(2) %></td>
                 <td><%= @sick_leave_bal.leave_days_balance.floor(2) %></td>
             </tr>
             <tr>
-                <td><%= form.label :Compassionate%></td>        
+                <td>Compassionate Leave</td>
                 <td><%= @compassionate_leave_bal.leave_days_total.floor(2) %></td>
                 <td><%= @compassionate_leave_bal.leave_days_balance.floor(2) %></td>
             </tr>
@@ -74,4 +76,3 @@
     </div>
   </div>
 </div>
-<% end %>
