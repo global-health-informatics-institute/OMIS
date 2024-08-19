@@ -96,17 +96,14 @@ class Employee < ApplicationRecord
                                                       start_date, end_date, timesheets).sum('duration')
         weekdays_count = (start_date..end_date).count { |date| (1..5).include?(date.wday) }
         working_hours = GlobalProperty.find_by_property("number.of.hours").property_value.to_f
-        compensatory_hours = TimesheetTask.where('project_id = ? AND task_date between ? and ? and timesheet_id in (?)',
-                                                 Project.find_by_short_name("Compensatory Leave").project_id,
-                                                 start_date, end_date, timesheets).sum('duration')
+
         total_expected_hours = weekdays_count * working_hours
-        total_extra_hours = (total_hours_worked - total_expected_hours)
+        total_extra_hours = total_hours_worked - total_expected_hours
         if total_extra_hours.positive?
-            overtime_hours = total_extra_hours - compensatory_hours
+            overtime_hours = total_extra_hours
         else
             overtime_hours = 0.0
         end
-        # raise overtime_hours.to_i.inspect
         return overtime_hours
     end
 
@@ -155,34 +152,24 @@ class Employee < ApplicationRecord
                             .collect{|x| ["Review #{x.employee.person.first_name}\'s #{x.timesheet_week.strftime('%d %b, %Y')} timesheet",
                                           "/timesheets/#{x.id}"]}
 
-        allowed_transitions = WorkflowStateActor.where(employee_designation_id:
-                                                         self.current_designations.collect{|x| x.id})
-                                                .collect{|x| x.workflow_state_transition}
-
-        # (WorkflowStateTransition.select("workflow_state_id") || []).each do |transition|
-        #     if ()
-        # end
-        actions += Requisition.where("workflow_state_id in (?) or initiated_by = ? or initiated_by in (?)", allowed_transitions, self.id, jnrs)
-                              .collect{ |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
-                                             "/requisitions/#{x.id}"]}
-        # raise actions.inspect
+=begin
         # self requisitions
-        # actions += Requisition.select("requisition_id, purpose, requisition_type, reviewed_by, approved_by")
-        #                       .where("initiated_by = ? and voided = ? and collected = ?", self.id, false, false)
-        #                       .collect{|x| ["Check #{x.requisition_type} request for #{x.purpose}",
-        #                                     "/requisitions/#{x.id}"]}
-        #
-        # # requisition reviews
-        # actions += Requisition.select("requisition_id, initiated_by, initiated_on, requisition_type")
-        #                       .where("initiated_by in (?) and reviewed_by is NULL and voided = ?",jnrs, false)
-        #                       .collect { |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
-        #                                       "/requisitions/#{x.id}"]}
-        #
-        # # requisition finance reviews
-        # actions += Requisition.select("requisition_id, initiated_by, initiated_on, requisition_type")
-        #                       .where("initiated_by not in(?) and reviewed_by is NOT NULL and reviewed_by not in (?) and approved_by is NULL and voided = ?",self.id, self.id, false)
-        #                       .collect{ |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
-        #                                      "/requisitions/#{x.id}" ] }
+        actions += Requisition.select("requisition_id, purpose, requisition_type, reviewed_by, approved_by")
+                              .where("initiated_by = ? and voided = ? and collected = ?", self.id, false, false)
+                              .collect{|x| ["Check #{x.requisition_type} request for #{x.purpose}",
+                                            "/requisitions/#{x.id}"]}
+=end
+        # requisition reviews
+        actions += Requisition.select("requisition_id, initiated_by, initiated_on, requisition_type")
+                              .where("initiated_by in (?) and reviewed_by is NULL and voided = ?",jnrs, false)
+                              .collect { |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
+                                              "/requisitions/#{x.id}"]}
+
+        # requisition finance reviews
+        actions += Requisition.select("requisition_id, initiated_by, initiated_on, requisition_type")
+                              .where("initiated_by not in(?) and reviewed_by is NOT NULL and reviewed_by not in (?) and approved_by is NULL and voided = ?",self.id, self.id, false)
+                              .collect{ |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
+                                             "/requisitions/#{x.id}" ] }
 
         return actions
     end

@@ -10,8 +10,6 @@ class RequisitionsController < ApplicationController
     @possible_actions = possible_actions(@requisition.workflow_state_id, is_owner, is_supervisor)
     # raise @possible_actions.inspect
 
-    #@possible_actions = WorkflowStateTransition.possible_actions(@requisition.workflow_state_id, current_user, is_owner)
-    @transition_state = WorkflowStateTransition.find_by(workflow_state_id: @requisition.workflow_state_id)
   end
 
   def new
@@ -46,7 +44,8 @@ class RequisitionsController < ApplicationController
 
       @compassionate_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id,
       leave_type: "Compassionate Leave", financial_year: Date.today.year).first_or_create(leave_days_balance: 0.0, leave_days_total: 0.0)
-
+      @employees = Employee.where(still_employed: true)
+                           .collect{|x| [x.person.full_name, x.employee_id]} - [[current_user.employee.person.full_name, current_user.employee_id]]
     end
   end
 
@@ -72,7 +71,6 @@ class RequisitionsController < ApplicationController
     else
       flash[:error] = "Request failed"
     end
-
   end
 
   def edit

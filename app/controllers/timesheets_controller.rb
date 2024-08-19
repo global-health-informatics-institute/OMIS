@@ -12,6 +12,7 @@ class TimesheetsController < ApplicationController
   def edit
   end
   def update
+
   end
   def destroy
   end
@@ -24,9 +25,8 @@ class TimesheetsController < ApplicationController
     end
 
     is_owner = (@timesheet.employee_id == current_user.employee_id)
-    @possible_actions = WorkflowStateTransition.possible_actions(@timesheet.state, current_user, is_owner)
-
-    @transition_state = WorkflowStateTransition.find_by(workflow_state_id: @timesheet.state)
+    is_supervisor = current_user.employee.current_supervisees.collect{|x| x.supervisee}.include?(@timesheet.employee_id)
+    @possible_actions = possible_actions(@timesheet.state, is_owner, is_supervisor)
 
     @person = Employee.find(@timesheet.employee_id)
 
@@ -59,23 +59,31 @@ class TimesheetsController < ApplicationController
   end
 
   def submit_timesheet
-    @timesheet = Timesheet.find(params[:id]).update(submitted_on: Time.now(), state: @transition_state.next_state)
+    next_state = WorkflowState.where(state: 'Submitted',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Timesheet").id).first
+    @timesheet = Timesheet.find(params[:id]).update(submitted_on: Time.now(), state: next_state.id)
     redirect_to "/time_sheets/#{params[:id]}"
   end
 
   def approve_timesheet
+    next_state = WorkflowState.where(state: 'Approved',
+                                     workflow_process_id: WorkflowProcess.find_by_workflow("Timesheet").id).first
     @timesheet = Timesheet.find(params[:id]).update(approved_on: Time.now(), approved_by: current_user.user_id,
-                                                    state: @transition_state.next_state)
+                                                    state: next_state.id)
     redirect_to "/time_sheets/#{params[:id]}"
   end
 
   def recall_timesheet
-    @timesheet = Timesheet.find(params[:id]).update(submitted_on: nil, state: @transition_state.next_state)
+    next_state = WorkflowState.where(state: 'Recalled',
+                                     workflow_process_id: WorkflowProcess.find_by_workflow("Timesheet").id).first
+    @timesheet = Timesheet.find(params[:id]).update(submitted_on: nil, state: next_state.id)
     redirect_to "/time_sheets/#{params[:id]}"
   end
 
   def resubmit_timesheet
-    @timesheet = Timesheet.find(params[:id]).update(submitted_on: Time.now(), state: @transition_state.next_state)
+    next_state = WorkflowState.where(state: 'Re-submitted',
+                                     workflow_process_id: WorkflowProcess.find_by_workflow("Timesheet").id).first
+    @timesheet = Timesheet.find(params[:id]).update(submitted_on: Time.now(), state: next_state.id)
     redirect_to "/time_sheets/#{params[:id]}"
   end
 end

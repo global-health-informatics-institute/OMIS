@@ -79,4 +79,8 @@ class MainController < ApplicationController
 
   def about
   end
+
+  def leave_dashboard
+
+  end
 end

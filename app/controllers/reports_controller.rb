@@ -24,6 +24,8 @@ class ReportsController < ApplicationController
       token_requests
     when 'Leave days'
       leave_days
+    when 'Petty Cash'
+      petty_cash_report
     end
   end
 
@@ -40,6 +42,8 @@ class ReportsController < ApplicationController
   def assets_report; end
 
   def hr_report; end
+
+  def petty_cash_report; end
 
   def project_progress_report; end
 
