@@ -92,15 +92,19 @@ class Employee < ApplicationRecord
 
     def compensatory_leave(start_date = 6.weeks.ago.to_date, end_date = Date.today)
         timesheets = Timesheet.select('timesheet_id').where("employee_id = ?", self.employee_id).collect { |x| x.timesheet_id }
-        total_hours_worked = TimesheetTask.where('task_date between ? and ? and timesheet_id in (?)',
-                                                      start_date, end_date, timesheets).sum('duration')
+        total_hours_worked = TimesheetTask.where('task_date between ? and ? and timesheet_id in (?) and project_id not in (?)',
+                                                 start_date, end_date, timesheets,
+                                                 Project.find_by_short_name("Compensatory Leave").project_id)
+                                          .sum('duration').to_f
         weekdays_count = (start_date..end_date).count { |date| (1..5).include?(date.wday) }
         working_hours = GlobalProperty.find_by_property("number.of.hours").property_value.to_f
-
+        compensatory_hours = TimesheetTask.where('project_id = ? AND task_date between ? and ? and timesheet_id in (?)',
+                                                 Project.find_by_short_name("Compensatory Leave").project_id,
+                                                 start_date, end_date, timesheets).sum('duration').to_f
         total_expected_hours = weekdays_count * working_hours
         total_extra_hours = total_hours_worked - total_expected_hours
         if total_extra_hours.positive?
-            overtime_hours = total_extra_hours
+            overtime_hours = total_extra_hours - compensatory_hours
         else
             overtime_hours = 0.0
         end

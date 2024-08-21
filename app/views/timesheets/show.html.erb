@@ -130,7 +130,7 @@
     </tbody>
     <tfoot>
     <th colspan="2">Total</th>
-    <% (0..6).each do |day| %>
+    <% [7,1,2,3,4,5,6].each do |day| %>
       <th><%= week_total[day] %></th>
     <% end %>
     <th><%= week_total.values.sum %></th>
