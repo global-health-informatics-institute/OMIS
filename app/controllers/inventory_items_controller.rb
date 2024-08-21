@@ -30,12 +30,12 @@ class InventoryItemsController < ApplicationController
   end
 
   def index
-    @inventory_items = InventoryItem.find_by_sql("SELECT * from inventory_items as ii inner join (select
-                      inventory_item_type_id, inventory_item_category_id, item_name from
-                      inventory_item_types) as iit on ii.item_type_id = iit.inventory_item_type_id
-                      inner join (select inventory_item_category_id, category from inventory_item_categories)
-                      as iic on iit.inventory_item_category_id = iic.inventory_item_category_id")
-
+    @inventory_items = InventoryItem.joins("INNER JOIN inventory_item_types iit ON inventory_items.item_type_id
+                                            = iit.inventory_item_type_id INNER JOIN inventory_item_categories iic
+                                            ON iit.inventory_item_category_id = iic.inventory_item_category_id")
+                                    .select("inventory_items.*, iit.item_name, iic.category")
+                                    .where(voided: false)
+    # raise @inventory_items.inspect
     (@inventory_items || []).each do |item|
       @item = item
     end
@@ -59,18 +59,30 @@ class InventoryItemsController < ApplicationController
     end
     @total_low_stock = @threshold_data.size
     @total_stock = @inventory_items.sum { |item| (item.quantity || 0).abs }
+  end
 
+  def show
+    @inventory_item = InventoryItem.find(params[:id])
+    @inventory_items = InventoryItem.joins("INNER JOIN inventory_item_types iit ON inventory_items.item_type_id
+                                            = iit.inventory_item_type_id INNER JOIN inventory_item_categories iic
+                                            ON iit.inventory_item_category_id = iic.inventory_item_category_id")
+                                    .select("inventory_items.*, iit.item_name, iic.category")
+                                    .where(voided: false)
+    (@inventory_items || []).each do |item|
+      @item = item
+    end
+    # raise @item.inspect
+    @inventory_item_type = InventoryItemType.where(inventory_item_type_id: @inventory_item.item_type_id).all.collect {
+      |t| [t.item_name, t.manufacturer, t.inventory_item_category_id] }.first
+    #raise @inventory_item_type[1].inspect
     respond_to do |format|
       format.html
       format.lbl do
         content = generate_inventory_label_content(@item)
+        # raise content.inspect
         send_data content, filename: "inventory_label.lbl", type: 'application/lbl'
       end
     end
-  end
-
-  def show
-    
   end
 
   def edit
@@ -79,9 +91,8 @@ class InventoryItemsController < ApplicationController
       |t| [t.item_name, t.manufacturer, t.inventory_item_category_id] }.first
     @category_options = InventoryItemCategory.all.collect{ |c| c.category}
     @inventory_item_categories = InventoryItemCategory.where(inventory_item_category_id: @inventory_item_type[2])
-                                                    .all.collect{ |c| c.category}
-                                                    .first
-
+                                                      .all.collect{ |c| c.category}
+                                                      .first
   end
 
   def update
@@ -101,7 +112,7 @@ class InventoryItemsController < ApplicationController
       supplier: item_params[:supplier],
       unit_price: item_params[:unit_price],
       storage_location: item_params[:storage_location],
-      created_by: current_user.employee_id
+      created_by: current_user.employee_id,
     )
       flash[:notice] = "Successfully updated inventory item"
       redirect_to "/inventory_items"
@@ -112,7 +123,17 @@ class InventoryItemsController < ApplicationController
   end
 
   def destroy
-
+    @inventory_item = InventoryItem.find(params[:id])
+    if @inventory_item.update(
+      voided: true,
+      voided_by: current_user.employee_id
+    )
+      flash[:alert] = "Successfully deleted inventory item"
+      redirect_to "/inventory_items"
+    else
+      flash[:alert] = "Error deleting inventory item"
+      redirect_to "/inventory_items"
+    end
   end
 
   def generate_inventory_label_content(inventory_item)
