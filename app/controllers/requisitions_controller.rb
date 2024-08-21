@@ -89,7 +89,7 @@ class RequisitionsController < ApplicationController
 
   def approve_funds
     # raise @transition_state.inspect
-    new_state = WorkflowState.where(state: 'Funds Approved',
+    new_state = WorkflowState.where(state: 'Finances Approved',
                                     workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
     @requisition = Requisition.where(requisition_id: params[:id])
                               .update(approved_by: current_user.user_id, workflow_state_id: new_state.first.id)
