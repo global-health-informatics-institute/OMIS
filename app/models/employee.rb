@@ -156,25 +156,29 @@ class Employee < ApplicationRecord
                             .collect{|x| ["Review #{x.employee.person.first_name}\'s #{x.timesheet_week.strftime('%d %b, %Y')} timesheet",
                                           "/timesheets/#{x.id}"]}
 
-=begin
-        # self requisitions
-        actions += Requisition.select("requisition_id, purpose, requisition_type, reviewed_by, approved_by")
-                              .where("initiated_by = ? and voided = ? and collected = ?", self.id, false, false)
-                              .collect{|x| ["Check #{x.requisition_type} request for #{x.purpose}",
-                                            "/requisitions/#{x.id}"]}
-=end
-        # requisition reviews
-        actions += Requisition.select("requisition_id, initiated_by, initiated_on, requisition_type")
-                              .where("initiated_by in (?) and reviewed_by is NULL and voided = ?",jnrs, false)
-                              .collect { |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
-                                              "/requisitions/#{x.id}"]}
+        allowed_transitions = WorkflowStateActor.where(employee_designation_id:
+                                                         self.current_designations.collect{|x| x.id})
+                                                .collect{|x| x.workflow_state_transition}
 
         # requisition finance reviews
-        actions += Requisition.select("requisition_id, initiated_by, initiated_on, requisition_type")
-                              .where("initiated_by not in(?) and reviewed_by is NOT NULL and reviewed_by not in (?) and approved_by is NULL and voided = ?",self.id, self.id, false)
+        actions += Requisition.where("workflow_state_id in (?)", WorkflowStateTransition
+                              .where("workflow_state_id in (?) and by_owner = ? and by_supervisor = ?",allowed_transitions, false, false)
+                              .collect{|x| x.workflow_state_id})
                               .collect{ |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
-                                             "/requisitions/#{x.id}" ] }
+                                             "/requisitions/#{x.id}"]}
 
+        # self requisitions
+        actions += Requisition.where("workflow_state_id in (?) and initiated_by in (?)", WorkflowStateTransition
+                              .where(by_owner: true).collect{|x| x.workflow_state_id} , self.id )
+                              .collect{|x| ["Check #{x.requisition_type} request for #{x.purpose}",
+                                            "/requisitions/#{x.id}"]}
+
+        # requisition reviews
+        actions += Requisition.where("workflow_state_id in (?) and initiated_by in (?)", WorkflowStateTransition
+                              .where(by_supervisor: true).collect{|x| x.workflow_state_id} , self.id )
+                              .collect { |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
+                                              "/requisitions/#{x.id}"]}
+        # raise allowed_transitions.inspect
         return actions
     end
 end
