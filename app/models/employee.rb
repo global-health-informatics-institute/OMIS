@@ -174,7 +174,7 @@ class Employee < ApplicationRecord
                                             "/requisitions/#{x.id}"]}
 
         # requisition reviews
-        actions += Requisition.where("workflow_state_id in (?) and initiated_by in (?)", WorkflowStateTransition
+        actions += Requisition.where("workflow_state_id in (?) and initiated_by not in (?)", WorkflowStateTransition
                               .where(by_supervisor: true).collect{|x| x.workflow_state_id} , self.id )
                               .collect { |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
                                               "/requisitions/#{x.id}"]}
