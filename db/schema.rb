@@ -366,7 +366,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_16_090805) do
   end
 
   create_table "workflow_state_actors", force: :cascade do |t|
-    t.integer "workflow_state_transition"
+    t.integer "workflow_state_transition_id"
     t.integer "employee_designation_id", null: false
     t.boolean "voided", default: false
     t.datetime "created_at", null: false
