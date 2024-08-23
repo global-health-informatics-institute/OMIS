@@ -136,7 +136,14 @@ class Employee < ApplicationRecord
     end
 
     def pending_actions
+        # this function is for getting things that a person should act on
         actions = []
+
+        # Get things that I need to do routinely as an employee
+
+        # Get things that need my approval or review as a supervisor
+        supervisor_transitions = WorkflowStateActor.where(by_supervisor: true)
+        # Get things that need my approval or review based on my role
 
         # outstanding timesheets
         actions += Timesheet.select("timesheet_id, employee_id, timesheet_week")

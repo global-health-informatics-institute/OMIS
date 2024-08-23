@@ -176,7 +176,7 @@ CSV.foreach("#{source}/workflow_state_transitions.csv",:headers=>:true) do |row|
 
   if !row[6].blank?
     (row[6].split(';')).each do |transitioner|
-      WorkflowStateActor.create(workflow_state_transition: wft.id,
+      WorkflowStateActor.create(workflow_state_transition_id: wft.id,
                                 employee_designation_id: Designation.find_by_designated_role(transitioner).id)
     end
   end
