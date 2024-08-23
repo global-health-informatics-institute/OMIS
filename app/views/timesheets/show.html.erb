@@ -94,7 +94,7 @@
                   <div class="me-0" style = "display: inline-block">
                   <%= entries[day].blank? ? '-' : entries[day][:duration] %>
                   </div>
-                  <% if (@timesheet.status == "Pending Submit") || (@timesheet.status == "Recalled") && (@timesheet.employee_id == current_user.employee_id) %>
+                  <% if (@timesheet.status == "Pending Submission") || (@timesheet.status == "Recalled") && (@timesheet.employee_id == current_user.employee_id) %>
                   <div class="dropdown" style="display: inline-block; padding:0;">
                   <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="editDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                   </button>
@@ -130,7 +130,7 @@
     </tbody>
     <tfoot>
     <th colspan="2">Total</th>
-    <% (0..6).each do |day| %>
+    <% [7,1,2,3,4,5,6].each do |day| %>
       <th><%= week_total[day] %></th>
     <% end %>
     <th><%= week_total.values.sum %></th>

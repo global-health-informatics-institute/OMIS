@@ -21,7 +21,7 @@ class ApplicationController < ActionController::Base
                 actions.append(transition.action)
             end
         end
-
+        # raise allowed_transitions.inspect
         return  actions
     end
     def current_timesheet
