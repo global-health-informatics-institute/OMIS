@@ -80,7 +80,8 @@ class Employee < ApplicationRecord
         people = Supervision.where(supervisor: self.employee_id, ended_on: nil)
     end
 
-    def used_leave_days (leave_days_start_date = Date.today.beginning_of_month, end_date = Date.today, leave_type: 'Annual Leave')
+    def used_leave_days (leave_days_start_date = Date.today.beginning_of_month, end_date = Date.today,
+                         leave_type: 'Annual Leave')
         timesheets = Timesheet.select('timesheet_id').where("employee_id = ?", self.employee_id)
         leave_records = TimesheetTask.where('project_id = ? AND task_date between ? and ? and timesheet_id in (?)',
                                             Project.find_by_short_name(leave_type).project_id,
@@ -91,9 +92,10 @@ class Employee < ApplicationRecord
     end
 
     def compensatory_leave(start_date = 6.weeks.ago.to_date, end_date = Date.today)
-        timesheets = Timesheet.select('timesheet_id').where("employee_id = ?", self.employee_id).collect { |x| x.timesheet_id }
-        total_hours_worked = TimesheetTask.where('task_date between ? and ? and timesheet_id in (?) and project_id not in (?)',
-                                                 start_date, end_date, timesheets,
+        timesheets = Timesheet.select('timesheet_id').where("employee_id = ?", self.employee_id)
+                              .collect { |x| x.timesheet_id }
+        total_hours_worked = TimesheetTask.where('task_date between ? and ? and timesheet_id in (?) and
+                                                 project_id not in (?)', start_date, end_date, timesheets,
                                                  Project.find_by_short_name("Compensatory Leave").project_id)
                                           .sum('duration').to_f
         weekdays_count = (start_date..end_date).count { |date| (1..5).include?(date.wday) }
@@ -109,6 +111,16 @@ class Employee < ApplicationRecord
             overtime_hours = 0.0
         end
         return overtime_hours
+    end
+
+    def paternity_leave(leave_days_start_date = Date.today.beginning_of_month, end_date = Date.today,
+                        leave_type: 'Paternity Leave')
+        timesheets = Timesheet.select('timesheet_id').where("employee_id = ?", self.employee_id)
+        leave_records = TimesheetTask.where('project_id = ? AND task_date between ? and ? and timesheet_id in (?)',
+                                            Project.find_by_short_name(leave_type).project_id,
+                                            leave_days_start_date, end_date, timesheets).sum("duration")
+        # raise leave_records.inspect
+        return leave_records
     end
 
     def loe (start_date = Date.today.beginning_of_month, end_date = Date.today.end_of_month)
@@ -165,12 +177,10 @@ class Employee < ApplicationRecord
 
         allowed_transitions = WorkflowStateActor.where(employee_designation_id:
                                                          self.current_designations.collect{|x| x.id})
-                                                .collect{|x| x.workflow_state_transition}
+                                                .collect{|x| x.workflow_state_transition_id}
 
         # requisition finance reviews
-        actions += Requisition.where("workflow_state_id in (?)", WorkflowStateTransition
-                              .where("workflow_state_id in (?) and by_owner = ? and by_supervisor = ?",allowed_transitions, false, false)
-                              .collect{|x| x.workflow_state_id})
+        actions += Requisition.where("workflow_state_id in (?)" ,allowed_transitions)
                               .collect{ |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
                                              "/requisitions/#{x.id}"]}
 

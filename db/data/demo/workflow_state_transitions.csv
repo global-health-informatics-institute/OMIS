@@ -31,8 +31,8 @@ Petty Cash Request,Requested,Approved,Approve Request,FALSE,TRUE,Product Develop
 Petty Cash Request,Approved,Finances Approved,Approve Funds,FALSE,FALSE,Finance Officer;Administration Officer;Junior Administration Officer
 Petty Cash Request,Approved,Finances Rejected,Deny Funds,FALSE,FALSE,Finance Officer;Administration Officer;Junior Administration Officer
 Petty Cash Request,Finances Approved,Prepared,Release Funds,FALSE,FALSE,Finance Officer;Administration Officer;Junior Administration Officer
-Petty Cash Request,Prepared,Collected,Collect Funds,TRUE,FALSE,Finance Officer;Administration Officer;Junior Administration Officer
-Petty Cash Request,Rejected,Rescinded,Rescind Request,TRUE,FALSE,Finance Officer;Administration Officer;Junior Administration Officer
+Petty Cash Request,Prepared,Collected,Collect Funds,TRUE,FALSE,
+Petty Cash Request,Rejected,Rescinded,Rescind Request,TRUE,FALSE,
 Leave Request,Requested,Approved,Approve Leave,FALSE,TRUE,
 Leave Request,Requested,Rejected,Deny Leave,FALSE,TRUE,
 Leave Request,Requested,Rescinded,Rescind Request,TRUE,FALSE,

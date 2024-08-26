@@ -5,28 +5,28 @@
     <div class="col-3">
       <div class="card h-100">
         <div class="card-body">
-          <p class="card-text">Remaining Annual Days <span class="badge bg-secondary">4</span></p>
+          <p class="card-text">Remaining Annual Leave Days<span class="badge bg-secondary"><%= @remaining_leave_days %></span></p>
         </div>
       </div>
     </div>
     <div class="col-3">
       <div class="card h-100">
         <div class="card-body">
-          <p class="card-text">Remaining Annual Days <span class="badge bg-secondary">4</span></p>
+          <p class="card-text">Remaining Compens. Days <span class="badge bg-secondary"><%= (@remaining_comp_days/7.5).to_i %></span></p>
         </div>
       </div>
     </div>
     <div class="col-3">
       <div class="card h-100">
         <div class="card-body">
-          <p class="card-text">Remaining Annual Days <span class="badge bg-secondary">4</span></p>
+          <p class="card-text">Remaining Pat./Mat. Days <span class="badge bg-secondary"><%= (@remaining_parent_leave/7.5).to_i%></span></p>
         </div>
       </div>
     </div>
     <div class="col-3">
       <div class="card h-100">
         <div class="card-body">
-          <p class="card-text">Remaining Annual Days <span class="badge bg-secondary">4</span></p>
+          <p class="card-text">Remaining Unpaid Leave Days <span class="badge bg-secondary">-</span></p>
         </div>
       </div>
     </div>
@@ -68,43 +68,133 @@
       <tbody>
         <tr>
           <td>January</td>
+          <%#= @month_summary.each do |month| %>
+          <td><%=@annual_summary[0] %></td>
+          <td>&nbsp;<%=@sick_summary[0] %></td>
+          <td>&nbsp;<%=@study_summary[0] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;<%=@compensatory_summary[0] %></td>
+          <td>&nbsp;<%#=@parent_summary[0] rescue 0%></td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
+          <%#end %>
         </tr>
         <tr>
           <td>February</td>
+          <td>&nbsp;<%=@annual_summary[1] %></td>
+          <td>&nbsp;<%=@sick_summary[1] %></td>
+          <td>&nbsp;<%=@study_summary[1] %></td>
           <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
+          <td>&nbsp;<%=@compensatory_summary[1] %></td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td></tr>
         <tr>
           <td>March</td>
+          <td>&nbsp;<%=@annual_summary[2] %></td>
+          <td>&nbsp;<%=@sick_summary[2] %></td>
+          <td>&nbsp;<%=@study_summary[2] %></td>
           <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
+          <td>&nbsp;<%=@compensatory_summary[2] %></td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
         </tr>
         <tr>
           <td>April</td>
+          <td>&nbsp;<%=@annual_summary[3] %></td>
+          <td>&nbsp;<%=@sick_summary[3] %></td>
+          <td>&nbsp;<%=@study_summary[3] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;<%=@compensatory_summary[3] %></td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>May</td>
+          <td>&nbsp;<%=@annual_summary[4] %></td>
+          <td>&nbsp;<%=@sick_summary[4] %></td>
+          <td>&nbsp;<%=@study_summary[4] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;<%=@compensatory_summary[4] %></td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>June</td>
+          <td>&nbsp;<%=@annual_summary[5] %></td>
+          <td>&nbsp;<%=@sick_summary[5] %></td>
+          <td>&nbsp;<%=@study_summary[5] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;<%=@compensatory_summary[5] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>July</td>
+          <td>&nbsp;<%=@annual_summary[6] %></td>
+          <td>&nbsp;<%=@sick_summary[6] %></td>
+          <td>&nbsp;<%=@study_summary[6] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;<%=@compensatory_summary[6] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>August</td>
+          <td>&nbsp;<%=@annual_summary[7] %></td>
+          <td>&nbsp;<%=@sick_summary[7] %></td>
+          <td>&nbsp;<%=@study_summary[7] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;<%=@compensatory_summary[7] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>September</td>
+          <td>&nbsp;<%=@annual_summary[8] %></td>
+          <td>&nbsp;<%=@sick_summary[8] %></td>
+          <td>&nbsp;<%=@study_summary[8] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;<%=@compensatory_summary[8] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>October</td>
+          <td>&nbsp;<%=@annual_summary[9] %></td>
+          <td>&nbsp;<%=@sick_summary[9] %></td>
+          <td>&nbsp;<%=@study_summary[9] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;<%=@compensatory_summary[9] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>November</td>
+          <td>&nbsp;<%=@annual_summary[10] %></td>
+          <td>&nbsp;<%=@sick_summary[10] %></td>
+          <td>&nbsp;<%=@study_summary[10] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;<%=@compensatory_summary[10] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>December</td>
+          <td>&nbsp;<%=@annual_summary[11] %></td>
+          <td>&nbsp;<%=@sick_summary[11] %></td>
+          <td>&nbsp;<%=@study_summary[11] %></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;<%=@compensatory_summary[11] %></td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
