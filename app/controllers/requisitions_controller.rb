@@ -122,7 +122,7 @@ class RequisitionsController < ApplicationController
   def collect_funds
     new_state = WorkflowState.where(state: 'Collected',
                                     workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
-    @requisition = Requisition.find(params[:id]).update(collected: true, workflow_state_id: new_state.first.id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
 

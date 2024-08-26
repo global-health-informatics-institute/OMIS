@@ -4,7 +4,6 @@ require 'csv'
 source = "#{Rails.root}/db/data/#{ENV['data'] || 'demo'}"
 puts "Seeding the database with #{ENV['data']} data"
 
-
 puts 'Adding Branches'
 CSV.foreach("#{source}/branches.csv",:headers=>:true) do |row|
   Branch.create(branch_name: row[0], city: row[2], country: row[1], location: row[3])
@@ -177,7 +176,7 @@ CSV.foreach("#{source}/workflow_state_transitions.csv",:headers=>:true) do |row|
   if !row[6].blank?
     (row[6].split(';')).each do |transitioner|
       WorkflowStateActor.create(workflow_state_transition_id: wft.id,
-                                employee_designation_id: Designation.find_by_designated_role(transitioner).id)
+                             employee_designation_id: Designation.find_by_designated_role(transitioner).id)
     end
   end
 end
