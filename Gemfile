@@ -13,6 +13,8 @@ gem 'bootstrap', '~> 5.1', '>= 5.1.3'
 
 gem 'turbo-rails' 
 
+gem 'holidays'
+
 gem 'flatpickr_rails'
 
 gem 'ransack'
