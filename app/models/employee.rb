@@ -113,14 +113,11 @@ class Employee < ApplicationRecord
         return overtime_hours
     end
 
-    def paternity_leave(leave_days_start_date = Date.today.beginning_of_month, end_date = Date.today,
-                        leave_type: 'Paternity Leave')
-        timesheets = Timesheet.select('timesheet_id').where("employee_id = ?", self.employee_id)
-        leave_records = TimesheetTask.where('project_id = ? AND task_date between ? and ? and timesheet_id in (?)',
-                                            Project.find_by_short_name(leave_type).project_id,
-                                            leave_days_start_date, end_date, timesheets).sum("duration")
-        # raise leave_records.inspect
-        return leave_records
+    def leave_balance(leave_type: 'Paternity Leave')
+        unused_leave = (LeaveSummary.where(employee_id:  self.employee_id, leave_type: leave_type,
+                                          financial_year: Date.today.year).first).leave_days_balance.floor(2)
+        # raise unused_leave.inspect
+        return unused_leave
     end
 
     def loe (start_date = Date.today.beginning_of_month, end_date = Date.today.end_of_month)

@@ -2,49 +2,72 @@
 <hr/>
 <div class="container-fluid">
   <div class="row">
-    <div class="col-3">
+    <div class="col">
       <div class="card h-100">
         <div class="card-body">
-          <p class="card-text">Remaining Annual Leave Days<span class="badge bg-secondary"><%= @remaining_leave_days %></span></p>
+          <p class="card-text">Rem. Annual Leave Days <span class="badge bg-secondary"><%= @remaining_leave_days %></span></p>
         </div>
       </div>
     </div>
-    <div class="col-3">
+    <div class="col">
       <div class="card h-100">
         <div class="card-body">
-          <p class="card-text">Remaining Compens. Days <span class="badge bg-secondary"><%= (@remaining_comp_days/7.5).to_i %></span></p>
+          <p class="card-text">Rem. Compensatory. <span class="badge bg-secondary"><%= (@remaining_comp_days/7.5) %></span></p>
         </div>
       </div>
     </div>
-    <div class="col-3">
+    <div class="col">
       <div class="card h-100">
         <div class="card-body">
-          <p class="card-text">Remaining Pat./Mat. Days <span class="badge bg-secondary"><%= (@remaining_parent_leave/7.5).to_i%></span></p>
+          <p class="card-text">Remaining Sick Days <span class="badge bg-secondary"><%= (@remaining_sick_leave)%></span></p>
         </div>
       </div>
     </div>
-    <div class="col-3">
+    <div class="col">
       <div class="card h-100">
         <div class="card-body">
-          <p class="card-text">Remaining Unpaid Leave Days <span class="badge bg-secondary">-</span></p>
+          <p class="card-text">Rem. Study Days <span class="badge bg-secondary"><%= (@remaining_study_leave)%></span></p>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card h-100">
+        <div class="card-body">
+          <p class="card-text">Remaining Pat. Days <span class="badge bg-secondary"><%= (@remaining_parent_leave)%></span></p>
         </div>
       </div>
     </div>
   </div>
   <div class="row mt-3">
-    <div class="col-6">
-      <div class="card h-100">
-        <div class="card-body">
+    <div class="col">
+      <div class="card">
+        <div class="card-body" style="height: 60vh">
           <h6>Overall Leave Summary</h6>
+          <canvas id="leaveSummaryPieChart"  style="width: 25vw;margin-left: auto; margin-right: auto;" ></canvas>
           <p class="card-text">Remaining Annual Days</p>
         </div>
       </div>
     </div>
-    <div class="col-6">
-      <div class="card h-100">
-        <div class="card-body">
+    <div class="col">
+      <div class="card">
+        <div class="card-body overflow-y-scroll" style="max-height: 60vh">
           <h6>List of Holidays</h6>
-          <p class="card-text">Remaining Annual Days</p>
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Holiday Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @holidays.each do |holiday| %>
+                  <tr>
+                    <td><%= holiday[:date].strftime('%B %d, %Y') %></td>
+                    <td><%= holiday[:name] %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
         </div>
       </div>
     </div>
@@ -53,12 +76,11 @@
     <h6>Employee Leave Tracker Sheet</h6>
     <table class="table table-bordered table-striped">
       <thead>
-        <tr>
-          <th>Month</th>
+        <tr style="text-align: center">
+          <th style="text-align: left">Month</th>
           <th>Annual</th>
           <th>Sick</th>
           <th>Study</th>
-          <th>Unpaid</th>
           <th>Compensatory</th>
           <th>Paternity/Maternity</th>
           <th>Total Leave</th>
@@ -66,140 +88,85 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>January</td>
-          <%#= @month_summary.each do |month| %>
-          <td><%=@annual_summary[0] %></td>
-          <td>&nbsp;<%=@sick_summary[0] %></td>
-          <td>&nbsp;<%=@study_summary[0] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;<%=@compensatory_summary[0] %></td>
-          <td>&nbsp;<%#=@parent_summary[0] rescue 0%></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <%#end %>
+        <% @leave_summary.each do |month_data| %>
+          <tr style="text-align: center">
+            <td style="text-align: left"><%=month_data[:month] %></td>
+            <td><%=month_data[:annual_summary] %></td>
+            <td><%=month_data[:sick_summaries] %></td>
+            <td><%=month_data[:study_summaries] %></td>
+            <td><%=month_data[:compensatory_summaries] %></td>
+            <td><%=month_data[:paternity_summaries]%></td>
+            <td><%=month_data[:total_leave_days]%></td>
+            <td><%=month_data[:worked_days]%></td>
+          </tr>
+        <%end %>
+        <tr style="text-align: center">
+          <td style="text-align: left"><strong>Yearly Totals</strong></td>
+          <td><strong><%= @yearly_totals[:annual_summary] %></strong></td>
+          <td><strong><%= @yearly_totals[:sick_summary] %></strong></td>
+          <td><strong><%= @yearly_totals[:study_summary] %></strong></td>
+          <td><strong><%= @yearly_totals[:compensatory_summaries] %></strong></td>
+          <td><strong><%= @yearly_totals[:parent_summary] %></strong></td>
+          <td><strong><%= @yearly_totals[:total_leave_days] %></strong></td>
+          <td><strong><%= @yearly_totals[:worked_days] %></strong></td>
         </tr>
-        <tr>
-          <td>February</td>
-          <td>&nbsp;<%=@annual_summary[1] %></td>
-          <td>&nbsp;<%=@sick_summary[1] %></td>
-          <td>&nbsp;<%=@study_summary[1] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;<%=@compensatory_summary[1] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td></tr>
-        <tr>
-          <td>March</td>
-          <td>&nbsp;<%=@annual_summary[2] %></td>
-          <td>&nbsp;<%=@sick_summary[2] %></td>
-          <td>&nbsp;<%=@study_summary[2] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;<%=@compensatory_summary[2] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td>April</td>
-          <td>&nbsp;<%=@annual_summary[3] %></td>
-          <td>&nbsp;<%=@sick_summary[3] %></td>
-          <td>&nbsp;<%=@study_summary[3] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;<%=@compensatory_summary[3] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td>May</td>
-          <td>&nbsp;<%=@annual_summary[4] %></td>
-          <td>&nbsp;<%=@sick_summary[4] %></td>
-          <td>&nbsp;<%=@study_summary[4] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;<%=@compensatory_summary[4] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td>June</td>
-          <td>&nbsp;<%=@annual_summary[5] %></td>
-          <td>&nbsp;<%=@sick_summary[5] %></td>
-          <td>&nbsp;<%=@study_summary[5] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;<%=@compensatory_summary[5] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td>July</td>
-          <td>&nbsp;<%=@annual_summary[6] %></td>
-          <td>&nbsp;<%=@sick_summary[6] %></td>
-          <td>&nbsp;<%=@study_summary[6] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;<%=@compensatory_summary[6] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td>August</td>
-          <td>&nbsp;<%=@annual_summary[7] %></td>
-          <td>&nbsp;<%=@sick_summary[7] %></td>
-          <td>&nbsp;<%=@study_summary[7] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;<%=@compensatory_summary[7] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td>September</td>
-          <td>&nbsp;<%=@annual_summary[8] %></td>
-          <td>&nbsp;<%=@sick_summary[8] %></td>
-          <td>&nbsp;<%=@study_summary[8] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;<%=@compensatory_summary[8] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td>October</td>
-          <td>&nbsp;<%=@annual_summary[9] %></td>
-          <td>&nbsp;<%=@sick_summary[9] %></td>
-          <td>&nbsp;<%=@study_summary[9] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;<%=@compensatory_summary[9] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td>November</td>
-          <td>&nbsp;<%=@annual_summary[10] %></td>
-          <td>&nbsp;<%=@sick_summary[10] %></td>
-          <td>&nbsp;<%=@study_summary[10] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;<%=@compensatory_summary[10] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td>December</td>
-          <td>&nbsp;<%=@annual_summary[11] %></td>
-          <td>&nbsp;<%=@sick_summary[11] %></td>
-          <td>&nbsp;<%=@study_summary[11] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;<%=@compensatory_summary[11] %></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-        </tr>
+
       </tbody>
     </table>
   </div>
 </div>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js"></script>
+
+<script>
+    new Chart(document.getElementById("leaveSummaryPieChart"), {
+        type: 'pie',
+        data: {
+            labels: [
+                'Annual Leave',
+                'Compensatory Leave',
+                'Sick Leave',
+                'Study Leave',
+                'Paternity Leave'
+            ],
+            datasets: [{
+                label: 'Leave Types',
+                data: [
+                    <%= @yearly_totals[:annual_summary] %>,
+                    <%= @yearly_totals[:compensatory_summaries] %>,
+                    <%= @yearly_totals[:sick_summary] %>,
+                    <%= @yearly_totals[:study_summary] %>,
+                    <%= @yearly_totals[:parent_summary] %>
+                ],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(101,241,241,0.8)',
+                    'rgba(153, 102, 255, 0.8)',
+                    'rgba(255, 159, 64, 0.8)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            var label = tooltipItem.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += tooltipItem.raw + ' days';
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
