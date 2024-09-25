@@ -58,13 +58,14 @@
     end
     # Holidays.load_custom('/home/ghii/OMIS2/OMIS/config/holidays/mw.yml')
     @holidays = Holidays.between(year_start_date, year_end_date, :mw)
-    # @holidays = Holidays.next_holidays(9, [:mw], year_start_date)
-    # raise @holidays.inspect
-
   end
 
   def show
-
+    @leave_request = LeaveRequest.find(params[:id])
+    # raise @leave_request.inspect
+    is_owner = (@leave_request.employee_id == current_user.employee_id)
+    is_supervisor = current_user.employee.current_supervisees.collect{|x| x.supervisee}.include?(@leave_request.employee_id)
+    @possible_actions = possible_actions(@leave_request.status, is_owner, is_supervisor)
   end
 
   def update
@@ -73,5 +74,33 @@
 
   def destroy
 
+  end
+
+  def approve_leave
+    new_state = WorkflowState.where(state: 'Approved',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Leave Request").id)
+    @leave_request = LeaveRequest.where(leave_request_id: params[:id])
+                                 .update(reviewed_by: current_user.user_id, reviewed_on: Time.now,
+                                         approved_by: current_user.user_id, approved_on: Time.now,
+                                         status: new_state.first.id)
+
+    redirect_to "/leave_requests/#{params[:id]}"
+  end
+  def cancel_leave
+    new_state = WorkflowState.where(state: 'Canceled',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Leave Request").id)
+    @leave_request = LeaveRequest.where(leave_request_id: params[:id])
+                                 .update(status: new_state.first.id)
+
+    redirect_to "/leave_requests/#{params[:id]}"
+  end
+
+  def deny_leave
+    new_state = WorkflowState.where(state: 'Rejected',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Leave Request").id)
+    @leave_request = LeaveRequest.where(leave_request_id: params[:id])
+                                 .update(status: new_state.first.id)
+
+    redirect_to "/leave_requests/#{params[:id]}"
   end
 end

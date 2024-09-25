@@ -41,19 +41,19 @@
   <div class="row mt-3">
     <div class="col">
       <div class="card">
-        <div class="card-body" style="height: 60vh">
+        <div class="card-body" style="height: 30vh">
           <h6>Overall Leave Summary</h6>
-          <canvas id="leaveSummaryPieChart"  style="width: 25vw;margin-left: auto; margin-right: auto;" ></canvas>
-          <p class="card-text">Remaining Annual Days</p>
+
+          <canvas id="leaveSummaryPieChart" style="max-height: 23vh"></canvas>
         </div>
       </div>
     </div>
     <div class="col">
       <div class="card">
-        <div class="card-body overflow-y-scroll" style="max-height: 60vh">
+        <div class="card-body overflow-y-scroll" style="max-height:30vh">
           <h6>List of Holidays</h6>
             <table class="table table-striped">
-              <thead>
+              <thead class="table-secondary">
                 <tr>
                   <th>Date</th>
                   <th>Holiday Name</th>
@@ -72,7 +72,7 @@
       </div>
     </div>
   </div>
-  <div class="row mt-3">
+  <div class="row mt-3 ">
     <h6>Employee Leave Tracker Sheet</h6>
     <table class="table table-bordered table-striped">
       <thead>
@@ -150,9 +150,11 @@
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'top'
+                    // position: 'right'
+                    display: false
                 },
                 tooltip: {
                     callbacks: {

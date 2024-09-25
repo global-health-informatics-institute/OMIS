@@ -161,6 +161,10 @@ CSV.foreach("#{source}/workflow_processes.csv",:headers=>:true) do |row|
     puts "Adding initial state"
     InitialState.create(workflow_process_id: wp.id, workflow_state_id: wfs.id)
   end
+  if row[4].upcase.strip == 'TRUE'
+    puts "Adding final states"
+    FinalState.create(workflow_process_id: wp.id, workflow_state_id: wfs.id)
+  end
 end
 
 puts 'Adding workflow transitions'

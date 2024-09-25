@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_08_16_090805) do
+ActiveRecord::Schema[7.0].define(version: 2024_09_05_075351) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -101,6 +101,13 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_16_090805) do
     t.datetime "updated_at", null: false
     t.date "departure_date"
     t.date "#<ActiveRecord::ConnectionAdapters::PostgreSQL::TableDefinition"
+  end
+
+  create_table "final_states", force: :cascade do |t|
+    t.integer "workflow_process_id"
+    t.integer "workflow_state_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "global_properties", primary_key: "property_id", force: :cascade do |t|
