@@ -5,7 +5,9 @@ module ReportsHelper
                ['Organization LOE Report', 'Org LOE'],
                ['Project Progress Report','Project Report'],
                ['Token Request Report', 'Tokens'],
-               ['Leave Days Report', 'Leave days']
+               ['Token Request Report', 'Tokens'],
+               ['Leave Days Report', 'Leave days'],
+               ['Petty Cash Report', 'Petty Cash']
     ]
     return options
   end

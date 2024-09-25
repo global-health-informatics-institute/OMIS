@@ -7,7 +7,7 @@
     </div>
     <div class="col-4">
       <span class="fs-6 fw-bold">Period: </span> <%= @timesheet.period %><br/>
-      <span class="fs-6 fw-bold">Status: </span> <%= @timesheet.status %>
+      <span class="fs-6 fw-bold">Status: </span> <%= @timesheet.current_status %>
     </div>
     <div class="col-3">
       <input type="date" class="form-control" id="period">
@@ -27,10 +27,15 @@
       </div>
     </div>
     <div class="col text-end">
-      <% if (@timesheet.status == "Pending Submit") && (@timesheet.employee_id == current_user.employee_id) %>
+      <% (@possible_actions || []).each do |action| %>
+        <% path = "/timesheets/#{ @timesheet.id}/#{action.parameterize(separator: '_')}" %>
+        <%= link_to action, path , class: "btn btn-info",method: :put,
+                    data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action.split(" ")[0]} this timesheet?" } %>
+      <% end %>
+      <% if (@timesheet.status == "Pending Submission") || (@timesheet.status == "Recalled") && (@timesheet.employee_id == current_user.employee_id) %>
         <%= link_to "Add Task", new_time_sheet_task_path(time_sheet: @timesheet.id), class: "btn btn-primary",
                     data: { turbo_frame: "remote_modal" } %>
-        <%= link_to "Submit Timesheet", "/timesheets/#{ @timesheet.id}/submit_timesheet", class: "btn btn-success",method: :put,
+        <%#= link_to "Submit Timesheet", "/timesheets/#{ @timesheet.id}/submit_timesheet", class: "btn btn-success",method: :put,
                     data: { turbo_method: :put, turbo_confirm: "Are you sure?" } %>
       <% elsif @timesheet.status == "Pending Approval" || @timesheet.status == "Approved" %>
         <% if @timesheet.employee_id == current_user.employee_id %>
@@ -91,7 +96,7 @@
                   <div class="me-0" style = "display: inline-block">
                   <%= entries[day].blank? ? '-' : entries[day][:duration] %>
                   </div>
-                  <% if (@timesheet.status == "Pending Submit") && (@timesheet.employee_id == current_user.employee_id) %>
+                  <% if (@timesheet.status == "Pending Submission") || (@timesheet.status == "Recalled") && (@timesheet.employee_id == current_user.employee_id) %>
                   <div class="dropdown" style="display: inline-block; padding:0;">
                   <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="editDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                   </button>

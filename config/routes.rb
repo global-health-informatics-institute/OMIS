@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   resources :branches
   resources :employees
   resources :timesheets
-  #resources :requisitions
+  resources :leave_requests
   resources :inventory_items
   resources :inventory_item_categories
   resources :inventory_item_thresholds
@@ -22,16 +22,25 @@ Rails.application.routes.draw do
   put 'timesheets/:id/approve_timesheet', to: 'timesheets#approve_timesheet'
   put 'timesheets/:id/reject_timesheet', to: 'timesheets#recall_timesheet'
   put 'timesheets/:id/recall_timesheet', to: 'timesheets#recall_timesheet'
+  put 'timesheets/:id/re-open_timesheet', to: 'timesheets#recall_timesheet'  
+  put 'timesheets/:id/re-submit_timesheet', to: 'timesheets#submit_timesheet'
 
   get 'settings/index'
   get 'settings/new'
   post 'settings/create'
   get 'settings/edit'
 
-  get 'requisitions/index'
-  get 'requisitions/new', defaults: { format: :turbo_stream }
+  get 'requisitions', to: 'requisitions#index'
+  get 'requisitions/new', to: 'requisitions#new', defaults: { format: :turbo_stream }
   post 'requisitions/create'
+  get 'requisitions/:id', to: 'requisitions#show'
   get 'requisitions/edit'
+  put 'requisitions/:id/approve_request', to: 'requisitions#approve_request'
+  put 'requisitions/:id/approve_funds', to: 'requisitions#approve_funds'
+  put 'requisitions/:id/release_funds', to: 'requisitions#release_funds'
+  put 'requisitions/:id/rescind_request', to: 'requisitions#rescind_request'
+  put 'requisitions/:id/reject_request', to: 'requisitions#reject_request'
+  put 'requisitions/:id/collect_funds', to: 'requisitions#collect_funds'
 
   get 'reports/index'
   get 'reports/new'
