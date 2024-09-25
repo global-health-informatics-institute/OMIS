@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_07_10_072853) do
+ActiveRecord::Schema[7.0].define(version: 2024_08_16_090805) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -111,6 +111,13 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_10_072853) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "initial_states", primary_key: "initial_state_id", force: :cascade do |t|
+    t.integer "workflow_process_id"
+    t.integer "workflow_state_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "inventory_item_categories", primary_key: "inventory_item_category_id", force: :cascade do |t|
     t.string "category", null: false
     t.boolean "voided", default: false, null: false
@@ -158,6 +165,21 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_10_072853) do
     t.integer "created_by", null: false
     t.integer "voided_by"
     t.boolean "voided", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "leave_requests", primary_key: "leave_request_id", force: :cascade do |t|
+    t.string "leave_type", null: false
+    t.integer "employee_id", null: false
+    t.datetime "start_on", null: false
+    t.datetime "end_on", null: false
+    t.integer "stand_in", null: false
+    t.boolean "reviewed_by"
+    t.boolean "reviewed_on"
+    t.boolean "approved_by"
+    t.boolean "approved_on"
+    t.integer "status", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -274,6 +296,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_10_072853) do
     t.boolean "voided", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "project_id"
   end
 
   create_table "supervisions", primary_key: "supervision_id", force: :cascade do |t|
@@ -329,9 +352,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_10_072853) do
 
   create_table "workflow_processes", primary_key: "workflow_process_id", force: :cascade do |t|
     t.string "workflow", null: false
+    t.boolean "active", default: true
+    t.integer "start_state"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "active", default: true
   end
 
   create_table "workflow_state_actions", force: :cascade do |t|
@@ -342,9 +366,19 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_10_072853) do
   end
 
   create_table "workflow_state_actors", force: :cascade do |t|
-    t.integer "workflow_state_id", null: false
+    t.integer "workflow_state_transition_id"
     t.integer "employee_designation_id", null: false
     t.boolean "voided", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "workflow_state_transitioners", force: :cascade do |t|
+    t.integer "workflow_state_transition"
+    t.integer "stakeholder"
+    t.date "start_date"
+    t.date "end_date"
+    t.boolean "voided"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -355,6 +389,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_10_072853) do
     t.boolean "voided", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "action", null: false
+    t.boolean "by_owner", default: false
+    t.boolean "by_supervisor", default: false
   end
 
   create_table "workflow_states", primary_key: "workflow_state_id", force: :cascade do |t|
@@ -366,4 +403,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_10_072853) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "departments", "branches", primary_key: "branch_id"
+  add_foreign_key "employees", "people", primary_key: "person_id"
 end

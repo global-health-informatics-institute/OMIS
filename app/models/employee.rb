@@ -73,11 +73,15 @@ class Employee < ApplicationRecord
         return ProjectTeam.where(employee_id: self.employee_id, voided: false)
     end
 
+    def current_supervisors
+        people = Supervision.where(supervisee: self.employee_id, ended_on: nil)
+    end
     def current_supervisees
         people = Supervision.where(supervisor: self.employee_id, ended_on: nil)
     end
 
-    def used_leave_days (leave_days_start_date = Date.today.beginning_of_month, end_date = Date.today, leave_type: 'Annual Leave')
+    def used_leave_days (leave_days_start_date = Date.today.beginning_of_month, end_date = Date.today,
+                         leave_type: 'Annual Leave')
         timesheets = Timesheet.select('timesheet_id').where("employee_id = ?", self.employee_id)
         leave_records = TimesheetTask.where('project_id = ? AND task_date between ? and ? and timesheet_id in (?)',
                                             Project.find_by_short_name(leave_type).project_id,
@@ -88,20 +92,32 @@ class Employee < ApplicationRecord
     end
 
     def compensatory_leave(start_date = 6.weeks.ago.to_date, end_date = Date.today)
-        timesheets = Timesheet.select('timesheet_id').where("employee_id = ?", self.employee_id).collect { |x| x.timesheet_id }
-        total_hours_worked = TimesheetTask.where('task_date between ? and ? and timesheet_id in (?)',
-                                                      start_date, end_date, timesheets).sum('duration')
+        timesheets = Timesheet.select('timesheet_id').where("employee_id = ?", self.employee_id)
+                              .collect { |x| x.timesheet_id }
+        total_hours_worked = TimesheetTask.where('task_date between ? and ? and timesheet_id in (?) and
+                                                 project_id not in (?)', start_date, end_date, timesheets,
+                                                 Project.find_by_short_name("Compensatory Leave").project_id)
+                                          .sum('duration').to_f
         weekdays_count = (start_date..end_date).count { |date| (1..5).include?(date.wday) }
         working_hours = GlobalProperty.find_by_property("number.of.hours").property_value.to_f
-
+        compensatory_hours = TimesheetTask.where('project_id = ? AND task_date between ? and ? and timesheet_id in (?)',
+                                                 Project.find_by_short_name("Compensatory Leave").project_id,
+                                                 start_date, end_date, timesheets).sum('duration').to_f
         total_expected_hours = weekdays_count * working_hours
         total_extra_hours = total_hours_worked - total_expected_hours
         if total_extra_hours.positive?
-            overtime_hours = total_extra_hours
+            overtime_hours = total_extra_hours - compensatory_hours
         else
             overtime_hours = 0.0
         end
         return overtime_hours
+    end
+
+    def leave_balance(leave_type: 'Paternity Leave')
+        unused_leave = (LeaveSummary.where(employee_id:  self.employee_id, leave_type: leave_type,
+                                          financial_year: Date.today.year).first).leave_days_balance.floor(2)
+        # raise unused_leave.inspect
+        return unused_leave
     end
 
     def loe (start_date = Date.today.beginning_of_month, end_date = Date.today.end_of_month)
@@ -133,7 +149,14 @@ class Employee < ApplicationRecord
     end
 
     def pending_actions
+        # this function is for getting things that a person should act on
         actions = []
+
+        # Get things that I need to do routinely as an employee
+
+        # Get things that need my approval or review as a supervisor
+        supervisor_transitions = WorkflowStateActor.where(by_supervisor: true)
+        # Get things that need my approval or review based on my role
 
         # outstanding timesheets
         actions += Timesheet.select("timesheet_id, employee_id, timesheet_week")
@@ -148,8 +171,28 @@ class Employee < ApplicationRecord
                             .where("employee_id in (?) and submitted_on is not NULL and approved_on is NULL", jnrs)
                             .collect{|x| ["Review #{x.employee.person.first_name}\'s #{x.timesheet_week.strftime('%d %b, %Y')} timesheet",
                                           "/timesheets/#{x.id}"]}
-        # requisition reviews
 
+        allowed_transitions = WorkflowStateActor.where(employee_designation_id:
+                                                         self.current_designations.collect{|x| x.id})
+                                                .collect{|x| x.workflow_state_transition_id}
+
+        # requisition finance reviews
+        actions += Requisition.where("workflow_state_id in (?)" ,allowed_transitions)
+                              .collect{ |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
+                                             "/requisitions/#{x.id}"]}
+
+        # self requisitions
+        actions += Requisition.where("workflow_state_id in (?) and initiated_by in (?)", WorkflowStateTransition
+                              .where(by_owner: true).collect{|x| x.workflow_state_id} , self.id )
+                              .collect{|x| ["Check #{x.requisition_type} request for #{x.purpose}",
+                                            "/requisitions/#{x.id}"]}
+
+        # requisition reviews
+        actions += Requisition.where("workflow_state_id in (?) and initiated_by not in (?)", WorkflowStateTransition
+                              .where(by_supervisor: true).collect{|x| x.workflow_state_id} , self.id )
+                              .collect { |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
+                                              "/requisitions/#{x.id}"]}
+        # raise allowed_transitions.inspect
         return actions
     end
 end

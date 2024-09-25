@@ -5,20 +5,20 @@
       <span class="fs-6 fw-bold">Requisitions Summary</span>
     </div>
     <div class="card m-1 col-6" >
-        <%= form_tag(requisitions_new_path, method: "GET") do %>
-      <div class="row pt-2 pb-2">
-        <div class="col fs-6 fw-bold">
-          Select Requisition Form
+      <%= form_tag(requisitions_new_path, method: "GET") do %>
+        <div class="row pt-2 pb-2">
+          <div class="col fs-6 fw-bold">
+            Select Requisition Form
+          </div>
         </div>
-      </div>
-      <div class="row pt-2 pb-2">
-        <div class="col-6 ">
-          <%= select_tag(:request_type, options_for_select(select_requisition), class: "form-select") %>
+        <div class="row pt-2 pb-2">
+          <div class="col-6 ">
+            <%= select_tag(:request_type, options_for_select(select_requisition), class: "form-select") %>
+          </div>
+          <div class="col-6 ">
+            <%= submit_tag("Show Requisition Form", class: "btn btn-primary") %>
+          </div>
         </div>
-        <div class="col-6 ">
-          <%= submit_tag("Show Requisition Form", class: "btn btn-primary") %>
-        </div>
-      </div>
       <% end %>
     </div>
 

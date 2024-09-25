@@ -9,6 +9,9 @@ class MainController < ApplicationController
                                          .where("employee_id in (?) and submitted_on is NULL", @employee.id).length
       @unused_leave = LeaveSummary.where(employee_id: @employee.id, leave_type: 'Annual Leave',
                                          financial_year: Date.today.year).first
+      @remaining_leave_days = ((@unused_leave.leave_days_balance.floor(2) rescue 0.0) - @employee.used_leave_days)
+
+      # raise @remaining_leave_days.inspect
 
       @upcoming_deadlines = ProjectTask.where("project_task_id in (?)",
                                               ProjectTaskAssignment.select(:project_task_id).where(assigned_to: current_user.employee_id,
@@ -22,19 +25,38 @@ class MainController < ApplicationController
       @loe_current = @employee.loe()
 
       @total_hrs = 0.0
-      (@loe_current || []).each do |k,v|
+      (@loe_current || []).each_value do |v|
         @total_hrs += v
       end
 
       @pending_actions = current_user.employee.pending_actions
       @projects = Project.select(:project_id, :project_name)
-      
-      #@project_list = ProjectTask.where(voided:false)
       p = Project.where(manager: current_user.employee_id)
       @upcoming_deadlines = []
       p.each do |proj|
         @upcoming_deadlines += proj.upcoming_deadlines
       end
+
+      e = @employee
+      jnrs = e.current_supervisees.collect{|x| x.supervisee}
+      # by_s = WorkflowStateTransition.select(:workflow_state_id).where(by_supervisor: true).collect{|x| x.workflow_state_id }
+      wp = WorkflowProcess.find_by(workflow: 'Timesheet')
+      wpr= WorkflowProcess.find_by(workflow: 'Petty Cash Request')
+      by_s = WorkflowStateTransition.joins("INNER JOIN workflow_states ON workflow_states.workflow_state_id = workflow_state_transitions.workflow_state_id")
+                                    .where("workflow_states.workflow_process_id = ? AND workflow_state_transitions.by_supervisor = ?", wp.id, true)
+                                    .collect{|x| x.workflow_state_id }
+      by_s_r = WorkflowStateTransition.joins("INNER JOIN workflow_states ON workflow_states.workflow_state_id = workflow_state_transitions.workflow_state_id")
+                                      .where("workflow_states.workflow_process_id = ? AND workflow_state_transitions.by_supervisor = ?", wpr.id, true)
+                                      .collect{|x| x.workflow_state_id }
+      # actor = WorkflowStateActor.select("workflow_state_transition, employee_designation_id").where("voided = ?", false).collect{|x| x.employee_designation_id }
+      # raise actor.inspect
+      @approvals = Timesheet.select("timesheet_id, employee_id, submitted_on, state")
+                            .where("employee_id in (?) and submitted_on is not NULL and state in (?)", jnrs, by_s)
+      @requests = Requisition.select("requisition_id, initiated_by, initiated_on, workflow_state_id, requisition_type")
+                             .where("initiated_by in (?) and approved_by is NULL and workflow_state_id in (?) and voided = ?", jnrs, by_s_r, false)
+
+      @my_requisitions = Requisition.select("requisition_id, purpose, requisition_type, reviewed_by, approved_by").where("initiated_by = ?", current_user.employee_id)
+      # raise @my_requisitions.inspect
 
     else
       @page_title = "Application Dashboard"
@@ -58,9 +80,9 @@ class MainController < ApplicationController
   end
 
   def about
-    if !current_user.blank?
-      @current_timesheet = Timesheet.where(employee_id: current_user.employee_id,
-                                           timesheet_week: Date.today.beginning_of_week).first_or_create
-    end
+  end
+
+  def leave_dashboard
+
   end
 end

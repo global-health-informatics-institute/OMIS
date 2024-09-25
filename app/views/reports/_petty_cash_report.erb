@@ -1,0 +1,40 @@
+<h5>Petty Cash Disbursement Log</h5>
+<hr/>
+<div style="display: table; width: 100%;">
+  <div style="display: table-row">
+    <div style="display: table-cell" class="col col-10">
+      <table class="table table-bordered" style="width: 100%">
+        <thead>
+        <tr>
+          <th class="text-center">#</th>
+          <th class="text-center">Date Requested</th>
+          <th class="text-center">Date Disbursed</th>
+          <th>Requester</th>
+          <th class="text-center">Description</th>
+          <th>Project</th>
+          <th class="text-center">Amount Requested</th>
+          <th class="text-center">Status</th>
+        </tr>
+        </thead>
+        <tbody>
+          <% i = 1 %>
+          <% (@records || []).each do |record| %>
+            <tr>
+              <td><%= i %></td>
+              <td><%= record.requested_on %></td>
+              <td><%= record.disbursed_on %></td>
+              <td><%= record.requester %></td>
+              <td><%= record.description %></td>
+              <td><%= record.project_name %></td>
+              <td><%= record.value %></td>
+              <td><%= record.status %></td>
+            </tr>
+            <% i +=1 %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <%# end %>
+</div>
+
