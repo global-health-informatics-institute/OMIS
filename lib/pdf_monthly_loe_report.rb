@@ -60,7 +60,6 @@ module PdfMonthlyLoeReport
     file_name
   end
 
-
   def self.pdf_preprocess(padding,data, start_date, end_date)
 
     number_of_weeks = ((end_date - start_date).to_i / 7.0).floor

@@ -1,44 +1,71 @@
-<h4>Petty Cash Request</h4>
-<%= form_with model: @requisition, url: requisitions_create_path do |form| %>
-
-  <div class="row mt-4">
-    <div class="col-md-2 mb-3 align-middle">
-      <%= form.label :request_date, class:'h6' %>
+<%= form_with model: @requisition, url: "/requisitions/create" do |form| %>
+  <div class="row">
+    <div class="col col-md-9">
+      <h4>Petty Cash Request</h4>
     </div>
-    <div class="col-md-2 mb-4">
+    <!--    <div class="col col-md-2">-->
+    <!--      <span class="fs-6 fw-bold">Status: </span> <%#= @requisition.current_status %>-->
+    <%#=raise @requisition.current_status.inspect %>
+    <!--    </div>-->
+  </div>
+
+  <div class="row">
+    <div class="col-md-3 mb-3">
+      <%= form.label :request_date %>
       <%= form.date_field :request_date, value: Date.today,  class: 'form-control', required: true %>
     </div>
-    <div class="col-md-auto mb-3 align-middle">
-      <%= form.label :requested_by, class: 'h6' %>
+    <div class="col-md-3 mb-3">
+      <%= form.label :requested_by %>
+      <%= form.text_field :requested_by, value: current_user.full_name,  class: 'form-control', required: true %>
     </div>
-    <div class="col-md-3 mb-4">
-      <%= form.text_field :requested_by, value: current_user.full_name,  class: 'form-control', required: true, readonly: true%>
+    <div class="col-md-3 mb-3">
+      <div>
+        Project
+      </div>
+      <div>
+        <%= form.select :project_id, options_for_select(@project_options, (@selected_project.id rescue nil)),
+                        prompt:(@selected_project.full_name rescue params[:"prj"]),
+                        :class => 'form-control', required: true %>
+      </div>
     </div>
+
   </div>
-  <div class="row">
-    <div class="col-md-2 mb-4">
-      <%= form.label :purpose, class: 'h6' %>
-    </div>
-    <div class="col-md-6 mb-4">
-      <%= form.text_field :purpose, class: 'form-control', required: true %>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-2 mb-4">
-      <%= form.label :amount_requested, class: 'h6' %>
-    </div>
-    <div class="col-md-6 mb-4">
-      <%= form.number_field :amount_requested, class: 'form-control', required: true %>
-    </div>
-  </div>
-  <hr>
 
   <div class="row">
-    <div class="col-md-6 mb-6">
-      <%= form.submit "Submit Request", class: "btn btn-success btn-block" %>
-      <%= link_to 'Cancel', '/requisitions/index', class: 'btn btn-danger btn-block'  %>
+    <div class="col-md-6 mb-4">
+      <%= form.label :purpose %>
+      <%= form.text_field :purpose, value: params[:purpose], class: 'form-control', required: true %>
+    </div>
+    <div class="col-md-3 mb-4">
+      <%= form.label :amount%>
+      <%= form.number_field :amount, value: params[:amount], class: 'form-control', max: @petty_cash_limit, min: 0 ,required: true %>
     </div>
   </div>
-  <%= form.hidden_field :requisition_type, value: 'Petty Cash' %>
-  <%= form.hidden_field :initiated_by, value: current_user.id %>
+
+  <div class="row">
+    <div class="col-md-4 mb-2">
+      <%= form.label :authorized_by %>
+      <%= form.text_field :authorized_by, class: 'form-control', readonly: true %>
+      <br/>
+      <span class="mt-2">16 -Nov 2023 12:56 PM</span>
+
+    </div>
+    <div class="col-md-4 mb-2">
+      <%= form.label :paid_by %>
+      <%= form.text_field :paid_by, class: 'form-control', readonly: true %>
+      <br/>
+      <span class="mt-2">16 -Nov 2023 12:56 PM</span>
+    </div>
+    <div class="col-md-4 mb-2">
+      <%= form.label :liquidated_by %>
+      <%= form.text_field :liquidated_by, class: 'form-control', readonly: true %>
+      <br/>
+      <span class="mt-2">16 -Nov 2023 12:56 PM</span>
+    </div>
+  </div>
+
+  <hr>
+  <%= form.hidden_field :requisition_type, value: "Petty Cash"%>
+  <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
+  <%= form.submit "Submit Request", class: "btn btn-success btn-block" %>
 <% end %>
