@@ -43,11 +43,32 @@ class ReportsController < ApplicationController
 
   def hr_report; end
 
-  def petty_cash_report; end
+  def petty_cash_report
+    start_date = params[:start_date]
+    end_date = params[:end_date]
+
+    @petty_cash_data = Requisition.where("requisition_type in (?) AND initiated_on >= ? AND initiated_on <= ?", ['Petty Cash'], start_date, end_date)
+    respond_to do |format|
+      format.turbo_stream
+
+      format.xsl do
+        helpers.petty_cash_report_xls(@petty_cash_data, start_date, end_date)
+        send_file('tmp/petty_cash_report.xls',
+                  filename: "petty_cash_report_#{start_date}_to_#{end_date}.xls")
+      end
+
+      format.pdf do
+        helpers.petty_cash_report_pdf(@petty_cash_data, start_date, end_date)
+        send_file('tmp/petty_cash_report.pdf', filename: "petty_cash_report_#{start_date}_to_#{end_date}.pdf")
+      end
+    end
+  end
 
   def project_progress_report; end
 
   def leave_days
+    start_date = params[:start_date]
+    end_date = params[:end_date]
     #@list_employees = Employee.where(still_employed: true).collect { |x| x.person}
     @leave_proj_ids = Project.where('short_name in (?)', ['Annual Leave', 'Compassionate Leave', 'Sick Leave']).collect(&:project_id)
     #req_tasks = TimesheetTask.where(project_id: leave_proj_ids)
@@ -88,6 +109,24 @@ class ReportsController < ApplicationController
         @leave_taken[task.employee_id][task.project_id] = (task.duration / 7.5).round(2)
       end
     end
+
+    (@people || []).each do |list|
+      @taken_test = @leave_taken[list[0]][@leave_proj_ids[0]]
+    end
+
+    respond_to do |format|
+      format.turbo_stream
+      format.xsl do
+        helpers.leave_request_report_xls(@people)
+        send_file('tmp/leave_request_report.xls',
+                  filename: "leave_request_report_#{start_date}_to_#{end_date}.xls")
+      end
+
+      format.pdf do
+        helpers.leave_request_report_pdf(@people)
+        send_file('tmp/leave_request_report.pdf', filename: "petty_cash_report_#{start_date}_to_#{end_date}.pdf")
+      end
+    end
   end
 
   def token_requests
@@ -99,7 +138,7 @@ class ReportsController < ApplicationController
     @selected_employee_id = params[:employee_loe_type]
     # raise @selected_employee_id.inspect
     @person = @selected_employee_id.blank? ? Employee.find(current_user.employee_id) : Employee.find(@selected_employee_id)
-
+    # raise params.inspect
     start_day = Date.parse(params[:start_date])
     end_day = Date.parse(params[:end_date])
     @num_of_weeks = (end_day.strftime('%W').to_i - start_day.strftime('%W').to_i) + 1
