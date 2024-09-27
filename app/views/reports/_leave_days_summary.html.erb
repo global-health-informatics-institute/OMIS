@@ -3,10 +3,10 @@
     <div class="row">
       <div class="col col-md-8"><small class="fs-6 fw-bold text-primary">Export Report</small></div>
       <div class="col col-md-2">
-        <%= link_to image_tag("/assets/xls-file.png"), "/generate_report.xsl?report_type=Org%20LOE&start_date=#{params[:start_date]}&end_date=#{params[:end_date]}"%>
+        <%= link_to image_tag("/assets/xls-file.png"), "/generate_report.xsl?report_type=Leave+days&start_date=#{params[:start_date]}&end_date=#{params[:end_date]}&format=xsl"%>
       </div>
       <div class="col col-md-2">
-        <%= link_to image_tag("/assets/pdf.png"), "/generate_report.pdf?report_type=Org%20LOE&start_date=#{params[:start_date]}&end_date=#{params[:end_date]}"%>
+        <%= link_to image_tag("/assets/pdf.png"), "/generate_report.pdf?report_type=Leave+days&start_date=#{params[:start_date]}&end_date=#{params[:end_date]}"%>
       </div>
     </div>
   </div>

@@ -80,10 +80,24 @@ class TimesheetsController < ApplicationController
     redirect_to "/time_sheets/#{params[:id]}"
   end
 
+  def reopen_timesheet
+    next_state = WorkflowState.where(state: 'Re-opened',
+                                     workflow_process_id: WorkflowProcess.find_by_workflow("Timesheet").id).first
+    @timesheet = Timesheet.find(params[:id]).update(submitted_on: nil, approved_by: nil, approved_on: nil, state: next_state.id)
+    redirect_to "/time_sheets/#{params[:id]}"
+  end
+
   def resubmit_timesheet
     next_state = WorkflowState.where(state: 'Re-submitted',
                                      workflow_process_id: WorkflowProcess.find_by_workflow("Timesheet").id).first
     @timesheet = Timesheet.find(params[:id]).update(submitted_on: Time.now(), state: next_state.id)
+    redirect_to "/time_sheets/#{params[:id]}"
+  end
+
+  def reject_timesheet
+    next_state = WorkflowState.where(state: 'Rejected',
+                                     workflow_process_id: WorkflowProcess.find_by_workflow("Timesheet").id).first
+    @timesheet = Timesheet.find(params[:id]).update(submitted_on: nil, state: next_state.id)
     redirect_to "/time_sheets/#{params[:id]}"
   end
 end

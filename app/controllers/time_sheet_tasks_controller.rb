@@ -14,6 +14,8 @@ class TimeSheetTasksController < ApplicationController
     new_time_sheet_task =  TimesheetTask.new(task_date: params[:task_date], project_id: params[:project_id] ,
                                                 timesheet_id: params[:time_sheet_id],
                                                 description: params[:description], duration: params[:duration])
+    approved_leave = LeaveRequest.where(status: 31)
+    approved_leave
     if new_time_sheet_task.save
       flash[:notice] = "Successfully recorded task in time sheet."
     else
