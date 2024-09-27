@@ -1,5 +1,18 @@
 <h5>Petty Cash Disbursement Log</h5>
 <hr/>
+<div class="col-3">
+  <div class="col 3">
+    <div class="row">
+      <div class="col col-md-8"><small class="fs-6 fw-bold text-primary">Export Report</small></div>
+      <div class="col col-md-2">
+        <%= link_to image_tag("/assets/xls-file.png"), "/generate_report.xsl?report_type=Petty+Cash&start_date=#{params[:start_date]}&end_date=#{params[:end_date]}&format=xsl"%>
+      </div>
+      <div class="col col-md-1">
+        <%= link_to image_tag("/assets/pdf.png"), "/generate_report.pdf?report_type=Petty+Cash&start_date=#{params[:start_date]}&end_date=#{params[:end_date]}&format=pdf"%>
+      </div>
+    </div>
+  </div>
+</div>
 <div style="display: table; width: 100%;">
   <div style="display: table-row">
     <div style="display: table-cell" class="col col-10">
@@ -8,7 +21,7 @@
         <tr>
           <th class="text-center">#</th>
           <th class="text-center">Date Requested</th>
-          <th class="text-center">Date Disbursed</th>
+<!--          <th class="text-center">Date Disbursed</th>-->
           <th>Requester</th>
           <th class="text-center">Description</th>
           <th>Project</th>
@@ -18,16 +31,16 @@
         </thead>
         <tbody>
           <% i = 1 %>
-          <% (@records || []).each do |record| %>
+          <% (@petty_cash_data || []).each do |record| %>
             <tr>
               <td><%= i %></td>
-              <td><%= record.requested_on %></td>
-              <td><%= record.disbursed_on %></td>
-              <td><%= record.requester %></td>
-              <td><%= record.description %></td>
-              <td><%= record.project_name %></td>
-              <td><%= record.value %></td>
-              <td><%= record.status %></td>
+              <td class="text-center"><%= record.initiated_on.strftime("%d-%m-%Y") %></td>
+              <!--              <td><%##= record.disbursed_on %></td>-->
+              <td class="text-center"><%= record.user.full_name %></td>
+              <td class="text-center"><%= record.purpose %></td>
+              <td class="text-center"><%= record.project.short_name %></td>
+              <td class="text-center"><%= record.amount %></td>
+              <td class="text-center"><%= record.workflow_state.state %></td>
             </tr>
             <% i +=1 %>
           <% end %>

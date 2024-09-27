@@ -15,7 +15,7 @@
         Report Period Start:
       </div>
       <div class="col">
-        <%= date_field_tag(:start_date, Date.today)%>
+        <%= date_field_tag(:start_date, Date.today,required: true)%>
       </div>
       <div class="col-2">
         <%= submit_tag("Generate Report", class: "btn btn-success") %>

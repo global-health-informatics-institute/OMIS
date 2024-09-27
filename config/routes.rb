@@ -22,8 +22,8 @@ Rails.application.routes.draw do
   put 'timesheets/:id/approve_timesheet', to: 'timesheets#approve_timesheet'
   put 'timesheets/:id/reject_timesheet', to: 'timesheets#recall_timesheet'
   put 'timesheets/:id/recall_timesheet', to: 'timesheets#recall_timesheet'
-  put 'timesheets/:id/re-open_timesheet', to: 'timesheets#recall_timesheet'  
-  put 'timesheets/:id/re-submit_timesheet', to: 'timesheets#submit_timesheet'
+  put 'timesheets/:id/re-open_timesheet', to: 'timesheets#reopen_timesheet'
+  put 'timesheets/:id/re-submit_timesheet', to: 'timesheets#resubmit_timesheet'
 
   get 'settings/index'
   get 'settings/new'
@@ -41,6 +41,11 @@ Rails.application.routes.draw do
   put 'requisitions/:id/rescind_request', to: 'requisitions#rescind_request'
   put 'requisitions/:id/reject_request', to: 'requisitions#reject_request'
   put 'requisitions/:id/collect_funds', to: 'requisitions#collect_funds'
+
+  put 'leave_requests/:id/approve_leave', to: 'leave_requests#approve_leave'
+  put 'leave_requests/:id/cancel_leave', to: 'leave_requests#cancel_leave'
+  put 'leave_requests/:id/deny_leave', to: 'leave_requests#deny_leave'
+  put 'leave_requests/:id/rescind_request', to: 'leave_requests#rescind_request'
 
   get 'reports/index'
   get 'reports/new'

@@ -192,7 +192,14 @@ class Employee < ApplicationRecord
                               .where(by_supervisor: true).collect{|x| x.workflow_state_id} , self.id )
                               .collect { |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
                                               "/requisitions/#{x.id}"]}
-        # raise allowed_transitions.inspect
+
+        actions += LeaveRequest.where("status in (?) and employee_id in (?)", WorkflowStateTransition
+                               .where(by_owner: true).collect{|x| x.workflow_state_id}, self.id)
+                               .collect{|x| ["Review leave request", "/leave_requests/#{x.id}"]}
+
+        actions += LeaveRequest.where("status in (?) and employee_id in (?) and approved_on is NULL", WorkflowStateTransition
+                               .where(by_supervisor: true).collect{|x| x.workflow_state_id}, jnrs)
+                               .collect{|x| ["Review #{x.user.person.first_name}'s' #{x.leave_type} request", "/leave_requests/#{x.id}"]}
         return actions
     end
 end
