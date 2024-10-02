@@ -10,10 +10,6 @@
   def index
     @employee = current_user.employee
 
-    # year = 2024
-    # holidays = Holidays.between(Date.new(year, 1, 1), Date.new(year, 12, 31), :mw)
-    # raise Holidays.available_regions.inspect
-
     year_start_date = Date.today.beginning_of_year
     year_end_date = Date.today.end_of_year
     @remaining_leave_days = (@employee.leave_balance(leave_type: 'Annual Leave') - @employee.used_leave_days)
@@ -56,16 +52,12 @@
       @yearly_totals[:total_leave_days] += total_leave_days
       @yearly_totals[:worked_days] += (worked_days/7.5).round(2)
     end
-    # Holidays.load_custom('/home/ghii/OMIS2/OMIS/config/holidays/mw.yml')
     @holidays = Holidays.between(year_start_date, year_end_date, :mw)
-    # @holidays = Holidays.next_holidays(9, [:mw], year_start_date)
-    # raise @holidays.inspect
 
   end
 
   def show
     @leave_request = LeaveRequest.find(params[:id])
-    # raise @leave_request.inspect
     is_owner = (@leave_request.employee_id == current_user.employee_id)
     is_supervisor = current_user.employee.current_supervisees.collect{|x| x.supervisee}.include?(@leave_request.employee_id)
     @possible_actions = possible_actions(@leave_request.status, is_owner, is_supervisor)
