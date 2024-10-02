@@ -7,11 +7,8 @@ class MainController < ApplicationController
       @person = @employee.person
       @outstanding_timesheets = Timesheet.select("timesheet_id, employee_id, timesheet_week")
                                          .where("employee_id in (?) and submitted_on is NULL", @employee.id).length
-      @unused_leave = LeaveSummary.where(employee_id: @employee.id, leave_type: 'Annual Leave',
-                                         financial_year: Date.today.year).first
-      @remaining_leave_days = ((@unused_leave.leave_days_balance.floor(2) rescue 0.0) - @employee.used_leave_days)
 
-      # raise @remaining_leave_days.inspect
+      @unused_leave = (@employee.leave_balance(leave_type: 'Annual Leave') - @employee.used_leave_days)
 
       @upcoming_deadlines = ProjectTask.where("project_task_id in (?)",
                                               ProjectTaskAssignment.select(:project_task_id).where(assigned_to: current_user.employee_id,
@@ -49,14 +46,12 @@ class MainController < ApplicationController
                                       .where("workflow_states.workflow_process_id = ? AND workflow_state_transitions.by_supervisor = ?", wpr.id, true)
                                       .collect{|x| x.workflow_state_id }
       # actor = WorkflowStateActor.select("workflow_state_transition, employee_designation_id").where("voided = ?", false).collect{|x| x.employee_designation_id }
-      # raise actor.inspect
       @approvals = Timesheet.select("timesheet_id, employee_id, submitted_on, state")
                             .where("employee_id in (?) and submitted_on is not NULL and state in (?)", jnrs, by_s)
       @requests = Requisition.select("requisition_id, initiated_by, initiated_on, workflow_state_id, requisition_type")
                              .where("initiated_by in (?) and approved_by is NULL and workflow_state_id in (?) and voided = ?", jnrs, by_s_r, false)
 
       @my_requisitions = Requisition.select("requisition_id, purpose, requisition_type, reviewed_by, approved_by").where("initiated_by = ?", current_user.employee_id)
-      # raise @my_requisitions.inspect
 
     else
       @page_title = "Application Dashboard"
