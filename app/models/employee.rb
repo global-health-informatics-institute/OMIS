@@ -113,9 +113,10 @@ class Employee < ApplicationRecord
         return overtime_hours
     end
 
-    def leave_balance(leave_type: 'Paternity Leave')
+    def leave_balance(leave_type: 'Annual Leave')
         unused_leave = (LeaveSummary.where(employee_id:  self.employee_id, leave_type: leave_type,
                                           financial_year: Date.today.year).first).leave_days_balance.floor(2)
+        raise unused_leave.inspect
         return unused_leave
     end
 
