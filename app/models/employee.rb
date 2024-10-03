@@ -115,7 +115,7 @@ class Employee < ApplicationRecord
 
     def leave_balance(leave_type: 'Annual Leave')
         unused_leave = (LeaveSummary.where(employee_id:  self.employee_id, leave_type: leave_type,
-                                          financial_year: Date.today.year).first).leave_days_balance.floor(2)
+                                          financial_year: Date.today.year).first).leave_days_balance.floor(2) rescue 0.0
         return unused_leave
     end
 
