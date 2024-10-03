@@ -29,7 +29,7 @@ def create_states
 
     if !row[6].blank?
       (row[6].split(';')).each do |transitioner|
-        WorkflowStateActor.create(workflow_state_transition_id: wft.id,
+        WorkflowStateActor.create(workflow_state_id: wft.id,
                                   employee_designation_id: Designation.find_by_designated_role(transitioner).id)
       end
     end
