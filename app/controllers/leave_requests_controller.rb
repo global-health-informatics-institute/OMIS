@@ -52,7 +52,7 @@
       @yearly_totals[:total_leave_days] += total_leave_days
       @yearly_totals[:worked_days] += (worked_days/7.5).round(2)
     end
-    @holidays = Holidays.between(year_start_date, year_end_date, :mw)
+    @holidays = Holidays.between(year_start_date, year_end_date, :mw) rescue []
 
   end
 
@@ -74,9 +74,10 @@
   def approve_leave
     new_state = WorkflowState.where(state: 'Approved',
                                     workflow_process_id: WorkflowProcess.find_by_workflow("Leave Request").id)
+
     @leave_request = LeaveRequest.where(leave_request_id: params[:id])
-                                 .update(reviewed_by: current_user.user_id, reviewed_on: Time.now,
-                                         approved_by: current_user.user_id, approved_on: Time.now,
+                                 .update(reviewed_by: current_user.employee_id, reviewed_on: Time.now,
+                                         approved_by: current_user.employee_id, approved_on: Time.now,
                                          status: new_state.first.id)
 
     redirect_to "/leave_requests/#{params[:id]}"
