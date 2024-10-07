@@ -26,7 +26,8 @@ class MainController < ApplicationController
           @upcoming_deadlines[x.deadline.to_time.to_i].append(x.task_description)
         end
       end
-      (LeaveRequest.where.not(approved_by: nil).where('start_on > ?', DateTime.now())|| []).each do |leave_request|
+      (LeaveRequest.where.not(approved_by: nil).where('employee_id = ? and start_on > ?',
+                                                      current_user.employee_id, DateTime.now())|| []).each do |leave_request|
         key = leave_request.start_on.to_date.to_time.to_i
         if @upcoming_deadlines[key].blank?
           @upcoming_deadlines[key] = ["#{leave_request.leave_type} starting #{leave_request.start_on.strftime('%d %b, %Y %H:%M')}"]
