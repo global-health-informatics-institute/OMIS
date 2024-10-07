@@ -10,10 +10,30 @@ class MainController < ApplicationController
 
       @unused_leave = (@employee.leave_balance(leave_type: 'Annual Leave') - @employee.used_leave_days)
 
-      @upcoming_deadlines = ProjectTask.where("project_task_id in (?)",
-                                              ProjectTaskAssignment.select(:project_task_id).where(assigned_to: current_user.employee_id,
-                                                                          revoked: false )
-                                              ).where.not(task_status: "Complete").order("deadline DESC").limit(5)
+
+      # Create list of upcoming deadlines and activities
+      @upcoming_deadlines = Hash.new([])
+      ProjectTask.where("project_task_id in (?)", ProjectTaskAssignment.select(:project_task_id)
+                                                                       .where(assigned_to: current_user.employee_id,
+                                                                              revoked: false ))
+                                       .where.not(task_status: "Complete").order("deadline DESC").limit(5)
+                                       .each do |x|
+        @upcoming_deadlines[x.deadline.to_time.to_i].append(x.task_description)
+      end
+
+      (Project.where(manager: current_user.employee_id) || []).each do |proj|
+        proj.upcoming_deadlines.each do |x|
+          @upcoming_deadlines[x.deadline.to_time.to_i].append(x.task_description)
+        end
+      end
+      (LeaveRequest.where.not(approved_by: nil).where('start_on > ?', DateTime.now())|| []).each do |leave_request|
+        key = leave_request.start_on.to_date.to_time.to_i
+        if @upcoming_deadlines[key].blank?
+          @upcoming_deadlines[key] = ["#{leave_request.leave_type} starting #{leave_request.start_on.strftime('%d %b, %Y %H:%M')}"]
+        else
+          @upcoming_deadlines[key].append("#{leave_request.leave_type} starting #{leave_request.start_on.strftime('%d %b, %Y %H:%M')}")
+        end
+      end
 
       @loe_targets = ProjectTeam.where("employee_id = ? and project_id in (?) and end_date is NULL",
                                        current_user.employee_id, Project.select(:project_id).where(is_active: true))
@@ -28,11 +48,7 @@ class MainController < ApplicationController
 
       @pending_actions = current_user.employee.pending_actions
       @projects = Project.select(:project_id, :project_name)
-      p = Project.where(manager: current_user.employee_id)
-      @upcoming_deadlines = []
-      p.each do |proj|
-        @upcoming_deadlines += proj.upcoming_deadlines
-      end
+
 
       e = @employee
       jnrs = e.current_supervisees.collect{|x| x.supervisee}
