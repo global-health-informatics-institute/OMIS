@@ -1,7 +1,7 @@
 class LeaveRequest < ApplicationRecord
   # has_one :user, :foreign_key => :employee_id
   belongs_to :employee, :foreign_key =>  :employee_id
- 
+
   def requester
     Employee.find(self.employee_id).person.full_name
   end
