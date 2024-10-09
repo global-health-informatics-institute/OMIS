@@ -44,7 +44,7 @@
         <div class="card-body" style="height: 60vh">
           <h6>Overall Leave Summary</h6>
           <canvas id="leaveSummaryPieChart"  style="width: 25vw;margin-left: auto; margin-right: auto;" ></canvas>
-          <p class="card-text">Remaining Annual Days</p>
+<!--          <p class="card-text">Remaining Annual Days</p>-->
         </div>
       </div>
     </div>
@@ -84,7 +84,7 @@
           <th>Compensatory</th>
           <th>Paternity/Maternity</th>
           <th>Total Leave</th>
-          <th>Worked Days</th>
+<!--          <th>Worked Days</th>-->
         </tr>
       </thead>
       <tbody>
@@ -97,7 +97,7 @@
             <td><%=month_data[:compensatory_summaries] %></td>
             <td><%=month_data[:paternity_summaries]%></td>
             <td><%=month_data[:total_leave_days]%></td>
-            <td><%=month_data[:worked_days]%></td>
+<!--            <td><%#=month_data[:worked_days]%></td>-->
           </tr>
         <%end %>
         <tr style="text-align: center">
@@ -108,7 +108,7 @@
           <td><strong><%= @yearly_totals[:compensatory_summaries] %></strong></td>
           <td><strong><%= @yearly_totals[:parent_summary] %></strong></td>
           <td><strong><%= @yearly_totals[:total_leave_days] %></strong></td>
-          <td><strong><%= @yearly_totals[:worked_days] %></strong></td>
+<!--          <td><strong><%#= @yearly_totals[:worked_days] %></strong></td>-->
         </tr>
 
       </tbody>
