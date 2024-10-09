@@ -1,6 +1,6 @@
 class Employee < ApplicationRecord
     belongs_to :person, :foreign_key =>  :person_id
-    has_one :user, :foreign_key => :employee_id
+    belongs_to :user, :foreign_key => :employee_id
     has_many :affiliations, :foreign_key => :employee_id
     has_many :employee_designations, :foreign_key => :employee_id
 
@@ -173,7 +173,7 @@ class Employee < ApplicationRecord
 
         allowed_transitions = WorkflowStateActor.where(employee_designation_id:
                                                          self.current_designations.collect{|x| x.id})
-                                                .collect{|x| x.workflow_state_id}
+                                                .collect{|x| x.workflow_state_transition_id}
 
         # requisition finance reviews
         actions += Requisition.where("workflow_state_id in (?)" ,allowed_transitions)
@@ -187,7 +187,7 @@ class Employee < ApplicationRecord
                                             "/requisitions/#{x.id}"]}
 
         # requisition reviews
-        actions += Requisition.where("workflow_state_id in (?) and initiated_by not in (?)", WorkflowStateTransition
+        actions += Requisition.where("workflow_state_id in (?) and initiated_by in (?)", WorkflowStateTransition
                               .where(by_supervisor: true).collect{|x| x.workflow_state_id} , self.id )
                               .collect { |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
                                               "/requisitions/#{x.id}"]}
