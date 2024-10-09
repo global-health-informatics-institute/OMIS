@@ -39,12 +39,12 @@ class LeaveRequestsController < ApplicationController
 
       leave_projects = Project.where("short_name LIKE ?", "%Leave%").collect{|x| x.id}
       worked_days = TimesheetTask.where("task_date between ? and ? and project_id not in (?)",
-                                        @month_beginning, @month_ending, leave_projects).sum('duration')
+                                        @month_beginning, @month_ending, leave_projects).sum('duration').to_f
 
       @leave_summary << {month: Date::MONTHNAMES[month_number], annual_summary: annual_summaries,
                           compensatory_summaries: compensatory_summaries, sick_summaries:sick_summaries,
                           study_summaries: study_summaries, paternity_summaries: paternity_summaries,
-                         total_leave_days: total_leave_days, worked_days: (worked_days/7.5).round(2)}
+                         total_leave_days: total_leave_days}
 
       @yearly_totals[:annual_summary] += annual_summaries
       @yearly_totals[:compensatory_summaries] += compensatory_summaries
@@ -52,7 +52,7 @@ class LeaveRequestsController < ApplicationController
       @yearly_totals[:study_summary] += study_summaries
       @yearly_totals[:parent_summary] += paternity_summaries # add maternity_summaries if applicable
       @yearly_totals[:total_leave_days] += total_leave_days
-      @yearly_totals[:worked_days] += (worked_days/7.5).round(2)
+      # @yearly_totals[:worked_days] += (worked_days/7.5).round(2)
       # @holidays = Holidays.between(year_start_date, year_end_date, :mw)
     end
 
