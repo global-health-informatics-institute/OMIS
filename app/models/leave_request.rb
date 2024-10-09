@@ -5,11 +5,11 @@ class LeaveRequest < ApplicationRecord
     Employee.find(self.employee_id).person.full_name
   end
 
-  def reviewer
+  def leave_reviewer
     Employee.find(self.reviewed_by).person.full_name
   end
 
-  def approver
+  def leave_approver
     Employee.find(self.approved_by).person.full_name
   end
 

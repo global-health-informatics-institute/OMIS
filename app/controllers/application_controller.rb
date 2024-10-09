@@ -10,7 +10,7 @@ class ApplicationController < ActionController::Base
         actions = []
         allowed_transitions = WorkflowStateActor.where(employee_designation_id:
                                                          current_user.employee.current_designations.collect{|x| x.id})
-                                                .collect{|x| x.workflow_state_id}
+                                                .collect{|x| x.workflow_state_transition_id}
 
         #need to know possible actions, know things you are owner of, supervisor on, need your role
 

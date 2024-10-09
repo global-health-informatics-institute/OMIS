@@ -31,9 +31,10 @@
             </div>
             <div class="row mt-3 mb-3">
               <div class="col-2 fw-normal">Reviewed By:</div>
-              <div class="col-2 fw-bold fst-italic"><%= @leave_request.reviewer rescue nil %></div>
+              <div class="col-2 fw-bold fst-italic"><%= @leave_request.leave_reviewer rescue nil %></div>
+              <%#raise @leave_request.leave_reviewer.inspect %>
               <div class="col-2 fw-normal">Approved By:</div>
-              <div class="col-2 fw-bold fst-italic"><%= @leave_request.approver  rescue nil%></div>
+              <div class="col-2 fw-bold fst-italic"><%= @leave_request.leave_approver  rescue nil%></div>
             </div>
             <div class="row">
               <div class="col-1 fw-normal"></div>
