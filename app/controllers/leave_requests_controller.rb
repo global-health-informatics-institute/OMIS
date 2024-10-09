@@ -1,4 +1,6 @@
- class LeaveRequestsController < ApplicationController
+require 'holidays'
+
+class LeaveRequestsController < ApplicationController
   def create
     state_id = InitialState.find_by_workflow_process_id(WorkflowProcess.find_by_workflow('Leave Request')).workflow_state_id
     @leave_request = LeaveRequest.create(leave_type: params[:request_type], employee_id: params[:requester],
@@ -51,8 +53,9 @@
       @yearly_totals[:parent_summary] += paternity_summaries # add maternity_summaries if applicable
       @yearly_totals[:total_leave_days] += total_leave_days
       @yearly_totals[:worked_days] += (worked_days/7.5).round(2)
+      @holidays = Holidays.between(year_start_date, year_end_date, :mw)
     end
-    @holidays = Holidays.between(year_start_date, year_end_date, :mw)
+
 
   end
 
