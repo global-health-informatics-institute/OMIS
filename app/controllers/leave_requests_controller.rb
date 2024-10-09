@@ -53,7 +53,7 @@ class LeaveRequestsController < ApplicationController
       @yearly_totals[:parent_summary] += paternity_summaries # add maternity_summaries if applicable
       @yearly_totals[:total_leave_days] += total_leave_days
       @yearly_totals[:worked_days] += (worked_days/7.5).round(2)
-      @holidays = Holidays.between(year_start_date, year_end_date, :mw)
+      # @holidays = Holidays.between(year_start_date, year_end_date, :mw)
     end
 
 
