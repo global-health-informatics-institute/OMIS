@@ -1,6 +1,6 @@
 class Employee < ApplicationRecord
     belongs_to :person, :foreign_key =>  :person_id
-    belongs_to :user, :foreign_key => :employee_id
+    has_one :user, :foreign_key => :employee_id
     has_many :affiliations, :foreign_key => :employee_id
     has_many :employee_designations, :foreign_key => :employee_id
 
@@ -80,7 +80,7 @@ class Employee < ApplicationRecord
         people = Supervision.where(supervisor: self.employee_id, ended_on: nil)
     end
 
-    def used_leave_days (leave_days_start_date = Date.today.beginning_of_year, end_date = Date.today,
+    def used_leave_days (leave_days_start_date = Date.today.beginning_of_month, end_date = Date.today,
                          leave_type: 'Annual Leave')
         timesheets = Timesheet.select('timesheet_id').where("employee_id = ?", self.employee_id)
         leave_records = TimesheetTask.where('project_id = ? AND task_date between ? and ? and timesheet_id in (?)',
@@ -113,9 +113,11 @@ class Employee < ApplicationRecord
         return overtime_hours
     end
 
-    def leave_balance(leave_type: 'Annual Leave')
+    def leave_balance(leave_type: 'Paternity Leave')
+        #raise LeaveSummary.all.inspect
         unused_leave = (LeaveSummary.where(employee_id:  self.employee_id, leave_type: leave_type,
-                                          financial_year: Date.today.year).first).leave_days_balance.floor(2) rescue 0.0
+                                          financial_year: Date.today.year).first).leave_days_balance.floor(2)
+        raise unused_leave.inspect
         return unused_leave
     end
 
@@ -187,7 +189,7 @@ class Employee < ApplicationRecord
                                             "/requisitions/#{x.id}"]}
 
         # requisition reviews
-        actions += Requisition.where("workflow_state_id in (?) and initiated_by in (?)", WorkflowStateTransition
+        actions += Requisition.where("workflow_state_id in (?) and initiated_by not in (?)", WorkflowStateTransition
                               .where(by_supervisor: true).collect{|x| x.workflow_state_id} , self.id )
                               .collect { |x| ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
                                               "/requisitions/#{x.id}"]}
@@ -198,8 +200,7 @@ class Employee < ApplicationRecord
 
         actions += LeaveRequest.where("status in (?) and employee_id in (?) and approved_on is NULL", WorkflowStateTransition
                                .where(by_supervisor: true).collect{|x| x.workflow_state_id}, jnrs)
-                               .collect{|x| ["Review #{x.employee.user.person.first_name}'s' #{x.leave_type} request", "/leave_requests/#{x.id}"]}
-        # raise actions.inspect
+                               .collect{|x| ["Review #{x.user.person.first_name}'s' #{x.leave_type} request", "/leave_requests/#{x.id}"]}
         return actions
     end
 end

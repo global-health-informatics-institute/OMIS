@@ -7,34 +7,16 @@ class MainController < ApplicationController
       @person = @employee.person
       @outstanding_timesheets = Timesheet.select("timesheet_id, employee_id, timesheet_week")
                                          .where("employee_id in (?) and submitted_on is NULL", @employee.id).length
+      @unused_leave = LeaveSummary.where(employee_id: @employee.id, leave_type: 'Annual Leave',
+                                         financial_year: Date.today.year).first
+      @remaining_leave_days = ((@unused_leave.leave_days_balance.floor(2) rescue 0.0) - @employee.used_leave_days)
 
-      @unused_leave = (@employee.leave_balance(leave_type: 'Annual Leave') - @employee.used_leave_days)
+      # raise @remaining_leave_days.inspect
 
-
-      # Create list of upcoming deadlines and activities
-      @upcoming_deadlines = Hash.new([])
-      ProjectTask.where("project_task_id in (?)", ProjectTaskAssignment.select(:project_task_id)
-                                                                       .where(assigned_to: current_user.employee_id,
-                                                                              revoked: false ))
-                                       .where.not(task_status: "Complete").order("deadline DESC").limit(5)
-                                       .each do |x|
-        @upcoming_deadlines[x.deadline.to_time.to_i].append(x.task_description)
-      end
-
-      (Project.where(manager: current_user.employee_id) || []).each do |proj|
-        proj.upcoming_deadlines.each do |x|
-          @upcoming_deadlines[x.deadline.to_time.to_i].append(x.task_description)
-        end
-      end
-      (LeaveRequest.where.not(approved_by: nil).where('employee_id = ? and start_on > ?',
-                                                      current_user.employee_id, DateTime.now())|| []).each do |leave_request|
-        key = leave_request.start_on.to_date.to_time.to_i
-        if @upcoming_deadlines[key].blank?
-          @upcoming_deadlines[key] = ["#{leave_request.leave_type} starting #{leave_request.start_on.strftime('%d %b, %Y %H:%M')}"]
-        else
-          @upcoming_deadlines[key].append("#{leave_request.leave_type} starting #{leave_request.start_on.strftime('%d %b, %Y %H:%M')}")
-        end
-      end
+      @upcoming_deadlines = ProjectTask.where("project_task_id in (?)",
+                                              ProjectTaskAssignment.select(:project_task_id).where(assigned_to: current_user.employee_id,
+                                                                          revoked: false )
+                                              ).where.not(task_status: "Complete").order("deadline DESC").limit(5)
 
       @loe_targets = ProjectTeam.where("employee_id = ? and project_id in (?) and end_date is NULL",
                                        current_user.employee_id, Project.select(:project_id).where(is_active: true))
@@ -49,7 +31,11 @@ class MainController < ApplicationController
 
       @pending_actions = current_user.employee.pending_actions
       @projects = Project.select(:project_id, :project_name)
-
+      p = Project.where(manager: current_user.employee_id)
+      @upcoming_deadlines = []
+      p.each do |proj|
+        @upcoming_deadlines += proj.upcoming_deadlines
+      end
 
       e = @employee
       jnrs = e.current_supervisees.collect{|x| x.supervisee}
@@ -63,12 +49,14 @@ class MainController < ApplicationController
                                       .where("workflow_states.workflow_process_id = ? AND workflow_state_transitions.by_supervisor = ?", wpr.id, true)
                                       .collect{|x| x.workflow_state_id }
       # actor = WorkflowStateActor.select("workflow_state_transition, employee_designation_id").where("voided = ?", false).collect{|x| x.employee_designation_id }
+      # raise actor.inspect
       @approvals = Timesheet.select("timesheet_id, employee_id, submitted_on, state")
                             .where("employee_id in (?) and submitted_on is not NULL and state in (?)", jnrs, by_s)
       @requests = Requisition.select("requisition_id, initiated_by, initiated_on, workflow_state_id, requisition_type")
                              .where("initiated_by in (?) and approved_by is NULL and workflow_state_id in (?) and voided = ?", jnrs, by_s_r, false)
 
       @my_requisitions = Requisition.select("requisition_id, purpose, requisition_type, reviewed_by, approved_by").where("initiated_by = ?", current_user.employee_id)
+      # raise @my_requisitions.inspect
 
     else
       @page_title = "Application Dashboard"

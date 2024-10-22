@@ -1,4 +1,4 @@
-<p class="h5 ">New Employee Form</p>
+<p class="h5">New Employee Form</p>
 <div class="card w-100">
   <div class="card-body p-4">
     <div class="row">
@@ -18,70 +18,173 @@
     <hr>
 
     <%= form_with model: @asset, url: business_assets_path do |form| %>
-      <div class="row">
-        <div class="col-4">
-          <%= form.label :first_name, style: "display: block", class: "form-label" %>
-          <%= form.text_field :first_name, class: "form-control", placeholder: 'Enter first name' %>
-        </div>
-        <div class="col">
-          <%= form.label :middle_name, style: "display: block", class: "form-label" %>
-          <%= form.text_field :middle_name, class: "form-control", placeholder: 'Enter middle name' %>
-        </div>
-        <div class="col-4">
-          <%= form.label :last_name, style: "display: block", class: "form-label" %>
-          <%= form.text_field :last_name, class: "form-control", placeholder: 'Enter last name' %>
-        </div>
-      </div>
-      <div class="row mt-3">
-        <div class="col-4">
-          <%= form.label :birthdate, style: "display: block", class: "form-label" %>
-          <%= form.date_field :birthdate, class: "form-control", placeholder: 'Enter last name' %>
-        </div>
-        <div class="col-4">
-          <%= form.label :gender, style: "display: block", class: "form-label" %>
-          <%= form.select(:gender, gender_options, { include_blank: "Select gender"}, { :class => 'form-select' }) %>
-        </div>
-        <div class="col-4">
-          <%= form.label :marital_status, style: "display: block", class: "form-label" %>
-          <%= form.select(:marital_status, marital_options, { include_blank: "Select marital status"}, { :class => 'form-select' }) %>
-        </div>
 
+      <!-- Step 1: Personal Demographics -->
+      <div id="step1" class="form-step">
+        <div class="row">
+          <div class="col-4">
+            <%= form.label :first_name, style: "display: block", class: "form-label" %>
+            <%= form.text_field :first_name, class: "form-control", placeholder: 'Enter first name' %>
+          </div>
+          <div class="col">
+            <%= form.label :middle_name, style: "display: block", class: "form-label" %>
+            <%= form.text_field :middle_name, class: "form-control", placeholder: 'Enter middle name' %>
+          </div>
+          <div class="col-4">
+            <%= form.label :last_name, style: "display: block", class: "form-label" %>
+            <%= form.text_field :last_name, class: "form-control", placeholder: 'Enter last name' %>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-4">
+            <%= form.label :birthdate, style: "display: block", class: "form-label" %>
+            <%= form.date_field :birthdate, class: "form-control" %>
+          </div>
+          <div class="col-4">
+            <%= form.label :gender, style: "display: block", class: "form-label" %>
+            <%= form.select(:gender, gender_options, { include_blank: "Select gender"}, { class: 'form-select' }) %>
+          </div>
+          <div class="col-4">
+            <%= form.label :marital_status, style: "display: block", class: "form-label" %>
+            <%= form.select(:marital_status, marital_options, { include_blank: "Select marital status"}, { class: 'form-select' }) %>
+          </div>
+        </div>
+        <hr/>
+        <div class="row mt-3">
+          <div class="col-3">
+            <%= form.label :primary_phone, style: "display: block", class: "form-label" %>
+            <%= form.text_field :primary_phone, class: "form-control", placeholder: 'Enter primary phone no.' %>
+          </div>
+          <div class="col-3">
+            <%= form.label :alternative_phone, style: "display: block", class: "form-label" %>
+            <%= form.text_field :alternative_phone, class: "form-control", placeholder: 'Enter alternative phone no.' %>
+          </div>
+          <div class="col">
+            <%= form.label :email_address, style: "display: block", class: "form-label" %>
+            <%= form.text_field :email_address, class: "form-control", placeholder: 'Enter email address' %>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col">
+            <%= form.label :postal_address, style: "display: block", class: "form-label" %>
+            <%= form.text_field :postal_address, class: "form-control", placeholder: 'Enter postal address' %>
+          </div>
+          <div class="col">
+            <%= form.label :official_email, style: "display: block", class: "form-label" %>
+            <%= form.text_field :official_email, class: "form-control", placeholder: 'Enter official email' %>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col">
+            <%= form.label :residential_address, style: "display: block", class: "form-label" %>
+            <%= form.text_field :residential_address, class: "form-control", placeholder: 'Enter residential address' %>
+          </div>
+          <div class="col">
+            <%= form.label :landmark, style: "display: block", class: "form-label" %>
+            <%= form.text_field :landmark, class: "form-control", placeholder: 'Enter landmark' %>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary next-button" onclick="showStep(2)">Next</button>
       </div>
-      <hr/>
-      <div class="row mt-3">
-        <div class="col-3">
-          <%= form.label :primary_phone, style: "display: block", class: "form-label" %>
-          <%= form.text_field :primary_phone, class: "form-control", placeholder: 'Enter primary phone no.' %>
+
+      <!-- Step 2: Employment Details -->
+      <div id="step2" class="form-step" style="display:none;">
+        <h3>Employment Details</h3>
+        <div class="row">
+          <div class="col-4">
+            <%= form.label :job_title, style: "display: block", class: "form-label" %>
+            <%= form.text_field :job_title, class: "form-control", placeholder: 'Enter job title' %>
+          </div>
+          <div class="col-4">
+            <%= form.label :department, style: "display: block", class: "form-label" %>
+            <%= form.text_field :department, class: "form-control", placeholder: 'Enter department' %>
+          </div>
+          <div class="col-4">
+            <%= form.label :start_date, style: "display: block", class: "form-label" %>
+            <%= form.date_field :start_date, class: "form-control", placeholder: 'Select start date' %>
+          </div>
         </div>
-        <div class="col-3">
-          <%= form.label :alternative_phone, style: "display: block", class: "form-label" %>
-          <%= form.text_field :alternative_phone, class: "form-control", placeholder: 'Enter alternative phone no.' %>
-        </div>
-        <div class="col">
-          <%= form.label :email_address, style: "display: block", class: "form-label" %>
-          <%= form.text_field :email_address, class: "form-control", placeholder: 'Enter last name' %>
-        </div>
+        <button type="button" class="btn btn-secondary prev-button" onclick="showStep(1)">Previous</button>
+        <button type="button" class="btn btn-primary next-button" onclick="showStep(3)">Next</button>
       </div>
-      <div class="row mt-3">
-        <div class="col">
-          <%= form.label :postal_address, style: "display: block", class: "form-label" %>
-          <%= form.text_field :postal_address, class: "form-control", placeholder: 'Enter last name' %>
+
+      <!-- Step 3: Levels of Effort -->
+      <div id="step3" class="form-step" style="display:none;">
+        <h3>Levels of Effort</h3>
+        <div class="row">
+          <div class="col-4">
+            <%= form.label :hours_per_week, style: "display: block", class: "form-label" %>
+            <%= form.number_field :hours_per_week, class: "form-control", placeholder: 'Enter hours per week' %>
+          </div>
+          <div class="col-4">
+            <%= form.label :effort_percentage, style: "display: block", class: "form-label" %>
+            <%= form.number_field :effort_percentage, class: "form-control", placeholder: 'Enter effort percentage' %>
+          </div>
         </div>
-        <div class="col">
-          <%= form.label :official_email, style: "display: block", class: "form-label" %>
-          <%= form.text_field :official_address, class: "form-control", placeholder: 'Enter last name' %>
-        </div>
+        <button type="button" class="btn btn-secondary prev-button" onclick="showStep(2)">Previous</button>
+        <button type="button" class="btn btn-primary next-button" onclick="showStep(4)">Next</button>
       </div>
-      <div class="row mt-3">
-        <div class="col">
-          <%= form.label :residential_address, style: "display: block", class: "form-label" %>
-          <%= form.text_field :residential_address, class: "form-control", placeholder: 'Enter last name' %>
-        </div>
-        <div class="col">
-          <%= form.label :landmark, style: "display: block", class: "form-label" %>
-          <%= form.text_field :landmark, class: "form-control", placeholder: 'Enter last name' %>
-        </div>
+
+      <!-- Step 4: Summary -->
+      <div id="step4" class="form-step" style="display:none;">
+          <h3>Summary</h3>
+          <p><strong>First Name:</strong> <span id="summary-first-name"></span></p>
+          <p><strong>Middle Name:</strong> <span id="summary-middle-name"></span></p>
+          <p><strong>Last Name:</strong> <span id="summary-last-name"></span></p>
+          <p><strong>Birthdate:</strong> <span id="summary-birthdate"></span></p>
+          <p><strong>Gender:</strong> <span id="summary-gender"></span></p>
+          <p><strong>Marital Status:</strong> <span id="summary-marital-status"></span></p>
+          <p><strong>Primary Phone:</strong> <span id="summary-primary-phone"></span></p>
+          <p><strong>Alternative Phone:</strong> <span id="summary-alternative-phone"></span></p>
+          <p><strong>Email Address:</strong> <span id="summary-email-address"></span></p>
+          <p><strong>Postal Address:</strong> <span id="summary-postal-address"></span></p>
+          <p><strong>Official Email:</strong> <span id="summary-official-email"></span></p>
+          <p><strong>Residential Address:</strong> <span id="summary-residential-address"></span></p>
+          <p><strong>Landmark:</strong> <span id="summary-landmark"></span></p>
+          <p><strong>Job Title:</strong> <span id="summary-job-title"></span></p>
+          <p><strong>Department:</strong> <span id="summary-department"></span></p>
+          <p><strong>Start Date:</strong> <span id="summary-start-date"></span></p>
+          <p><strong>Hours Per Week:</strong> <span id="summary-hours-per-week"></span></p>
+          <p><strong>Effort Percentage:</strong> <span id="summary-effort-percentage"></span></p>
+      
+          <button type="button" class="btn btn-secondary prev-button" onclick="showStep(3)">Previous</button>
+          <%= form.submit "Submit", class: "btn btn-primary" %>
       </div>
+      
+
     <% end %>
   </div>
 </div>
+
+
+<script>
+  function showStep(step) {
+    const steps = document.querySelectorAll('.form-step');
+    steps.forEach((s) => s.style.display = 'none'); // Hide all steps
+    const currentStepElement = document.getElementById('step' + step);
+    currentStepElement.style.display = 'block'; // Show the current step
+
+    // Populate summary on step 4
+    if (step === 4) {
+      document.getElementById('summary-first-name').textContent = document.querySelector('[name="asset[first_name]"]').value;
+      document.getElementById('summary-middle-name').textContent = document.querySelector('[name="asset[middle_name]"]').value;
+      document.getElementById('summary-last-name').textContent = document.querySelector('[name="asset[last_name]"]').value;
+      document.getElementById('summary-birthdate').textContent = document.querySelector('[name="asset[birthdate]"]').value;
+      document.getElementById('summary-gender').textContent = document.querySelector('[name="asset[gender]"]').value;
+      document.getElementById('summary-marital-status').textContent = document.querySelector('[name="asset[marital_status]"]').value;
+      document.getElementById('summary-primary-phone').textContent = document.querySelector('[name="asset[primary_phone]"]').value;
+      document.getElementById('summary-alternative-phone').textContent = document.querySelector('[name="asset[alternative_phone]"]').value;
+      document.getElementById('summary-email-address').textContent = document.querySelector('[name="asset[email_address]"]').value;
+      document.getElementById('summary-postal-address').textContent = document.querySelector('[name="asset[postal_address]"]').value;
+      document.getElementById('summary-official-email').textContent = document.querySelector('[name="asset[official_email]"]').value;
+      document.getElementById('summary-residential-address').textContent = document.querySelector('[name="asset[residential_address]"]').value;
+      document.getElementById('summary-landmark').textContent = document.querySelector('[name="asset[landmark]"]').value;
+      document.getElementById('summary-job-title').textContent = document.querySelector('[name="asset[job_title]"]').value;
+      document.getElementById('summary-department').textContent = document.querySelector('[name="asset[department]"]').value;
+      document.getElementById('summary-start-date').textContent = document.querySelector('[name="asset[start_date]"]').value;
+      document.getElementById('summary-hours-per-week').textContent = document.querySelector('[name="asset[hours_per_week]"]').value;
+      document.getElementById('summary-effort-percentage').textContent = document.querySelector('[name="asset[effort_percentage]"]').value;
+    }
+  }
+</script>
+
