@@ -1,6 +1,6 @@
 class Employee < ApplicationRecord
     belongs_to :person, :foreign_key =>  :person_id
-    belongs_to :user, :foreign_key => :employee_id
+    has_one :user, :foreign_key => :employee_id
     has_many :affiliations, :foreign_key => :employee_id
     has_many :employee_designations, :foreign_key => :employee_id
 
@@ -95,8 +95,9 @@ class Employee < ApplicationRecord
         timesheets = Timesheet.select('timesheet_id').where("employee_id = ?", self.employee_id)
                               .collect { |x| x.timesheet_id }
         total_hours_worked = TimesheetTask.where('task_date between ? and ? and timesheet_id in (?) and
-                                                 project_id not in (?)', start_date, end_date, timesheets,
-                                                 Project.find_by_short_name("Compensatory Leave").project_id)
+                                                 project_id not in (?) and project_id not in (?)', start_date, end_date, timesheets,
+                                                 Project.find_by_short_name("Compensatory Leave").project_id,
+                                                 Project.where("short_name like ?", "%Leave%").collect{|x| x.project_id})
                                           .sum('duration').to_f
         weekdays_count = (start_date..end_date).count { |date| (1..5).include?(date.wday) }
         working_hours = GlobalProperty.find_by_property("number.of.hours").property_value.to_f
@@ -110,6 +111,7 @@ class Employee < ApplicationRecord
         else
             overtime_hours = 0.0
         end
+        # raise weekdays_count.inspect
         return overtime_hours
     end
 
