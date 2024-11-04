@@ -108,7 +108,7 @@
               Paid leave days remaining
             </div>
             <span class="badge bg-primary rounded-pill">
-              <%= [@unused_leave, 0.0].max %>
+              <%= ([@unused_leave, 0.0].max).round(2) %>
             </span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-start">
