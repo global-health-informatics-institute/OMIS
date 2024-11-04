@@ -175,7 +175,7 @@ class Employee < ApplicationRecord
 
         allowed_transitions = WorkflowStateActor.where(employee_designation_id:
                                                          self.current_designations.collect{|x| x.id})
-                                                .collect{|x| x.workflow_state_transition_id}
+                                                .collect{|x| x.workflow_state_id}
 
         # requisition finance reviews
         actions += Requisition.where("workflow_state_id in (?)" ,allowed_transitions)
