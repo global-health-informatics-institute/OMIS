@@ -3,6 +3,7 @@ class Employee < ApplicationRecord
     has_one :user, :foreign_key => :employee_id
     has_many :affiliations, :foreign_key => :employee_id
     has_many :employee_designations, :foreign_key => :employee_id
+    has_many :project_teams, :foreign_key => :project_id
 
     def full_details(period="current")
         record = {}
