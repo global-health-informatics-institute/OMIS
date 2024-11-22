@@ -40,10 +40,10 @@
         <td><abbr title="fName"><%= person.first_name %></abbr></td>
         <td><abbr title="mName"><%= person.middle_name %></abbr></td>
         <td><abbr title="lName"><%= person.last_name %></abbr></td>
-        <td><abbr title="Post"><%= person.employee.current_position %></abbr></td>
-        <td><abbr title="Emp. Date"><%= person.employee.employment_date.strftime('%d %b, %Y') %></abbr></td>
-        <td><abbr title="Prim. #"><%= person.primary_phone %></abbr></td>
-        <td><abbr title="Alt. #"><%= person.alt_phone %></abbr></td>
+        <td><abbr title="Post"><%= person.employee.current_position rescue " " %></abbr></td>
+        <td><abbr title="Emp. Date"><%= person.employee.employment_date.strftime('%d %b, %Y') rescue " "%></abbr></td>
+        <td><abbr title="Prim. #"><%= person.primary_phone rescue " "%></abbr></td>
+        <td><abbr title="Alt. #"><%= person.alt_phone rescue " "%></abbr></td>
         <th>
           <%= link_to image_tag("/assets/info.png"), "employees/#{person.id}", data: { turbo_frame: "remote_model"}%>
           <%= link_to image_tag("/assets/edit.png"), "employees/#{person.id}/edit", data: { turbo_frame: "remote_model"} %>

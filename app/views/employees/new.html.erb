@@ -1,4 +1,4 @@
-<%= form_with model: @new_person, url: employees_path, method: :post do |form| %>
+<%= form_with url: employees_path, method: :post do |form| %>
 
     <p class="h5 ">New Employee Form</p>
   <!-- Progress Bar -->
@@ -30,29 +30,29 @@
               <div class="row">
                 <div class="col-4">
                   <%= form.label :first_name, style: "display: block", class: "form-label" %>
-                  <%= form.text_field :first_name, class: "form-control required-field", placeholder: 'Enter first name' %>
+                  <%= form.text_field 'person[first_name]', class: "form-control required-field", placeholder: 'Enter first name' %>
                 </div>
                 <div class="col">
                   <%= form.label :middle_name, style: "display: block", class: "form-label" %>
-                  <%= form.text_field :middle_name, class: "form-control", placeholder: 'Enter middle name' %>
+                  <%= form.text_field 'person[middle_name]', class: "form-control", placeholder: 'Enter middle name' %>
                 </div>
                 <div class="col-4">
                   <%= form.label :last_name, style: "display: block", class: "form-label" %>
-                  <%= form.text_field :last_name, class: "form-control required-field", placeholder: 'Enter last name' %>
+                  <%= form.text_field 'person[last_name]', class: "form-control required-field", placeholder: 'Enter last name' %>
                 </div>
               </div>
               <div class="row mt-3">
                 <div class="col-4">
                   <%= form.label :birth_date, style: "display: block", class: "form-label" %>
-                  <%= form.date_field :birth_date, class: "form-control required-field", placeholder: 'Enter last name' %>
+                  <%= form.date_field 'person[birth_date]', class: "form-control required-field", placeholder: 'Enter last name' %>
                 </div>
                 <div class="col-4">
                   <%= form.label :gender, style: "display: block", class: "form-label" %>
-                  <%= form.select(:gender, gender_options, { include_blank: "Select gender"}, { :class => 'form-select', required: true  }) %>
+                  <%= form.select('person[gender]', gender_options, { include_blank: "Select gender"}, { :class => 'form-select', required: true  }) %>
                 </div>
                 <div class="col-4">
                   <%= form.label :marital_status, style: "display: block", class: "form-label" %>
-                  <%= form.select(:marital_status, marital_options, { include_blank: "Select marital status"}, { :class => 'form-select', required: true }) %>
+                  <%= form.select('person[marital_status]', marital_options, { include_blank: "Select marital status"}, { :class => 'form-select', required: true }) %>
                 </div>
 
               </div>
@@ -60,35 +60,35 @@
               <div class="row mt-3">
                 <div class="col-3">
                   <%= form.label :primary_phone, style: "display: block", class: "form-label" %>
-                  <%= form.text_field :primary_phone, class: "form-control required-field", placeholder: 'Enter primary phone no.' %>
+                  <%= form.text_field 'person[primary_phone', class: "form-control required-field", placeholder: 'Enter primary phone no.' %>
                 </div>
                 <div class="col-3">
                   <%= form.label :alt_phone, style: "display: block", class: "form-label" %>
-                  <%= form.text_field :alt_phone, class: "form-control", placeholder: 'Enter alternative phone no.' %>
+                  <%= form.text_field 'person[alt_phone]', class: "form-control", placeholder: 'Enter alternative phone no.' %>
                 </div>
                 <div class="col">
                   <%= form.label :email_address, style: "display: block", class: "form-label" %>
-                  <%= form.text_field :email_address, class: "form-control required-field", placeholder: 'Enter last name' %>
+                  <%= form.text_field 'person[email_address]', class: "form-control required-field", placeholder: 'Enter personal email ' %>
                 </div>
               </div>
               <div class="row mt-3">
                 <div class="col">
                   <%= form.label :postal_address, style: "display: block", class: "form-label" %>
-                  <%= form.text_field :postal_address, class: "form-control required-field", placeholder: 'Enter last name' %>
+                  <%= form.text_field 'person[postal_address]', class: "form-control required-field", placeholder: 'Enter postal address' %>
                 </div>
                 <div class="col">
                   <%= form.label :official_email, style: "display: block", class: "form-label" %>
-                  <%= form.text_field :official_email, class: "form-control required-field", placeholder: 'Enter last name' %>
+                  <%= form.text_field 'person[official_email]', class: "form-control required-field", placeholder: 'Enter official email' %>
                 </div>
               </div>
               <div class="row mt-3">
                 <div class="col">
                   <%= form.label :residential_address, style: "display: block", class: "form-label" %>
-                  <%= form.text_field :residential_address, class: "form-control required-field", placeholder: 'Enter last name' %>
+                  <%= form.text_field 'person[residential_address]', class: "form-control required-field", placeholder: 'Enter residential address' %>
                 </div>
                 <div class="col">
                   <%= form.label :landmark, style: "display: block", class: "form-label" %>
-                  <%= form.text_field :landmark, class: "form-control required-field", placeholder: 'Enter last name' %>
+                  <%= form.text_field 'person[landmark]', class: "form-control required-field", placeholder: 'Enter landmark' %>
                 </div>
               </div>
 
@@ -100,47 +100,29 @@
   <!--          2. Employement Details-->
             <div class="tab-pane" id="nav-employment-details" role="tabpanel" aria-labelledby="nav-employment-details-tab">
               <div class="row">
-                <div class="col-5">
-                  <%= form.label :employer, style: "display: block", class: "form-label" %>
-                  <%= form.text_field :employer, class: "form-control", placeholder: 'Previous Employer/Company Name' %>
-                </div>
-                <div class="row mt-3">
+                <div class="row">
                   <div class="col-4">
-                    <%= form.label :address, style: "display: block", class: "form-label" %>
-                    <%= form.text_field :address, class: "form-control", placeholder: 'Enter address' %>
+                    <%= form.label :employment_date, style: "display: block", class: "form-label" %>
+                    <%= form.date_field 'employee[employment_date]', class: "form-control required-field", placeholder: 'Enter employees employment date' %>
+                  </div>
+                  <div class="col">
+                    <%= form.label :designated_role, style: "display: block", class: "form-label" %>
+                    <%= form.select('employee[designated_role]', roles, { include_blank: "Select role/position"}, { :class => 'form-select', required: true }) %>
                   </div>
                   <div class="col-4">
-                    <%= form.label :location, style: "display: block", class: "form-label" %>
-                    <%= form.text_field :location, class: "form-control", placeholder: 'Employer/Company Location (i.e. Lilongwe, Malawi)' %>
+                    <%= form.label :designation_start_date, style: "display: block", class: "form-label" %>
+                    <%= form.date_field 'employee[designation_start_date]', class: "form-control required-field" %>
                   </div>
-                </div>
-              </div>
-              <div class="row mt-3">
-                <div class="col-4">
-                  <%= form.label :position, style: "display: block", class: "form-label" %>
-                  <%= form.text_field :position, class: "form-control", placeholder: 'Job Title/Position' %>
-                </div>
-                <div class="col-4">
-                  <%= form.label :department, style: "display: block", class: "form-label" %>
-                  <%= form.text_field :department, class: "form-control", placeholder: 'Job Title/Position' %>
-                </div>
-
-              </div>
-              <div class="row mt-3">
-                <div class="col-3">
-                  <%= form.label :from_date, style: "display: block", class: "form-label" %>
-                  <%= form.date_field :from_date, class: "form-control", placeholder: 'Date of start' %>
-                </div>
-                <div class="col-3">
-                  <%= form.label :to_date, style: "display: block", class: "form-label" %>
-                  <%= form.date_field :to_date, class: "form-control", placeholder: 'Date of Leave' %>
-                </div>
-              </div>
-
-              <div class="row mt-3">
-                <div class="col-6">
-                  <%= form.label :reason_for_leaving, style: "display: block", class: "form-label" %>
-                  <%= form.text_area :reason_for_leaving, class: "form-control", placeholder: 'Briefly describe reason for leaving last job', rows: 6, cols: 50 %>
+                  <div class="row mt-3">
+                    <div class="col-4">
+                      <%= form.label :branch, style: "display: block", class: "form-label" %>
+                      <%= form.select('employee[branch]', branches, { include_blank: "Select branch"}, { :class => 'form-select', required: true }) %>
+                    </div>
+                    <div class="col">
+                      <%= form.label :departments, style: "display: block", class: "form-label" %>
+                      <%= form.select('employee[departments]', departments, { include_blank: "Select department"}, { :class => 'form-select', required: true }) %>
+                    </div>
+                  </div>
                 </div>
               </div>
               <%= link_to 'Back', '#nav-personal-demographics-tab', class: 'btn btn-secondary mt-3', data: { bs_toggle: 'tab' } %>
@@ -151,30 +133,27 @@
 
   <!--          3. Level of Effort-->
             <div class="tab-pane" id="nav-level-effort" role="tabpanel" aria-labelledby="nav-level-effort-tab">
-              <div class="row">
-                <div class="col-4">
-                  <%= form.label :employment_date, style: "display: block", class: "form-label" %>
-                  <%= form.date_field :employment_date, class: "form-control required-field", placeholder: 'Enter employees employment date' %>
-                </div>
-                <div class="col">
-                  <%= form.label :designated_role, style: "display: block", class: "form-label" %>
-                  <%= form.select(:designated_role, roles, { include_blank: "Select role/position"}, { :class => 'form-select', required: true }) %>
-                </div>
-                <div class="col-4">
-                  <%= form.label :designation_start_date, style: "display: block", class: "form-label" %>
-                  <%= form.date_field :designation_start_date, class: "form-control required-field" %>
-                </div>
-              </div>
               <div class="row mt-3">
                 <div class="col-4">
-                  <%= form.label :project, style: "display: block", class: "form-label" %>
-                  <%= form.select(:project, projects, { include_blank: "Select project"}, { :class => 'form-select', required: true }) %>
+                  <%= label_tag 'projects', "Project", class: "form-label" %>
+                  <%= select_tag 'projects[][project]', options_for_select(projects, include_blank: "Select project"), class: 'form-control', required: true %>
                 </div>
                 <div class="col-4">
-                  <%= form.label :allocated_effort, style: "display: block", class: "form-label" %>
-                  <%= form.number_field :allocated_effort, step:25, max: 100, min: 25, class: 'form-control', required: true %>
+                  <%= label_tag "allocated_effort", "Allocated Effort", class: "form-label" %>
+                  <%= number_field_tag "projects[][allocated_effort]", nil, step:25, max: 100, min: 25, class: 'form-control', required: true %>
+                </div>
+                <div class="row mt-3">
+                  <div class="col-4">
+                    <%= label_tag 'projects', "Project", class: "form-label" %>
+                    <%= select_tag 'projects[][project]', options_for_select(projects, include_blank: "Select project"), class: 'form-control', required: true %>
+                  </div>
+                  <div class="col-4">
+                    <%= label_tag "allocated_effort", "Allocated Effort", class: "form-label" %>
+                    <%= number_field_tag "projects[][allocated_effort]", nil, step:25, max: 100, min: 25, class: 'form-control', required: true %>
+                  </div>
                 </div>
               </div>
+
               <button type="button" class="btn btn-secondary mt-3" onclick="navigateTab(2, 'previous')">Previous</button>
               <button type="button" class="btn btn-primary mt-3" onclick="validateFields('nav-level-effort', 3, 'next')">Next</button>
             </div>
@@ -185,11 +164,11 @@
               <div class="row">
                 <div class="col-4">
                   <%= form.label :supervisor, style: "display: block", class: "form-label" %>
-                  <%= form.select(:supervisor, supervisors, { include_blank: "Select supervisor"}, { :class => 'form-select', required: true }) %>
+                  <%= form.select('supervision[][supervisor]', supervisors, { include_blank: "Select supervisor"}, { :class => 'form-select', required: true }) %>
                 </div>
                 <div class="col-4">
-                  <%= form.label :supervision_start_date_1, style: "display: block", class: "form-label" %>
-                  <%= form.date_field :supervision_start_date_1, class: "form-control required-field" %>
+                  <%= form.label :started_on, style: "display: block", class: "form-label" %>
+                  <%= form.date_field 'supervision[][started_on]', class: "form-control required-field" %>
                 </div>
               </div>
               <hr/>
@@ -201,6 +180,7 @@
 
             <div class="tab-pane" id="nav-summary" role="tabpanel" aria-labelledby="nav-summary-tab">
               <!-- Summary Form Fields -->
+              <%#= raise params.inspect %>
               <button type="button" class="btn btn-secondary mt-3" onclick="navigateTab(4, 'previous')">Previous</button>
               <%= form.submit "Submit", class: "btn btn-success btn-block mt-3" %>
   <!--            <button type="submit" class="btn btn-success btn-block mt-3">Submit</button>-->

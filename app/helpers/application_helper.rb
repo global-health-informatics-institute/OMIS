@@ -42,4 +42,12 @@ module ApplicationHelper
     s = Supervision.all.collect{|x| x.supervisor}
     Person.where(person_id: s).collect{|x| x.first_name + " " + x.last_name}
   end
+
+  def branches
+    Branch.all.collect { |x| [x.branch_name, x.id] }
+  end
+
+  def departments
+    Department.all.collect{|x| x.department_name}
+  end
 end
