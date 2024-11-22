@@ -38,9 +38,9 @@ class EmployeesController < ApplicationController
           if new_designation.save
             new_supervision = Supervision.new(supervisor: supervisor_id, supervisee: new_employee.id, started_on: new_employee.employment_date)
             if new_supervision.save
-              employee_params[:project].each do |project|
-                project_id = Project.where(short_name: employee_params[:project]).pluck(:project_id).first
-                new_project_team = ProjectTeam.new(project_id: project_id, allocated_effort: employee_params[:allocated_effort],
+              employee_params[:project].each do |proj|
+                project_id = Project.where(short_name: proj[:project]).pluck(:project_id).first
+                new_project_team = ProjectTeam.new(project_id: project_id, allocated_effort: proj[:allocated_effort],
                                                    start_date: new_employee.employment_date, employee_id: new_employee.id)
                 if new_project_team.save
                   redirect_to "/employees/new"
@@ -76,9 +76,9 @@ class EmployeesController < ApplicationController
   end
 
   def employee_params
-    params.require(:person).permit(:first_name, :middle_name, :last_name, :birth_date, :gender, :marital_status,
+    params.permit(:first_name, :middle_name, :last_name, :birth_date, :gender, :marital_status,
                                    :primary_phone, :alt_phone, :email_address, :postal_address, :official_email,
-                                   :residential_address, :landmark, :employment_date, :designated_role, :supervisor,
-                                   :started_on, :project, :allocated_effort)
+                                   :residential_address, :landmark, :employment_date, :designated_role, :supervisor,:started_on,
+                                   :project, :allocated_effort )
   end
 end
