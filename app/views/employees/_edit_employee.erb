@@ -1,0 +1,79 @@
+<%= form_with model: @person, method: "PUT",  url: "/employees/#{@person.id}" , data: {'turbo-frame' => '_top'} do |form|%>
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :first_name %>
+      <%= form.text_field :first_name, value: @person.first_name, class: 'form-control', required: true %>
+    </div>
+    <div class="col mb-3">
+      <%= form.label :middle_name %>
+      <%= form.text_field :middle_name, value: @person.middle_name, class: 'form-control', required: true %>
+    </div>
+    <div class="col mb-3">
+      <%= form.label :last_name %>
+      <%= form.text_field :last_name, value: @person.last_name, class: 'form-control', required: true %>
+    </div>
+  </div>
+<!--  <div class="row">-->
+<!--    <div class="col mb-3">-->
+      <%#= form.label :still_employed %>
+      <%#= form.check_box :still_employed %>
+<!--    </div>-->
+<!--  </div>-->
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :primary_phone %>
+      <%= form.text_field :primary_phone, value: @person.primary_phone, class: 'form-control', required: true %>
+    </div>
+    <div class="col mb-3">
+      <%= form.label :alt_phone %>
+      <%= form.text_field :alt_phone, value: @person.alt_phone, class: 'form-control', required: true %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :designated_role %>
+      <%= form.select :designated_role, options_for_select(roles),prompt:params[:designated_role], :class => 'form-control', required: true   %>
+    </div>
+    <div class="col mb-3">
+      <%= form.label :employment_date %>
+      <%= form.date_field :employment_date,:class => 'form-control', value: @person.employee.employment_date rescue " " %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :branch %>
+      <%= form.select :branch, options_for_select(branches),prompt:@employee.current_branches,
+                      :class => 'form-control', required: true   %>
+    </div>
+    <div class="col mb-3">
+      <%= form.label :department %>
+      <%= form.select :department, options_for_select(departments), prompt:@employee.current_department,
+                      :class => 'form-select', required: true rescue " " %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :marital_status %>
+      <%= form.select :marital_status, options_for_select(marital_options), prompt:@person.marital_status, :class => 'form-select', required: true   %>
+    </div>
+    <div class="col mb-3">
+      <%= form.label :residential_address %>
+      <%= form.text_field :residential_address, value: @person.residential_address, class: 'form-control', required: true %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :supervisor %>
+      <%= form.select :supervisor, options_for_select(supervisors), prompt:@employee.current_supervisors, :class => 'form-select', required: true   %>
+    </div>
+<!--    <div class="col mb-3">-->
+      <%#= form.label :started_on %>
+      <%#= form.date_field :started_on, value: , :class => 'form-select', required: true rescue " " %>
+<!--    </div>-->
+  </div>
+  <div class="mb-3 mt-4">
+    <%= form.hidden_field :person_id, value: @person.id %>
+    <%= form.submit "Update", class: "btn btn-success btn-block" %>
+    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+  </div>
+<% end%>

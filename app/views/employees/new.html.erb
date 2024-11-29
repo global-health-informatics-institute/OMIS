@@ -164,11 +164,11 @@
               <div class="row">
                 <div class="col-4">
                   <%= form.label :supervisor, style: "display: block", class: "form-label" %>
-                  <%= form.select('supervision[][supervisor]', supervisors, { include_blank: "Select supervisor"}, { :class => 'form-select', required: true }) %>
+                  <%= form.select('supervision[supervisor]', supervisors, { include_blank: "Select supervisor"}, { :class => 'form-select', required: true }) %>
                 </div>
                 <div class="col-4">
                   <%= form.label :started_on, style: "display: block", class: "form-label" %>
-                  <%= form.date_field 'supervision[][started_on]', class: "form-control required-field" %>
+                  <%= form.date_field 'supervision[started_on]', class: "form-control required-field" %>
                 </div>
               </div>
               <hr/>
