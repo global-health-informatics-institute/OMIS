@@ -81,7 +81,7 @@ class Employee < ApplicationRecord
         people = Supervision.where(supervisor: self.employee_id, ended_on: nil)
     end
 
-    def used_leave_days (leave_days_start_date = Date.today.beginning_of_year, end_date = Date.today,
+    def used_leave_days (leave_days_start_date = Date.today.beginning_of_month, end_date = Date.today,
                          leave_type: 'Annual Leave')
         timesheets = Timesheet.select('timesheet_id').where("employee_id = ?", self.employee_id)
         leave_records = TimesheetTask.where('project_id = ? AND task_date between ? and ? and timesheet_id in (?)',
