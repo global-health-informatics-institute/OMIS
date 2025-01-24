@@ -38,25 +38,28 @@ class UsersController < ApplicationController
 
   def password_reset_forget
     person = Person.find_by_email_address(params[:user][:email])
-    user = person.employee.user
-
-    if user
-      password = SecureRandom.alphanumeric(10)
-      user.password = password
-      user.reset_needed = true
-    else
-      flash[:error] = "User with this email address not found."
+    if person.nil?
+      flash[:error] = 'User with this email address not found.'
       redirect_to forgot_password_path
-    end
-
-    respond_to do |format|
-      if user.save
-        UserMailer.password_reset_email(user, person, password).deliver_now
-        format.html
-        format.json { render :show, status: :created, location: user }
+    else
+      user = person.employee.user
+      if user
+        password = SecureRandom.alphanumeric(10)
+        user.password = password
+        user.reset_needed = true
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: user.errors, status: :unprocessable_entity }
+        flash[:error] = 'OMIS is having issues with this request. Please contact the administrator.'
+        redirect_to forgot_password_path
+      end
+      respond_to do |format|
+        if user.save
+          UserMailer.password_reset_email(user, person, password).deliver_now
+          format.html
+          format.json { render :show, status: :created, location: user }
+        else
+          format.html { render :new, status: :unprocessable_entity }
+          format.json { render json: user.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
