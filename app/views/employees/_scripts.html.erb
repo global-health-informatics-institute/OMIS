@@ -1,0 +1,196 @@
+
+<script>
+  // ensure required
+function validateFields(tabId) {
+    var tab = document.getElementById(tabId);
+    var requiredFields = tab.querySelectorAll('.required-field');
+    var allFilled = true;
+
+    requiredFields.forEach(function (field) {
+        if (!field.value.trim()) {
+            allFilled = false;
+            field.classList.add('is-invalid'); // Highlight invalid fields
+        } else {
+            field.classList.remove('is-invalid');
+        }
+    });
+
+    if (allFilled) {
+        return true;
+    } else {
+        showFlashMessage("Please fill out all required fields.", "danger");
+        return false;
+    }
+}
+
+// Function to show a flash message
+function showFlashMessage(message, type = "success") {
+    let flashContainer = document.getElementById("flash-container");
+    if (!flashContainer) {
+        flashContainer = document.createElement("div");
+        flashContainer.id = "flash-container";
+        flashContainer.style.position = "fixed";
+        flashContainer.style.top = "20px";
+        flashContainer.style.right = "20px";
+        flashContainer.style.zIndex = "1050";
+        document.body.appendChild(flashContainer);
+    }
+    const flashMessage = document.createElement("div");
+    flashMessage.className = `alert alert-${type} fade show`;
+    flashMessage.role = "alert";
+    flashMessage.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+    `;
+
+    flashContainer.appendChild(flashMessage);
+
+    setTimeout(() => {
+        flashMessage.classList.remove("show");
+        flashMessage.classList.add("fade");
+        setTimeout(() => flashMessage.remove(), 500);
+    }, 3000);
+}
+
+
+
+  // include proper
+  document.addEventListener("DOMContentLoaded", function () {
+    const navLinks = document.querySelectorAll(".nav-tabs .nav-link");
+    navLinks.forEach((navLink) => {
+      navLink.addEventListener("click", function () {
+        const targetTabId = this.getAttribute("data-bs-target").substring(1);
+          document.querySelectorAll(".tab-content .tab-pane").forEach((tab) =>
+            {
+              tab.style.display = "none";
+            }
+          );
+
+          // Show the selected tab
+          const activeTab = document.getElementById(targetTabId);
+          if (activeTab) {
+            activeTab.style.display = "block";
+          }
+      }
+      );
+    }
+    );
+
+    document.querySelectorAll(".tab-content .tab-pane").forEach((tab, index) => 
+      {
+        tab.style.display = index === 0 ? "block" : "none";
+      }
+    );
+  }
+  );
+
+  // update progress bar
+  document.addEventListener("DOMContentLoaded", function () {
+    const navLinks = document.querySelectorAll(".nav-tabs .nav-link");
+    const progressBar = document.getElementById("progress-bar");
+    const totalSteps = navLinks.length;
+
+    function updateProgress(step) {
+        let progress = ((step - 1) / (totalSteps - 1)) * 100;
+        progressBar.style.width = progress + "%";
+        progressBar.setAttribute("aria-valuenow", progress);
+        progressBar.textContent = Math.round(progress) + "%";
+    }
+
+    navLinks.forEach((navLink, index) => {
+        navLink.addEventListener("click", function () {
+            const targetTabId = this.getAttribute("data-bs-target").substring(1);
+
+            document.querySelectorAll(".tab-content .tab-pane").forEach((tab) => {
+                tab.style.display = "none";
+            });
+
+            const activeTab = document.getElementById(targetTabId);
+            if (activeTab) {
+                activeTab.style.display = "block";
+            }
+            updateProgress(index + 1);
+        });
+    });
+
+    document.querySelectorAll(".tab-content .tab-pane").forEach((tab, index) => {
+        tab.style.display = index === 0 ? "block" : "none";
+    });
+    updateProgress(1);
+});
+
+ function buttonNavigate(currentStep, direction) {
+      const tabIds = [
+          "nav-personal-demographics",
+          "nav-employment-details",
+          "nav-level-effort",
+          "nav-supervision",
+          "nav-summary"
+      ];
+
+      // Calculate target step (make sure it is within bounds as needed)
+      let targetStep = direction === "next" ? currentStep + 1 : currentStep - 1;
+      console.log(`Target step: ${targetStep}`);
+
+      // When going forward, validate current step's fields first
+      if (direction === "next") {
+          if (validateFields(tabIds[currentStep - 1]) === true) {
+              navigateWithButton(tabIds[targetStep - 1]);
+          }
+      } else {
+          navigateWithButton(tabIds[targetStep - 1]);
+      }
+  }
+
+  // New version of navigateWithButton to update the active nav button and display content
+  function navigateWithButton(targetTabId) {
+      // 1. Remove active class from all nav tab buttons
+      const navLinks = document.querySelectorAll(".nav-tabs .nav-link");
+      navLinks.forEach((navLink) => {
+          navLink.classList.remove("active");
+          navLink.setAttribute("aria-selected", "false");
+      });
+
+      // 2. Add active class to the target nav tab button
+      // Note: We're matching the button whose data-bs-target equals "#targetTabId"
+      const targetNavLink = document.querySelector(`.nav-tabs .nav-link[data-bs-target="#${targetTabId}"]`);
+      if (targetNavLink) {
+          targetNavLink.classList.add("active");
+          targetNavLink.setAttribute("aria-selected", "true");
+      }
+
+      // 3. Hide all tab panes
+      const tabPanes = document.querySelectorAll(".tab-content .tab-pane");
+      tabPanes.forEach((tab) => {
+          tab.style.display = "none";
+      });
+
+      // 4. Display the target tab pane
+      const activeTab = document.getElementById(targetTabId);
+      if (activeTab) {
+          activeTab.style.display = "block";
+      }
+
+      // 5. Optionally update progress bar based on the new active tab's index
+      // (Assuming updateProgress(step) exists and expects a 1-based step index)
+      if (targetNavLink) {
+          // Determine the step index from the navLinks list
+          const navLinksArray = Array.from(navLinks);
+          const newStepIndex = navLinksArray.indexOf(targetNavLink) + 1;
+          updateProgress(newStepIndex);
+      }
+  }
+
+
+
+function updateProgress(step) {
+    let progressBar = document.getElementById("progress-bar");
+    // Since step 1 should be 0%, we subtract 1 then multiply by 25.
+    let progress = (step - 1) * 25;
+    progressBar.style.width = progress + "%";
+    progressBar.setAttribute("aria-valuenow", progress);
+    progressBar.textContent = progress + "%";
+}
+
+
+</script>
