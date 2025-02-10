@@ -1,4 +1,4 @@
-<%= form_with url: employees_path, method: :post do |form| %>
+<%= form_with url: employees_path,  method: :post , local: true do |form| %>
 
     <p class="h5 ">New Employee Form</p>
   <!-- Progress Bar -->
@@ -60,7 +60,7 @@
               <div class="row mt-3">
                 <div class="col-3">
                   <%= form.label :primary_phone, style: "display: block", class: "form-label" %>
-                  <%= form.text_field 'person[primary_phone', class: "form-control required-field", placeholder: 'Enter primary phone no.' %>
+                  <%= form.text_field 'person[primary_phone]', class: "form-control required-field", placeholder: 'Enter primary phone no.' %>
                 </div>
                 <div class="col-3">
                   <%= form.label :alt_phone, style: "display: block", class: "form-label" %>
@@ -92,12 +92,12 @@
                 </div>
               </div>
 
-              <button type="button" class="btn btn-primary mt-3" onclick="validateFields('nav-personal-demographics', 1, 'next')">Next</button>
+              <button type="button" class="btn btn-primary mt-3" onclick="buttonNavigate(1, 'next')">Next</button>
 
             </div>
 
 
-  <!--          2. Employement Details-->
+  <!--2. Employement Details-->
             <div class="tab-pane" id="nav-employment-details" role="tabpanel" aria-labelledby="nav-employment-details-tab">
               <div class="row">
                 <div class="row">
@@ -107,7 +107,7 @@
                   </div>
                   <div class="col">
                     <%= form.label :designated_role, style: "display: block", class: "form-label" %>
-                    <%= form.select('employee[designated_role]', roles, { include_blank: "Select role/position"}, { :class => 'form-select', required: true }) %>
+                    <%= form.select('employee[designated_role]', roles,  { include_blank: "Select role/position"}, { :class => 'form-select', required: true }) %>
                   </div>
                   <div class="col-4">
                     <%= form.label :designation_start_date, style: "display: block", class: "form-label" %>
@@ -125,13 +125,12 @@
                   </div>
                 </div>
               </div>
-              <%= link_to 'Back', '#nav-personal-demographics-tab', class: 'btn btn-secondary mt-3', data: { bs_toggle: 'tab' } %>
-<!--              <button type="button" class="btn btn-secondary mt-3" onclick="navigateTab(1, 'previous')">Previous</button>-->
-              <button type="button" class="btn btn-primary mt-3" onclick="validateFields('nav-employment-details', 2, 'next')">Next</button>
+              <button type="button" class="btn btn-secondary mt-3" onclick="buttonNavigate(2, 'previous')">Previous</button>
+              <button type="button" class="btn btn-primary mt-3" onclick="buttonNavigate(2, 'next')">Next</button>
             </div>
 
 
-  <!--          3. Level of Effort-->
+          <!--3. Level of Effort-->
             <div class="tab-pane" id="nav-level-effort" role="tabpanel" aria-labelledby="nav-level-effort-tab">
               <div class="row mt-3">
                 <div class="col-4">
@@ -140,31 +139,21 @@
                 </div>
                 <div class="col-4">
                   <%= label_tag "allocated_effort", "Allocated Effort", class: "form-label" %>
-                  <%= number_field_tag "projects[][allocated_effort]", nil, step:25, max: 100, min: 25, class: 'form-control', required: true %>
-                </div>
-                <div class="row mt-3">
-                  <div class="col-4">
-                    <%= label_tag 'projects', "Project", class: "form-label" %>
-                    <%= select_tag 'projects[][project]', options_for_select(projects, include_blank: "Select project"), class: 'form-control', required: true %>
-                  </div>
-                  <div class="col-4">
-                    <%= label_tag "allocated_effort", "Allocated Effort", class: "form-label" %>
-                    <%= number_field_tag "projects[][allocated_effort]", nil, step:25, max: 100, min: 25, class: 'form-control', required: true %>
-                  </div>
+                  <%= number_field_tag "projects[][allocated_effort]", 0, step:25, max: 100, min: 25, class: 'form-control required-field', required: true %>
                 </div>
               </div>
 
-              <button type="button" class="btn btn-secondary mt-3" onclick="navigateTab(2, 'previous')">Previous</button>
-              <button type="button" class="btn btn-primary mt-3" onclick="validateFields('nav-level-effort', 3, 'next')">Next</button>
+              <button type="button" class="btn btn-secondary mt-3" onclick="buttonNavigate(3, 'previous')">Previous</button>
+              <button type="button" class="btn btn-primary mt-3" onclick="buttonNavigate(3, 'next')">Next</button>
             </div>
 
 
-            <!--           Supervision-->
+            <!--Supervision-->
             <div class="tab-pane" id="nav-supervision" role="tabpanel" aria-labelledby="nav-supervision-tab">
               <div class="row">
                 <div class="col-4">
                   <%= form.label :supervisor, style: "display: block", class: "form-label" %>
-                  <%= form.select('supervision[supervisor]', supervisors, { include_blank: "Select supervisor"}, { :class => 'form-select', required: true }) %>
+                  <%= form.select('supervision[supervisor]', supervisors, { include_blank: "Select supervisor"}, { :class => 'form-select required-field', required: true }) %>
                 </div>
                 <div class="col-4">
                   <%= form.label :started_on, style: "display: block", class: "form-label" %>
@@ -174,88 +163,20 @@
               <hr/>
 
 
-              <button type="button" class="btn btn-secondary mt-3" onclick="navigateTab(3, 'previous')">Previous</button>
-              <button type="button" class="btn btn-primary mt-3" onclick="validateFields('nav-level-effort', 4, 'next')">Next</button>
+              <button type="button" class="btn btn-secondary mt-3" onclick="buttonNavigate(4, 'previous')">Previous</button>
+              <button type="button" class="btn btn-primary mt-3" onclick="buttonNavigate(4, 'next')">Next</button>
             </div>
 
-            <div class="tab-pane" id="nav-summary" role="tabpanel" aria-labelledby="nav-summary-tab">
-              <!-- Summary Form Fields -->
-              <%#= raise params.inspect %>
-              <button type="button" class="btn btn-secondary mt-3" onclick="navigateTab(4, 'previous')">Previous</button>
+            <%# summary %>
+            <div class="tab-pane" id="nav-summary" role="tabpanel" aria-labelledby="nav-summary-tab" style="padding: 0; margin:0">
+              <%= render 'employees/summary'%>              
+              <button type="button" class="btn btn-secondary mt-3" onclick="buttonNavigate(5, 'previous')">Previous</button>
               <%= form.submit "Submit", class: "btn btn-success btn-block mt-3" %>
-  <!--            <button type="submit" class="btn btn-success btn-block mt-3">Submit</button>-->
-
             </div>
+            
           </div>
         </div>
     </div>
   </div>
 <% end %>
-
-<script>
-    // Function to validate fields and move forward or backward
-    function validateFields(tabId, step, direction) {
-        var tab = document.getElementById(tabId);
-        var requiredFields = tab.querySelectorAll('.required-field');
-        var allFilled = true;
-
-        requiredFields.forEach(function (field) {
-            if (!field.value) {
-                allFilled = false;
-                field.classList.add('is-invalid'); // Highlight invalid fields
-            } else {
-                field.classList.remove('is-invalid');
-            }
-        });
-
-        // Move to the next tab if fields are valid or we're going backwards
-        if (allFilled || direction === 'previous') {
-            updateProgress(step);
-            navigateTab(step, direction);  // Call navigateTab with direction
-        } else {
-            alert('Please fill out all required fields.');
-        }
-    }
-
-    // Generalized function to handle navigation between tabs
-    function navigateTab(step, direction) {
-        var tabButtons = document.querySelectorAll('#nav-tab button');
-        var tabPanes = document.querySelectorAll('.tab-pane');
-
-        // Determine the target step based on direction
-        var targetStep = direction === 'next' ? step + 1 : step - 1;
-
-        // Ensure targetStep is within valid range
-        if (targetStep >= 1 && targetStep <= tabButtons.length) {
-            // Deselect the current active tab and content
-            var activeTabButton = document.querySelector('#nav-tab .nav-link.active');
-            var activeTabPane = document.querySelector('.tab-pane.active');
-
-            if (activeTabButton && activeTabPane) {
-                activeTabButton.classList.remove('active');
-                activeTabButton.setAttribute('aria-selected', 'false');
-                activeTabPane.classList.remove('active', 'show');
-            }
-
-            // Activate the target tab and content (adjusted here to ensure proper indexing)
-            var targetTabButton = tabButtons[targetStep - 1];  // Adjusted to target correct button
-            var targetTabPane = tabPanes[targetStep - 1];      // Adjusted to target correct pane
-
-            if (targetTabButton && targetTabPane) {
-                targetTabButton.classList.add('active');
-                targetTabButton.setAttribute('aria-selected', 'true');
-                targetTabPane.classList.add('active', 'show');
-            }
-        }
-    }
-
-
-    // Function to update the progress bar
-    function updateProgress(step) {
-        var progressBar = document.getElementById('progress-bar');
-        var progress = (step / 4) * 100; // Assuming 4 steps
-        progressBar.style.width = progress + '%';
-        progressBar.setAttribute('aria-valuenow', progress);
-        progressBar.textContent = Math.round(progress) + '%';
-    }
-</script>
+<%= render 'employees/scripts'%>

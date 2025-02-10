@@ -1,17 +1,61 @@
 
 <script>
-  // ensure required
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("form");
+
+    if (form) {
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const tabs = document.querySelectorAll(".tab-content .tab-pane");
+            let allValid = true;
+            tabs.forEach(tab => tab.classList.remove("d-none"));
+            const requiredFields = form.querySelectorAll(".required-field");
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    allValid = false;
+                    field.classList.add("is-invalid");
+                } else {
+                    field.classList.remove("is-invalid");
+                }
+            });
+            tabs.forEach(tab => {
+                if (!tab.classList.contains("active")) {
+                    tab.classList.add("d-none");
+                }
+            });
+            if (allValid) {
+                form.submit();
+            } else {
+                showFlashMessage("Please fill out all required fields.", "danger");
+            }
+        });
+    }
+});
+
+ 
+// Disable clicks on nav tabs
+// document.addEventListener("DOMContentLoaded", function () {
+//     const navLinks = document.querySelectorAll(".nav-tabs .nav-link");
+//     navLinks.forEach(navLink => {
+//         navLink.addEventListener("click", function (event) {
+//             event.preventDefault(); 
+//         });
+//         navLink.style.pointerEvents = "none"; 
+//     });
+// });
+
+// Validate all required in active tab
 function validateFields(tabId) {
     var tab = document.getElementById(tabId);
-    var requiredFields = tab.querySelectorAll('.required-field');
+    var requiredFields = tab.querySelectorAll(".required-field");
     var allFilled = true;
 
     requiredFields.forEach(function (field) {
         if (!field.value.trim()) {
             allFilled = false;
-            field.classList.add('is-invalid'); // Highlight invalid fields
+            field.classList.add("is-invalid");
         } else {
-            field.classList.remove('is-invalid');
+            field.classList.remove("is-invalid");
         }
     });
 
@@ -23,7 +67,7 @@ function validateFields(tabId) {
     }
 }
 
-// Function to show a flash message
+// flash message
 function showFlashMessage(message, type = "success") {
     let flashContainer = document.getElementById("flash-container");
     if (!flashContainer) {
@@ -52,145 +96,144 @@ function showFlashMessage(message, type = "success") {
     }, 3000);
 }
 
+// navigate between steps
+function buttonNavigate(currentStep, direction) {
+    const tabIds = [
+        "nav-personal-demographics",
+        "nav-employment-details",
+        "nav-level-effort",
+        "nav-supervision",
+        "nav-summary"
+    ];
 
+    let targetStep = direction === "next" ? currentStep + 1 : currentStep - 1;
 
-  // include proper
-  document.addEventListener("DOMContentLoaded", function () {
+    if (direction === "next") {
+        if (validateFields(tabIds[currentStep - 1])) {
+            navigateWithButton(tabIds[targetStep - 1]);
+        }
+    } else {
+        navigateWithButton(tabIds[targetStep - 1]);
+    }
+}
+
+// navigate tabs with buttons
+function navigateWithButton(targetTabId) {
     const navLinks = document.querySelectorAll(".nav-tabs .nav-link");
+    
     navLinks.forEach((navLink) => {
-      navLink.addEventListener("click", function () {
-        const targetTabId = this.getAttribute("data-bs-target").substring(1);
-          document.querySelectorAll(".tab-content .tab-pane").forEach((tab) =>
-            {
-              tab.style.display = "none";
-            }
-          );
-
-          // Show the selected tab
-          const activeTab = document.getElementById(targetTabId);
-          if (activeTab) {
-            activeTab.style.display = "block";
-          }
-      }
-      );
-    }
-    );
-
-    document.querySelectorAll(".tab-content .tab-pane").forEach((tab, index) => 
-      {
-        tab.style.display = index === 0 ? "block" : "none";
-      }
-    );
-  }
-  );
-
-  // update progress bar
-  document.addEventListener("DOMContentLoaded", function () {
-    const navLinks = document.querySelectorAll(".nav-tabs .nav-link");
-    const progressBar = document.getElementById("progress-bar");
-    const totalSteps = navLinks.length;
-
-    function updateProgress(step) {
-        let progress = ((step - 1) / (totalSteps - 1)) * 100;
-        progressBar.style.width = progress + "%";
-        progressBar.setAttribute("aria-valuenow", progress);
-        progressBar.textContent = Math.round(progress) + "%";
-    }
-
-    navLinks.forEach((navLink, index) => {
-        navLink.addEventListener("click", function () {
-            const targetTabId = this.getAttribute("data-bs-target").substring(1);
-
-            document.querySelectorAll(".tab-content .tab-pane").forEach((tab) => {
-                tab.style.display = "none";
-            });
-
-            const activeTab = document.getElementById(targetTabId);
-            if (activeTab) {
-                activeTab.style.display = "block";
-            }
-            updateProgress(index + 1);
-        });
+        navLink.classList.remove("active");
+        navLink.setAttribute("aria-selected", "false");
     });
 
-    document.querySelectorAll(".tab-content .tab-pane").forEach((tab, index) => {
-        tab.style.display = index === 0 ? "block" : "none";
+    const targetNavLink = document.querySelector(`.nav-tabs .nav-link[data-bs-target="#${targetTabId}"]`);
+    if (targetNavLink) {
+        targetNavLink.classList.add("active");
+        targetNavLink.setAttribute("aria-selected", "true");
+    }
+
+    document.querySelectorAll(".tab-content .tab-pane").forEach((tab) => {
+        tab.classList.add("d-none");
+        tab.classList.remove("show", "active");
     });
-    updateProgress(1);
-});
 
- function buttonNavigate(currentStep, direction) {
-      const tabIds = [
-          "nav-personal-demographics",
-          "nav-employment-details",
-          "nav-level-effort",
-          "nav-supervision",
-          "nav-summary"
-      ];
+    const activeTab = document.getElementById(targetTabId);
+    if (activeTab) {
+        activeTab.classList.remove("d-none");
+        activeTab.classList.add("show", "active");
+    }
 
-      // Calculate target step (make sure it is within bounds as needed)
-      let targetStep = direction === "next" ? currentStep + 1 : currentStep - 1;
-      console.log(`Target step: ${targetStep}`);
+    // Update progress bar
+    if (targetNavLink) {
+        const navLinksArray = Array.from(navLinks);
+        const newStepIndex = navLinksArray.indexOf(targetNavLink) + 1;
+        updateProgress(newStepIndex);
+    }
+}
 
-      // When going forward, validate current step's fields first
-      if (direction === "next") {
-          if (validateFields(tabIds[currentStep - 1]) === true) {
-              navigateWithButton(tabIds[targetStep - 1]);
-          }
-      } else {
-          navigateWithButton(tabIds[targetStep - 1]);
-      }
-  }
-
-  // New version of navigateWithButton to update the active nav button and display content
-  function navigateWithButton(targetTabId) {
-      // 1. Remove active class from all nav tab buttons
-      const navLinks = document.querySelectorAll(".nav-tabs .nav-link");
-      navLinks.forEach((navLink) => {
-          navLink.classList.remove("active");
-          navLink.setAttribute("aria-selected", "false");
-      });
-
-      // 2. Add active class to the target nav tab button
-      // Note: We're matching the button whose data-bs-target equals "#targetTabId"
-      const targetNavLink = document.querySelector(`.nav-tabs .nav-link[data-bs-target="#${targetTabId}"]`);
-      if (targetNavLink) {
-          targetNavLink.classList.add("active");
-          targetNavLink.setAttribute("aria-selected", "true");
-      }
-
-      // 3. Hide all tab panes
-      const tabPanes = document.querySelectorAll(".tab-content .tab-pane");
-      tabPanes.forEach((tab) => {
-          tab.style.display = "none";
-      });
-
-      // 4. Display the target tab pane
-      const activeTab = document.getElementById(targetTabId);
-      if (activeTab) {
-          activeTab.style.display = "block";
-      }
-
-      // 5. Optionally update progress bar based on the new active tab's index
-      // (Assuming updateProgress(step) exists and expects a 1-based step index)
-      if (targetNavLink) {
-          // Determine the step index from the navLinks list
-          const navLinksArray = Array.from(navLinks);
-          const newStepIndex = navLinksArray.indexOf(targetNavLink) + 1;
-          updateProgress(newStepIndex);
-      }
-  }
-
-
-
+// update progress bar
 function updateProgress(step) {
     let progressBar = document.getElementById("progress-bar");
-    // Since step 1 should be 0%, we subtract 1 then multiply by 25.
     let progress = (step - 1) * 25;
     progressBar.style.width = progress + "%";
     progressBar.setAttribute("aria-valuenow", progress);
     progressBar.textContent = progress + "%";
 }
 
+// SUMMARY
+function populatePersonalDemographics() {
+  const firstName = document.querySelector("input[name='person[first_name]']")?.value || "--";
+  const middleName = document.querySelector("input[name='person[middle_name]']")?.value || "--";
+  const lastName = document.querySelector("input[name='person[last_name]']")?.value || "--";
+  const birthDate = document.querySelector("input[name='person[birth_date]']")?.value || "--";
+  const gender = document.querySelector("select[name='person[gender]']")?.value || "--";
+  const maritalStatus = document.querySelector("select[name='person[marital_status]']")?.value || "--";
+  const altPhone = document.querySelector("input[name='person[alt_phone]']")?.value || "--";
+  const email = document.querySelector("input[name='person[email_address]']")?.value || "--";
+  const postalAddress = document.querySelector("input[name='person[postal_address]']")?.value || "--";
+  const officialEmail = document.querySelector("input[name='person[official_email]']")?.value || "--";
+  const residentialAddress = document.querySelector("input[name='person[residential_address]']")?.value || "--";
+  const landmark = document.querySelector("input[name='person[landmark]']")?.value || "--";
+
+  document.getElementById("summary-first-name").textContent = firstName;
+  document.getElementById("summary-middle-name").textContent = middleName;
+  document.getElementById("summary-last-name").textContent = lastName;
+  document.getElementById("summary-birth-date").textContent = birthDate;
+  document.getElementById("summary-gender").textContent = gender;
+  document.getElementById("summary-marital-status").textContent = maritalStatus;
+  document.getElementById("summary-alt-phone").textContent = altPhone;
+  document.getElementById("summary-email").textContent = email;
+  document.getElementById("summary-postal-address").textContent = postalAddress;
+  document.getElementById("summary-official-email").textContent = officialEmail;
+  document.getElementById("summary-residential-address").textContent = residentialAddress;
+  document.getElementById("summary-landmark").textContent = landmark;
+}
+
+function populateEmployeeDetails() {
+    const employmentDate = document.querySelector("input[name='employee[employment_date]']")?.value || "--";
+    const designatedRole = document.querySelector("select[name='employee[designated_role]']")?.value || "--";
+    const designationStartDate = document.querySelector("input[name='employee[designation_start_date]']")?.value || "--"; 
+    const branchSelect = document.querySelector("select[name='employee[branch]']");
+    const branch = branchSelect ? branchSelect.options[branchSelect.selectedIndex].text : "--";
+    const department = document.querySelector("select[name='employee[departments]']")?.value || "--";
+
+    document.getElementById("summary-employment-date").textContent = employmentDate;
+    document.getElementById("summary-designated-role").textContent = designatedRole;
+    document.getElementById("summary-designated-start-date").textContent = designationStartDate;
+    document.getElementById("summary-branch").textContent = branch;
+    document.getElementById("summary-department").textContent = department;
+}
+
+function populateLevelOfEffort() {
+    const project = document.querySelector("select[name='projects[][project]']")?.value || "--";  
+    const allocatedEffort = document.querySelector("input[name='projects[][allocated_effort]']")?.value || "--";
+
+    document.getElementById("summary-project").textContent = project;
+    document.getElementById("summary-allocated-effort").textContent = allocatedEffort;
+}
+
+function populateSupervision() {
+    const supervisor = document.querySelector("select[name='supervision[supervisor]']")?.value || "--";
+    const startedOn = document.querySelector("input[name='supervision[started_on]']")?.value || "--";
+
+    document.getElementById("summary-supervisor").textContent = supervisor;
+    document.getElementById("summary-started-on").textContent = startedOn;
+}
+
+populatePersonalDemographics();
+populateEmployeeDetails();
+populateLevelOfEffort();
+populateSupervision();
+
+
+const formElements = document.querySelectorAll("input[name^='person['], select[name^='person['], input[name^='employee['], select[name^='employee['], select[name^='supervision['], input[name^='supervision['], select[name^='projects['], input[name^='projects[']");
+formElements.forEach(element => {
+    element.addEventListener("change", () => {
+        populatePersonalDemographics();
+        populateEmployeeDetails();
+        populateLevelOfEffort();
+        populateSupervision();
+    });
+});
 
 </script>
