@@ -29,4 +29,25 @@ module ApplicationHelper
   def text_colors
 
   end
+
+  def projects
+    Project.all.collect{|x| x.short_name}
+  end
+
+  def roles
+    Designation.all.collect{|x| x.designated_role}
+  end
+
+  def supervisors
+    s = Supervision.all.collect{|x| x.supervisor}
+    Person.where(person_id: s).collect{|x| x.first_name + " " + x.last_name}
+  end
+
+  def branches
+    Branch.all.collect { |x| [x.branch_name, x.id] }
+  end
+
+  def departments
+    Department.all.collect{|x| x.department_name}
+  end
 end

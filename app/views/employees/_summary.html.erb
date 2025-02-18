@@ -1,0 +1,123 @@
+<style>
+.snackbar {
+  visibility: hidden;
+  min-width: 250px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1000;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+}
+
+.snackbar.show {
+  visibility: visible;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@keyframes fadein {
+  from { bottom: 0; opacity: 0; }
+  to { bottom: 30px; opacity: 1; }
+}
+
+@keyframes fadeout {
+  from { bottom: 30px; opacity: 1; }
+  to { bottom: 0; opacity: 0; }
+}
+</style>
+
+<%# personal demographics %>
+<div class="container mt-2">
+  <div class="card shadow-lg p-3 mb-3 bg-white rounded">
+    <div class="card-body">
+      <h5 class="card-title">Personal Demographics</h5>
+      <hr>
+      <div class="row">
+        <div class="col-md-4">  <p class="card-text"><strong>First Name:</strong> <span id="summary-first-name">---</span></p>
+          <p class="card-text"><strong>Middle Name:</strong> <span id="summary-middle-name">--</span></p>
+          <p class="card-text"><strong>Last Name:</strong> <span id="summary-last-name">--</span></p>
+          <p class="card-text"><strong>Birthdate:</strong> <span id="summary-birth-date">--</span></p>
+          <p class="card-text"><strong>Gender:</strong> <span id="summary-gender">--</span></p>
+          <p class="card-text"><strong>Marital Status:</strong> <span id="summary-marital-status">--</span></p>
+        </div>
+        <div class="col-md-4">  <p class="card-text"><strong>Alternative Number:</strong> <span id="summary-alt-phone">--</span></p>
+          <p class="card-text"><strong>Email:</strong> <span id="summary-email">--</span></p>
+          <p class="card-text"><strong>Postal Address:</strong> <span id="summary-postal-address">--</span></p>
+          <p class="card-text"><strong>Official Email:</strong> <span id="summary-official-email">--</span></p>
+        </div>
+        <div class="col-md-4">  <p class="card-text"><strong>Residential:</strong> <span id="summary-residential-address">--</span></p>
+          <p class="card-text"><strong>Landmark:</strong> <span id="summary-landmark">--</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# employee details %>
+<div class="container mt-2">
+  <div class="card shadow-lg p-3 mb-3 bg-white rounded">
+    <div class="card-body">
+      <h5 class="card-title">Employee Details</h5>
+      <hr>
+      <div class="row">
+        <div class="col-md-4">  <p class="card-text"><strong>Employment Date:</strong> <span id="summary-employment-date">---</span></p>
+          <p class="card-text"><strong>Designated Role:</strong> <span id="summary-designated-role">--</span></p>
+          <p class="card-text"><strong>Disignated Start Date:</strong> <span id="summary-designated-start-date">--</span></p>
+        </div>
+        <div class="col-md-4">  <p class="card-text"><strong>Branch:</strong> <span id="summary-branch">---</span></p>
+            <p class="card-text"><strong>Department:</strong> <span id="summary-department">--</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# level of effort %>
+<div class="container mt-2">
+  <div class="card shadow-lg p-3 mb-3 bg-white rounded">
+    <div class="card-body">
+      <h5 class="card-title">Level of Effort</h5>
+      <hr>
+      <div class="row">
+          <p class="card-text"><strong>Project:</strong> <span id="summary-project">--</span></p>
+          <p class="card-text"><strong>Allocated Effort:</strong> <span id="summary-allocated-effort">--</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# supervision %>
+<div class="container mt-2">
+  <div class="card shadow-lg p-3 mb-3 bg-white rounded">
+    <div class="card-body">
+      <h5 class="card-title">Supervion</h5>
+      <hr>
+      <div class="row">
+          <p class="card-text"><strong>supervisor:</strong> <span id="summary-supervisor">--</span></p>
+          <p class="card-text"><strong>Started on:</strong> <span id="summary-started-on">--</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="snackbar" class="snackbar">
+  <%= flash[:notice] || flash[:alert] %>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+  var snackbar = document.getElementById("snackbar");
+  if (snackbar.textContent.trim() !== "") {
+    snackbar.classList.add("show");
+    setTimeout(function () {
+      snackbar.classList.remove("show");
+    }, 3000);
+  }
+});
+</script>
