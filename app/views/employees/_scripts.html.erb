@@ -31,18 +31,17 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
-
  
 // Disable clicks on nav tabs
-// document.addEventListener("DOMContentLoaded", function () {
-//     const navLinks = document.querySelectorAll(".nav-tabs .nav-link");
-//     navLinks.forEach(navLink => {
-//         navLink.addEventListener("click", function (event) {
-//             event.preventDefault(); 
-//         });
-//         navLink.style.pointerEvents = "none"; 
-//     });
-// });
+document.addEventListener("DOMContentLoaded", function () {
+    const navLinks = document.querySelectorAll(".nav-tabs .nav-link");
+    navLinks.forEach(navLink => {
+        navLink.addEventListener("click", function (event) {
+            event.preventDefault(); 
+        });
+        navLink.style.pointerEvents = "none"; 
+    });
+});
 
 // Validate all required in active tab
 function validateFields(tabId) {
@@ -205,12 +204,24 @@ function populateEmployeeDetails() {
 }
 
 function populateLevelOfEffort() {
-    const project = document.querySelector("select[name='projects[][project]']")?.value || "--";  
-    const allocatedEffort = document.querySelector("input[name='projects[][allocated_effort]']")?.value || "--";
+  const projectSelects = document.querySelectorAll("select[name='projects[][project]']");
+  const effortInputs = document.querySelectorAll("input[name='projects[][allocated_effort]']");
 
-    document.getElementById("summary-project").textContent = project;
-    document.getElementById("summary-allocated-effort").textContent = allocatedEffort;
+  let projectSummary = "";
+  let effortSummary = "";
+
+  projectSelects.forEach((select, index) => {
+    const projectValue = select.value || "--";
+    const effortValue = (effortInputs[index] && effortInputs[index].value) || "--";
+    
+    projectSummary += projectValue + ",";
+    effortSummary += effortValue + ",";
+  });
+
+  document.getElementById("summary-project").textContent = projectSummary;
+  document.getElementById("summary-allocated-effort").textContent = effortSummary;
 }
+
 
 function populateSupervision() {
     const supervisor = document.querySelector("select[name='supervision[supervisor]']")?.value || "--";
@@ -234,6 +245,219 @@ formElements.forEach(element => {
         populateLevelOfEffort();
         populateSupervision();
     });
+});
+
+function flashMessage(message, type = "success") {
+    let flashContainer = document.getElementById("flash-container");
+    const flashMessage = document.createElement("div");
+    flashMessage.className = `alert alert-${type} fade show`;
+    flashMessage.role = "alert";
+    flashMessage.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+    `;
+    flashContainer.appendChild(flashMessage);
+
+    setTimeout(() => {
+        flashMessage.classList.remove("show");
+        flashMessage.classList.add("fade");
+        setTimeout(() => flashMessage.remove(), 500);
+    }, 3000);
+}
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Global state
+  const state = {
+    options: [],
+    forms: [{ project: '', allocated_effort: 0 }],
+    maxForms: 4
+  };
+
+  // Populate hidden options
+  const projectSelectElem = document.getElementById("projectList");
+  for (let option of projectSelectElem.options) {
+    if (option.value) {
+      state.options.push(option.value);
+    }
+  }
+
+  // DOM elements
+  const formRowsContainer = document.getElementById('form-rows');
+  const totalEffortDisplay = document.getElementById('total-effort-display');
+  const submitButton = document.getElementById('submit-button');
+  const formElement = document.getElementById('dynamicForm');
+
+  // Compute available project options 
+  function availableOptions(index) {
+    const selectedProjects = state.forms
+      .filter((f, i) => i !== index)
+      .map(f => f.project)
+      .filter(val => val !== '');
+    return state.options.filter(option => {
+      return option === state.forms[index].project || !selectedProjects.includes(option);
+    });
+  }
+
+  // Compute ae
+  function computeTotalEffort() {
+    return state.forms.reduce((sum, form) => sum + (Number(form.allocated_effort) || 0), 0);
+  }
+
+  // Update al + togglenext button
+  function updateTotalAndSubmit() {
+    const total = computeTotalEffort();
+    totalEffortDisplay.textContent = 'Total Effort: ' + total + '%';
+    submitButton.disabled = (total !== 100);
+
+    if (total === 100) {
+      totalEffortDisplay.classList.remove('btn-warning');
+      totalEffortDisplay.classList.add('btn-success');
+    } else {
+      totalEffortDisplay.classList.remove('btn-success');
+      totalEffortDisplay.classList.add('btn-warning');
+    }
+  }
+
+  // Render all dynamic form rows
+  function render() {
+    // Clear previous rows
+    formRowsContainer.innerHTML = '';
+
+    state.forms.forEach((form, index) => {
+      // Outer div for a form row
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'counter mb-3 p-3 border rounded';
+
+      // Row container
+      const rowContainer = document.createElement('div');
+      rowContainer.className = 'row';
+
+      /* Project select */
+      const colProject = document.createElement('div');
+      colProject.className = 'col-md-4';
+
+      const labelProject = document.createElement('label');
+      labelProject.htmlFor = 'project-' + index;
+      labelProject.className = 'form-label';
+      labelProject.textContent = 'Project';
+      colProject.appendChild(labelProject);
+
+      const selectProject = document.createElement('select');
+      selectProject.id = 'project-' + index;
+      selectProject.className = 'form-select required-field';
+      selectProject.required = true;
+
+      // Add the name attribute so Rails includes this field in params
+      selectProject.name = 'projects[][project]';
+
+      // Default option
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = 'Select project';
+      selectProject.appendChild(defaultOption);
+
+      // Add available options new row
+      availableOptions(index).forEach(optionValue => {
+        const optionElem = document.createElement('option');
+        optionElem.value = optionValue;
+        optionElem.textContent = optionValue;
+        if (form.project === optionValue) {
+          optionElem.selected = true;
+        }
+        selectProject.appendChild(optionElem);
+      });
+
+
+      selectProject.addEventListener('change', function(e) {
+        state.forms[index].project = e.target.value;
+        render();
+      });
+
+      colProject.appendChild(selectProject);
+      rowContainer.appendChild(colProject);
+
+      /* Allocated Effort */
+      const colEffort = document.createElement('div');
+      colEffort.className = 'col-md-4';
+
+      const labelEffort = document.createElement('label');
+      labelEffort.htmlFor = 'allocated_effort-' + index;
+      labelEffort.className = 'form-label';
+      labelEffort.textContent = 'Allocated Effort';
+      colEffort.appendChild(labelEffort);
+
+      const inputEffort = document.createElement('input');
+      inputEffort.id = 'allocated_effort-' + index;
+      inputEffort.type = 'number';
+      inputEffort.step = '25';
+      inputEffort.max = '100';
+      inputEffort.min = '25';
+      inputEffort.className = 'form-control required-field';
+      inputEffort.required = true;
+      inputEffort.name = 'projects[][allocated_effort]';
+
+      inputEffort.value = form.allocated_effort || '';
+
+      inputEffort.addEventListener('input', function(e) {
+        state.forms[index].allocated_effort = Number(e.target.value) || 0;
+        updateTotalAndSubmit();
+      });
+      colEffort.appendChild(inputEffort);
+      rowContainer.appendChild(colEffort);
+
+      /* Action buttons */
+      const colButtons = document.createElement('div');
+      colButtons.className = 'col-md-4 d-flex align-items-end';
+
+      // Remove button
+      const btnRemove = document.createElement('button');
+      btnRemove.type = 'button';
+      btnRemove.className = 'btn btn-danger me-2';
+      btnRemove.textContent = '–';
+      btnRemove.disabled = state.forms.length === 1;
+      btnRemove.addEventListener('click', function() {
+        removeForm(index);
+      });
+      colButtons.appendChild(btnRemove);
+
+      // Add button
+      const btnAdd = document.createElement('button');
+      btnAdd.type = 'button';
+      btnAdd.className = 'btn btn-success';
+      btnAdd.textContent = '+';
+      btnAdd.disabled = state.forms.length === state.maxForms;
+      btnAdd.addEventListener('click', function() {
+        addForm();
+      });
+      colButtons.appendChild(btnAdd);
+
+      rowContainer.appendChild(colButtons);
+
+      rowDiv.appendChild(rowContainer);
+      formRowsContainer.appendChild(rowDiv);
+    });
+
+    updateTotalAndSubmit();
+  }
+
+  function addForm() {
+    if (state.forms.length < state.maxForms) {
+      state.forms.push({ project: '', allocated_effort: 0 });
+      render();
+    }
+  }
+
+  function removeForm(index) {
+    if (state.forms.length > 1) {
+      state.forms.splice(index, 1);
+      render();
+    }
+  }
+
+  // Initial render
+  render();
 });
 
 </script>

@@ -1,5 +1,5 @@
 class EmployeesController < ApplicationController
-  before_action :can_access?, only: [:create, :edit, :update, :show, :index]
+  # before_action :can_access?, only: [:create, :edit, :update, :show, :index]
   def index
     @list_employees = Employee.where(still_employed: true).collect { |x| x.person }
   end
@@ -8,69 +8,64 @@ class EmployeesController < ApplicationController
   end
 
   def new
-    @new_person = Person.new
     @new_employee = Employee.new
-    @new_user = User.new
+  end
+
+  def process_params # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+    person_params = params[:person].dup
+    employee_params = params[:employee].dup
+    supervision_params = params[:supervision].dup
+
+    # Person
+    person_params[:first_name] = person_params[:first_name].strip.capitalize.gsub(/[^a-zA-Z]/, '')
+    person_params[:middle_name] = person_params[:middle_name].to_s.strip.gsub(/[^a-zA-Z']/, '').capitalize
+    person_params[:last_name] = person_params[:last_name].strip.capitalize.gsub(/[^a-zA-Z]/, '')
+    person_params[:gender] = person_params[:gender].strip
+    person_params[:marital_status] = person_params[:marital_status].strip
+    person_params[:primary_phone] = person_params[:primary_phone].strip.gsub(/[^0-9]/, '')
+    person_params[:alt_phone] = person_params[:alt_phone].strip.gsub(/[^0-9]/, '')
+    person_params[:email_address] = person_params[:email_address].strip
+    person_params[:official_email] = person_params[:official_email].strip
+    person_params[:postal_address] = person_params[:postal_address].strip.gsub(/\n/, ',')
+    person_params[:residential_address] = person_params[:residential_address].strip.gsub(/\n/, ',')
+    person_params[:landmark] = person_params[:landmark].strip.gsub(/\n/, ',')
+
+    # Employee
+    employee_params[:branch] = employee_params[:branch].to_i
+
+    # projects
+    projects_params = params[:projects].map { |p| p.permit(:project, :allocated_effort) }
+
+    # supervision
+    supervisor_name = params[:supervision][:supervisor]
+    first_name, last_name = supervisor_name.split(' ', 2)
+    supervision_params[:supervisor] = Person.where(first_name: first_name, last_name: last_name) # rubocop:disable Style/HashSyntax
+                                            .pluck(:person_id).first
+    supervision_params[:started_on] = params[:supervision][:started_on]
+
+    {
+      person: person_params.permit(:first_name, :middle_name, :last_name, :birth_date, :gender, :marital_status,
+                                   :primary_phone, :alt_phone, :email_address, :official_email, :postal_address,
+                                   :residential_address, :landmark).to_h,
+
+      employee: employee_params.permit(:employment_date, :designated_role, :designation_start_date, :branch,
+                                       :departments).to_h,
+
+      supervision: supervision_params.permit(:supervisor, :started_on).to_h,
+
+      project: projects_params
+
+    }
   end
 
   def create
-    raise params.inspect
-    selected_supervisor = params[:supervision][:supervisor].split(' ')
-    supervisor_id = Person.where(first_name: selected_supervisor[0], last_name: selected_supervisor[1])
-                          .pluck(:person_id).first
-    designated_role = Designation.where(designated_role: employee_params[:designated_role])
-                                 .pluck(:designation_id).first
-
-    new_person = Person.new(first_name: employee_params[:first_name], middle_name: employee_params[:middle_name],
-                            last_name: employee_params[:last_name], birth_date: employee_params[:birth_date],
-                            gender: employee_params[:gender], marital_status: employee_params[:marital_status],
-                            primary_phone: employee_params[:primary_phone], alt_phone: employee_params[:alt_phone],
-                            email_address: employee_params[:email_address], postal_address: employee_params[:postal_address],
-                            official_email: employee_params[:official_email], residential_address: employee_params[:residential_address],
-                            landmark: employee_params[:landmark])
-
-    if new_person.save
-      new_employee = Employee.new(person_id: new_person.id, employment_date: employee_params[:employment_date])
-      if new_employee.save
-        new_user = User.new(employee_id: new_employee.id, username: "#{new_person.last_name}#{new_person.first_name[0]}#{rand(999).to_s.rjust(3,"0")}",
-                            activated: true, reset_needed: true, activated_at: Time.now, password: 'Q9WKi0f3AHbNZbo2')
-        if new_user.save
-          new_designation = EmployeeDesignation.new(employee_id: new_employee.id, designation_id: designated_role,
-                                                    start_date: new_employee.employment_date)
-          if new_designation.save
-            new_supervision = Supervision.new(supervisor: supervisor_id, supervisee: new_employee.id, started_on: new_employee.employment_date)
-            if new_supervision.save
-              employee_params[:project].each do |proj|
-                project_id = Project.where(short_name: proj[:project]).pluck(:project_id).first
-                new_project_team = ProjectTeam.new(project_id: project_id, allocated_effort: proj[:allocated_effort],
-                                                   start_date: new_employee.employment_date, employee_id: new_employee.id)
-                if new_project_team.save
-                  redirect_to "/employees/new"
-                  flash[:notice] = 'Successfully added a person.'
-                else
-                  flash[:error] = 'Error creating project team.'
-                  render :new
-                end
-              end
-            else
-              flash[:error] = 'Error creating supervisor.'
-              render :new
-            end
-          else
-            flash[:error] = 'Error creating designation.'
-            render :new
-          end
-        else
-          flash[:error] = 'Error creating person.'
-          render :new
-        end
-      else
-        flash[:error] = 'Error creating employee.'
-        render :new
-      end
-    else
-      flash[:error] = 'Error creating person.'
-      render :new
+    begin # rubocop:disable Style/RedundantBegin
+      EmployeeCreationService.call(process_params, session)
+      UserMailer.welcome_email(session[:last_username], session[:last_password]).deliver_now
+      flash[:notice] = 'Employee added successfully!'
+      # redirect_to '/employees'
+    rescue ActiveRecord::RecordInvalid => e
+      flash[:alert] = "Error updating employee details!: #{e}"
     end
   end
 
@@ -114,4 +109,5 @@ class EmployeesController < ApplicationController
                                    :residential_address, :landmark, :employment_date, :designated_role, :supervisor,:started_on,
                                    :project, :allocated_effort )
   end
+
 end

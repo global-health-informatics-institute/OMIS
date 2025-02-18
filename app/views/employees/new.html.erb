@@ -1,6 +1,6 @@
-<%= form_with url: employees_path,  method: :post , local: true do |form| %>
+<%= form_with url: employees_path,  method: :post , local: false do |form| %>
 
-    <p class="h5 ">New Employee Form</p>
+  <p class="h5 ">New Employee Form</p>
   <!-- Progress Bar -->
   <div class="progress mb-3">
     <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
@@ -26,6 +26,8 @@
 
         <div class="card-body">
           <div class="tab-content" id="nav-tabContent">
+
+            <%# personal demographics %>
             <div class="tab-pane active" id="nav-personal-demographics" role="tabpanel" aria-labelledby="nav-personal-demographics-tab">
               <div class="row">
                 <div class="col-4">
@@ -97,7 +99,7 @@
             </div>
 
 
-  <!--2. Employement Details-->
+            <!--2. Employement Details-->
             <div class="tab-pane" id="nav-employment-details" role="tabpanel" aria-labelledby="nav-employment-details-tab">
               <div class="row">
                 <div class="row">
@@ -107,7 +109,7 @@
                   </div>
                   <div class="col">
                     <%= form.label :designated_role, style: "display: block", class: "form-label" %>
-                    <%= form.select('employee[designated_role]', roles,  { include_blank: "Select role/position"}, { :class => 'form-select', required: true }) %>
+                    <%= form.select('employee[designated_role]', roles,  { include_blank: "Select role/position"}, { :class => 'form-select required-field', required: true }) %>
                   </div>
                   <div class="col-4">
                     <%= form.label :designation_start_date, style: "display: block", class: "form-label" %>
@@ -116,11 +118,11 @@
                   <div class="row mt-3">
                     <div class="col-4">
                       <%= form.label :branch, style: "display: block", class: "form-label" %>
-                      <%= form.select('employee[branch]', branches, { include_blank: "Select branch"}, { :class => 'form-select', required: true }) %>
+                      <%= form.select('employee[branch]', branches, { include_blank: "Select branch"}, { :class => 'form-select required-field', required: true }) %>
                     </div>
                     <div class="col">
                       <%= form.label :departments, style: "display: block", class: "form-label" %>
-                      <%= form.select('employee[departments]', departments, { include_blank: "Select department"}, { :class => 'form-select', required: true }) %>
+                      <%= form.select('employee[departments]', departments, { include_blank: "Select department"}, { :class => 'form-select required-field', required: true }) %>
                     </div>
                   </div>
                 </div>
@@ -130,22 +132,41 @@
             </div>
 
 
-          <!--3. Level of Effort-->
-            <div class="tab-pane" id="nav-level-effort" role="tabpanel" aria-labelledby="nav-level-effort-tab">
-              <div class="row mt-3">
-                <div class="col-4">
-                  <%= label_tag 'projects', "Project", class: "form-label" %>
-                  <%= select_tag 'projects[][project]', options_for_select(projects, include_blank: "Select project"), class: 'form-control', required: true %>
-                </div>
-                <div class="col-4">
-                  <%= label_tag "allocated_effort", "Allocated Effort", class: "form-label" %>
-                  <%= number_field_tag "projects[][allocated_effort]", 0, step:25, max: 100, min: 25, class: 'form-control required-field', required: true %>
-                </div>
-              </div>
+            <!--3. Level of Effort-->
 
-              <button type="button" class="btn btn-secondary mt-3" onclick="buttonNavigate(3, 'previous')">Previous</button>
-              <button type="button" class="btn btn-primary mt-3" onclick="buttonNavigate(3, 'next')">Next</button>
-            </div>
+
+            <%# LOE2 %>
+            <%# container for available projects %>
+              <select id="projectList" hidden>
+                <option value="">Select project</option>
+                <% projects.each do |project| %>
+                  <option value="<%= project %>"><%= project %></option>
+                <% end %>
+              </select>
+
+              <div class="tab-pane" id="nav-level-effort" role="tabpanel" aria-labelledby="nav-level-effort-tab">
+                <div id="dynamicForm">
+
+                  <div id="form-rows">
+                    <div class="row mt-3">
+                      <div class="col-4">
+                        <%= label_tag 'projects', "Project", class: "form-label" %>
+                        <%puts projects.inspect%>
+                        <%= form.select('projects[][project]', projects,{ include_blank: "Select project"}, {class: 'form-control required-field', required: true}) %>
+                      </div>
+                      <div class="col-4">
+                        <%= label_tag "allocated_effort", "Allocated Effort", class: "form-label" %>
+                        <%= number_field_tag "projects[][allocated_effort]", nil, step:25, max: 100, min: 25, class: 'form-control required-field', required: true %>
+                      </div>
+                    </div>
+                  </div>
+
+
+                  <button type="button" class="btn btn-secondary mt-3" onclick="buttonNavigate(3, 'previous')">Previous</button>
+                  <button type="button" id="submit-button" class="btn btn-primary mt-3" onclick="buttonNavigate(3, 'next')">Next</button>
+                  <button type="button" class="btn btn-warning mt-3" id="total-effort-display" disabled>0%</button>
+                </div>  
+              </div>
 
 
             <!--Supervision-->
