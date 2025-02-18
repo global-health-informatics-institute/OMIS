@@ -1,5 +1,7 @@
-class EmployeesController < ApplicationController
-  # before_action :can_access?, only: [:create, :edit, :update, :show, :index]
+# frozen_string_literal: true
+
+class EmployeesController < ApplicationController # rubocop:disable Style/Documentation
+  before_action :can_access?, only: %i[create edit update show index]
   def index
     @list_employees = Employee.where(still_employed: true).collect { |x| x.person }
   end
