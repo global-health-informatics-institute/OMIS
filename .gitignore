@@ -42,3 +42,5 @@ node_modules
 .idea
 reports/*
 */letterhead*
+timesheet_tasks.csv
+generate_timesheet_csv.rb
