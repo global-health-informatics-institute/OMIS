@@ -7,7 +7,11 @@ class Requisition < ApplicationRecord
   has_many :requisition_items, :foreign_key => :requisition_id
   has_many :requisition_notes, :foreign_key => :requisition_id
   has_one :workflow_state, :foreign_key => :workflow_state_id
+  validates :amount, presence: true, numericality: { less_than_or_equal_to: 35_000, message: "must not exceed 35,000" }
 
+  def petty_cash_limit
+    amount > 35_000
+  end
   def assign_state
     self.workflow_state_id = InitialState.find_by_workflow_process_id(WorkflowProcess.find_by_workflow('Petty Cash Request')).workflow_state_id
   end
@@ -29,4 +33,5 @@ class Requisition < ApplicationRecord
       return self.requisition_items.first.value
     end
   end
+  
 end
