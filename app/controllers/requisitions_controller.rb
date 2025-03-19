@@ -6,148 +6,128 @@ class RequisitionsController < ApplicationController
   def show
     @requisition = Requisition.find(params[:id])
     is_owner = (@requisition.initiated_by == current_user.employee_id)
-    is_supervisor = current_user.employee.current_supervisees.collect do |x|
-      x.supervisee
-    end.include?(@requisition.initiated_by)
+    is_supervisor = current_user.employee.current_supervisees.collect{|x| x.supervisee}.include?(@requisition.initiated_by)
     @possible_actions = possible_actions(@requisition.workflow_state_id, is_owner, is_supervisor)
     # raise @possible_actions.inspect
+
   end
 
   def new
-    @requisition = Requisition.new
-    @selected_request = params['request_type']
+    @requisition = Requisition.new()
+    @selected_request = params["request_type"]
 
     @project_options = Project.all.collect { |x| [x.project_name, x.id] }
     @selected_project = Project.find_by_short_name(params[:prj])
 
     case @selected_request
     when 'Petty Cash'
-      @petty_cash_limit = Requisition.last&.petty_cash_limit || 35_000
-
+      @petty_cash_limit = 35000
     when 'Asset Request'
-      @asset_types = AssetCategory.all.pluck(:category)
+      @asset_types = AssetCategory.all.collect{|x| x.category}
+    when 'Purchase Request'
+
     when 'Travel Request'
-      @employees = Employee.where(still_employed: true).pluck(:full_name)
+      @employees = Employee.where(still_employed: true).collect{|x| x.person.full_name}
+    when 'Personnel Requests'
+
     when 'Token Request'
       @token = SecureRandom.alphanumeric
       TokenLog.create(token: @token)
+      #send_data @token,  :filename => "requested_token.txt"
+
+    when 'Leave Request'
+      @annual_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id,
+      leave_type: "Annual Leave", financial_year: Date.today.year).first_or_create(leave_days_balance: 0.0, leave_days_total: 0.0)
+
+      @sick_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id,
+      leave_type: "Sick Leave", financial_year: Date.today.year).first_or_create(leave_days_balance: 0.0, leave_days_total: 0.0)
+
+      @compassionate_leave_bal = LeaveSummary.where(employee_id: current_user.employee.id,
+      leave_type: "Compassionate Leave", financial_year: Date.today.year).first_or_create(leave_days_balance: 0.0, leave_days_total: 0.0)
+      @employees = Employee.where(still_employed: true)
+                           .collect{|x| [x.person.full_name, x.employee_id]} - [[current_user.employee.person.full_name, current_user.employee_id]]
     end
   end
 
-  # Creates a new requisition request
   def create
-    @requisition = Requisition.new(requisition_params.merge(
+
+    state_id = InitialState.find_by_workflow_process_id(WorkflowProcess.find_by_workflow('Petty Cash Request')).workflow_state_id
+    ActiveRecord::Base.transaction do
+      @requisition = Requisition.create(purpose: params[:requisition][:purpose],
                                      initiated_by: current_user.id,
                                      initiated_on: Date.today,
-                                     workflow_state_id: initial_workflow_state
-                                   ))
+                                     requisition_type: params[:requisition][:requisition_type],
+                                     workflow_state_id: state_id,
+                                     project_id: params[:requisition][:project_id])
+      RequisitionItem.create(requisition_id: @requisition.id, value: params[:requisition][:amount], quantity: 1.0,
+                             item_description: 'Petty Cash'
+                             )
+    end
 
-    if @requisition.save
-      RequisitionItem.create(
-        requisition_id: @requisition.id,
-        value: params[:requisition][:amount].to_i,
-        quantity: 1.0,
-        item_description: 'Petty Cash'
-      )
 
-      flash[:notice] = 'Request submitted successfully.'
-      redirect_to requisition_path(@requisition)
+    if @requisition.errors.empty?
+      flash[:notice] = "Request successful"
+      redirect_to "/requisitions/#{@requisition.id}"
     else
-      flash[:alert] = 'Request failed: ' + @requisition.errors.full_messages.join(', ')
-      render :new
+      flash[:error] = "Request failed"
     end
   end
 
-  private
+  def edit
 
-  def initial_workflow_state
-    WorkflowState.find_by(state: 'Requested')&.id # Ensure this matches your actual workflow state
   end
 
-  # Approves a requisition request
   def approve_request
-    update_requisition_status('Pending Review', 'Requisition is now pending review.')
+    # raise @transition_state.inspect
+    new_state = WorkflowState.where(state: 'Approved',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
+    @requisition = Requisition.where(requisition_id: params[:id])
+                              .update(reviewed_by: current_user.user_id, workflow_state_id: new_state.first.id)
+
+    redirect_to "/requisitions/#{params[:id]}"
   end
 
-  # Rejects a requisition request
-  def reject_request
-    update_requisition_status('Rejected', 'Requisition has been rejected.')
-  end
-
-  # Approves funds for the requisition
   def approve_funds
-    update_requisition_status('Finances Approved', 'Funds approved.')
+    # raise @transition_state.inspect
+    new_state = WorkflowState.where(state: 'Finances Approved',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
+    @requisition = Requisition.where(requisition_id: params[:id])
+                              .update(approved_by: current_user.user_id, workflow_state_id: new_state.first.id)
+
+    redirect_to "/requisitions/#{params[:id]}"
   end
 
-  # Marks the requisition as funds released
   def release_funds
-    update_requisition_status('Prepared', 'Funds released.')
-  end
+    new_state = WorkflowState.where(state: 'Prepared',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
+    @requisition = Requisition.where(requisition_id: params[:id])
+                              .update(workflow_state_id: new_state.first.id)
 
-  # Rescinds (cancels) a requisition
+    redirect_to "/requisitions/#{params[:id]}"
+  end
   def rescind_request
-    if @requisition.update(voided: true, workflow_state_id: workflow_state_for('Rescinded'))
-      flash[:notice] = 'Requisition has been rescinded.'
-    else
-      flash[:alert] = 'Failed to rescind requisition.'
-    end
-    redirect_to requisition_path(@requisition)
+    new_state = WorkflowState.where(state: 'Rescinded',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
+    @requisition = Requisition.find(params[:id]).update(voided: true, workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
   end
 
-  # Marks the requisition as funds collected
+  def reject_request
+    new_state = WorkflowState.where(state: 'Rejected',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+  end
+
   def collect_funds
-    update_requisition_status('Collected', 'Funds collected.')
+    new_state = WorkflowState.where(state: 'Collected',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
   end
 
-  private
-
-  # Strong parameters to permit requisition attributes
-  def requisition_params
-    params.require(:requisition).permit(:purpose, :project_id, :requisition_type, :amount)
-  end
-
-  # Finds and sets the requisition before certain actions
-  def set_requisition
-    @requisition = Requisition.find_by(id: params[:id])
-    return if @requisition
-
-    flash[:alert] = 'Requisition not found.'
-    redirect_to requisitions_path
-  end
-
-  # Returns the initial workflow state for new requisitions
-  def initial_workflow_state
-    WorkflowProcess.find_by(workflow: 'Petty Cash Request')&.initial_state&.workflow_state_id
-  end
-
-  # Updates the requisition's workflow state
-  def update_requisition_status(new_state, success_message)
-    state_id = workflow_state_for(new_state)
-    return redirect_with_error('Workflow state not found.') unless state_id
-
-    if @requisition.update(workflow_state_id: state_id, reviewed_by: current_user.id)
-      flash[:notice] = success_message
-    else
-      flash[:alert] = 'Failed to update requisition.'
-    end
-    redirect_to requisition_path(@requisition)
-  end
-
-  # Finds the workflow state ID for a given state name
-  def workflow_state_for(state)
-    WorkflowState.find_by(state:,
-                          workflow_process_id: WorkflowProcess.find_by(workflow: 'Petty Cash Request')&.id)&.id
-  end
-
-  # Redirects with an error message
-  def redirect_with_error(message)
-    flash[:alert] = message
-    redirect_to requisition_path(params[:id])
-  end
-
-  private
-
-  def requisition_params
-    params.require(:requisition).permit(:amount, :description)
+  def task_params
+    params.require(:requisition).permit(:purpose, :project_id, :initiated_by, :initiated_on, :requisition_type,
+                                        :workflow_state_id, :amount )
   end
 end

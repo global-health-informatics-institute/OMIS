@@ -8,7 +8,8 @@ class MainController < ApplicationController
       @outstanding_timesheets = Timesheet.select("timesheet_id, employee_id, timesheet_week")
                                          .where("employee_id in (?) and submitted_on is NULL", @employee.id).length
 
-      @unused_leave = (@employee.leave_balance(leave_type: 'Annual Leave') - @employee.used_leave_days)
+      @unused_leave = (@employee.leave_balance(leave_type: 'Annual Leave') - @employee.used_leave_days(
+        Date.today.beginning_of_year, Date.today.end_of_year, leave_type: 'Annual Leave'))
 
 
       # Create list of upcoming deadlines and activities

@@ -14,7 +14,12 @@ class LeaveRequestsController < ApplicationController
 
     year_start_date = Date.today.beginning_of_year
     year_end_date = Date.today.end_of_year
+<<<<<<< HEAD
     @remaining_leave_days = (@employee.leave_balance(leave_type: 'Annual Leave') - @employee.used_leave_days)
+=======
+    @remaining_leave_days = (@employee.leave_balance(leave_type: 'Annual Leave') - @employee.used_leave_days(
+      year_start_date, year_end_date, leave_type: 'Annual Leave'))
+>>>>>>> 8f1417dff7467070281d34e8def72346706256d6
     @remaining_comp_days = @employee.compensatory_leave
     @remaining_parent_leave  = (@employee.leave_balance(leave_type: 'Paternity Leave')) - @employee.used_leave_days(
                                 year_start_date, year_end_date,leave_type: 'Paternity Leave')
