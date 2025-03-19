@@ -60,15 +60,9 @@ Rails.application.routes.draw do
   get 'main/home'
   get 'about', to: 'main#about'
 
-<<<<<<< HEAD
-  get 'generate_report', to: 'reports#show', as: 'generate_report', defaults: { format: :turbo_stream }
-
-  get 'logout', to: 'user_sessions#destroy'
-=======
   get "generate_report", to: 'reports#show', as: "generate_report", defaults: { format: :turbo_stream }
 
   get "logout", to: "user_sessions#destroy"
->>>>>>> 8f1417dff7467070281d34e8def72346706256d6
   resources :asset_categories
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
