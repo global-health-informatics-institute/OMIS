@@ -67,11 +67,6 @@ Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")
-<<<<<<< HEAD
-
-  root 'main#home'
-=======
   
   root "main#home"
->>>>>>> 8f1417dff7467070281d34e8def72346706256d6
 end
