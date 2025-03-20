@@ -1,0 +1,2 @@
+class RequisitionMailer < ApplicationMailer
+end
