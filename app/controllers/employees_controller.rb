@@ -1,24 +1,9 @@
 class EmployeesController < ApplicationController
-<<<<<<< HEAD
-=======
   before_action :can_access?, only: [:create, :edit, :update, :show, :index]
->>>>>>> 8f1417dff7467070281d34e8def72346706256d6
   def index
     @list_employees = Employee.where(still_employed: true).collect { |x| x.person }
   end
 
-<<<<<<< HEAD
-  def show 
-  end
-
-  def new
-  end
-
-  def create
-  end
-
-  def edit
-=======
   def show
   end
 
@@ -128,6 +113,5 @@ class EmployeesController < ApplicationController
                                    :primary_phone, :alt_phone, :email_address, :postal_address, :official_email,
                                    :residential_address, :landmark, :employment_date, :designated_role, :supervisor,:started_on,
                                    :project, :allocated_effort )
->>>>>>> 8f1417dff7467070281d34e8def72346706256d6
   end
 end

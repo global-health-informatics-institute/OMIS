@@ -93,10 +93,10 @@ class RequisitionsController < ApplicationController
                                     workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
     @requisition = Requisition.where(requisition_id: params[:id])
                               .update(approved_by: current_user.user_id, workflow_state_id: new_state.first.id)
-
+  
     redirect_to "/requisitions/#{params[:id]}"
   end
-
+  
   def release_funds
     new_state = WorkflowState.where(state: 'Prepared',
                                     workflow_process_id: WorkflowProcess.find_by_workflow("Petty Cash Request").id)
