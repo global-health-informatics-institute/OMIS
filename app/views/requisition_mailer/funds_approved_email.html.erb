@@ -1,0 +1,11 @@
+<p>Hello <%= @user.first_name %>,</p>
+
+<p>Your requisition request with ID <strong><%= @requisition.id %></strong> has been approved.</p>
+
+<p>Details:</p>
+<ul>
+  <li>Amount: <%= @requisition.amount %></li>
+  <li>Purpose: <%= @requisition.purpose %></li>
+</ul>
+
+<p>Thank you.</p>
