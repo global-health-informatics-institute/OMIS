@@ -8,6 +8,8 @@ gem "rails", "~> 7.0.8"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
+# sidekiq
+gem 'sidekiq'
 
 gem 'bootstrap', '~> 5.1', '>= 5.1.3'
 

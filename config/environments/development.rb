@@ -38,24 +38,25 @@ Rails.application.configure do
 
   # Don't care if the mailer can't send.
   config.action_mailer.perform_deliveries = true
-
-  config.action_mailer.raise_delivery_errors = true
-
-  config.action_mailer.perform_caching = false
-
-  config.action_mailer.delivery_method = :smtp
-
-  config.action_mailer.default_options = {from: '<ghii_omis@outlook.com>'}
-
+ 
+   config.action_mailer.raise_delivery_errors = true
+ 
+   config.action_mailer.perform_caching = false
+ 
+   config.action_mailer.delivery_method = :smtp
+ 
+   config.action_mailer.default_options = { from: 'communications@ghii.org' }
+ 
   config.action_mailer.smtp_settings = {
-    address: 'smtp-mail.outlook.com',
-    domain: 'outlook.com',
-    port: 587,
-    authentication: 'login',
-    user_name: 'ghii_omis@outlook.com',
-    password: 'U4Sy5QXAjLthXNd',
-    enable_starttls_auto: true
-  }
+     address: 'smtp.gmail.com',
+     port: 587,
+     domain: 'gmail.com',
+     authentication: 'plain',
+     user_name: 'communications@ghii.org',
+     password: 'dleculgnoapizlzd',
+     enable_starttls_auto: true,
+     read_timeout: 120
+   }
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
