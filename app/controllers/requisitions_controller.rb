@@ -22,7 +22,7 @@ class RequisitionsController < ApplicationController
 
     case @selected_request
     when 'Petty Cash'
-      @petty_cash_limit = 35_000
+      @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f
     when 'Asset Request'
       @asset_types = AssetCategory.all.collect { |x| x.category }
     when 'Purchase Request'
@@ -135,6 +135,14 @@ class RequisitionsController < ApplicationController
     new_state = WorkflowState.where(state: 'Rejected',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    if @requisition.update(approved_by: current_user.user_id, workflow_state_id: new_state.first.id)
+      # Send email notification
+      RequisitionMailer.reject_request_email(@requisition).deliver_now
+
+      flash[:notice] = 'Funds approved and requester notified.'
+    else
+      flash[:error] = 'Error approving funds.'
+    end
     redirect_to "/requisitions/#{params[:id]}"
   end
 
