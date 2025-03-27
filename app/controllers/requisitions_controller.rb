@@ -94,7 +94,7 @@ class RequisitionsController < ApplicationController
       flash[:error] = "Error approving requisition."
     end
   
-    redirect_to requisition_path(@requisition)
+    requisitions_path(@requisition.id)
   end
   
 
@@ -132,20 +132,29 @@ class RequisitionsController < ApplicationController
   end
 
   def reject_request
-    new_state = WorkflowState.where(state: 'Rejected',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
-    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
-    if @requisition.update(approved_by: current_user.user_id, workflow_state_id: new_state.first.id)
-      # Send email notification
+    workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
+    new_state = WorkflowState.find_by(
+      state: 'Rejected',
+      workflow_process_id: workflow_process.id
+    )
+  
+    @requisition = Requisition.find(params[:id])
+  
+    # Update both `workflow_state_id` and `approved_by` in one call
+    if @requisition.update(
+      workflow_state_id: new_state.id,
+      approved_by: current_user.user_id
+    )
+      # Send email notification if update succeeds
       RequisitionMailer.reject_request_email(@requisition).deliver_now
-
-      flash[:notice] = 'Funds approved and requester notified.'
+      flash[:notice] = 'Funds rejected and requester notified.'
     else
-      flash[:error] = 'Error approving funds.'
+      flash[:error] = 'Error rejecting funds.'
     end
-    redirect_to "/requisitions/#{params[:id]}"
+  
+    requisitions_path(@requisition)
   end
-
+  
   def collect_funds
     new_state = WorkflowState.where(state: 'Collected',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)

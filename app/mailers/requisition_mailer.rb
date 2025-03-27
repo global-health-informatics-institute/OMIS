@@ -7,7 +7,7 @@ class RequisitionMailer < ApplicationMailer
 
     # Get the initiator's email through associations
     user = @requisition.user
-    receiver_email = user.person.email_address # Requires proper association setup
+    receiver_email = user.person.email_address 
 
     Rails.logger.info "Sending email to: #{receiver_email} for requisition ##{@requisition.requisition_id}"
 
@@ -18,12 +18,12 @@ class RequisitionMailer < ApplicationMailer
   end
   def funds_approved_email(requisition)
     @requisition = requisition
-    @user = @requisition.user # Assign to instance variable for the view
-    @person = @user.person # Assign parameter to instance variable
+    @user = @requisition.user 
+    @person = @user.person 
 
     # Get the initiator's email through associations
     user = @requisition.user
-    receiver_email = user.person.email_address # Requires proper association setup
+    receiver_email = user.person.email_address 
 
     Rails.logger.info "Sending email to: #{receiver_email} for requisition ##{@requisition.requisition_id}"
 
