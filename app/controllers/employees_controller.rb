@@ -66,6 +66,7 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
       UserMailer.welcome_email(session[:last_username], session[:last_password]).deliver_now
       flash[:notice] = 'Employee added successfully!'
       redirect_to '/employees'
+      redirect_to '/employees'
     rescue ActiveRecord::RecordInvalid => e
       flash[:alert] = "Error updating employee details!: #{e}"
     end
@@ -75,6 +76,7 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
     @user = @current_user
     @person = Person.find(params[:id])
     @employee = Employee.find(params[:id])
+    @project = Project.all.collect { |x| [x.project_name, x.id] }
     @project = Project.all.collect { |x| [x.project_name, x.id] }
   end
 
@@ -88,6 +90,7 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
                       marital_status: params[:person][:marital_status], residential_address: params[:person][:residential_address])
       if @employee.update(employment_date: params[:person][:employment_date])
         if @designated_role.update(designated_role: params[:designated_role])
+          redirect_to '/employees'
           redirect_to '/employees'
           flash[:notice] = 'Successfully updated designation.'
         end
@@ -114,3 +117,4 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
                   :project, :allocated_effort)
   end
 end
+
