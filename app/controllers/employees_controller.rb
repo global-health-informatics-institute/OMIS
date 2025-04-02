@@ -88,6 +88,7 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
                       last_name: params[:person][:last_name],
                       primary_phone: params[:person][:primary_phone], alt_phone: params[:person][:alt_phone],
                       marital_status: params[:person][:marital_status], residential_address: params[:person][:residential_address])
+                      marital_status: params[:person][:marital_status], residential_address: params[:person][:residential_address])
       if @employee.update(employment_date: params[:person][:employment_date])
         if @designated_role.update(designated_role: params[:designated_role])
           redirect_to '/employees'
@@ -108,13 +109,22 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
 
     flash[:error] = 'You do not have permission to access this page.'
     redirect_to root_path
+    return unless (current_designation & permitted_users).empty?
+
+    flash[:error] = 'You do not have permission to access this page.'
+    redirect_to root_path
   end
+
 
   def employee_params
     params.permit(:first_name, :middle_name, :last_name, :birth_date, :gender, :marital_status,
                   :primary_phone, :alt_phone, :email_address, :postal_address, :official_email,
                   :residential_address, :landmark, :employment_date, :designated_role, :supervisor, :started_on,
                   :project, :allocated_effort)
+                  :primary_phone, :alt_phone, :email_address, :postal_address, :official_email,
+                  :residential_address, :landmark, :employment_date, :designated_role, :supervisor, :started_on,
+                  :project, :allocated_effort)
   end
 end
+
 
