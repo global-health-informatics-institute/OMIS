@@ -104,7 +104,7 @@ class RequisitionsController < ApplicationController
     @requisition = Requisition.find_by(requisition_id: params[:id])
 
     if @requisition.update(approved_by: current_user.user_id, workflow_state_id: new_state.first.id)
-      # Send email notification
+      # Send email notification it's not used anywahere, not yet implemented
       RequisitionMailer.funds_approved_email(@requisition).deliver_now
 
       flash[:notice] = 'Funds approved and requester notified.'
@@ -140,16 +140,32 @@ class RequisitionsController < ApplicationController
   
     @requisition = Requisition.find(params[:id])
   
-    # Update both `workflow_state_id` and `approved_by` in one call
+    # First: Reject the request and send email
     if @requisition.update(
       workflow_state_id: new_state.id,
-      approved_by: current_user.user_id
+      #rejected_by: current_user.user_id
     )
-      # Send email notification if update succeeds
+      # Send rejection email
       RequisitionMailer.reject_request_email(@requisition).deliver_now
-      flash[:notice] = 'Funds rejected and requester notified.'
+  
+      # Second: Automatically rescind after email
+      rescind_state = WorkflowState.find_by(
+        state: 'Rescinded',
+        workflow_process_id: workflow_process.id
+      )
+      
+      # Update again to mark as rescinded/voided
+      if @requisition.update(
+        voided: true,
+        workflow_state_id: rescind_state.id
+      )
+        flash[:notice] = 'Request rejected, email sent, and requisition rescinded.'
+      else
+        flash[:error] = 'Rejection email sent but failed to rescind requisition.'
+      end
+  
     else
-      flash[:error] = 'Error rejecting funds.'
+      flash[:error] = 'Error rejecting request.'
     end
   
     requisitions_path(@requisition)
