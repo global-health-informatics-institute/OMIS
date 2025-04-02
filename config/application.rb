@@ -9,6 +9,8 @@ Bundler.require(*Rails.groups)
 
 module Omis
   class Application < Rails::Application
+    #configuring sidekiq
+    #config.active_job.queue_adapter = :sidekiq
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.0
     config.beginning_of_week = :sunday

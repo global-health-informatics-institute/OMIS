@@ -201,3 +201,71 @@
   </div>
 <% end %>
 <%= render 'employees/scripts'%>
+
+<script>
+    // Function to validate fields and move forward or backward
+    function validateFields(tabId, step, direction) {
+        var tab = document.getElementById(tabId);
+        var requiredFields = tab.querySelectorAll('.required-field');
+        var allFilled = true;
+
+        requiredFields.forEach(function (field) {
+            if (!field.value) {
+                allFilled = false;
+                field.classList.add('is-invalid'); // Highlight invalid fields
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+
+        // Move to the next tab if fields are valid or we're going backwards
+        if (allFilled || direction === 'previous') {
+            updateProgress(step);
+            navigateTab(step, direction);  // Call navigateTab with direction
+        } else {
+            alert('Please fill out all required fields.');
+        }
+    }
+
+    // Generalized function to handle navigation between tabs
+    function navigateTab(step, direction) {
+        var tabButtons = document.querySelectorAll('#nav-tab button');
+        var tabPanes = document.querySelectorAll('.tab-pane');
+
+        // Determine the target step based on direction
+        var targetStep = direction === 'next' ? step + 1 : step - 1;
+
+        // Ensure targetStep is within valid range
+        if (targetStep >= 1 && targetStep <= tabButtons.length) {
+            // Deselect the current active tab and content
+            var activeTabButton = document.querySelector('#nav-tab .nav-link.active');
+            var activeTabPane = document.querySelector('.tab-pane.active');
+
+            if (activeTabButton && activeTabPane) {
+                activeTabButton.classList.remove('active');
+                activeTabButton.setAttribute('aria-selected', 'false');
+                activeTabPane.classList.remove('active', 'show');
+            }
+
+            // Activate the target tab and content (adjusted here to ensure proper indexing)
+            var targetTabButton = tabButtons[targetStep - 1];  // Adjusted to target correct button
+            var targetTabPane = tabPanes[targetStep - 1];      // Adjusted to target correct pane
+
+            if (targetTabButton && targetTabPane) {
+                targetTabButton.classList.add('active');
+                targetTabButton.setAttribute('aria-selected', 'true');
+                targetTabPane.classList.add('active', 'show');
+            }
+        }
+    }
+
+
+    // Function to update the progress bar
+    function updateProgress(step) {
+        var progressBar = document.getElementById('progress-bar');
+        var progress = (step / 4) * 100; // Assuming 4 steps
+        progressBar.style.width = progress + '%';
+        progressBar.setAttribute('aria-valuenow', progress);
+        progressBar.textContent = Math.round(progress) + '%';
+    }
+</script>
