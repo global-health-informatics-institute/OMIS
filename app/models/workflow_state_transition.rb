@@ -9,8 +9,10 @@ class WorkflowStateTransition < ApplicationRecord
     (WorkflowStateTransition.where(workflow_state_id: state) || []).each do |transition|
       if is_owner
         actions.append(transition.action) if transition.by_owner
-      elsif WorkflowStateActor.where(workflow_state_transition: transition.id,
-                                     employee_designation_id: user.employee.current_designations.collect(&:designation_id))
+      elsif WorkflowStateActor.exists?(
+        workflow_state_transition_id: transition.id,
+        employee_designation_id: user.employee.current_designations.pluck(:designation_id)
+      )
       # elsif WorkflowStateTransitioner.where(stakeholder: user.employee.current_designations.collect(&:designation_id),
       #                                       workflow_state_transition: transition.id)
         actions.append(transition.action)
