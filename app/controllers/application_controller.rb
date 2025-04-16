@@ -8,22 +8,28 @@ class ApplicationController < ActionController::Base
 
     def possible_actions(current_state, is_owner, is_supervisor)
         actions = []
+        designation_ids = current_user.employee.current_designations.collect { |x| x.designation_id }
         allowed_transitions = WorkflowStateActor.where(employee_designation_id:
-                                                         current_user.employee.current_designations.collect{|x| x.id})
-                                                .collect{|x| x.workflow_state_id}
-
-        #need to know possible actions, know things you are owner of, supervisor on, need your role
-
+                                                        current_user.employee.current_designations.collect { |x| x.id })
+                                                .collect { |x| x.workflow_state_id }
+      
+        # need to know possible actions, know things you are owner of, supervisor on, need your role
         (WorkflowStateTransition.where(workflow_state_id: current_state) || []).each do |transition|
-            if (is_owner && transition.by_owner) or (!is_owner && allowed_transitions.include?(transition.id))
-                actions.append(transition.action)
-            elsif (is_supervisor && transition.by_supervisor) and !is_owner
-                actions.append(transition.action)
-            end
+          if (is_owner && transition.by_owner) || (!is_owner && allowed_transitions.include?(transition.id))
+            actions.append(transition.action)
+          elsif is_supervisor && transition.by_supervisor && !is_owner
+            actions.append(transition.action)
+          elsif WorkflowStateActor.where(
+            workflow_state_id: current_state,
+            employee_designation_id: designation_ids
+          ).exists?
+            actions.append(transition.action)
+          end
         end
-        # raise allowed_transitions.inspect
-        return  actions
-    end
+      
+        return actions
+      end
+      
     def current_timesheet
         unless @current_user.blank?
             return Timesheet.where(employee_id: @current_user.employee.id,
