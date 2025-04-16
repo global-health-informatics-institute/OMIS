@@ -4,7 +4,6 @@ export default class extends Controller {
   static values = {
     messages: Array,
     duration: Number,
-    colors: Array
     color: String
   }
 
@@ -31,7 +30,6 @@ export default class extends Controller {
   }
 
   applyStyle() {
-    const type = this.colorsValue[this.index] || "info"
     const type = this.colorValue || "info"
     this.element.className = "snackbar snackbar--" + type
   }
