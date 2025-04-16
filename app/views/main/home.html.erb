@@ -1,6 +1,14 @@
 <script src="/assets/chart.umd.min.js"></script>
 <% if current_user %>
     <%= render partial: 'user_dashboard' %>
+    <% if @notifications['Birthdays'].present? %>
+        <% messages = @notifications['Birthdays'].map do |first, last| 
+            { title: "Birthday 🎉", description: "It's #{first} #{last}'s birthday today!" }
+            end %>
+        <%= birthday_snackbar(messages) %>
+    <% end %>
+
 <% else %>
     <%= render partial: 'app_dashboard' %>
 <% end %>
+<% puts current_user.inspect %>

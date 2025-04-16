@@ -1,0 +1,38 @@
+.snackbar {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  min-width: 300px;
+  max-width: 400px;
+  padding: 1rem 1.2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  font-family: sans-serif;
+  transition: all 0.3s ease-in-out;
+
+  .snackbar__title {
+    font-weight: bold;
+    margin-bottom: 4px;
+    font-size: 1rem;
+  }
+
+  .snackbar__description {
+    font-size: 0.9rem;
+  }
+
+  &--success {
+    background-color: #e6f4ea;
+    color: #155724;
+  }
+
+  &--error {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
+  &--info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+  }
+}
