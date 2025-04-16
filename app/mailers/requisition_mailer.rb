@@ -36,6 +36,7 @@ class RequisitionMailer < ApplicationMailer
     # Get the initiator's email through associations
     user = @requisition.user
     receiver_email = user.person.official_email || user.person.email_address
+    receiver_email = user.person.email_address 
 
     Rails.logger.info "Sending email to: #{receiver_email} for requisition ##{@requisition.requisition_id}"
 
@@ -53,6 +54,14 @@ class RequisitionMailer < ApplicationMailer
     # Get the initiator's email through associations
     user = @requisition.user
     receiver_email = user.person.official_email || user.person.email_address
+  def approved_request_email(requisition)
+    @requisition = requisition
+    @user = @requisition.user 
+    @person = @user.person 
+
+    # Get the initiator's email through associations
+    user = @requisition.user
+    receiver_email = user.person.email_address 
 
     Rails.logger.info "Sending email to: #{receiver_email} for requisition ##{@requisition.requisition_id}"
 
@@ -70,6 +79,14 @@ class RequisitionMailer < ApplicationMailer
     # Get the initiator's email through associations
     user = @requisition.user
     receiver_email = user.person.official_email || user.person.email_address
+  def funds_denied_email(requisition)
+    @requisition = requisition
+    @user = @requisition.user 
+    @person = @user.person 
+
+    # Get the initiator's email through associations
+    user = @requisition.user
+    receiver_email = user.person.email_address 
 
     Rails.logger.info "Sending email to: #{receiver_email} for requisition ##{@requisition.requisition_id}"
 
@@ -87,6 +104,14 @@ class RequisitionMailer < ApplicationMailer
     # Get the initiator's email through associations
     user = @requisition.user
     receiver_email = user.person.official_email || user.person.email_address
+  def funds_approved_email(requisition)
+    @requisition = requisition
+    @user = @requisition.user 
+    @person = @user.person 
+
+    # Get the initiator's email through associations
+    user = @requisition.user
+    receiver_email = user.person.email_address 
 
     Rails.logger.info "Sending email to: #{receiver_email} for requisition ##{@requisition.requisition_id}"
 
