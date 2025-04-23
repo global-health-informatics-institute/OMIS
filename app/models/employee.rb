@@ -97,11 +97,9 @@ class Employee < ApplicationRecord
     timesheets = Timesheet.select('timesheet_id').where('employee_id = ?', employee_id)
                           .collect { |x| x.timesheet_id }
     total_hours_worked = TimesheetTask.where('task_date between ? and ? and timesheet_id in (?) and
-                                                 project_id not in (?) and project_id not in (?)', start_date, end_date, timesheets,
+                                               project_id not in (?) and project_id not in (?)', start_date, end_date, timesheets,
                                              Project.find_by_short_name('Compensatory Leave').project_id,
-                                             Project.where('short_name like ?', '%Leave%').collect do |x|
-                                               x.project_id
-                                             end)
+                                             Project.where('short_name like ?', '%Leave%').collect { |x| x.project_id })
                                       .sum('duration').to_f
     weekdays_count = (start_date..end_date).count { |date| (1..5).include?(date.wday) }
     working_hours = GlobalProperty.find_by_property('number.of.hours').property_value.to_f
@@ -131,7 +129,7 @@ class Employee < ApplicationRecord
                                                         employee_id, start_date.beginning_of_week, end_date)
 
     tasks = TimesheetTask.select('project_id, SUM(duration) as duration').where("timesheet_id in (?) and
-                                  task_date BETWEEN  ? and ?", timesheets, start_date, end_date).group(:project_id)
+                                task_date BETWEEN  ? and ?", timesheets, start_date, end_date).group(:project_id)
 
     cost_shared = Project.where('short_name in (?)', ['Crosscutting', 'Public Holiday', 'Annual Leave',
                                                       'Paternity Leave', 'Compassionate Leave', 'Study Leave',
@@ -181,9 +179,9 @@ class Employee < ApplicationRecord
        "/timesheets/#{x.id}"]
     end
 
-    allowed_transitions = WorkflowStateActor.where(employee_designation_id:
-                                                     current_designations.collect { |x| x.designation_id })
-                                            .collect { |x| x.workflow_state_id }
+    allowed_transitions = WorkflowStateActor.where(
+      employee_designation_id: current_designations.collect { |x| x.designation_id }
+    ).where.not(workflow_state_id: [22, 28, 29]).pluck(:workflow_state_id)
 
     # requisition finance reviews
     actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
@@ -201,15 +199,11 @@ class Employee < ApplicationRecord
     end
 
     # requisition reviews
-    owner_states = WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id)
-    #supervisor_states = WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id)
-  
-    supervisor_states = WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id)
-      actions += Requisition.where(
-        workflow_state_id: supervisor_states + owner_states,
-        initiated_by: current_supervisees.select(:supervisee)
-      ).map do |x|
-        ["Review #{x.user.person.first_name}'s #{x.requisition_type} requisition", "/requisitions/#{x.id}"]
+    actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
+                          .where(by_supervisor: true).collect { |x| x.workflow_state_id }, jnrs)
+                          .collect do |x|
+      ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
+       "/requisitions/#{x.id}"]
     end
 
     actions += LeaveRequest.where('status in (?) and employee_id in (?)', WorkflowStateTransition
