@@ -215,15 +215,11 @@ class Employee < ApplicationRecord
     end
 
     # requisition reviews
-    owner_states = WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id)
-    #supervisor_states = WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id)
-  
-    supervisor_states = WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id)
-      actions += Requisition.where(
-        workflow_state_id: supervisor_states + owner_states,
-        initiated_by: current_supervisees.select(:supervisee)
-      ).map do |x|
-        ["Review #{x.user.person.first_name}'s #{x.requisition_type} requisition", "/requisitions/#{x.id}"]
+    actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
+                          .where(by_supervisor: true).collect { |x| x.workflow_state_id }, jnrs)
+                          .collect do |x|
+      ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
+       "/requisitions/#{x.id}"]
     end
 
     actions += LeaveRequest.where('status in (?) and employee_id in (?)', WorkflowStateTransition
