@@ -37,6 +37,7 @@ Rails.application.routes.draw do
   get 'requisitions/edit'
   put 'requisitions/:id/approve_request', to: 'requisitions#approve_request'
   put 'requisitions/:id/approve_funds', to: 'requisitions#approve_funds'
+  put 'requisitions/:id/deny_funds', to: 'requisitions#deny_funds'
   put 'requisitions/:id/release_funds', to: 'requisitions#release_funds'
   put 'requisitions/:id/rescind_request', to: 'requisitions#rescind_request'
   put 'requisitions/:id/reject_request', to: 'requisitions#reject_request'
