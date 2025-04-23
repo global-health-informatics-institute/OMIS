@@ -1,0 +1,27 @@
+<h2>Petty Cash Request Approval</h2>
+
+<p>Dear <%= @supervisor.person.first_name %>,</p>
+
+<p>
+  You have a new petty cash request awaiting your approval from
+  <strong><%= @requester.person.first_name %></strong>:
+</p>
+
+<ul>
+  <li><strong>Request ID:</strong> <%= @requisition.id %></li>
+  <li><strong>Amount:</strong> <%= number_to_currency(@requisition.requisition_items.sum(&:value)) %></li>
+  <li><strong>Purpose:</strong> <%= @requisition.purpose %></li>
+  <li><strong>Submitted:</strong> <%= @requisition.created_at.strftime('%b %d, %Y at %I:%M %p') %></li>
+</ul>
+
+<p>To review and take action, use the buttons below:</p>
+
+<p>
+  <a href="<%= approve_requisition_url(@requisition) %>" style="display:inline-block;padding:10px 20px;background:#28a745;color:white;text-decoration:none;border-radius:5px;">Approve</a>
+  &nbsp;
+  <a href="<%= reject_requisition_url(@requisition) %>" style="display:inline-block;padding:10px 20px;background:#dc3545;color:white;text-decoration:none;border-radius:5px;">Reject</a>
+</p>
+
+<p>Please respond in time.</p>
+
+<p>Thank you,<br><%= @requester.person.first_name %></p>
