@@ -21,7 +21,7 @@ class RequisitionsController < ApplicationController
 
     case @selected_request
     when 'Petty Cash'
-      @petty_cash_limit = 35000
+      @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f
     when 'Asset Request'
       @asset_types = AssetCategory.all.collect{|x| x.category}
     when 'Purchase Request'
