@@ -4,6 +4,13 @@ class Employee < ApplicationRecord
   has_many :affiliations, foreign_key: :employee_id
   has_many :employee_designations, foreign_key: :employee_id
   has_many :project_teams, foreign_key: :project_id
+  # supervisor
+  has_many :given_supervisions, foreign_key: 'supervisor', class_name: 'Supervision'
+  has_many :subordinates, through: :given_supervisions, source: :supervisee_employee
+
+  # As subordinate
+  has_one :received_supervision, foreign_key: 'supervisee', class_name: 'Supervision'
+  has_one :supervisor, through: :received_supervision, source: :supervisor_employee
 
   def full_details(period = 'current')
     record = {}
@@ -181,12 +188,12 @@ class Employee < ApplicationRecord
 
     allowed_transitions = WorkflowStateActor.where(
       employee_designation_id: current_designations.collect { |x| x.designation_id }
-    ).where.not(workflow_state_id: [22, 28, 29]).pluck(:workflow_state_id)
+    ).where.not(workflow_state_id: [22, 27, 28, 29]).pluck(:workflow_state_id)
 
     # requisition finance reviews
     actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
                           .collect do |x|
-      ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
+      ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition for #{x.purpose}",
        "/requisitions/#{x.id}"]
     end
 
@@ -194,15 +201,24 @@ class Employee < ApplicationRecord
     actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
                           .where(by_owner: true).collect { |x| x.workflow_state_id }, id)
                           .collect do |x|
-      ["Check #{x.requisition_type} request for #{x.purpose}",
-       "/requisitions/#{x.id}"]
+       if x.workflow_state_id == 28
+                      ["collect funds for #{x.requisition_type} request: #{x.purpose}",
+                       "/requisitions/#{x.id}"]
+                    else
+                      ["Check #{x.requisition_type} request: #{x.purpose}",
+                       "/requisitions/#{x.id}"]
+                    end
+
+      #[action_text, "/requisitions/#{x.id}"]
+      #["Check #{x.requisition_type} request: #{x.purpose}",
+     #  "/requisitions/#{x.id}"]
     end
 
     # requisition reviews
     actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
                           .where(by_supervisor: true).collect { |x| x.workflow_state_id }, jnrs)
                           .collect do |x|
-      ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
+      ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition for #{x.purpose}",
        "/requisitions/#{x.id}"]
     end
 
