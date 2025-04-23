@@ -1,5 +1,16 @@
 class RequisitionMailer < ApplicationMailer
   default from: 'omis@ghii.org'
+  def notify_supervisor(requisition, supervisor)
+    @requisition = requisition
+    @supervisor = supervisor
+    @requester = Employee.find_by(employee_id: requisition.initiated_by)
+
+    mail(to: @supervisor.person.email_address, subject: 'New Requisition Requires Your Review') do |format|
+    format.html
+    format.text
+    end
+  end
+
   def rejected_request_email(requisition)
     @requisition = requisition
     @user = @requisition.user # Assign to instance variable for the view
@@ -7,7 +18,7 @@ class RequisitionMailer < ApplicationMailer
 
     # Get the initiator's email through associations
     user = @requisition.user
-    receiver_email = user.person.email_address 
+    receiver_email = user.person.email_address
 
     Rails.logger.info "Sending email to: #{receiver_email} for requisition ##{@requisition.requisition_id}"
 
@@ -16,14 +27,15 @@ class RequisitionMailer < ApplicationMailer
       subject: "Your Requisition ##{@requisition.id} Has Been rejected"
     )
   end
-  def approved_request_email(requisition)
+
+  def request_approved_email(requisition)
     @requisition = requisition
-    @user = @requisition.user 
-    @person = @user.person 
+    @user = @requisition.user
+    @person = @user.person
 
     # Get the initiator's email through associations
     user = @requisition.user
-    receiver_email = user.person.email_address 
+    receiver_email = user.person.email_address
 
     Rails.logger.info "Sending email to: #{receiver_email} for requisition ##{@requisition.requisition_id}"
 
@@ -32,14 +44,15 @@ class RequisitionMailer < ApplicationMailer
       subject: "Your Requisition ##{@requisition.id} Has Been Approved"
     )
   end
+
   def funds_denied_email(requisition)
     @requisition = requisition
-    @user = @requisition.user 
-    @person = @user.person 
+    @user = @requisition.user
+    @person = @user.person
 
     # Get the initiator's email through associations
     user = @requisition.user
-    receiver_email = user.person.email_address 
+    receiver_email = user.person.email_address
 
     Rails.logger.info "Sending email to: #{receiver_email} for requisition ##{@requisition.requisition_id}"
 
@@ -48,14 +61,15 @@ class RequisitionMailer < ApplicationMailer
       subject: "Your Requisition Funds ##{@requisition.id} Has Been Denied"
     )
   end
+
   def funds_approved_email(requisition)
     @requisition = requisition
-    @user = @requisition.user 
-    @person = @user.person 
+    @user = @requisition.user
+    @person = @user.person
 
     # Get the initiator's email through associations
     user = @requisition.user
-    receiver_email = user.person.email_address 
+    receiver_email = user.person.email_address
 
     Rails.logger.info "Sending email to: #{receiver_email} for requisition ##{@requisition.requisition_id}"
 
