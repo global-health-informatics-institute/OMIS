@@ -192,6 +192,8 @@ class Employee < ApplicationRecord
     ).where.not(workflow_state_id: [22, 27, 28, 29]).pluck(:workflow_state_id)
     # Add exception: allow workflow_state_id 28 for designation_id 78
     allowed_transitions << 28 if designation_ids.include?(12) && !allowed_transitions.include?(28)
+    .where.not(workflow_state_id: [22, 28, 29]).pluck(:workflow_state_id)
+
     # requisition finance reviews
     actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
                           .collect do |x|
@@ -218,7 +220,7 @@ class Employee < ApplicationRecord
     actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
                           .where(by_supervisor: true).collect { |x| x.workflow_state_id }, jnrs)
                           .collect do |x|
-      ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition for #{x.purpose}",
+      ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition",
        "/requisitions/#{x.id}"]
     end
 
