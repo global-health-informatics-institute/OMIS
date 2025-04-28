@@ -96,6 +96,8 @@ class RequisitionsController < ApplicationController
                              )
     end
 
+    # puts ("REQ ERR: #{(@requisition.errors)}")
+    # puts("REQ ERR: #{(@requisition.inspect)}")
     if @requisition.errors.empty?
       flash[:notice] = "Request successful"
       redirect_to "/requisitions/#{@requisition.id}"
@@ -150,6 +152,12 @@ class RequisitionsController < ApplicationController
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
+def recall_request
+    new_state = WorkflowState.where(state: 'Recalled',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+end
 
   def collect_funds
     new_state = WorkflowState.where(state: 'Collected',
