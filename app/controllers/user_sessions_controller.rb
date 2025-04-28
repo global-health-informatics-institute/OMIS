@@ -14,7 +14,8 @@ class UserSessionsController < ApplicationController
           redirect_to "/users/#{@user.user_id}"
           flash[:info] = "Please reset password."
         else
-          flash[:notice] = "Successfully logged in."
+          session[:success] ||= []
+          session[:success] << ['Welcome to OMIS', 'Successfully logged in']
           redirect_to root_path
         end
       else
