@@ -4,7 +4,7 @@ export default class extends Controller {
   static values = {
     messages: Array,
     duration: Number,
-    color: String
+    colors: Array
   }
 
   connect() {
@@ -30,7 +30,7 @@ export default class extends Controller {
   }
 
   applyStyle() {
-    const type = this.colorValue || "info"
+    const type = this.colorsValue[this.index] || "info"
     this.element.className = "snackbar snackbar--" + type
   }
 }
