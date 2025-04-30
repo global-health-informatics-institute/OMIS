@@ -343,7 +343,15 @@ class RequisitionsController < ApplicationController
       render :show
     end
   end
+ def resubmit_request
+    new_state = WorkflowState.where(state: 'Requested',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
+    @requisition = Requisition.where(requisition_id: params[:id])
+                              .update(approved_by: current_user.user_id, workflow_state_id: new_state.first.id)
 
+    redirect_to "/requisitions/#{params[:id]}"
+ end
+  
   def deny_funds
     @requisition = Requisition.find_by(requisition_id: params[:id])
   
@@ -519,4 +527,10 @@ end
     params.require(:requisition).permit(:purpose, :project_id, :initiated_by, :initiated_on,
                                         :requisition_type, :workflow_state_id, :amount)
   end
+  private
+
+  def requisition_params
+    params.require(:requisition).permit(:purpose, :amount, :requisition_type, :workflow_state_id, :project_id)
+  end
+  
 end
