@@ -54,6 +54,10 @@ class RequisitionsController < ApplicationController
   end
 
   def create
+    # if params.is_update == 'true'
+    #   # call update function
+    #   update
+    # end
     state_id = InitialState.find_by_workflow_process_id(WorkflowProcess.find_by_workflow('Petty Cash Request')).workflow_state_id
     ActiveRecord::Base.transaction do
       @requisition = Requisition.create(purpose: params[:requisition][:purpose],
@@ -90,76 +94,15 @@ class RequisitionsController < ApplicationController
       flash[:error] = 'Request failed'
     end
   end
-
-  # def edit
-  #   @requisition = Requisition.find(params[:id])
-  #   Rails.logger.info "Editing requisition #{@requisition.requisition_id}. Current state ID: #{@requisition.workflow_state_id}"
-
-  #   @project_options = Project.pluck(:project_name, :project_id)
-  #   @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f
-
-  #   recalled_state = WorkflowState.find_by(state: 'Recalled', workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request')&.id)
-  #   Rails.logger.info "Expected 'Recalled' state ID for comparison: #{recalled_state&.id}"
-
-  #   unless recalled_state && @requisition.workflow_state_id == recalled_state&.id
-  #     redirect_to requisition_path(@requisition),
-  #                 alert: 'Only recalled requests can be edited.'
-  #     return
-  #   end
-
-  #   render :edit
-  # end
-
-  # def update
-  #   @requisition = Requisition.find(params[:id])
-
-  #   # Initialize variables needed for re-rendering the edit form
-  #   @project_options = Project.pluck(:project_name, :project_id)
-  #   @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f # Or your limit sou
-
-  #   ActiveRecord::Base.transaction do
-  #     if @requisition.update(requisition_params)
-  #       # Handle the requisition item update or creation
-  #       if @requisition.requisition_items.any?
-  #         @requisition.requisition_items.first.update!(
-  #           value: params[:requisition][:amount],
-  #           item_description: 'Petty Cash'
-  #         )
-  #       else
-  #         @requisition.requisition_items.create!(
-  #           value: params[:requisition][:amount],
-  #           quantity: 1.0,
-  #           item_description: 'Petty Cash'
-  #         )
-  #       end
-
-  #       redirect_to @requisition, notice: 'Request updated successfully.'
-  #     else
-  #       # Add error logging for debugging
-  #       Rails.logger.error("Requisition update failed: #{@requisition.errors.full_messages}")
-  #       render :edit, status: :unprocessable_entity
-  #     end
-  #   rescue ActiveRecord::RecordInvalid => e
-  #     # Log transaction errors
-  #     Rails.logger.error("Transaction failed: #{e.message}")
-  #     @requisition.errors.add(:base, "Update failed: #{e.message}")
-  #     render :edit, status: :unprocessable_entity
-  #   end
-  # end
-
-  # private
-
-  # def requisition_params
-  #   params.require(:requisition).permit(
-  #     :purpose,
-  #     :project_id,
-  #     :initiated_on,
-  #     :initiated_by,
-  #     :workflow_state_id,
-  #     :requisition_type,
-  #     requisition_items_attributes: %i[id value item_description]
-  #   )
-  # end
+def update
+  @requisition = Requisition.find(params[:id])
+  puts("Updating requisition with ID: #{@requisition.id}")
+  if @requisition.update(requisition_params)
+    redirect_to @requisition, notice: 'Petty Cash request was successfully updated.'
+  else
+    render :edit, status: :unprocessable_entity
+  end
+end
 
   def approve_request
     # raise @transition_state.inspect
@@ -180,7 +123,15 @@ class RequisitionsController < ApplicationController
 
     redirect_to "/requisitions/#{params[:id]}"
   end
+ def resubmit_request
+    new_state = WorkflowState.where(state: 'Requested',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
+    @requisition = Requisition.where(requisition_id: params[:id])
+                              .update(approved_by: current_user.user_id, workflow_state_id: new_state.first.id)
 
+    redirect_to "/requisitions/#{params[:id]}"
+ end
+  
   def deny_funds
     new_state = WorkflowState.where(state: 'Finances Rejected',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
@@ -230,4 +181,10 @@ end
     params.require(:requisition).permit(:purpose, :project_id, :initiated_by, :initiated_on, :requisition_type,
                                         :workflow_state_id, :amount)
   end
+  private
+
+  def requisition_params
+    params.require(:requisition).permit(:purpose, :amount, :requisition_type, :workflow_state_id, :project_id)
+  end
+  
 end
