@@ -5,10 +5,7 @@ class RequisitionMailer < ApplicationMailer
     @supervisor = supervisor
     @requester = Employee.find_by(employee_id: requisition.initiated_by)
 
-    mail(to: @supervisor.person.email_address, subject: 'New Requisition Requires Your Review') do |format|
-    format.html
-    format.text
-    end
+    mail(to: @supervisor.person.email_address, subject: 'New Requisition Requires Your Review') 
   end
 
   def rejected_request_email(requisition)
