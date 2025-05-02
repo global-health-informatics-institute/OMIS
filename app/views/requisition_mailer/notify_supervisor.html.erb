@@ -31,6 +31,11 @@
 
 
 
+<p>
+  <a href="<%= url_for(controller: 'requisitions', action: 'approve_request', id: @requisition.id, only_path: false, method: :put) %>" ...>Approve</a>
+
+<a href="<%= url_for(controller: 'requisitions', action: 'reject_request', id: @requisition.id, only_path: false, method: :put) %>" ...>Reject</a>
+</p>
 
 <p>Please respond in time.</p>
 

@@ -190,7 +190,8 @@ class Employee < ApplicationRecord
     allowed_transitions = WorkflowStateActor.where(
       employee_designation_id: current_designations.collect { |x| x.designation_id }
     ).where.not(workflow_state_id: [22, 27, 28, 29]).pluck(:workflow_state_id)
-
+    # Add exception: allow workflow_state_id 28 for designation_id 78
+    allowed_transitions << 28 if designation_ids.include?(12) && !allowed_transitions.include?(28)
     # requisition finance reviews
     actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
                           .collect do |x|
@@ -204,17 +205,17 @@ class Employee < ApplicationRecord
 
     actions += Requisition.where('workflow_state_id in (?) and initiated_by = ?', owner_actionable_states.uniq, id) # Use .uniq to avoid duplicates
                           .collect do |x|
-       if x.workflow_state_id == 28
-                      ["collect funds for #{x.requisition_type} request: #{x.purpose}",
-                       "/requisitions/#{x.id}"]
-                    else
-                      ["Check #{x.requisition_type} request: #{x.purpose}",
-                       "/requisitions/#{x.id}"]
-                    end
+      if x.workflow_state_id == 28
+        ["Collect Funds for #{x.requisition_type} request: #{x.purpose}",
+         "/requisitions/#{x.id}"]
+      else
+        ["Check #{x.requisition_type} request: #{x.purpose}",
+         "/requisitions/#{x.id}"]
+      end
 
-      #[action_text, "/requisitions/#{x.id}"]
-      #["Check #{x.requisition_type} request: #{x.purpose}",
-     #  "/requisitions/#{x.id}"]
+      # [action_text, "/requisitions/#{x.id}"]
+      # ["Check #{x.requisition_type} request: #{x.purpose}",
+      #  "/requisitions/#{x.id}"]
     end
 
     # requisition reviews
