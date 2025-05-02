@@ -17,9 +17,9 @@
 <p>To review and take action, use the buttons below:</p>
 
 <p>
-  <a href="<%= approve_requisition_url(@requisition) %>" style="display:inline-block;padding:10px 20px;background:#28a745;color:white;text-decoration:none;border-radius:5px;">Approve</a>
-  &nbsp;
-  <a href="<%= reject_requisition_url(@requisition) %>" style="display:inline-block;padding:10px 20px;background:#dc3545;color:white;text-decoration:none;border-radius:5px;">Reject</a>
+  <a href="<%= url_for(controller: 'requisitions', action: 'approve_request', id: @requisition.id, only_path: false, method: :put) %>" ...>Approve</a>
+
+<a href="<%= url_for(controller: 'requisitions', action: 'reject_request', id: @requisition.id, only_path: false, method: :put) %>" ...>Reject</a>
 </p>
 
 <p>Please respond in time.</p>
