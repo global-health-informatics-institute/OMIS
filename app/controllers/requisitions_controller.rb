@@ -76,6 +76,37 @@ class RequisitionsController < ApplicationController
     end
   end
 
+  # def create
+  #   state_id = InitialState.find_by_workflow_process_id(
+  #     WorkflowProcess.find_by_workflow('Petty Cash Request')
+  #   ).workflow_state_id
+
+  #   ActiveRecord::Base.transaction do
+  #     @requisition = Requisition.create(
+  #       purpose: params[:requisition][:purpose],
+  #       initiated_by: current_user.id,
+  #       initiated_on: Date.today,
+  #       requisition_type: params[:requisition][:requisition_type],
+  #       workflow_state_id: state_id,
+  #       project_id: params[:requisition][:project_id]
+  #     )
+
+  #     RequisitionItem.create(
+  #       requisition_id: @requisition.id,
+  #       value: params[:requisition][:amount],
+  #       quantity: 1.0,
+  #       item_description: 'Petty Cash'
+  #     )
+  #   end
+
+  #   if @requisition.errors.empty?
+  #     flash[:notice] = 'Request successful.'
+  #     redirect_to "/requisitions/#{@requisition.id}"
+  #   else
+  #     flash[:error] = 'Request failed'
+  #   end
+  # end
+
   def create
     state_id = InitialState.find_by_workflow_process_id(
       WorkflowProcess.find_by_workflow('Petty Cash Request')
@@ -102,9 +133,7 @@ class RequisitionsController < ApplicationController
 
       # If saving fails, rollback the transaction
     end
-
-    # puts ("REQ ERR: #{(@requisition.errors)}")
-    # puts("REQ ERR: #{(@requisition.inspect)}")
+  
     if @requisition.errors.empty?
       supervisor = current_user.employee.supervisor
 
@@ -343,15 +372,7 @@ class RequisitionsController < ApplicationController
       render :show
     end
   end
- def resubmit_request
-    new_state = WorkflowState.where(state: 'Requested',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
-    @requisition = Requisition.where(requisition_id: params[:id])
-                              .update(approved_by: current_user.user_id, workflow_state_id: new_state.first.id)
 
-    redirect_to "/requisitions/#{params[:id]}"
- end
-  
   def deny_funds
     @requisition = Requisition.find_by(requisition_id: params[:id])
   
@@ -507,12 +528,13 @@ class RequisitionsController < ApplicationController
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
-def recall_request
+
+  def recall_request
     new_state = WorkflowState.where(state: 'Recalled',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
-end
+  end
 
   def collect_funds
     new_state = WorkflowState.where(state: 'Collected',
@@ -527,10 +549,9 @@ end
     params.require(:requisition).permit(:purpose, :project_id, :initiated_by, :initiated_on,
                                         :requisition_type, :workflow_state_id, :amount)
   end
-  private
+  # private
 
-  def requisition_params
-    params.require(:requisition).permit(:purpose, :amount, :requisition_type, :workflow_state_id, :project_id)
-  end
-  
+  # def requisition_params
+  #   params.require(:requisition).permit(:purpose, :amount, :project_id)
+  # end
 end
