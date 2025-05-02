@@ -45,15 +45,15 @@ Rails.application.configure do
 
   config.action_mailer.delivery_method = :smtp
 
-  config.action_mailer.default_options = { from: ENV['MAIL_USERNAME'] }
+  config.action_mailer.default_options = { from: 'communications@ghii.org' }
 
   config.action_mailer.smtp_settings = {
     address: 'smtp.gmail.com',
     port: 587,
     domain: 'gmail.com',
     authentication: 'plain',
-    user_name: ENV['MAIL_USERNAME'],
-    password: ENV['MAIL_PASSWORD'],
+    user_name: 'communications@ghii.org',
+    password: 'tcfw wtmh dhmr gxkp',
     enable_starttls_auto: true,
     read_timeout: 120
   }
