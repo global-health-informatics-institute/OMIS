@@ -5,12 +5,23 @@ class RequisitionsController < ApplicationController
 
   def show
     @requisition = Requisition.find(params[:id])
+    @projects = Project.all
     is_owner = (@requisition.initiated_by == current_user.employee_id)
     is_supervisor = current_user.employee.current_supervisees.collect do |x|
       x.supervisee
     end.include?(@requisition.initiated_by)
     @possible_actions = possible_actions(@requisition.workflow_state_id, is_owner, is_supervisor)
     # raise @possible_actions.inspect
+  end
+
+  def update_requisition
+    @requisition = Requisition.find(params[:id])
+
+    if @requisition.update(requisition_params)
+      redirect_to @requisition, notice: 'Requisition was successfully updated.'
+    else
+      render :edit
+    end
   end
 
   def new
@@ -53,101 +64,172 @@ class RequisitionsController < ApplicationController
     end
   end
 
-  def create
-    # if params.is_update == 'true'
-    #   # call update function
-    #   update
-    # end
-    state_id = InitialState.find_by_workflow_process_id(WorkflowProcess.find_by_workflow('Petty Cash Request')).workflow_state_id
-    ActiveRecord::Base.transaction do
-      @requisition = Requisition.create(purpose: params[:requisition][:purpose],
-                                        initiated_by: current_user.id,
-                                        initiated_on: Date.today,
-                                        requisition_type: params[:requisition][:requisition_type],
-                                        workflow_state_id: state_id,
-                                        project_id: params[:requisition][:project_id])
-      RequisitionItem.create(requisition_id: @requisition.id, value: params[:requisition][:amount], quantity: 1.0,
-                             item_description: 'Petty Cash')
-    end
+  # def create
+  #   state_id = InitialState.find_by_workflow_process_id(
+  #     WorkflowProcess.find_by_workflow('Petty Cash Request')
+  #   ).workflow_state_id
 
-    # puts ("REQ ERR: #{(@requisition.errors)}")
-    # puts("REQ ERR: #{(@requisition.inspect)}")
+  #   ActiveRecord::Base.transaction do
+  #     @requisition = Requisition.create(
+  #       purpose: params[:requisition][:purpose],
+  #       initiated_by: current_user.id,
+  #       initiated_on: Date.today,
+  #       requisition_type: params[:requisition][:requisition_type],
+  #       workflow_state_id: state_id,
+  #       project_id: params[:requisition][:project_id]
+  #     )
+
+  #     RequisitionItem.create(
+  #       requisition_id: @requisition.id,
+  #       value: params[:requisition][:amount],
+  #       quantity: 1.0,
+  #       item_description: 'Petty Cash'
+  #     )
+  #   end
+
+  #   if @requisition.errors.empty?
+  #     flash[:notice] = 'Request successful.'
+  #     redirect_to "/requisitions/#{@requisition.id}"
+  #   else
+  #     flash[:error] = 'Request failed'
+  #   end
+  # end
+
+  def create
+    state_id = InitialState.find_by_workflow_process_id(
+                 WorkflowProcess.find_by_workflow('Petty Cash Request')
+               ).workflow_state_id
+  
+    ActiveRecord::Base.transaction do
+      @requisition = Requisition.create(
+        purpose: params[:requisition][:purpose],
+        initiated_by: current_user.id,
+        initiated_on: Date.today,
+        requisition_type: params[:requisition][:requisition_type],
+        workflow_state_id: state_id,
+        project_id: params[:requisition][:project_id]
+      )
+  
+      RequisitionItem.create(
+        requisition_id: @requisition.id,
+        value: params[:requisition][:amount],
+        quantity: 1.0,
+        item_description: 'Petty Cash'
+      )
+    end
+  
     if @requisition.errors.empty?
       supervisor = current_user.employee.supervisor
-
-      begin
-        # Debugging line - log that we're attempting to send
-        puts "Attemping to send email to #{@supervisor}"
-        # Rails.logger.info "Attempting to send email to #{supervisor.email}"}
-
-        # Send email
-        # puts(@supervisor.inspect)
-        RequisitionMailer.notify_supervisor(@requisition, supervisor).deliver_now
-
-        flash[:notice] = 'Request successful. An email has been sent to your supervisor.'
-      rescue StandardError => e
-        Rails.logger.error("EMAIL FAILED: #{e.message}\n#{e.backtrace.join("\n")}")
-        flash[:alert] = 'Request saved, but failed to send email notification. Please notify your supervisor manually.'
-      end
+  
+      # Send email without error checking
+      RequisitionMailer.notify_supervisor(@requisition, supervisor).deliver_now
+  
+      flash[:notice] = 'Request successful. An email has been sent to your supervisor.'
       redirect_to "/requisitions/#{@requisition.id}"
     else
       flash[:error] = 'Request failed'
     end
   end
-def update
-  @requisition = Requisition.find(params[:id])
-  puts("Updating requisition with ID: #{@requisition.id}")
-  if @requisition.update(requisition_params)
-    redirect_to @requisition, notice: 'Petty Cash request was successfully updated.'
-  else
-    render :edit, status: :unprocessable_entity
-  end
-end
+  
 
   def approve_request
-    # raise @transition_state.inspect
-    new_state = WorkflowState.where(state: 'Approved',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
-    @requisition = Requisition.where(requisition_id: params[:id])
-                              .update(reviewed_by: current_user.user_id, workflow_state_id: new_state.first.id)
+    new_state = WorkflowState.find_by(
+      state: 'Approved',
+      workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id
+    )
+    @requisition = Requisition.find_by(requisition_id: params[:id])
 
-    redirect_to "/requisitions/#{params[:id]}"
+    if @requisition.update(reviewed_by: current_user.user_id, workflow_state_id: new_state.id)
+      # Send Email After Approval if recipient email exists
+      recipient_email = @requisition&.user&.email
+
+      if recipient_email.present?
+        RequisitionMailer.request_approved_email(@requisition).deliver_now
+        flash[:notice] = 'Requisition approved and email sent.'
+      else
+        Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
+        flash[:alert] = 'Requisition approved but no email was sent (missing recipient email).'
+      end
+    else
+      flash[:error] = 'Error approving requisition.'
+    end
+
+    redirect_to "/requisition/#{@requisition.id}"
+  end
+
+  def resubmit_request
+    @requisition = Requisition.find(params[:id])
+
+    new_state = WorkflowState.find_by(
+      state: 'Requested',
+      workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request')&.id
+    )
+    if @requisition.update_requisition(requisition_params.merge(workflow_state_id: new_state.id))
+      flash[:notice] = 'Requisition resubmitted successfully.'
+      redirect_to "/requisitions/#{params[:id]}"
+    else
+      @projects = Project.all
+      flash.now[:alert] = 'Failed to update the requisition.'
+      render :show
+    end
+  end
+
+  def deny_funds
+    process = WorkflowProcess.find_by_workflow('Petty Cash Request')
+    new_state = WorkflowState.find_by(state: 'Finances Rejected', workflow_process_id: process.id)
+
+    @requisition = Requisition.find_by(requisition_id: params[:id])
+
+    if @requisition.update(approved_by: current_user.user_id, workflow_state_id: new_state.id)
+      recipient_email = @requisition&.user&.email
+
+      if recipient_email.present?
+        begin
+          RequisitionMailer.funds_denied_email(@requisition).deliver_now
+        rescue StandardError => e
+          Rails.logger.error("Funds denial email failed to send: #{e.message}")
+          flash[:alert] = 'Funds denied, but email could not be sent.'
+        else
+          flash[:notice] = 'Funds denied and requester notified.'
+        end
+      else
+        Rails.logger.warn("No recipient email for requisition ##{@requisition.id}")
+        flash[:alert] = 'Funds denied, but no email was sent (missing recipient email).'
+      end
+    else
+      flash[:error] = 'Error denying funds.'
+    end
+
+    redirect_to "/requisition/#{@requisition.id}"
   end
 
   def approve_funds
-    # raise @transition_state.inspect
-    new_state = WorkflowState.where(state: 'Finances Approved',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
-    @requisition = Requisition.where(requisition_id: params[:id])
-                              .update(approved_by: current_user.user_id, workflow_state_id: new_state.first.id)
+    process = WorkflowProcess.find_by_workflow('Petty Cash Request')
+    new_state = WorkflowState.find_by(state: 'Prepared', workflow_process_id: process.id)
 
-    redirect_to "/requisitions/#{params[:id]}"
-  end
- def resubmit_request
-    new_state = WorkflowState.where(state: 'Requested',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
-    @requisition = Requisition.where(requisition_id: params[:id])
-                              .update(approved_by: current_user.user_id, workflow_state_id: new_state.first.id)
+    @requisition = Requisition.find_by(requisition_id: params[:id])
 
-    redirect_to "/requisitions/#{params[:id]}"
- end
-  
-  def deny_funds
-    new_state = WorkflowState.where(state: 'Finances Rejected',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
-    @requisition = Requisition.where(requisition_id: params[:id])
-                              .update(approved_by: current_user.user_id, workflow_state_id: new_state.first.id)
+    if @requisition.update(approved_by: current_user.user_id, workflow_state_id: new_state.id)
+      recipient_email = @requisition&.user&.email
 
-    redirect_to "/requisitions/#{params[:id]}"
-  end
+      if recipient_email.present?
+        begin
+          RequisitionMailer.funds_approved_email(@requisition).deliver_now
+        rescue StandardError => e
+          Rails.logger.error("Email failed to send: #{e.message}")
+          flash[:alert] = 'Funds approved, but email could not be sent.'
+        else
+          flash[:notice] = 'Funds approved and requester notified.'
+        end
+      else
+        Rails.logger.warn("No recipient email for requisition ##{@requisition.id}")
+        flash[:alert] = 'Funds approved, but no email was sent (missing recipient email).'
+      end
+    else
+      flash[:error] = 'Error approving funds.'
+    end
 
-  def release_funds
-    new_state = WorkflowState.where(state: 'Prepared',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
-    @requisition = Requisition.where(requisition_id: params[:id])
-                              .update(approved_by: current_user.user_id, workflow_state_id: new_state.first.id)
-
-    redirect_to "/requisitions/#{params[:id]}"
+    redirect_to "/requisition/#{@requisition.id}"
   end
 
   def rescind_request
@@ -158,17 +240,44 @@ end
   end
 
   def reject_request
-    new_state = WorkflowState.where(state: 'Rejected',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
-    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
-    redirect_to "/requisitions/#{params[:id]}"
+    workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
+    new_state = WorkflowState.find_by(state: 'Rejected',
+                                      workflow_process_id: workflow_process.id)
+
+    @requisition = Requisition.find(params[:id])
+    @requisition.update(workflow_state_id: new_state.id)
+
+    if @requisition.update(reviewed_by: current_user.user_id,
+                           workflow_state_id: new_state.id)
+      # rejected_by: current_user.user_id
+      recipient_email = @requisition&.user&.email
+
+      if recipient_email.present?
+        begin
+          RequisitionMailer.rejected_request_email(@requisition).deliver_now
+        rescue StandardError => e
+          Rails.logger.error("Rejection email failed to send: #{e.message}")
+          flash[:alert] = 'Request rejected, but email could not be sent.'
+        else
+          flash[:notice] = 'Request rejected and requester notified.'
+        end
+      else
+        Rails.logger.warn("No recipient email for requisition ##{@requisition.id}")
+        flash[:alert] = 'Request rejected, but no email was sent (missing recipient email).'
+      end
+    else
+      flash[:error] = 'Error rejecting request.'
+    end
+
+    redirect_to "/requisition/#{@requisition.id}"
   end
-def recall_request
+
+  def recall_request
     new_state = WorkflowState.where(state: 'Recalled',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
-end
+  end
 
   def collect_funds
     new_state = WorkflowState.where(state: 'Collected',
@@ -177,14 +286,13 @@ end
     redirect_to "/requisitions/#{params[:id]}"
   end
 
-  def task_params
-    params.require(:requisition).permit(:purpose, :project_id, :initiated_by, :initiated_on, :requisition_type,
-                                        :workflow_state_id, :amount)
-  end
+  # def task_params
+  #   params.require(:requisition).permit(:purpose, :project_id, :initiated_by, :initiated_on, :requisition_type,
+  #                                       :workflow_state_id, :amount)
+  # end
   private
 
   def requisition_params
-    params.require(:requisition).permit(:purpose, :amount, :requisition_type, :workflow_state_id, :project_id)
+    params.require(:requisition).permit(:purpose, :amount, :project_id)
   end
-  
 end
