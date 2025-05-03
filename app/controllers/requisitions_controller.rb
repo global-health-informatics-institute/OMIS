@@ -19,7 +19,6 @@ class RequisitionsController < ApplicationController
 
   def update
     @requisition = Requisition.find(params[:id])
-
     # Ensure workflow_state_id has a value if it's being updated
     req_params = task_params
     if req_params[:workflow_state_id].blank?
@@ -35,6 +34,7 @@ class RequisitionsController < ApplicationController
       render :edit
     end
   end
+  
 
   def new
     @requisition = Requisition.new
@@ -75,37 +75,6 @@ class RequisitionsController < ApplicationController
       end - [[current_user.employee.person.full_name, current_user.employee_id]]
     end
   end
-
-  # def create
-  #   state_id = InitialState.find_by_workflow_process_id(
-  #     WorkflowProcess.find_by_workflow('Petty Cash Request')
-  #   ).workflow_state_id
-
-  #   ActiveRecord::Base.transaction do
-  #     @requisition = Requisition.create(
-  #       purpose: params[:requisition][:purpose],
-  #       initiated_by: current_user.id,
-  #       initiated_on: Date.today,
-  #       requisition_type: params[:requisition][:requisition_type],
-  #       workflow_state_id: state_id,
-  #       project_id: params[:requisition][:project_id]
-  #     )
-
-  #     RequisitionItem.create(
-  #       requisition_id: @requisition.id,
-  #       value: params[:requisition][:amount],
-  #       quantity: 1.0,
-  #       item_description: 'Petty Cash'
-  #     )
-  #   end
-
-  #   if @requisition.errors.empty?
-  #     flash[:notice] = 'Request successful.'
-  #     redirect_to "/requisitions/#{@requisition.id}"
-  #   else
-  #     flash[:error] = 'Request failed'
-  #   end
-  # end
 
   def create
     state_id = InitialState.find_by_workflow_process_id(
