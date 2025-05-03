@@ -20,15 +20,27 @@ class RequisitionsController < ApplicationController
     # raise @possible_actions.inspect
   end
 
-  def update_requisition
+  def update
     @requisition = Requisition.find(params[:id])
-
-    if @requisition.update(requisition_params)
-      redirect_to @requisition, notice: 'Requisition was successfully updated.'
+    
+    # Ensure workflow_state_id has a value if it's being updated
+    req_params = task_params
+    if req_params[:workflow_state_id].blank?
+      req_params[:workflow_state_id] = @requisition.workflow_state_id # keep existing if blank
+    end
+  
+    # Update requisition items if amount is provided
+    if req_params[:amount].present?
+      @requisition.requisition_items.first.update(value: req_params[:amount])
+    end
+  
+    if @requisition.update(req_params.except(:amount))
+      redirect_to "/requisitions/#{@requisition.id}", notice: 'Requisition was successfully updated.'
     else
       render :edit
     end
   end
+  
 
   def new
     @requisition = Requisition.new
@@ -71,37 +83,6 @@ class RequisitionsController < ApplicationController
       end - [[current_user.employee.person.full_name, current_user.employee_id]]
     end
   end
-
-  # def create
-  #   state_id = InitialState.find_by_workflow_process_id(
-  #     WorkflowProcess.find_by_workflow('Petty Cash Request')
-  #   ).workflow_state_id
-
-  #   ActiveRecord::Base.transaction do
-  #     @requisition = Requisition.create(
-  #       purpose: params[:requisition][:purpose],
-  #       initiated_by: current_user.id,
-  #       initiated_on: Date.today,
-  #       requisition_type: params[:requisition][:requisition_type],
-  #       workflow_state_id: state_id,
-  #       project_id: params[:requisition][:project_id]
-  #     )
-
-  #     RequisitionItem.create(
-  #       requisition_id: @requisition.id,
-  #       value: params[:requisition][:amount],
-  #       quantity: 1.0,
-  #       item_description: 'Petty Cash'
-  #     )
-  #   end
-
-  #   if @requisition.errors.empty?
-  #     flash[:notice] = 'Request successful.'
-  #     redirect_to "/requisitions/#{@requisition.id}"
-  #   else
-  #     flash[:error] = 'Request failed'
-  #   end
-  # end
 
   def create
     state_id = InitialState.find_by_workflow_process_id(
@@ -167,17 +148,33 @@ class RequisitionsController < ApplicationController
 
   def resubmit_request
     @requisition = Requisition.find(params[:id])
-
     new_state = WorkflowState.find_by(
       state: 'Requested',
       workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request')&.id
     )
-    if @requisition.update_requisition(requisition_params.merge(workflow_state_id: new_state.id))
+    
+    if new_state.nil?
+      flash[:alert] = 'Could not find workflow state for resubmission.'
+      return redirect_to "/requisitions/#{params[:id]}"
+    end
+  
+    if @requisition.update(
+      purpose: params[:requisition][:purpose],
+      project_id: params[:requisition][:project_id],
+      requisition_type: params[:requisition][:requisition_type],
+      workflow_state_id: new_state.id
+    )
+      # Update amount if provided
+      if params[:requisition][:amount].present?
+        @requisition.requisition_items.first.update(value: params[:requisition][:amount])
+      end
+      
       flash[:notice] = 'Requisition resubmitted successfully.'
       redirect_to "/requisitions/#{params[:id]}"
     else
       @projects = Project.all
-      flash.now[:alert] = 'Failed to update the requisition.'
+      flash.now[:alert] = 'Failed to update the requisition: ' + 
+                         @requisition.errors.full_messages.join(', ')
       render :show
     end
   end
@@ -300,7 +297,9 @@ class RequisitionsController < ApplicationController
   # end
   private
 
-  def requisition_params
-    params.require(:requisition).permit(:purpose, :amount, :project_id)
+  private
+  def task_params
+    params.require(:requisition).permit(:purpose, :project_id, :initiated_by, :initiated_on, 
+                                       :requisition_type, :workflow_state_id, :amount)
   end
 end
