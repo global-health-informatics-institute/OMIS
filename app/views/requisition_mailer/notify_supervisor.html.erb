@@ -9,7 +9,7 @@
 
 <ul>
   <li><strong>Request ID:</strong> <%= @requisition.id %></li>
-  <li><strong>Amount:</strong> <%= number_to_currency(@requisition.requisition_items.sum(&:value)) %></li>
+  <li><strong>Amount:</strong> <%= number_to_currency(@requisition.requisition_items.sum(&:value), unit:'MWK') %></li>
   <li><strong>Purpose:</strong> <%= @requisition.purpose %></li>
   <li><strong>Submitted:</strong> <%= @requisition.created_at.strftime('%b %d, %Y at %I:%M %p') %></li>
 </ul>
