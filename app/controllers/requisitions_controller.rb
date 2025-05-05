@@ -341,7 +341,6 @@ class RequisitionsController < ApplicationController
       render :show
     end
   end
-
   def deny_funds
     @requisition = Requisition.find_by(requisition_id: params[:id])
   
