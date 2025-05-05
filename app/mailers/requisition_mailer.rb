@@ -27,6 +27,13 @@ class RequisitionMailer < ApplicationMailer
 
     mail(to: receiver_email, subject: 'New Requisition Requires Your Review') 
   end
+  def resubmitted_mail(requisition, supervisor)
+    @requisition = requisition
+    @supervisor = supervisor
+    @requester = Employee.find_by(employee_id: requisition.initiated_by)
+
+    mail(to: @supervisor.person.email_address, subject: 'New Requisition Requires Your Review') 
+  end
 
   def rejected_request_email(requisition)
     @requisition = requisition
