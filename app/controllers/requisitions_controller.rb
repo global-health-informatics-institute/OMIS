@@ -144,33 +144,49 @@ class RequisitionsController < ApplicationController
       state: 'Requested',
       workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request')&.id
     )
-    
+
     if new_state.nil?
       flash[:alert] = 'Could not find workflow state for resubmission.'
       return redirect_to "/requisitions/#{params[:id]}"
     end
-  
-    if @requisition.update(
+
+    amount_valid = true
+    new_amount = nil
+
+    if params[:requisition][:amount].present?
+      new_amount = params[:requisition][:amount].to_f
+      limit = GlobalProperty.petty_cash_limit.to_f
+      if new_amount > limit
+        flash[:alert] = "The requested amount (MWK #{new_amount}) exceeds the petty cash limit (MWK #{limit}). Please enter an amount within the limit."
+        amount_valid = false
+      end
+    end
+
+    if amount_valid && @requisition.update(
       purpose: params[:requisition][:purpose],
       project_id: params[:requisition][:project_id],
       requisition_type: params[:requisition][:requisition_type],
       workflow_state_id: new_state.id
     )
-      # Update amount if provided
-      if params[:requisition][:amount].present?
-        @requisition.requisition_items.first.update(value: params[:requisition][:amount])
+      if params[:requisition][:amount].present? && amount_valid # Re-check to be safe
+        @requisition.requisition_items.first.update(value: new_amount)
       end
-      
-      flash[:notice] = 'Requisition resubmitted successfully.'
-      redirect_to "/requisitions/#{params[:id]}"
+
+      supervisor = current_user.employee.supervisor
+      RequisitionMailer.resubmitted_mail(@requisition, supervisor).deliver_now
+      flash[:notice] = 'Requisition resubmitted successfully. An email has been sent to your supervisor.'
+      redirect_to "/requisitions/#{@requisition.id}"
     else
       @projects = Project.all
-      flash.now[:alert] = 'Failed to update the requisition: ' + 
-                         @requisition.errors.full_messages.join(', ')
+      # If the amount was invalid, the @requisition.update might not have been called or failed for other reasons.
+      # We only want to show the generic update failure message if the amount was valid.
+      if amount_valid
+        flash.now[:alert] = 'Failed to update the requisition: ' +
+                           @requisition.errors.full_messages.join(', ')
+      end
       render :show
     end
   end
-
   def deny_funds
     process = WorkflowProcess.find_by_workflow('Petty Cash Request')
     new_state = WorkflowState.find_by(state: 'Finances Rejected', workflow_process_id: process.id)
