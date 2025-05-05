@@ -68,7 +68,7 @@
                   <%= form.number_field :amount, step: "0.01", class: "form-control" %>
                 <% else %>
                   <%= form.hidden_field :amount, value: @requisition.amount %>
-                  <div class="fw-bold fst-italic"><%= @requisition.amount %></div>
+                  <div class="fw-bold fst-italic"><%= number_with_precision(@requisition.amount.to_i, precision: 2) %></div>
                 <% end %>
               </div>
             </div>
