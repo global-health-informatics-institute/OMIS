@@ -50,6 +50,10 @@ class ApplicationController < ActionController::Base
 
     redirect_to new_user_session_path
   end
+  def clear_flash
+    flash.discard[:warning] # Or whatever flash key you are using
+    render plain: "Flash cleared"
+  end
 
   def can_access?
     # function to check if user has access rights to the resource
