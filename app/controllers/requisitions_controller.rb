@@ -34,7 +34,6 @@ class RequisitionsController < ApplicationController
       render :edit
     end
   end
-  
 
   def new
     @requisition = Requisition.new
@@ -102,7 +101,7 @@ class RequisitionsController < ApplicationController
 
       # If saving fails, rollback the transaction
     end
-  
+
     if @requisition.errors.empty?
       supervisor = current_user.employee.supervisor
 
@@ -285,12 +284,11 @@ class RequisitionsController < ApplicationController
     @requisition = Requisition.find(params[:id])
     @projects = Project.all
     @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f
-
     new_state = WorkflowState.find_by(
       state: 'Requested',
       workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request')&.id
     )
-
+  
     if new_state.nil?
       flash[:alert] = 'Could not find workflow state for resubmission.'
       return redirect_to "/requisitions/#{@requisition.id}" # YOUR STYLE
@@ -320,7 +318,6 @@ class RequisitionsController < ApplicationController
       end
     end
     # Successful update
-
     if amount_valid && @requisition.update(
       purpose: params[:requisition][:purpose],
       project_id: params[:requisition][:project_id],
@@ -330,7 +327,7 @@ class RequisitionsController < ApplicationController
       if params[:requisition][:amount].present? && amount_valid # Re-check to be safe
         @requisition.requisition_items.first.update(value: new_amount)
       end
-
+  
       supervisor = current_user.employee.supervisor
       RequisitionMailer.resubmitted_mail(@requisition, supervisor).deliver_now
       flash[:notice] = 'Requisition resubmitted successfully. An email has been sent to your supervisor.'
@@ -341,6 +338,7 @@ class RequisitionsController < ApplicationController
       render :show
     end
   end
+
   def deny_funds
     @requisition = Requisition.find_by(requisition_id: params[:id])
   
