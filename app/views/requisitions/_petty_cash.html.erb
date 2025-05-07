@@ -38,7 +38,7 @@
     </div>
     <div class="col-md-3 mb-4">
       <%= form.label :amount%>
-      <%= form.number_field :amount, value: params[:amount], class: 'form-control', max: @petty_cash_limit, min: 0 ,required: true %>
+      <%= form.number_field :amount, value: params[:amount], class: 'form-control', max: @petty_cash_limit, min: 0 ,required: true,placeholder: "Max allowed: MWK#{number_with_precision(@petty_cash_limit, precision: 2)}" %>
     </div>
   </div>
 
