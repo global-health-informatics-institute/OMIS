@@ -6,6 +6,7 @@ class RequisitionsController < ApplicationController
   def show
     @requisition = Requisition.find(params[:id])
     @projects = Project.all
+    @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f if @requisition.requisition_type == "Petty Cash"
     is_owner = (@requisition.initiated_by == current_user.employee_id)
     is_supervisor = current_user.employee.current_supervisees.collect do |x|
       x.supervisee
@@ -16,25 +17,22 @@ class RequisitionsController < ApplicationController
 
   def update
     @requisition = Requisition.find(params[:id])
-    
+
     # Ensure workflow_state_id has a value if it's being updated
     req_params = task_params
     if req_params[:workflow_state_id].blank?
       req_params[:workflow_state_id] = @requisition.workflow_state_id # keep existing if blank
     end
-  
+
     # Update requisition items if amount is provided
-    if req_params[:amount].present?
-      @requisition.requisition_items.first.update(value: req_params[:amount])
-    end
-  
+    @requisition.requisition_items.first.update(value: req_params[:amount]) if req_params[:amount].present?
+
     if @requisition.update(req_params.except(:amount))
       redirect_to "/requisitions/#{@requisition.id}", notice: 'Requisition was successfully updated.'
     else
       render :edit
     end
   end
-  
 
   def new
     @requisition = Requisition.new
@@ -78,9 +76,9 @@ class RequisitionsController < ApplicationController
 
   def create
     state_id = InitialState.find_by_workflow_process_id(
-                 WorkflowProcess.find_by_workflow('Petty Cash Request')
-               ).workflow_state_id
-  
+      WorkflowProcess.find_by_workflow('Petty Cash Request')
+    ).workflow_state_id
+
     ActiveRecord::Base.transaction do
       @requisition = Requisition.create(
         purpose: params[:requisition][:purpose],
@@ -90,7 +88,7 @@ class RequisitionsController < ApplicationController
         workflow_state_id: state_id,
         project_id: params[:requisition][:project_id]
       )
-  
+
       RequisitionItem.create(
         requisition_id: @requisition.id,
         value: params[:requisition][:amount],
@@ -98,20 +96,19 @@ class RequisitionsController < ApplicationController
         item_description: 'Petty Cash'
       )
     end
-  
+
     if @requisition.errors.empty?
       supervisor = current_user.employee.supervisor
-  
+
       # Send email without error checking
       RequisitionMailer.notify_supervisor(@requisition, supervisor).deliver_now
-  
+
       flash[:notice] = 'Request successful. An email has been sent to your supervisor.'
       redirect_to "/requisitions/#{@requisition.id}"
     else
       flash[:error] = 'Request failed'
     end
   end
-  
 
   def approve_request
     new_state = WorkflowState.find_by(
@@ -140,28 +137,42 @@ class RequisitionsController < ApplicationController
 
   def resubmit_request
     @requisition = Requisition.find(params[:id])
+    @projects = Project.all
+    @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f
+    
     new_state = WorkflowState.find_by(
       state: 'Requested',
       workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request')&.id
     )
-
+  
     if new_state.nil?
       flash[:alert] = 'Could not find workflow state for resubmission.'
-      return redirect_to "/requisitions/#{params[:id]}"
+      return redirect_to "/requisitions/#{@requisition.id}" # YOUR STYLE
     end
-
-    amount_valid = true
-    new_amount = nil
-
+    amount_valid=true
+  
+    # Validate amount
     if params[:requisition][:amount].present?
       new_amount = params[:requisition][:amount].to_f
-      limit = GlobalProperty.petty_cash_limit.to_f
-      if new_amount > limit
-        flash[:alert] = "The requested amount (MWK #{new_amount}) exceeds the petty cash limit (MWK #{limit}). Please enter an amount within the limit."
-        amount_valid = false
+      if new_amount > @petty_cash_limit
+        respond_to do |format|
+          format.turbo_stream do
+            render turbo_stream: [
+              turbo_stream.replace("flash-messages", 
+                partial: "layouts/flashes", 
+                locals: { flash: { notice: "Value must be less than or equal to MWK #{'%.2f' % @petty_cash_limit}" } }),
+              turbo_stream.replace("requisition-form",
+                partial: "requisitions/requested_petty_cash",
+                locals: { requisition: @requisition })
+            ]
+          end
+          format.html { render :show }
+        end
+        return
       end
     end
-
+    # Successful update
+    
     if amount_valid && @requisition.update(
       purpose: params[:requisition][:purpose],
       project_id: params[:requisition][:project_id],
@@ -171,22 +182,18 @@ class RequisitionsController < ApplicationController
       if params[:requisition][:amount].present? && amount_valid # Re-check to be safe
         @requisition.requisition_items.first.update(value: new_amount)
       end
-
+  
       supervisor = current_user.employee.supervisor
       RequisitionMailer.resubmitted_mail(@requisition, supervisor).deliver_now
       flash[:notice] = 'Requisition resubmitted successfully. An email has been sent to your supervisor.'
-      redirect_to "/requisitions/#{@requisition.id}"
+      redirect_to "/requisitions/#{@requisition.id}" # YOUR STYLE
     else
-      @projects = Project.all
-      # If the amount was invalid, the @requisition.update might not have been called or failed for other reasons.
-      # We only want to show the generic update failure message if the amount was valid.
-      if amount_valid
-        flash.now[:alert] = 'Failed to update the requisition: ' +
-                           @requisition.errors.full_messages.join(', ')
-      end
+      flash.now[:alert] = 'Failed to update the requisition: ' +
+                          @requisition.errors.full_messages.join(', ')
       render :show
     end
   end
+
   def deny_funds
     process = WorkflowProcess.find_by_workflow('Petty Cash Request')
     new_state = WorkflowState.find_by(state: 'Finances Rejected', workflow_process_id: process.id)
@@ -306,8 +313,9 @@ class RequisitionsController < ApplicationController
   private
 
   private
+
   def task_params
-    params.require(:requisition).permit(:purpose, :project_id, :initiated_by, :initiated_on, 
-                                       :requisition_type, :workflow_state_id, :amount)
+    params.require(:requisition).permit(:purpose, :project_id, :initiated_by, :initiated_on,
+                                        :requisition_type, :workflow_state_id, :amount)
   end
 end
