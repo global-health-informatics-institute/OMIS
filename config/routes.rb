@@ -37,6 +37,8 @@ Rails.application.routes.draw do
   get 'requisitions/:id', to: 'requisitions#show'
   get 'requisitions/edit'
   patch 'requisitions/:id', to: 'requisitions#resubmit_request', as: :resubmit_request_requisition
+  post '/clear_flash', to: 'application#clear_flash', as: :clear_flash
+
   put 'requisitions/:id/approve_request', to: 'requisitions#approve_request'
   put 'requisitions/:id/re-submit_request', to: 'requisitions#resubmit_request'
   put 'requisitions/:id/approve_funds', to: 'requisitions#approve_funds'
