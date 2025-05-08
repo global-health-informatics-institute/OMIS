@@ -113,7 +113,7 @@ class RequisitionsController < ApplicationController
       flash[:notice] = 'Request successful. An email has been sent to your supervisor.'
       redirect_to "/requisitions/#{@requisition.id}"
     else
-      flash[:error] = "Request failed"
+      flash[:error] = 'Request failed'
     end
   end
 
