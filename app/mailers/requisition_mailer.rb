@@ -7,6 +7,9 @@ class RequisitionMailer < ApplicationMailer
 
     mail(to: @supervisor.person.email_address, subject: 'New Requisition Requires Your Review') 
   end
+  def notify_admin()
+    
+  end
   def resubmitted_mail(requisition, supervisor)
     @requisition = requisition
     @supervisor = supervisor
