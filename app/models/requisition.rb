@@ -32,9 +32,9 @@ class Requisition < ApplicationRecord
   def recalled?
     WorkflowState.find_by(workflow_state_id: workflow_state_id)&.state == 'Recalled'
   end
+
   def recalled?
     WorkflowState.find_by(workflow_state_id: workflow_state_id)&.state == 'Recalled'
-
   end
 
   def reviewer
