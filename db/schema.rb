@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_05_13_082019) do
+ActiveRecord::Schema[7.0].define(version: 2025_05_09_084846) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -299,12 +299,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_13_082019) do
     t.integer "project_id"
     t.string "approval_token"
     t.string "rejection_token"
-    t.string "approval_funds_token"
-    t.string "deny_funds_token"
-    t.text "reason"
-    t.index ["approval_funds_token"], name: "index_requisitions_on_approval_funds_token", unique: true
     t.index ["approval_token"], name: "index_requisitions_on_approval_token", unique: true
-    t.index ["deny_funds_token"], name: "index_requisitions_on_deny_funds_token", unique: true
     t.index ["rejection_token"], name: "index_requisitions_on_rejection_token", unique: true
   end
 
