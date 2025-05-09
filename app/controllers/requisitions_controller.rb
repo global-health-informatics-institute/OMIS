@@ -8,7 +8,7 @@ class RequisitionsController < ApplicationController
   def show
     @requisition = Requisition.find(params[:id])
     @projects = Project.all
-    @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f if @requisition.requisition_type == "Petty Cash"
+    @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f if @requisition.requisition_type == 'Petty Cash'
     is_owner = (@requisition.initiated_by == current_user.employee_id)
     is_supervisor = current_user.employee.current_supervisees.collect do |x|
       x.supervisee
@@ -86,15 +86,17 @@ class RequisitionsController < ApplicationController
       WorkflowProcess.find_by_workflow('Petty Cash Request')
     ).workflow_state_id
 
+    @requisition = Requisition.new(
+      purpose: params[:requisition][:purpose],
+      initiated_by: current_user.id,
+      initiated_on: Date.today,
+      requisition_type: params[:requisition][:requisition_type],
+      workflow_state_id: state_id,
+      project_id: params[:requisition][:project_id]
+    )
+
     ActiveRecord::Base.transaction do
-      @requisition = Requisition.create(
-        purpose: params[:requisition][:purpose],
-        initiated_by: current_user.id,
-        initiated_on: Date.today,
-        requisition_type: params[:requisition][:requisition_type],
-        workflow_state_id: state_id,
-        project_id: params[:requisition][:project_id]
-      )
+      raise ActiveRecord::Rollback unless @requisition.save # Save the requisition to trigger the callback
 
       RequisitionItem.create(
         requisition_id: @requisition.id,
@@ -102,6 +104,8 @@ class RequisitionsController < ApplicationController
         quantity: 1.0,
         item_description: 'Petty Cash'
       )
+
+      # If saving fails, rollback the transaction
     end
 
     if @requisition.errors.empty?
@@ -114,50 +118,91 @@ class RequisitionsController < ApplicationController
       redirect_to "/requisitions/#{@requisition.id}"
     else
       flash[:error] = 'Request failed'
+      render :new # Or wherever your new requisition form is
     end
   end
 
   def approve_request
-    new_state = WorkflowState.find_by(
-      state: 'Approved',
-      workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id
-    )
     @requisition = Requisition.find_by(requisition_id: params[:id])
 
-    if @requisition.update(reviewed_by: current_user.user_id, workflow_state_id: new_state.id)
-      # Send Email After Approval if recipient email exists
-      recipient_email = @requisition&.user&.email
+    if @requisition
+      if params[:approval_token].present?
+        # Approval via email (token is present)
+        new_state = WorkflowState.find_by(
+          state: 'Approved',
+          workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id
+        )
 
-      if recipient_email.present?
-        RequisitionMailer.request_approved_email(@requisition).deliver_now
-        flash[:notice] = 'Requisition approved and email sent.'
+        if @requisition.update(workflow_state_id: new_state.id)
+          @requisition.update(approval_token: nil) # One-time use
+          # Send approval email
+          recipient_email = @requisition&.user&.email
+          if recipient_email.present?
+            RequisitionMailer.request_approved_email(@requisition).deliver_now
+            flash[:notice] = 'Requisition approved via email and notification sent.'
+          else
+            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
+            flash[:alert] = 'Requisition approved via email, but no notification sent (missing recipient email).'
+          end
+          redirect_to "/requisitions/#{@requisition.id}"
+          return
+        else
+          flash[:alert] = 'Error approving requisition via email.'
+          redirect_to "/requisitions/#{@requisition.id}"
+          return
+        end
+      elsif current_user
+        # Approval within the application (token is absent, user is logged in)
+        new_state = WorkflowState.find_by(
+          state: 'Approved',
+          workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id
+        )
+
+        if @requisition.update(reviewed_by: current_user.user_id, workflow_state_id: new_state.id)
+          # Send approval email
+          recipient_email = @requisition&.user&.email
+          if recipient_email.present?
+            RequisitionMailer.request_approved_email(@requisition).deliver_now
+            flash[:notice] = 'Requisition approved and notification sent.'
+          else
+            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
+            flash[:alert] = 'Requisition approved, but no notification sent (missing recipient email).'
+          end
+          redirect_to "/requisitions/#{@requisition.id}"
+          return
+        else
+          flash[:alert] = 'Error approving requisition.'
+          redirect_to "/requisitions/#{@requisition.id}"
+          return
+        end
       else
-        Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
-        flash[:alert] = 'Requisition approved but no email was sent (missing recipient email).'
+        flash[:alert] = 'Invalid approval request.'
+        redirect_to "/requisitions/#{@requisition.id}"
+        return
       end
     else
-      flash[:error] = 'Error approving requisition.'
+      flash[:alert] = 'Requisition not found.'
+      redirect_to "/requisitions/#{@requisition.id}"
+      return
     end
-
-    redirect_to "/requisition/#{@requisition.id}"
   end
 
   def resubmit_request
     @requisition = Requisition.find(params[:id])
     @projects = Project.all
     @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f
-    
+
     new_state = WorkflowState.find_by(
       state: 'Requested',
       workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request')&.id
     )
-  
+
     if new_state.nil?
       flash[:alert] = 'Could not find workflow state for resubmission.'
       return redirect_to "/requisitions/#{@requisition.id}" # YOUR STYLE
     end
-    amount_valid=true
-  
+    amount_valid = true
+
     # Validate amount
     if params[:requisition][:amount].present?
       new_amount = params[:requisition][:amount].to_f
@@ -165,12 +210,14 @@ class RequisitionsController < ApplicationController
         respond_to do |format|
           format.turbo_stream do
             render turbo_stream: [
-              turbo_stream.replace("flash-messages", 
-                partial: "layouts/flashes", 
-                locals: { flash: { notice: "Value must be less than or equal to MWK #{'%.2f' % @petty_cash_limit}" } }),
-              turbo_stream.replace("requisition-form",
-                partial: "requisitions/requested_petty_cash",
-                locals: { requisition: @requisition })
+              turbo_stream.replace('flash-messages',
+                                   partial: 'layouts/flashes',
+                                   locals: { flash: { notice: "Value must be less than or equal to MWK #{format(
+                                     '%.2f', @petty_cash_limit
+                                   )}" } }),
+              turbo_stream.replace('requisition-form',
+                                   partial: 'requisitions/requested_petty_cash',
+                                   locals: { requisition: @requisition })
             ]
           end
           format.html { render :show }
@@ -179,7 +226,7 @@ class RequisitionsController < ApplicationController
       end
     end
     # Successful update
-    
+
     if amount_valid && @requisition.update(
       purpose: params[:requisition][:purpose],
       project_id: params[:requisition][:project_id],
@@ -189,7 +236,7 @@ class RequisitionsController < ApplicationController
       if params[:requisition][:amount].present? && amount_valid # Re-check to be safe
         @requisition.requisition_items.first.update(value: new_amount)
       end
-  
+
       supervisor = current_user.employee.supervisor
       RequisitionMailer.resubmitted_mail(@requisition, supervisor).deliver_now
       flash[:notice] = 'Requisition resubmitted successfully. An email has been sent to your supervisor.'
