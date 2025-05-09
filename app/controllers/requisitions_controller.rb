@@ -288,7 +288,7 @@ class RequisitionsController < ApplicationController
       state: 'Requested',
       workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request')&.id
     )
-  
+
     if new_state.nil?
       flash[:alert] = 'Could not find workflow state for resubmission.'
       return redirect_to "/requisitions/#{@requisition.id}" # YOUR STYLE
@@ -327,7 +327,7 @@ class RequisitionsController < ApplicationController
       if params[:requisition][:amount].present? && amount_valid # Re-check to be safe
         @requisition.requisition_items.first.update(value: new_amount)
       end
-  
+
       supervisor = current_user.employee.supervisor
       RequisitionMailer.resubmitted_mail(@requisition, supervisor).deliver_now
       flash[:notice] = 'Requisition resubmitted successfully. An email has been sent to your supervisor.'
