@@ -118,7 +118,7 @@ class RequisitionsController < ApplicationController
       redirect_to "/requisitions/#{@requisition.id}"
     else
       flash[:error] = 'Request failed'
-      render :new # Or wherever your new requisition form is
+      render :new 
     end
   end
 
@@ -314,36 +314,63 @@ class RequisitionsController < ApplicationController
   end
 
   def reject_request
-    workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
-    new_state = WorkflowState.find_by(state: 'Rejected',
-                                      workflow_process_id: workflow_process.id)
+    @requisition = Requisition.find_by(requisition_id: params[:id])
 
-    @requisition = Requisition.find(params[:id])
-    @requisition.update(workflow_state_id: new_state.id)
+    if @requisition
+      if params[:rejection_token].present?
+        # Rejection via email (token is present)
+        workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
+        rejected_state = WorkflowState.find_by(state: 'Rejected', workflow_process_id: workflow_process.id)
 
-    if @requisition.update(reviewed_by: current_user.user_id,
-                           workflow_state_id: new_state.id)
-      # rejected_by: current_user.user_id
-      recipient_email = @requisition&.user&.email
-
-      if recipient_email.present?
-        begin
-          RequisitionMailer.rejected_request_email(@requisition).deliver_now
-        rescue StandardError => e
-          Rails.logger.error("Rejection email failed to send: #{e.message}")
-          flash[:alert] = 'Request rejected, but email could not be sent.'
+        if @requisition.update(workflow_state_id: rejected_state.id, rejection_token: nil)
+          # Notify the requester
+          recipient_email = @requisition&.user&.email
+          if recipient_email.present?
+            RequisitionMailer.rejected_request_email(@requisition).deliver_now
+            flash[:notice] = 'Requisition rejected via email and requester notified.'
+          else
+            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
+            flash[:alert] = 'Requisition rejected via email, but no email was sent (missing recipient email).'
+          end
+          redirect_to "/requisitions/#{@requisition.id}"
+          return
         else
-          flash[:notice] = 'Request rejected and requester notified.'
+          flash[:alert] = 'Error rejecting requisition via email.'
+          redirect_to "/requisitions/#{@requisition.id}"
+          return
+        end
+      elsif current_user
+        # Rejection within the application (token is absent, user is logged in)
+        workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
+        rejected_state = WorkflowState.find_by(state: 'Rejected', workflow_process_id: workflow_process.id)
+
+        if @requisition.update(reviewed_by: current_user.user_id, workflow_state_id: rejected_state.id)
+          # Notify the requester
+          recipient_email = @requisition&.user&.email
+          if recipient_email.present?
+            RequisitionMailer.rejected_request_email(@requisition).deliver_now
+            flash[:notice] = 'Requisition rejected.'
+          else
+            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
+            flash[:alert] = 'Requisition rejected, but no email was sent (missing recipient email).'
+          end
+          redirect_to "/requisitions/#{@requisition.id}"
+          return
+        else
+          flash[:alert] = 'Error rejecting requisition.'
+          redirect_to "/requisitions/#{@requisition.id}"
+          return
         end
       else
-        Rails.logger.warn("No recipient email for requisition ##{@requisition.id}")
-        flash[:alert] = 'Request rejected, but no email was sent (missing recipient email).'
+        flash[:alert] = 'Invalid rejection request.'
+        redirect_to "/requisitions/#{@requisition.id}"
+        return
       end
     else
-      flash[:error] = 'Error rejecting request.'
+      flash[:alert] = 'Requisition not found.'
+      redirect_to "/requisitions/#{@requisition.id}"
+      return
     end
-
-    redirect_to "/requisition/#{@requisition.id}"
   end
 
   def recall_request
