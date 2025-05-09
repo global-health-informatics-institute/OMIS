@@ -1,7 +1,9 @@
 class Requisition < ApplicationRecord
+  before_create :generate_approval_token
+  before_create :generate_rejection_token 
   belongs_to :user, :foreign_key =>  :initiated_by
-  # belongs_to :employee, :foreign_key =>  :reviewed_by
-  # belongs_to :employee, :foreign_key =>  :approved_by
+  attribute :approval_token, :string
+  attribute :rejection_token, :string # Add this line
   # belongs_to :approver, class_name: 'User', :foreign_key =>  :approved_by
   belongs_to :project, foreign_key: :project_id
   has_many :requisition_items, :foreign_key => :requisition_id
@@ -18,19 +20,35 @@ class Requisition < ApplicationRecord
   end
 
   def approver
-    Employee.find(self.approved_by).person.full_name
+    Employee.find(self.approved_by).person.full_name rescue nil # Handle potential nil value
   end
+
   def recalled?
     WorkflowState.find_by(workflow_state_id: workflow_state_id)&.state == 'Recalled'
-
   end
 
   def reviewer
-    Employee.find(self.reviewed_by).person.full_name
+    Employee.find(self.reviewed_by).person.full_name rescue nil # Handle potential nil value
   end
+
   def amount
     if self.requisition_type == "Petty Cash"
       return self.requisition_items.first.value
     end
+  end
+
+  private
+
+  def generate_approval_token
+    token = SecureRandom.urlsafe_base64(32)
+    Rails.logger.info "Requisition Model: Inside generate_approval_token. Token: #{token}"
+    self.approval_token = token
+    Rails.logger.info "Requisition Model: After assignment, self.approval_token: #{self.approval_token}"
+  end
+  def generate_rejection_token 
+    token = SecureRandom.urlsafe_base64(32)
+    Rails.logger.info "Requisition Model: Inside generate_rejection_token. Token: #{token}"
+    self.rejection_token = token
+    Rails.logger.info "Requisition Model: After assignment, self.rejection_token: #{self.rejection_token}"
   end
 end
