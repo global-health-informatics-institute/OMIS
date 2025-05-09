@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GHII Dashboards</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body class="h-screen w-screen overflow-hidden bg-gray-100 p-4">
+  <!-- Main Layout -->
+  <div class="flex flex-col h-full space-y-4">
+
+    <!-- Header Section inside a Card -->
+    <header class="bg-white rounded-2xl shadow p-6 flex justify-between items-center h-[12%] overflow-hidden">
+
+      <div class="text-7xl tracking-wide text-gray-800 pl-10">
+        <%= @metadata[:title] %>
+      </div>
+
+      <div class="flex items-center space-x-4 pr-10">
+        <div class="bg-blue-100 text-gray-800 text-lg font-semibold px-12 py-12 rounded-full shadow-sm">
+          <p class="text-2xl">
+            <%= @metadata[:subtitle_1] %>
+          </p>
+          <p class="text-2xl"><%=@metadata[:subtitle_2]%></p> 
+        </div>
+        <%= image_tag("/assets/ghii-logo.png", class: "h-16 w-auto object-contain") %>
+      </div>
+
+    </header>
+
+    <% case @target_dashboard %>
+      <% when "headcount_growth" %>
+        <%= render 'dashboards/headcount_growth' %>
+      <% when "demographic_age_gender" %>
+        <% render 'dashboards/age_gender' %>
+      <% when "demographic_tenure" %>
+        <% render 'dashboards/tenure' %>
+    <% end %>
+
+  </div>
+</body>
+  <%= render 'dashboards/scripts' %>
+</html>
