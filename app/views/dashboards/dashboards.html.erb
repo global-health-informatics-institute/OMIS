@@ -32,12 +32,12 @@
     </header>
 
     <% case @target_dashboard %>
-      <% when "headcount_growth" %>
-        <%= render 'dashboards/headcount_growth' %>
-      <% when "demographic_age_gender" %>
-        <% render 'dashboards/age_gender' %>
-      <% when "demographic_tenure" %>
+      <% when "gender_age" %>
+        <%= render 'dashboards/gender_age' %>
+      <% when "tenure" %>
         <% render 'dashboards/tenure' %>
+      <% when "projects" %>
+        <% render 'dashboards/projects' %>
     <% end %>
 
   </div>

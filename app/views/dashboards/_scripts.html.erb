@@ -1,0 +1,151 @@
+
+
+<%# PIE CHART %>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('genderChart')?.getContext('2d');
+    if (!ctx) return; // Safeguard
+
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Female', 'Male', 'Other'],
+        datasets: [{
+          data: [<%= @metadata[:gender_female] %>, <%= @metadata[:gender_male] %>, <%= @metadata[:gender_other] %>],
+          backgroundColor: ['#FBB6CE', '#2C5282', '#6B7280'],
+          borderWidth: 0,
+        }]
+      },
+      options: {
+        cutout: '60%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: context => `${context.label}: ${context.parsed}%`
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+
+<%# BAR GRAPH %>
+<script>
+  const ageCtx = document.getElementById('ageChart').getContext('2d');
+  new Chart(ageCtx, {
+    type: 'bar',
+    data: {
+      labels: ['18-24', '25-29', '30-44', '45-60', '60+'],
+      datasets: [{
+        label: 'Employees',
+        data: [
+          <%=@metadata[:age_18_25]%>,
+          <%=@metadata[:age_26_35]%>,
+          <%=@metadata[:age_36_45]%>,
+          <%=@metadata[:age_46_55]%>,
+          <%=@metadata[:age_56_65]%>,
+          <%=@metadata[:above_65]%>,
+        ],
+        backgroundColor: [
+          'rgba(191, 219, 254, 0.8)',  // light blue
+          'rgba(110, 231, 183, 0.9)',  // mint
+          'rgba(34, 197, 94, 0.9)',    // green
+          'rgba(20, 184, 166, 0.9)',   // teal
+          'rgba(203, 213, 225, 0.8)'   // gray (zero value)
+        ],
+        borderRadius: 8,
+        barThickness: 80
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          grid: { color: '#E5E7EB' },
+          ticks: {
+            color: '#4B5563',
+            font: { size: 20, weight: '800' }
+          }
+        },
+        y: {
+          grid: { color: '#E5E7EB' },
+          ticks: {
+            beginAtZero: true,
+            stepSize: 10,
+            color: '#4B5563',
+            font: { size: 18, weight: '800' }
+          }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: context => ` ${context.parsed.y} employees`
+          }
+        }
+      }
+    }
+  });
+</script>
+
+<%# TREND %>
+<script>
+  window.onload = function () {
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    new Chart(trendCtx, {
+      type: 'line',
+      data: {
+        labels: [
+          <% @metadata[:past_four_months].each do |month| %>
+            '<%= month %>',
+          <% end %>
+        ],
+
+        datasets: [{
+          label: 'Headcount',
+          data: [
+            <% @metadata[:past_four_months_trend].each do |headcount| %>
+              <%= headcount %>,
+            <% end %>
+          ],
+          borderColor: '#3B82F6',
+          borderWidth: 3,
+          fill: false,
+          tension: 0.8,
+          pointRadius: 3,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 0,
+            right: 20,
+            bottom: 0,  
+            left: 0
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: '#E5E7EB', drawBorder: true },
+            ticks: { color: '#6B7280', font: { size: 16, weight: 'semi-bold' } }
+          },
+          y: {
+            grid: { color: '#E5E7EB', drawBorder: true },
+            ticks: { color: '#6B7280', font: { size: 16, weight: 'bold' }, stepSize: 10 },
+            min: <%= @metadata[:past_four_months_trend].min %>,
+            max: <%= @metadata[:past_four_months_trend].max %>,
+          }
+        },
+        plugins: {
+          legend: { display: false },
+        }
+      }
+    });
+  };
+</script>
