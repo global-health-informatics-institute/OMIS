@@ -34,6 +34,11 @@ class ApplicationController < ActionController::Base
       end
     end
     # raise allowed_transitions.inspect
+    #Add this condition when one has recalled the requisition can rescind that also
+    if WorkflowState.find_by(workflow_state_id: current_state)&.state == 'Recalled'
+      actions.append('Rescind Request')
+    end
+
     actions
   end
 
