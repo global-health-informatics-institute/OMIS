@@ -31,9 +31,8 @@ class RequisitionMailer < ApplicationMailer
     @requisition = requisition
     @admin = admin
     @requester = Employee.find_by(employee_id: requisition.initiated_by)
-    @supervisor = User.find_by(user_id: @requisition.reviewed_by) if @requisition.reviewed_by.present?
-    mail(to: @admin.person.email_address, subject: 'New Requisition Requires Your Review') 
-    
+    @supervisor_name = @requisition.reviewed_by # Get the stored first name
+    mail(to: @admin.person.email_address, subject: 'New Requisition Requires Your Review')
   end
   def resubmitted_mail(requisition, supervisor)
     @requisition = requisition
