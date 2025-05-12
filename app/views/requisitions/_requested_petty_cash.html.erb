@@ -92,7 +92,6 @@
 
       <%= form.hidden_field :requisition_type, value: "Petty Cash" %>
       <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
-      <% puts("THE ACTION IS #{@possible_actions}") %>
 
       <div class="mt-3">
         <% (@possible_actions || []).each do |action| %>
