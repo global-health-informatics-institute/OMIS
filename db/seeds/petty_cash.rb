@@ -2,51 +2,70 @@ require 'csv'
 
 puts "Seeding started..."
 
+# === Requisitions ===
+puts "Seeding Requisitions..."
+Requisition.delete_all
+
+CSV.foreach(Rails.root.join('db/seeds/requisitions.csv'), headers: true) do |row|
+  # Convert boolean values from string to actual booleans
+  voided = row['voided'].strip.downcase == 'true'
+  
+  # Convert NULL values to nil for optional fields
+  reviewed_by = row['reviewed_by'] == 'NULL' ? nil : row['reviewed_by']
+  approved_by = row['approved_by'] == 'NULL' ? nil : row['approved_by']
+  
+  # Create the requisition
+  Requisition.create!(
+    id: row['requisition_id'],
+    purpose: row['purpose'],
+    initiated_by: row['initiated_by'],
+    initiated_on: row['initiated_on'],
+    requisition_type: row['requisition_type'],
+    reviewed_by: reviewed_by,
+    approved_by: approved_by,
+    workflow_state_id: row['workflow_state_id'],
+    voided: voided,
+    created_at: row['created_at'],
+    updated_at: row['updated_at'],
+    project_id: row['project_id'],
+    approval_token: row['approval_token'],
+    rejection_token: row['rejection_token'],
+    approval_funds_token: row['approval_funds_token'],
+    deny_funds_token: row['deny_funds_token']
+  )
+end
+
+puts "Requisitions seeded successfully!"
+
 # === Workflow States ===
-
 puts "Seeding Workflow States..."
-
-# First delete all existing records
 WorkflowState.delete_all
 
 CSV.foreach(Rails.root.join('db/seeds/workflow_states.csv'), headers: true) do |row|
-  voided_value = row['voided']&.strip&.downcase == 'true' # Handle nil and whitespace
-  
-  # Use the correct boolean value from CSV (not hardcoded 'true')
-  voided = voided_value
+  voided_value = row['voided']&.strip&.downcase == 'true'
   
   WorkflowState.create!(
     id: row['workflow_state_id'],
     workflow_process_id: row['workflow_process_id'],
     state: row['state'],
     description: row['description'],
-    voided: true,
+    voided: voided_value,
     created_at: row['created_at'],
     updated_at: row['updated_at']
   )
 end
 
 puts "Workflow States seeded successfully!"
-# === Workflow State Designations ===
-#require 'csv'
-
-puts "Seeding started..."
 
 # === Workflow State Actors ===
 puts "Seeding Workflow State Actors..."
 WorkflowStateActor.delete_all
 
-# Track unique combinations we've already processed
 processed_combinations = Set.new
 
 CSV.foreach(Rails.root.join('db/seeds/workflow_state_actors.csv'), headers: true) do |row|
-  # Create a unique key for this combination
   combination_key = "#{row['workflow_state_id']}-#{row['employee_designation_id']}"
-  
-  # Skip if we've already processed this combination
   next if processed_combinations.include?(combination_key)
-  
-  # Add to our processed set
   processed_combinations.add(combination_key)
 
   voided_value = row['voided']&.strip&.downcase == 'true'
@@ -60,15 +79,17 @@ CSV.foreach(Rails.root.join('db/seeds/workflow_state_actors.csv'), headers: true
     updated_at: row['updated_at']
   )
 end
+
+puts "Workflow State Actors seeded successfully!"
+
+# === Workflow State Transitions ===
 puts "Seeding Workflow Transitions..."
+WorkflowStateTransition.delete_all
 
 CSV.foreach(Rails.root.join('db/seeds/workflow_state_transitions.csv'), headers: true) do |row|
   voided_value = row['voided']&.strip&.downcase == 'true'
   by_owner = row['by_owner']&.strip&.downcase == 'true'
   by_supervisor = row['by_supervisor']&.strip&.downcase == 'true'
-
-  # Skip if record already exists
-  next if WorkflowStateTransition.exists?(id: row['id'])
 
   WorkflowStateTransition.create!(
     id: row['id'],
@@ -83,4 +104,4 @@ CSV.foreach(Rails.root.join('db/seeds/workflow_state_transitions.csv'), headers:
   )
 end
 
-puts "seeding has successfully completed!"
+puts "Seeding has successfully completed!"
