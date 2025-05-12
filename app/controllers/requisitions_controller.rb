@@ -1,7 +1,7 @@
 class RequisitionsController < ApplicationController
   # before_action :show
-  skip_before_action :verify_authenticity_token, only: [:approve_request, :reject_request]
-  skip_before_action :logged_in?, only: [:approve_request, :reject_request]
+  skip_before_action :verify_authenticity_token, only: %i[approve_request reject_request approve_funds deny_funds]
+  skip_before_action :logged_in?, only: %i[approve_request reject_request approve_funds deny_funds]
   def index
   end
 
@@ -113,7 +113,7 @@ class RequisitionsController < ApplicationController
       redirect_to "/requisitions/#{@requisition.id}"
     else
       flash[:error] = 'Request failed'
-      render :new 
+      render :new
     end
   end
 
@@ -121,64 +121,58 @@ class RequisitionsController < ApplicationController
     @requisition = Requisition.find_by(requisition_id: params[:id])
 
     if @requisition
-      if params[:approval_token].present?
-        # Approval via email (token is present)
+      if params[:approval_token].present? || current_user
+        # Determine the new state
         new_state = WorkflowState.find_by(
           state: 'Approved',
           workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id
         )
 
-        if @requisition.update(workflow_state_id: new_state.id)
-          @requisition.update(approval_token: nil) # One-time use
-          # Send approval email
-          recipient_email = @requisition&.user&.email
-          if recipient_email.present?
-            RequisitionMailer.request_approved_email(@requisition).deliver_now
-            flash[:notice] = 'Requisition approved via email and notification sent.'
-          else
-            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
-            flash[:alert] = 'Requisition approved via email, but no notification sent (missing recipient email).'
-          end
-          redirect_to "/requisitions/#{@requisition.id}"
-          return
-        else
-          flash[:alert] = 'Error approving requisition via email.'
-          redirect_to "/requisitions/#{@requisition.id}"
-          return
-        end
-      elsif current_user
-        # Approval within the application (token is absent, user is logged in)
-        new_state = WorkflowState.find_by(
-          state: 'Approved',
-          workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id
-        )
+        # Update the requisition
+        update_success = if params[:approval_token].present?
+                           @requisition.update(workflow_state_id: new_state.id, approval_token: nil)
+                         else
+                           @requisition.update(reviewed_by: current_user.user_id, workflow_state_id: new_state.id)
+                         end
 
-        if @requisition.update(reviewed_by: current_user.user_id, workflow_state_id: new_state.id)
-          # Send approval email
-          recipient_email = @requisition&.user&.email
-          if recipient_email.present?
-            RequisitionMailer.request_approved_email(@requisition).deliver_now
-            flash[:notice] = 'Requisition approved and notification sent.'
-          else
-            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
-            flash[:alert] = 'Requisition approved, but no notification sent (missing recipient email).'
+        if update_success
+          # Send email to requester
+          requester_email = @requisition&.user&.email
+          RequisitionMailer.request_approved_email(@requisition).deliver_now
+          admin_email_address = @requisition&.user&.email
+          # CORRECTED: Find admin users directly through employee_designations
+          admin_users = User.joins(employee: :employee_designations)
+                            .where(employee_designations: { designation_id: 12 })
+                            .distinct
+
+          admin_notified = false
+          admin_users.each do |admin_users|
+            if admin_email_address.present?
+              RequisitionMailer.notify_admin(@requisition, admin_users).deliver_now
+              admin_notified = true
+            end
           end
+
+          flash[:notice] = 'Requisition approved.'
+          flash[:notice] += ' Notification sent to requester.' if requester_email.present?
+          flash[:notice] += ' Notification sent to admin.' if admin_notified
+
           redirect_to "/requisitions/#{@requisition.id}"
-          return
+          nil
         else
           flash[:alert] = 'Error approving requisition.'
           redirect_to "/requisitions/#{@requisition.id}"
-          return
+          nil
         end
       else
         flash[:alert] = 'Invalid approval request.'
         redirect_to "/requisitions/#{@requisition.id}"
-        return
+        nil
       end
     else
       flash[:alert] = 'Requisition not found.'
       redirect_to "/requisitions/#{@requisition.id}"
-      return
+      nil
     end
   end
 
@@ -244,61 +238,116 @@ class RequisitionsController < ApplicationController
   end
 
   def deny_funds
-    process = WorkflowProcess.find_by_workflow('Petty Cash Request')
-    new_state = WorkflowState.find_by(state: 'Finances Rejected', workflow_process_id: process.id)
-
     @requisition = Requisition.find_by(requisition_id: params[:id])
-
-    if @requisition.update(approved_by: current_user.user_id, workflow_state_id: new_state.id)
-      recipient_email = @requisition&.user&.email
-
-      if recipient_email.present?
-        begin
-          RequisitionMailer.funds_denied_email(@requisition).deliver_now
-        rescue StandardError => e
-          Rails.logger.error("Funds denial email failed to send: #{e.message}")
-          flash[:alert] = 'Funds denied, but email could not be sent.'
+    if @requisition
+      if params[:deny_funds_token].present?
+        # Denial via email (token is present)
+        workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
+        denied_state = WorkflowState.find_by(state: 'Finances Rejected', workflow_process_id: workflow_process.id)
+  
+        if @requisition.update(workflow_state_id: denied_state.id, deny_funds_token: nil)
+          # Notify the requester
+          recipient_email = @requisition&.user&.email
+          if recipient_email.present?
+            RequisitionMailer.funds_denied_email(@requisition).deliver_now
+            flash[:notice] = 'Funds denied via email and requester notified.'
+          else
+            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
+            flash[:alert] = 'Funds denied via email, but no email was sent (missing recipient email).'
+          end
+          redirect_to "/requisitions/#{@requisition.id}"
+          nil
+        elsif current_user
+          # Denial within the application (token is absent, user is logged in)
+          workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
+          denied_state = WorkflowState.find_by(state: 'Finances Rejected', workflow_process_id: workflow_process.id)
+  
+          if @requisition.update(approved_by: current_user.user_id, workflow_state_id: denied_state.id)
+            # Notify the requester
+            recipient_email = @requisition&.user&.email
+            if recipient_email.present?
+              RequisitionMailer.funds_denied_email(@requisition).deliver_now
+              flash[:notice] = 'Funds denied.'
+            else
+              Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
+              flash[:alert] = 'Funds denied, but no email was sent (missing recipient email).'
+            end
+            redirect_to "/requisitions/#{@requisition.id}"
+            nil
+          else
+            flash[:alert] = 'Error denying funds.'
+            redirect_to "/requisitions/#{@requisition.id}"
+            nil
+          end
         else
-          flash[:notice] = 'Funds denied and requester notified.'
+          flash[:alert] = 'Invalid denial request.'
+          redirect_to "/requisitions/#{@requisition.id}"
+          nil
         end
       else
-        Rails.logger.warn("No recipient email for requisition ##{@requisition.id}")
-        flash[:alert] = 'Funds denied, but no email was sent (missing recipient email).'
+        flash[:alert] = 'Requisition not found.'
+        redirect_to "/requisitions/#{params[:id]}"
+        nil
       end
-    else
-      flash[:error] = 'Error denying funds.'
     end
-
-    redirect_to "/requisition/#{@requisition.id}"
   end
+  
 
   def approve_funds
-    process = WorkflowProcess.find_by_workflow('Petty Cash Request')
-    new_state = WorkflowState.find_by(state: 'Prepared', workflow_process_id: process.id)
-
     @requisition = Requisition.find_by(requisition_id: params[:id])
-
-    if @requisition.update(approved_by: current_user.user_id, workflow_state_id: new_state.id)
-      recipient_email = @requisition&.user&.email
-
-      if recipient_email.present?
-        begin
-          RequisitionMailer.funds_approved_email(@requisition).deliver_now
-        rescue StandardError => e
-          Rails.logger.error("Email failed to send: #{e.message}")
-          flash[:alert] = 'Funds approved, but email could not be sent.'
+    if @requisition
+      if params[:approval_funds_token].present?
+        # Approval via email (token is present)
+        workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
+        approved_state = WorkflowState.find_by(state: 'Prepared', workflow_process_id: workflow_process.id)
+  
+        if @requisition.update(workflow_state_id: approved_state.id, approval_funds_token: nil)
+          recipient_email = @requisition&.user&.email
+          if recipient_email.present?
+            RequisitionMailer.funds_approved_email(@requisition).deliver_now
+            flash[:notice] = 'Funds approved via email and requester notified.'
+          else
+            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
+            flash[:alert] = 'Funds approved via email, but no email was sent (missing recipient email).'
+          end
+          redirect_to "/requisitions/#{@requisition.id}"
+          nil
         else
-          flash[:notice] = 'Funds approved and requester notified.'
+          flash[:alert] = 'Error approving funds via email.'
+          redirect_to "/requisitions/#{@requisition.id}"
+          nil
+        end
+      elsif current_user
+        # Approval within the application (user is logged in)
+        workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
+        approved_state = WorkflowState.find_by(state: 'Prepared', workflow_process_id: workflow_process.id)
+  
+        if @requisition.update(approved_by: current_user.user_id, workflow_state_id: approved_state.id)
+          recipient_email = @requisition&.user&.email
+          if recipient_email.present?
+            RequisitionMailer.funds_approved_email(@requisition).deliver_now
+            flash[:notice] = 'Funds approved and requester notified.'
+          else
+            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
+            flash[:alert] = 'Funds approved, but no email was sent (missing recipient email).'
+          end
+          redirect_to "/requisitions/#{@requisition.id}"
+          nil
+        else
+          flash[:alert] = 'Error approving funds.'
+          redirect_to "/requisitions/#{@requisition.id}"
+          nil
         end
       else
-        Rails.logger.warn("No recipient email for requisition ##{@requisition.id}")
-        flash[:alert] = 'Funds approved, but no email was sent (missing recipient email).'
+        flash[:alert] = 'Invalid approval request.'
+        redirect_to "/requisitions/#{@requisition.id}"
+        nil
       end
     else
-      flash[:error] = 'Error approving funds.'
+      flash[:alert] = 'Requisition not found.'
+      redirect_to "/requisitions/#{params[:id]}"
+      nil
     end
-
-    redirect_to "/requisition/#{@requisition.id}"
   end
 
   def rescind_request
@@ -328,11 +377,11 @@ class RequisitionsController < ApplicationController
             flash[:alert] = 'Requisition rejected via email, but no email was sent (missing recipient email).'
           end
           redirect_to "/requisitions/#{@requisition.id}"
-          return
+          nil
         else
           flash[:alert] = 'Error rejecting requisition via email.'
           redirect_to "/requisitions/#{@requisition.id}"
-          return
+          nil
         end
       elsif current_user
         # Rejection within the application (token is absent, user is logged in)
@@ -350,21 +399,21 @@ class RequisitionsController < ApplicationController
             flash[:alert] = 'Requisition rejected, but no email was sent (missing recipient email).'
           end
           redirect_to "/requisitions/#{@requisition.id}"
-          return
+          nil
         else
           flash[:alert] = 'Error rejecting requisition.'
           redirect_to "/requisitions/#{@requisition.id}"
-          return
+          nil
         end
       else
         flash[:alert] = 'Invalid rejection request.'
         redirect_to "/requisitions/#{@requisition.id}"
-        return
+        nil
       end
     else
       flash[:alert] = 'Requisition not found.'
       redirect_to "/requisitions/#{@requisition.id}"
-      return
+      nil
     end
   end
 
