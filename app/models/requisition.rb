@@ -1,6 +1,8 @@
 class Requisition < ApplicationRecord
   before_create :generate_approval_token
   before_create :generate_rejection_token 
+  before_create :generate_approval_funds_token
+  before_create :generate_deny_funds_token
   belongs_to :user, :foreign_key =>  :initiated_by
   attribute :approval_token, :string
   attribute :rejection_token, :string # Add this line
@@ -50,5 +52,17 @@ class Requisition < ApplicationRecord
     Rails.logger.info "Requisition Model: Inside generate_rejection_token. Token: #{token}"
     self.rejection_token = token
     Rails.logger.info "Requisition Model: After assignment, self.rejection_token: #{self.rejection_token}"
+  end
+  def generate_approval_funds_token
+    token = SecureRandom.urlsafe_base64(32)
+    Rails.logger.info "Requisition Model: Inside generate_approval_funds_token. Token: #{token}"
+    self.approval_funds_token = token
+    Rails.logger.info "Requisition Model: After assignment, self.approval_funds_token: #{self.approval_funds_token}"
+  end
+  def generate_deny_funds_token
+    token = SecureRandom.urlsafe_base64(32)
+    Rails.logger.info "Requisition Model: Inside generate_deny_funds_token. Token: #{token}"
+    self.deny_funds_token = token
+    Rails.logger.info "Requisition Model: After assignment, self.deny_funds_token: #{self.deny_funds_token}"
   end
 end
