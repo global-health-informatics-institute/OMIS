@@ -77,6 +77,7 @@ end
 puts "Workflow State Actors seeded successfully!"
 
 puts "Seeding Workflow Transitions..."
+WorkflowStateTransition.delete_all
 
 # Step 1: Mark all existing records as voided
 WorkflowStateTransition.update_all(voided: true)
