@@ -408,6 +408,7 @@ class RequisitionsController < ApplicationController
       Rails.logger.warn "No recipient email for requisition ##{requisition.id}"
     end
   end
+  
 
   def approve_funds
     @requisition = Requisition.find_by(requisition_id: params[:id])
