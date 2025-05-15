@@ -5,12 +5,16 @@ class Requisition < ApplicationRecord
   before_create :generate_deny_funds_token
   belongs_to :user, :foreign_key =>  :initiated_by
   attribute :approval_token, :string
-  attribute :rejection_token, :string # Add this line
+  attribute :rejection_token, :string 
   # belongs_to :approver, class_name: 'User', :foreign_key =>  :approved_by
   belongs_to :project, foreign_key: :project_id
   has_many :requisition_items, :foreign_key => :requisition_id
   has_many :requisition_notes, :foreign_key => :requisition_id
   has_one :workflow_state, :foreign_key => :workflow_state_id
+  #validating the reason field if the requisition is rejected
+  # validates :reason, presence: { message: "must be provided when rejecting" }, 
+  #                    if: :being_rejected?
+
 
   def assign_state
     self.workflow_state_id = InitialState.find_by_workflow_process_id(WorkflowProcess.find_by_workflow('Petty Cash Request')).workflow_state_id
@@ -65,4 +69,7 @@ class Requisition < ApplicationRecord
     self.deny_funds_token = token
     Rails.logger.info "Requisition Model: After assignment, self.deny_funds_token: #{self.deny_funds_token}"
   end
+  # def being_rejected?
+  #   workflow_state_id_changed? && WorkflowState.find_by(id: workflow_state_id)&.state == "Rejected"
+  # end
 end
