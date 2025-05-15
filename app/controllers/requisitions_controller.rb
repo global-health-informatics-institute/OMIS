@@ -207,6 +207,11 @@ class RequisitionsController < ApplicationController
           render plain: 'Error rejecting requisition via email. Please try again or contact support.', status: :unprocessable_entity, layout: false
         end
       elsif current_user
+        # if @requisition.reason.blank?
+        #   flash[:alert] = 'Reason is required when rejecting a request'
+        #   redirect_to "/requisitions/#{@requisition.id}"
+        #   return
+        # end
         # Rejection within the application (token is absent, user is logged in)
         workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
         rejected_state = WorkflowState.find_by(state: 'Rejected', workflow_process_id: workflow_process.id)
@@ -421,12 +426,6 @@ class RequisitionsController < ApplicationController
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
-
-  # def task_params
-  #   params.require(:requisition).permit(:purpose, :project_id, :initiated_by, :initiated_on, :requisition_type,
-  #                                       :workflow_state_id, :amount)
-  # end
-  private
 
   private
 
