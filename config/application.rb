@@ -21,6 +21,6 @@ module Omis
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
-    config.omis_url = 'http://198.251.76.216:3000'
+    config.omis_url = 'http://192.168.10.22:3000' 
   end
 end
