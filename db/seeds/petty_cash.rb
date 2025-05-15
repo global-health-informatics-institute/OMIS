@@ -8,7 +8,7 @@ Requisition.delete_all
 
 CSV.foreach(Rails.root.join('db/seeds/requisitions.csv'), headers: true) do |row|
   # Convert boolean values from string to actual booleans
-  voided = row['voided'].strip.downcase == 'true'
+  voided = row['voided'].nil? ? false : row['voided'].strip.downcase == 'true'
   
   # Convert NULL values to nil for optional fields
   reviewed_by = row['reviewed_by'] == 'NULL' ? nil : row['reviewed_by']
