@@ -1,0 +1,32 @@
+<!-- MIDDLE SECTION (2 CARDS)-->
+<div class="grid grid-col-1 gap-2 h-100">
+  <%# TRENDING %>
+  <div class="bg-white rounded-2xl shadow p-2 overflow-hidden">
+    <div class="h-full w-full flex flex-col">
+      <h2 class="text-2xl font-semibold text-gray-800 m-3"><%=@metadata[:card_title_1]%></h2>
+      <div class="h-80 w-full">
+        <canvas id="rententionChart" class="w-full h-full"></canvas>
+      </div>
+    </div>               
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-2 h-90">
+  <div class="bg-white rounded-2xl shadow p-2 overflow-hidden">
+    <div class="h-full w-full flex flex-col">
+      <h2 class="text-2xl font-semibold text-gray-800 m-3"><%= @metadata[:card_title_2] %></h2>
+      <div class="h-80 w-full p-10">
+        <canvas id="growthChart" class="w-full h-full"></canvas>
+      </div>
+    </div>               
+  </div>
+
+  <div class="bg-white rounded-2xl shadow p-2 overflow-hidden">
+    <div class="h-full w-full flex flex-col">
+      <h2 class="text-2xl font-semibold text-gray-800 m-3"><%= @metadata[:card_title_3] %></h2>
+      <div class="h-80 w-full p-10">
+        <canvas id="workforceChart" class="w-full h-full"></canvas>
+      </div>
+    </div>               
+  </div>
+</div>

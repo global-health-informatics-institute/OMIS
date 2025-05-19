@@ -34,13 +34,15 @@
     <% case @target_dashboard %>
       <% when "gender_age" %>
         <%= render 'dashboards/gender_age' %>
+        <%= render 'dashboards/gender_age_script' %>
       <% when "tenure" %>
-        <% render 'dashboards/tenure' %>
+        <%= render 'dashboards/tenure' %>
+        <%= render 'dashboards/tenure_script' %>
       <% when "projects" %>
         <% render 'dashboards/projects' %>
+        <%= render 'dashboards/project_script' %>
     <% end %>
 
   </div>
 </body>
-  <%= render 'dashboards/scripts' %>
 </html>

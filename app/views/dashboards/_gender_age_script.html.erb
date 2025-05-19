@@ -1,6 +1,6 @@
 
 
-<%# PIE CHART %>
+<%# GENDER - PIE CHART %>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const ctx = document.getElementById('genderChart')?.getContext('2d');
@@ -31,7 +31,7 @@
   });
 </script>
 
-<%# BAR GRAPH %>
+<%# AGE - BAR GRAPH %>
 <script>
   const ageCtx = document.getElementById('ageChart').getContext('2d');
   new Chart(ageCtx, {
@@ -90,62 +90,4 @@
       }
     }
   });
-</script>
-
-<%# TREND %>
-<script>
-  window.onload = function () {
-    const trendCtx = document.getElementById('trendChart').getContext('2d');
-    new Chart(trendCtx, {
-      type: 'line',
-      data: {
-        labels: [
-          <% @metadata[:past_four_months].each do |month| %>
-            '<%= month %>',
-          <% end %>
-        ],
-
-        datasets: [{
-          label: 'Headcount',
-          data: [
-            <% @metadata[:past_four_months_trend].each do |headcount| %>
-              <%= headcount %>,
-            <% end %>
-          ],
-          borderColor: '#3B82F6',
-          borderWidth: 3,
-          fill: false,
-          tension: 0.8,
-          pointRadius: 3,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        layout: {
-          padding: {
-            top: 0,
-            right: 20,
-            bottom: 0,  
-            left: 0
-          }
-        },
-        scales: {
-          x: {
-            grid: { color: '#E5E7EB', drawBorder: true },
-            ticks: { color: '#6B7280', font: { size: 16, weight: 'semi-bold' } }
-          },
-          y: {
-            grid: { color: '#E5E7EB', drawBorder: true },
-            ticks: { color: '#6B7280', font: { size: 16, weight: 'bold' }, stepSize: 10 },
-            min: <%= @metadata[:past_four_months_trend].min %>,
-            max: <%= @metadata[:past_four_months_trend].max %>,
-          }
-        },
-        plugins: {
-          legend: { display: false },
-        }
-      }
-    });
-  };
 </script>
