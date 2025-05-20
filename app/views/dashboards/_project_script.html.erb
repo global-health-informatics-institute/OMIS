@@ -1,6 +1,6 @@
  <script>
     const allProjects = [
-      <% @metadata[:projects].each do |project| %>
+      <% @project[:projects].each do |project| %>
         "<%= j project[:project_name] %>",
       <% end %>
     ];
