@@ -117,6 +117,7 @@ class RequisitionsController < ApplicationController
   end
 
   def approve_request
+    # Use find_by(:id)
     @requisition = Requisition.find_by(requisition_id: params[:id])
   
     if @requisition
@@ -184,6 +185,9 @@ class RequisitionsController < ApplicationController
             HTML
           end
         end
+  
+        # Render a plain success message for email approval
+        render plain: 'Requisition approved successfully and admin has notified. You can now close this window.', layout: false
       else
         # Requisition is not in the 'Requested' state
         render html: <<-HTML.html_safe
