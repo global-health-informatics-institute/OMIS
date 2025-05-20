@@ -118,130 +118,66 @@ class RequisitionsController < ApplicationController
   end
 
   def approve_request
+    # Use find_by(:id)
     @requisition = Requisition.find_by(requisition_id: params[:id])
-
+  
     if @requisition
-      if params[:approval_token].present?
-        # Approval via email (token is present)
-        new_state = WorkflowState.find_by(
-          state: 'Approved',
-          workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id
-        )
-
-        update_success = @requisition.update(
-          workflow_state_id: new_state.id,
-          approval_token: nil,
-          reviewed_by: params[:reviewer_first_name] # Storing person.first_name directly
-        )
-
-        if update_success
-          RequisitionMailer.request_approved_email(@requisition).deliver_now
-
-          admin_users = User.joins(employee: :employee_designations)
-                            .where(employee_designations: { designation_id: 12 })
-                            .distinct
-
-          admin_users.each do |admin|
-            RequisitionMailer.notify_admin(@requisition, admin).deliver_now
-          end
-
-          # Render a plain success message for email approval
-          render plain: 'Requisition approved successfully and admin has notified. You can now close this window.', layout: false
-        else
-          render plain: 'Error approving requisition via email. Please try again or contact support.', status: :unprocessable_entity, layout: false
+      new_state = WorkflowState.find_by(
+        state: 'Approved',
+        workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id
+      )
+  
+      update_success = @requisition.update(
+        workflow_state_id: new_state.id,
+        reviewed_by: params[:reviewer_first_name] # Storing person.first_name directly
+      )
+  
+      if update_success
+        RequisitionMailer.request_approved_email(@requisition).deliver_now
+  
+        admin_users = User.joins(employee: :employee_designations)
+                          .where(employee_designations: { designation_id: 12 })
+                          .distinct
+  
+        admin_users.each do |admin|
+          RequisitionMailer.notify_admin(@requisition, admin).deliver_now
         end
-      elsif current_user
-        # Approval within the application (user is logged in)
-        new_state = WorkflowState.find_by(
-          state: 'Approved',
-          workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id
-        )
-
-        if @requisition.update(workflow_state_id: new_state.id, reviewed_by: current_user.user_id)
-          RequisitionMailer.request_approved_email(@requisition).deliver_now
-
-          admin_users = User.joins(employee: :employee_designations)
-                            .where(employee_designations: { designation_id: 12 })
-                            .distinct
-
-          admin_users.each do |admin|
-            RequisitionMailer.notify_admin(@requisition, admin).deliver_now
-          end
-
-          flash[:notice] = 'Requisition approved and notifications sent.'
-          redirect_to "/requisitions/#{@requisition.id}"
-        else
-          flash[:alert] = 'Error approving requisition.'
-          redirect_to "/requisitions/#{@requisition.id}"
-        end
+  
+        # Render a plain success message for email approval
+        render plain: 'Requisition approved successfully and admin has notified. You can now close this window.', layout: false
       else
-        flash[:alert] = 'Invalid approval request.'
-        redirect_to "/requisitions/#{@requisition.id}"
+        render plain: 'Error approving requisition via email. Please try again or contact support.', status: :unprocessable_entity, layout: false
       end
     else
       flash[:alert] = 'Requisition not found.'
-      redirect_to "/requisitions/#{@requisition.id}"
+      redirect_to "/requisitions/#{params[:id]}"
     end
   end
 
   def reject_request
-    @requisition = Requisition.find_by(requisition_id: params[:id])
-
+    @requisition = Requisition.find_by(requisition_id: params[:id]) # Find by ID
+  
     if @requisition
-      if params[:rejection_token].present?
-        # Rejection via email (token is present)
-        workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
-        rejected_state = WorkflowState.find_by(state: 'Rejected', workflow_process_id: workflow_process.id)
-
-        if @requisition.update(workflow_state_id: rejected_state.id, rejection_token: nil)
-          # Notify the requester
-          recipient_email = @requisition&.user&.email
-          if recipient_email.present?
-            RequisitionMailer.rejected_request_email(@requisition).deliver_now
-            render plain: 'Requisition rejected successfully. You can now close this window.', layout: false
-          else
-            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
-            render plain: 'Requisition rejected and email sent to the requester for review, but no confirmation email was sent (missing recipient email). You can now close this window.', layout: false
-          end
+      workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
+      rejected_state = WorkflowState.find_by(state: 'Rejected', workflow_process_id: workflow_process.id)
+  
+      # Reject the request
+      if @requisition.update(workflow_state_id: rejected_state.id)
+        # Notify the requester
+        recipient_email = @requisition&.user&.email
+        if recipient_email.present?
+          RequisitionMailer.rejected_request_email(@requisition).deliver_now
+          render plain: 'Requisition rejected successfully. You can now close this window.', layout: false
         else
-          render plain: 'Error rejecting requisition via email. Please try again or contact support.', status: :unprocessable_entity, layout: false
-        end
-      elsif current_user
-        # if @requisition.reason.blank?
-        #   flash[:alert] = 'Reason is required when rejecting a request'
-        #   redirect_to "/requisitions/#{@requisition.id}"
-        #   return
-        # end
-        # Rejection within the application (token is absent, user is logged in)
-        workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
-        rejected_state = WorkflowState.find_by(state: 'Rejected', workflow_process_id: workflow_process.id)
-
-        if @requisition.update(reviewed_by: current_user.user_id, workflow_state_id: rejected_state.id)
-          # Notify the requester
-          recipient_email = @requisition&.user&.email
-          if recipient_email.present?
-            RequisitionMailer.rejected_request_email(@requisition).deliver_now
-            flash[:notice] = 'Requisition rejected.'
-          else
-            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
-            flash[:alert] = 'Requisition rejected, but no email was sent (missing recipient email).'
-          end
-          redirect_to "/requisitions/#{@requisition.id}"
-          nil
-        else
-          flash[:alert] = 'Error rejecting requisition.'
-          redirect_to "/requisitions/#{@requisition.id}"
-          nil
+          Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
+          render plain: 'Requisition rejected, but no confirmation email was sent (missing recipient email). You can now close this window.', layout: false
         end
       else
-        flash[:alert] = 'Invalid rejection request.'
-        redirect_to "/requisitions/#{@requisition.id}"
-        nil
+        render plain: 'Error rejecting requisition. Please try again or contact support.', status: :unprocessable_entity, layout: false
       end
     else
       flash[:alert] = 'Requisition not found.'
       redirect_to "/requisitions/#{@requisition.id}"
-      nil
     end
   end
 
