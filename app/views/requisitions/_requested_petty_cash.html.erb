@@ -48,11 +48,11 @@
               <div class="col-2 fw-normal">Amount (MWK)</div>
               <div class="col-2">
                 <% if @requisition.current_state == "Recalled" %>
-                  <%= form.number_field :amount, 
-                        step: "0.01", 
-                        class: "form-control #{'is-invalid' if flash[:amount_error]}", 
-                        min: 0, 
-                        max: @petty_cash_limit, 
+                  <%= form.number_field :amount,
+                        step: "0.01",
+                        class: "form-control #{'is-invalid' if flash[:amount_error]}",
+                        min: 0,
+                        max: @petty_cash_limit,
                         required: true,
                          data: { limit: @petty_cash_limit },
                         placeholder: "Max allowed: MWK#{number_with_precision(@petty_cash_limit, precision: 2)}" %>
@@ -90,6 +90,13 @@
       </div>
 
       <hr>
+
+      <div class="mt-3 mb-3" id="rejection-reason-container" style="display: none;">
+        <div class="col-2 fw-normal">Reason for Rejection</div>
+        <div class="col-6">
+          <%= form.text_area :reason, class: "form-control", rows: 3, placeholder: "Please provide the reason for rejection" %>
+        </div>
+      </div>
 
       <%= form.hidden_field :requisition_type, value: "Petty Cash" %>
       <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
