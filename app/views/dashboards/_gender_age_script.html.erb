@@ -11,7 +11,7 @@
       data: {
         labels: ['Female', 'Male', 'Other'],
         datasets: [{
-          data: [<%= @metadata[:gender_female] %>, <%= @metadata[:gender_male] %>, <%= @metadata[:gender_other] %>],
+          data: [<%= @gender_age[:gender_female] %>, <%= @gender_age[:gender_male] %>, <%= @gender_age[:gender_other] %>],
           backgroundColor: ['#FBB6CE', '#2C5282', '#6B7280'],
           borderWidth: 0,
         }]
@@ -41,12 +41,12 @@
       datasets: [{
         label: 'Employees',
         data: [
-          <%=@metadata[:age_18_25]%>,
-          <%=@metadata[:age_26_35]%>,
-          <%=@metadata[:age_36_45]%>,
-          <%=@metadata[:age_46_55]%>,
-          <%=@metadata[:age_56_65]%>,
-          <%=@metadata[:above_65]%>,
+          <%=@gender_age[:age_18_25]%>,
+          <%=@gender_age[:age_26_35]%>,
+          <%=@gender_age[:age_36_45]%>,
+          <%=@gender_age[:age_46_55]%>,
+          <%=@gender_age[:age_56_65]%>,
+          <%=@gender_age[:above_65]%>,
         ],
         backgroundColor: [
           'rgba(191, 219, 254, 0.8)',  // light blue

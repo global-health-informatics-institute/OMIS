@@ -27,15 +27,15 @@
     <div class="flex-1 flex flex-col justify-center space-y-4  ml-10 text-left">
       <div class="flex items-center space-x-3">
         <span class="w-7 h-8 rounded-full bg-pink-300 inline-block"></span>
-        <span class="text-3xl text-gray-700"><strong>Total Female:</strong> <%=@metadata[:gender_female]%></span>
+        <span class="text-3xl text-gray-700"><strong>Total Female:</strong> <%=@gender_age[:gender_female]%></span>
       </div>
       <div class="flex items-center space-x-3">
         <span class="w-7 h-8 rounded-full bg-blue-800 inline-block"></span>
-        <span class="text-3xl text-gray-700"><strong>Total Male:</strong> <%=@metadata[:gender_male]%></span>
+        <span class="text-3xl text-gray-700"><strong>Total Male:</strong> <%=@gender_age[:gender_male]%></span>
       </div>
       <div class="flex items-center space-x-3">
         <span class="w-7 h-8 rounded-full bg-gray-500 inline-block"></span>
-        <span class="text-3xl text-gray-700"><strong>Total Other:</strong> <%=@metadata[:gender_other]%></span>
+        <span class="text-3xl text-gray-700"><strong>Total Other:</strong> <%=@gender_age[:gender_other]%></span>
       </div>
     </div>
   </div>
@@ -50,13 +50,13 @@
 <div class="grid grid-cols-2 gap-4 h-[30.5%]">
   <!-- Total Headcount Card -->
   <div class="bg-white rounded-2xl shadow flex flex-col justify-center items-center p-6">
-    <div class="text-9xl font-bold text-gray-800"><%=@metadata[:headcount]%></div>
+    <div class="text-9xl font-bold text-gray-800"><%=@gender_age[:headcount]%></div>
     <div class="text-4xl font-semibold text-gray-600 mt-2">Total Employees</div>
   </div>
 
   <!-- New Hires Card -->
   <div class="bg-white rounded-2xl shadow flex flex-col justify-center items-center p-6">
-    <div class="text-9xl font-bold text-green-600">+<%=@metadata[:new_hires]%></div>
+    <div class="text-9xl font-bold text-green-600">+<%=@gender_age[:new_hires]%></div>
     <div class="text-4xl font-semibold text-gray-600 mt-2">New Hires</div>
   </div>
 </div>
