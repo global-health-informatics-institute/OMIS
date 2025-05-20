@@ -8,7 +8,7 @@
       type: 'line',
       data: {
         labels: [
-          <% @metadata[:past_four_year_quarters].each do |quarter| %>
+          <% @tenure[:past_four_year_quarters].each do |quarter| %>
             '<%= (quarter).gsub('20', '') %>',
           <% end %>
         ],
@@ -16,7 +16,7 @@
         datasets: [{
           label: 'Retention Rate',
           data: [
-            <% @metadata[:past_four_year_quarter_trend].each do |trend| %>
+            <% @tenure[:past_four_year_quarter_trend].each do |trend| %>
               <%= trend %>,
             <% end %>
           ],
@@ -51,10 +51,10 @@
              font: { size: 22, weight: 'bold' },
              stepSize: 5,
              callback: function(value) {
-              return (value > 100 ? null : value) &&  (value < (<%= (@metadata[:past_four_year_quarter_trend].compact.min || 0) %>) ? null : value)
+              return (value > 100 ? null : value) &&  (value < (<%= (@tenure[:past_four_year_quarter_trend].compact.min || 0) %>) ? null : value)
             }
             },
-            min: (<%= (@metadata[:past_four_year_quarter_trend].compact.min || 0) %>) - 5,
+            min: (<%= (@tenure[:past_four_year_quarter_trend].compact.min || 0) %>) - 5,
             max: 100 + 10, // but how about if the max is 105 but it should not show 105 value only the 100 part
           }
         },
@@ -75,7 +75,7 @@
       type: 'line',
       data: {
         labels: [
-          <% @metadata[:past_four_months].each do |month| %>
+          <% @tenure[:past_four_months].each do |month| %>
             '<%= month %>',
           <% end %>
         ],
@@ -83,7 +83,7 @@
         datasets: [{
           label: 'Headcount',
           data: [
-            <% @metadata[:past_four_months_trend].each do |headcount| %>
+            <% @tenure[:past_four_months_trend].each do |headcount| %>
               <%= headcount %>,
             <% end %>
           ],
@@ -115,11 +115,11 @@
             ticks: { color: '#6B7280', font: { size: 26, weight: 'bold' },
              stepSize: 4,
              callback: function(value) {
-              return ((value >= (<%= @metadata[:past_four_months_trend].max  %>) + 8) ? null : value) &&  ((value <= (<%= @metadata[:past_four_months_trend].min %>) - 8) ? null : value)
+              return ((value >= (<%= @tenure[:past_four_months_trend].max  %>) + 8) ? null : value) &&  ((value <= (<%= @tenure[:past_four_months_trend].min %>) - 8) ? null : value)
             }
             },
-            min: (<%= @metadata[:past_four_months_trend].min %>) - 8,
-            max: (<%= @metadata[:past_four_months_trend].max  %>) + 8,
+            min: (<%= @tenure[:past_four_months_trend].min %>) - 8,
+            max: (<%= @tenure[:past_four_months_trend].max  %>) + 8,
           }
         },
         plugins: {
@@ -142,14 +142,14 @@
       type: 'bar',
       data: {
         labels: [
-          <% @metadata[:workforce_types].each do |type| %>
+          <% @tenure[:workforce_types].each do |type| %>
             '<%= type %>',
           <% end %>
         ],
         datasets: [{
           label: 'Employees',
           data: [
-            <% @metadata[:workforce_type_distribution].each do |distribution| %>
+            <% @tenure[:workforce_type_distribution].each do |distribution| %>
               <%= distribution %>,
             <% end %>
           ],
