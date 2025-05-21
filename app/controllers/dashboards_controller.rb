@@ -10,7 +10,7 @@ class DashboardsController < ApplicationController # rubocop:disable Style/Docum
     }
 
     @gender_age = {
-      title: 'WORKFORCE DISTRIBUTION',
+      title: 'WORKFORCE',
 
       past_four_months:,
       past_four_months_trend: past_four_months_headcount,
