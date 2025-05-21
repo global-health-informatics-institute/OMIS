@@ -10,7 +10,7 @@ class DashboardsController < ApplicationController # rubocop:disable Style/Docum
     }
 
     @gender_age = {
-      title: 'Workforce Distribution',
+      title: 'WORKFORCE DISTRIBUTION',
 
       past_four_months:,
       past_four_months_trend: past_four_months_headcount,
@@ -44,7 +44,7 @@ class DashboardsController < ApplicationController # rubocop:disable Style/Docum
     }
 
     @tenure = {
-      title: 'Growth and Workforce',
+      title: 'GROWTH',
 
       card_title_1: 'Retention Trend', # rubocop:disable Naming/VariableNumber
       past_four_year_quarters:,
@@ -60,7 +60,7 @@ class DashboardsController < ApplicationController # rubocop:disable Style/Docum
     }
 
     @project = {
-      title: 'GHII Projects',
+      title: 'GHII PROJECTS',
 
       projects: Project.where(is_active: true)
                        .where('LOWER(project_name) NOT LIKE ALL (ARRAY[?, ?, ?])', '%leave%', '%holiday%', '%crosscutting%') # rubocop:disable Layout/LineLength
