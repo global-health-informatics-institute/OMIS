@@ -7,13 +7,13 @@
   <% all_colors = [] %>
 
   <% if session[:success].present? %>
-    <% session[:success].each do |title,message| %>
+    <% session[:success].each do |title, message| %>
       <% all_messages << { title: title, description: message } %>
       <% all_colors << 'success' %>
     <% end %>
     <% session.delete(:success) %>
   <% end %>
-  
+
   <% if @notifications['Birthdays'].present? %>
     <% @notifications['Birthdays'].each do |first, last| %>
       <% all_messages << { title: "Birthday 🎉", description: "It's #{first} #{last}'s birthday today!" } %>
@@ -25,18 +25,16 @@
     <%= notification_snackbar(all_messages, all_colors) %>
   <% end %>
 
+  <%# If you want the birthday_snackbar separately, you can add here: %>
+  <% if @notifications['Birthdays'].present? %>
+    <% messages = @notifications['Birthdays'].map do |first, last| 
+      { title: "Birthday 🎉", description: "It's #{first} #{last}'s birthday today!" }
+    end %>
+    <%= birthday_snackbar(messages) %>
+  <% end %>
+
 <% else %>
   <%= render partial: 'app_dashboard' %>
 <% end %>
-    <%= render partial: 'user_dashboard' %>
-    <% if @notifications['Birthdays'].present? %>
-        <% messages = @notifications['Birthdays'].map do |first, last| 
-            { title: "Birthday 🎉", description: "It's #{first} #{last}'s birthday today!" }
-            end %>
-        <%= birthday_snackbar(messages) %>
-    <% end %>
 
-<% else %>
-    <%= render partial: 'app_dashboard' %>
-<% end %>
 <% puts current_user.inspect %>
