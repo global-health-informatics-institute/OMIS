@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   resources :branches
   resources :employees
   resources :timesheets
+  #resources :requisitions
   resources :leave_requests
   resources :inventory_items
   resources :inventory_item_categories
@@ -35,11 +36,17 @@ Rails.application.routes.draw do
   post 'requisitions/create'
   get 'requisitions/:id', to: 'requisitions#show'
   get 'requisitions/edit'
+  patch 'requisitions/:id', to: 'requisitions#resubmit_request', as: :resubmit_request_requisition
+  post '/clear_flash', to: 'application#clear_flash', as: :clear_flash
+
   put 'requisitions/:id/approve_request', to: 'requisitions#approve_request'
+  put 'requisitions/:id/re-submit_request', to: 'requisitions#resubmit_request'
   put 'requisitions/:id/approve_funds', to: 'requisitions#approve_funds'
+  put 'requisitions/:id/deny_funds', to: 'requisitions#deny_funds'
   put 'requisitions/:id/release_funds', to: 'requisitions#release_funds'
   put 'requisitions/:id/rescind_request', to: 'requisitions#rescind_request'
   put 'requisitions/:id/reject_request', to: 'requisitions#reject_request'
+  put 'requisitions/:id/recall_request', to: 'requisitions#recall_request'
   put 'requisitions/:id/collect_funds', to: 'requisitions#collect_funds'
 
   put 'leave_requests/:id/approve_leave', to: 'leave_requests#approve_leave'
