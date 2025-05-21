@@ -32,7 +32,8 @@ class ApplicationController < ActionController::Base
     end
 
     def logged_in?
-        #function to check if user is logged in before accessing recourses
+      return true if request.get? && request.path == '/dashboards/dashboards'
+
         if current_user.blank?
             redirect_to new_user_session_path
         end

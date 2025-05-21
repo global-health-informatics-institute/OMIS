@@ -1,77 +1,81 @@
 # frozen_string_literal: true
 
-class DashboardsController < ApplicationController # rubocop:disable Style/Documentation
+class DashboardsController < ApplicationController # rubocop:disable Style/Documentation,Metrics/ClassLength
   attr_reader :metadata
 
   def dashboards # rubocop:disable Metrics/MethodLength,Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-    @target_dashboard = 'tenure'
+    @common_data = {
+      subtitle_1: "#{(Date.today.month - 1) / 3 + 1} Quarter - #{Date.today.year}", # rubocop:disable Naming/VariableNumber
+      subtitle_2: 'Informatics Team' # rubocop:disable Naming/VariableNumber
+    }
 
-    @metadata = case @target_dashboard
-                when 'gender_age'
-                  {
-                    title: 'Workforce Distribution',
-                    subtitle_1: "#{(Date.today.month - 1) / 3 + 1} Quarter - #{Date.today.year}", # rubocop:disable Naming/VariableNumber
-                    subtitle_2: 'Informatics Team', # rubocop:disable Naming/VariableNumber
+    @gender_age = {
+      title: 'Workforce Distribution',
 
-                    past_four_months:,
-                    past_four_months_trend: past_four_months_headcount,
+      past_four_months:,
+      past_four_months_trend: past_four_months_headcount,
 
-                    gender_female: Employee.joins(:person).where(people: { gender: 'Female' }).count || 0,
-                    gender_male: Employee.joins(:person).where(people: { gender: 'Male' }).count || 0,
-                    gender_other: Employee.joins(:person).where.not(people: { gender: %w[Female Male] }).count || 0,
+      gender_female: Employee.joins(:person).where(people: { gender: 'Female' }).count || 0,
+      gender_male: Employee.joins(:person).where(people: { gender: 'Male' }).count || 0,
+      gender_other: Employee.joins(:person).where.not(people: { gender: %w[Female Male] }).count || 0,
 
-                    age_18_below: Employee.joins(:person)
-                                          .where(still_employed: true)
-                                          .where('people.birth_date > ?', 18.years.ago).count || 0,
-                    age_18_25: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
-                                       .where(still_employed: true)
-                                       .where(people: { birth_date: 25.years.ago..18.years.ago }).count || 0,
-                    age_26_35: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
-                                       .where(still_employed: true)
-                                       .where(people: { birth_date: 35.years.ago..26.years.ago }).count || 0,
-                    age_36_45: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
-                                       .where(still_employed: true)
-                                       .where(people: { birth_date: 45.years.ago..36.years.ago }).count || 0,
-                    age_46_55: Employee.joins(:person)
-                                       .where(still_employed: true)
-                                       .where(people: { birth_date: 55.years.ago..46.years.ago }).count || 0,
-                    age_56_65: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
-                                       .where(still_employed: true)
-                                       .where(people: { birth_date: 65.years.ago..56.years.ago }).count || 0,
-                    above_65: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
-                                      .where(still_employed: true)
-                                      .where('people.birth_date <= ?', 65.years.ago).count || 0,
+      age_18_25: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
+                          .where(still_employed: true)
+                          .where(people: { birth_date: 25.years.ago..18.years.ago }).count || 0,
+      age_26_35: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
+                          .where(still_employed: true)
+                          .where(people: { birth_date: 35.years.ago..26.years.ago }).count || 0,
+      age_36_45: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
+                          .where(still_employed: true)
+                          .where(people: { birth_date: 45.years.ago..36.years.ago }).count || 0,
+      age_46_55: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
+                          .where(still_employed: true)
+                          .where(people: { birth_date: 55.years.ago..46.years.ago }).count || 0,
+      age_56_65: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
+                          .where(still_employed: true)
+                          .where(people: { birth_date: 65.years.ago..56.years.ago }).count || 0,
+      above_65: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
+                        .where(still_employed: true)
+                        .where('people.birth_date <= ?', 65.years.ago).count || 0,
 
-                    headcount: Employee.where(still_employed: true).count,
-                    new_hires: Employee.where(still_employed: true,
-                                              employment_date: Date.current.beginning_of_quarter..Date.current.end_of_quarter).count # rubocop:disable Layout/LineLength
-                  }
-                when 'tenure'
-                  {
-                    title: 'Growth and Workforce',
-                    subtitle_1: "#{(Date.today.month - 1) / 3 + 1} Quarter - #{Date.today.year}", # rubocop:disable Naming/VariableNumber
-                    subtitle_2: 'Informatics Team', # rubocop:disable Naming/VariableNumber
+      headcount: Employee.where(still_employed: true).count,
+      new_hires: Employee.where(still_employed: true,
+                                employment_date: Date.current.beginning_of_quarter..Date.current.end_of_quarter).count # rubocop:disable Layout/LineLength
+    }
 
-                    card_title_1: 'Retention Trend', # rubocop:disable Naming/VariableNumber
-                    past_four_year_quarters:,
-                    past_four_year_quarter_trend: past_four_year_quarters_trend,
+    @tenure = {
+      title: 'Growth and Workforce',
 
-                    card_title_2: 'Headcount for the Last 4 Months', # rubocop:disable Naming/VariableNumber
-                    past_four_months:,
-                    past_four_months_trend: past_four_months_headcount,
+      card_title_1: 'Retention Trend', # rubocop:disable Naming/VariableNumber
+      past_four_year_quarters:,
+      past_four_year_quarter_trend: past_four_year_quarters_trend,
 
-                    card_title_3: 'Workforce Distribution', # rubocop:disable Naming/VariableNumber
-                    workforce_types: workforce_types.keys,
-                    workforce_type_distribution: workforce_types.values
-                  }
-                end
+      card_title_2: 'Headcount for the Last 4 Months', # rubocop:disable Naming/VariableNumber
+      past_four_months:,
+      past_four_months_trend: past_four_months_headcount,
 
-    return unless @metadata[:past_four_year_quarter_trend]
+      card_title_3: 'Workforce Distribution', # rubocop:disable Naming/VariableNumber
+      workforce_types: workforce_types.keys,
+      workforce_type_distribution: workforce_types.values
+    }
 
-    @metadata[:past_four_year_quarter_trend] = @metadata[:past_four_year_quarter_trend]
-                                               .compact
-                                               .reject { |v| v.respond_to?(:nan?) && v.nan? }
-                                               .map { |v| (v * 100).round(2) if v.respond_to?(:*) }
+    @project = {
+      title: 'GHII Projects',
+
+      projects: Project.where(is_active: true)
+                       .where('LOWER(project_name) NOT LIKE ALL (ARRAY[?, ?, ?])', '%leave%', '%holiday%', '%crosscutting%') # rubocop:disable Layout/LineLength
+                       .map do |project|
+        {
+          project_name: project.short_name
+
+        }
+      end # rubocop:disable Layout/BlockAlignment
+    }
+
+    @tenure[:past_four_year_quarter_trend] = @tenure[:past_four_year_quarter_trend]
+                                             .compact
+                                             .reject { |v| v.respond_to?(:nan?) && v.nan? }
+                                             .map { |v| (v * 100).round(2) if v.respond_to?(:*) }
   end
 
   private
