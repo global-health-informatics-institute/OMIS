@@ -1,41 +1,43 @@
+<%= turbo_frame_tag "flash" do %>
+  <div id="notices" class="toast-container position-fixed bottom-0 end-0 p-3">
+    <% if flash[:info].present? %>
+      <div class="card border-info" style="width: 18rem;">
+        <div class="card-header" style="background-color: #253F58; color: #F7F7F7">
+          Notice
+        </div>
+        <div class="card-body">
+          <%= flash[:info] %>
+        </div>
+      </div>
+    <% end %>
 
-<div id="notices" class="toast-container position-fixed bottom-0 end-0 p-3">
-  <% if !flash[:info].blank? %>
-    <div class="card border-info" style="width: 18rem;">
-      <div class="card-header" style="background-color: #253F58; color: #F7F7F7">
-        Notice
+    <% if flash[:error].present? %>
+      <div class="card border-danger" style="width: 18rem;">
+        <div class="card-header" style="background-color: #D92139; color: #F7F7F7">
+          Error
+        </div>
+        <div class="card-body">
+          <%= flash[:error] %>
+        </div>
       </div>
-      <div class="card-body">
-        <%= flash[:info] %>
-      </div>
-    </div>
-  <%end %>
-  <% if !flash[:error].blank? %>
-    <div class="card border-danger" style="width: 18rem;">
-      <div class="card-header" style="background-color: #D92139; color: #F7F7F7">
-        Error
-      </div>
-      <div class="card-body">
-        <%= flash[:error] %>
-      </div>
-    </div>
-  <%end %>
-  <% if !flash[:notice].blank? %>
-    <div class="card border-success" style="width: 18rem;">
-      <div class="card-header" style="background-color: #6DB432; color: #F7F7F7">
-        Success!
-      </div>
-      <div class="card-body">
-        <%= flash[:notice] %>
-      </div>
-    </div>
-  <%end %>
-</div>
+    <% end %>
 
-<script>
-  function hideNotices()
-  {
-      document.getElementById('notices').style.display = 'none'
-  }
-  setTimeout(hideNotices, 3000)
-</script>
+    <% if flash[:notice].present? %>
+      <div class="card border-success" style="width: 18rem;">
+        <div class="card-header" style="background-color: #6DB432; color: #F7F7F7">
+          Success!
+        </div>
+        <div class="card-body">
+          <%= flash[:notice] %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <script>
+    setTimeout(() => {
+      const notices = document.getElementById('notices');
+      if (notices) notices.style.display = 'none';
+    }, 3000);
+  </script>
+<% end %>
