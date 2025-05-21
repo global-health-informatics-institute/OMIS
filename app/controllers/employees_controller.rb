@@ -66,7 +66,10 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
       UserMailer.welcome_email(session[:last_username], session[:last_password]).deliver_now
       flash[:notice] = 'Employee added successfully!'
       redirect_to '/employees'
+<<<<<<< HEAD
       redirect_to '/employees'
+=======
+>>>>>>> 102aeb6... Refactor EmployeesController for improved readability and access control logic
     rescue ActiveRecord::RecordInvalid => e
       flash[:alert] = "Error updating employee details!: #{e}"
     end
@@ -77,7 +80,10 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
     @person = Person.find(params[:id])
     @employee = Employee.find(params[:id])
     @project = Project.all.collect { |x| [x.project_name, x.id] }
+<<<<<<< HEAD
     @project = Project.all.collect { |x| [x.project_name, x.id] }
+=======
+>>>>>>> 102aeb6... Refactor EmployeesController for improved readability and access control logic
   end
 
   def update
@@ -88,11 +94,17 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
                       last_name: params[:person][:last_name],
                       primary_phone: params[:person][:primary_phone], alt_phone: params[:person][:alt_phone],
                       marital_status: params[:person][:marital_status], residential_address: params[:person][:residential_address])
+<<<<<<< HEAD
                       marital_status: params[:person][:marital_status], residential_address: params[:person][:residential_address])
       if @employee.update(employment_date: params[:person][:employment_date])
         if @designated_role.update(designated_role: params[:designated_role])
           redirect_to '/employees'
           redirect_to '/employees'
+=======
+      if @employee.update(employment_date: params[:person][:employment_date])
+        if @designated_role.update(designated_role: params[:designated_role])
+          redirect_to '/employees'
+>>>>>>> 102aeb6... Refactor EmployeesController for improved readability and access control logic
           flash[:notice] = 'Successfully updated designation.'
         end
         flash[:notice] = 'Successfully updated employee.'
@@ -103,12 +115,17 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
 
   def can_access?
     permitted_users = Designation.where(designated_role: ['Executive Director', 'Administration Officer',
+<<<<<<< HEAD
                                                           'Administraton & HR Officer', 'Human Resources Officer', 'Informatics Product Developer']).pluck(:designation_id) # rubocop:disable Layout/LineLength
+=======
+                                                          'Administraton & HR Officer', 'Human Resources Officer']).pluck(:designation_id)
+>>>>>>> 102aeb6... Refactor EmployeesController for improved readability and access control logic
     current_designation = EmployeeDesignation.where(employee_id: @current_user.id).pluck(:designation_id)
     return unless (current_designation & permitted_users).empty?
 
     flash[:error] = 'You do not have permission to access this page.'
     redirect_to root_path
+<<<<<<< HEAD
     return unless (current_designation & permitted_users).empty?
 
     flash[:error] = 'You do not have permission to access this page.'
@@ -116,15 +133,22 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
   end
 
 
+=======
+  end
+
+>>>>>>> 102aeb6... Refactor EmployeesController for improved readability and access control logic
   def employee_params
     params.permit(:first_name, :middle_name, :last_name, :birth_date, :gender, :marital_status,
                   :primary_phone, :alt_phone, :email_address, :postal_address, :official_email,
                   :residential_address, :landmark, :employment_date, :designated_role, :supervisor, :started_on,
                   :project, :allocated_effort)
+<<<<<<< HEAD
                   :primary_phone, :alt_phone, :email_address, :postal_address, :official_email,
                   :residential_address, :landmark, :employment_date, :designated_role, :supervisor, :started_on,
                   :project, :allocated_effort)
   end
+
 end
+
 
 
