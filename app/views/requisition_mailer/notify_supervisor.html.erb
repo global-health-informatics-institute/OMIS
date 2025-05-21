@@ -1,0 +1,37 @@
+<h2>Petty Cash Request Approval</h2>
+
+<p>Dear <%= @supervisor.person.first_name %>,</p>
+
+<p>
+  You have a new petty cash request awaiting your approval from
+  <strong><%= @requester.person.first_name %></strong>:
+</p>
+
+<ul>
+  <li><strong>Request ID:</strong> <%= @requisition.id %></li>
+  <li><strong>Amount:</strong> <%= number_to_currency(@requisition.requisition_items.sum(&:value), unit:'MWK') %></li>
+  <li><strong>Purpose:</strong> <%= @requisition.purpose %></li>
+  <li><strong>Submitted:</strong> <%= @requisition.created_at.strftime('%b %d, %Y at %I:%M %p') %></li>
+</ul>
+
+<p>To review and take action, you can use the buttons below or log into <a href=<%= "#{Rails.application.config.omis_url}" %>></a>OMIS</p>
+
+<div style="display: flex; flex-direction: column; gap: 10px;">
+
+  <%= form_with(url: url_for(controller: 'requisitions', action: 'reject_request', id: @requisition.id, host: Rails.application.config.action_mailer.default_url_options[:host]), method: :put) do |f| %>
+    <%= f.submit "Reject Request", class: "button", style: "display: block; width: 100%; padding: 10px 15px; background-color: #f44336; color: white; text-decoration: none; border-radius: 5px; border: none; cursor: pointer; text-align: center;" %>
+  <% end %>
+
+  <%= form_with(url: url_for(controller: 'requisitions', action: 'approve_request', id: @requisition.id, host: Rails.application.config.action_mailer.default_url_options[:host]), method: :put) do |f| %>
+    <%= hidden_field_tag :reviewer_first_name, @supervisor.person.first_name %>
+    <%= f.submit "Approve Request", class: "button", style: "display: block; width: 100%; padding: 10px 15px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; border: none; cursor: pointer; margin-left: 10px; text-align: center;" %>
+  <% end %>
+
+</div>
+
+
+
+
+<p>Please respond in time.</p>
+
+<p>Thank you,<br><%= @requester.person.first_name %></p>
