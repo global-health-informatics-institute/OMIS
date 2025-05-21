@@ -5,6 +5,7 @@ export default class extends Controller {
     messages: Array,
     duration: Number,
     colors: Array
+    color: String
   }
 
   connect() {
@@ -31,6 +32,7 @@ export default class extends Controller {
 
   applyStyle() {
     const type = this.colorsValue[this.index] || "info"
+    const type = this.colorValue || "info"
     this.element.className = "snackbar snackbar--" + type
   }
 }
