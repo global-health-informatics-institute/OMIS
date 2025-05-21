@@ -13,7 +13,6 @@ module NotificationsHelper
         controller: 'snackbar',
         snackbar_messages_value: messages.to_json,
         snackbar_colors_value: colors.to_json,
-        snackbar_duration_value: duration
         snackbar_duration_value: duration,
         snackbar_color_value: color
       }
