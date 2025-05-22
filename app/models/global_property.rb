@@ -5,5 +5,5 @@ class GlobalProperty < ApplicationRecord
       record = find_by(property: 'petty.cash.limit')
       record ? record.property_value.to_f : 40_000
     end
-  end
+end
 end
