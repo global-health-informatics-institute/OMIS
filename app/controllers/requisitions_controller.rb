@@ -118,68 +118,143 @@ class RequisitionsController < ApplicationController
   end
 
   def approve_request
-    # Use find_by(:id)
     @requisition = Requisition.find_by(requisition_id: params[:id])
   
     if @requisition
-      new_state = WorkflowState.find_by(
-        state: 'Approved',
-        workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id
-      )
+      workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
+      approved_state = WorkflowState.find_by(state: 'Approved', workflow_process_id: workflow_process.id)
   
-      update_success = @requisition.update(
-        workflow_state_id: new_state.id,
-        reviewed_by: params[:reviewer_first_name] # Storing person.first_name directly
-      )
+      if current_user
+        # In-app approval
+        update_success = @requisition.update(
+          workflow_state_id: approved_state.id,
+          reviewed_by: current_user.user_id
+        )
   
-      if update_success
-        RequisitionMailer.request_approved_email(@requisition).deliver_now
+        if update_success
+          RequisitionMailer.request_approved_email(@requisition).deliver_now
   
-        admin_users = User.joins(employee: :employee_designations)
-                          .where(employee_designations: { designation_id: 12 })
-                          .distinct
+          admin_users = User.joins(employee: :employee_designations)
+                            .where(employee_designations: { designation_id: 12 }).distinct
   
-        admin_users.each do |admin|
-          RequisitionMailer.notify_admin(@requisition, admin).deliver_now
+          admin_users.each do |admin|
+            RequisitionMailer.notify_admin(@requisition, admin).deliver_now
+          end
+  
+          flash[:notice] = 'Requisition approved successfully, the requester and admin notified.'
+          redirect_to "/requisitions/#{@requisition.id}"
+        else
+          flash[:alert] = 'Error approving requisition.'
+          redirect_to "/requisitions/#{@requisition.id}"
         end
   
-        # Render a plain success message for email approval
-        render plain: 'Requisition approved successfully and admin has notified. You can now close this window.', layout: false
       else
-        render plain: 'Error approving requisition via email. Please try again or contact support.', status: :unprocessable_entity, layout: false
+        # Approval via email link (no current_user)
+        update_success = @requisition.update(
+          workflow_state_id: approved_state.id,
+          reviewed_by: params[:reviewer_first_name] # From the email link
+        )
+  
+        if update_success
+          RequisitionMailer.request_approved_email(@requisition).deliver_now
+  
+          admin_users = User.joins(employee: :employee_designations)
+                            .where(employee_designations: { designation_id: 12 }).distinct
+  
+          admin_users.each do |admin|
+            RequisitionMailer.notify_admin(@requisition, admin).deliver_now
+          end
+  
+          render html: <<-HTML.html_safe
+            <script>
+              alert("Requisition has been approved successfully. The requester and admin have been notified.");
+              window.close();
+            </script>
+          HTML
+        else
+          render html: <<-HTML.html_safe
+            <script>
+              alert("Error approving the requisition. Please try again or contact support.");
+              window.close();
+            </script>
+          HTML
+        end
       end
+  
     else
-      flash[:alert] = 'Requisition not found.'
-      redirect_to "/requisitions/#{params[:id]}"
+      render html: <<-HTML.html_safe
+        <script>
+          alert("Requisition not found.");
+          window.close();
+        </script>
+      HTML
     end
   end
+  
 
   def reject_request
-    @requisition = Requisition.find_by(requisition_id: params[:id]) # Find by ID
+    @requisition = Requisition.find_by(requisition_id: params[:id])
   
     if @requisition
       workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
       rejected_state = WorkflowState.find_by(state: 'Rejected', workflow_process_id: workflow_process.id)
   
-      # Reject the request
-      if @requisition.update(workflow_state_id: rejected_state.id)
-        # Notify the requester
-        recipient_email = @requisition&.user&.email
-        if recipient_email.present?
-          RequisitionMailer.rejected_request_email(@requisition).deliver_now
-          render plain: 'Requisition rejected successfully. You can now close this window.', layout: false
+      if current_user
+        # In-app rejection
+        if @requisition.update(reviewed_by: current_user.user_id, workflow_state_id: rejected_state.id)
+          recipient_email = @requisition&.user&.email
+          if recipient_email.present?
+            RequisitionMailer.rejected_request_email(@requisition).deliver_now
+            flash[:notice] = 'Requisition rejected and requester notified.'
+          else
+            flash[:alert] = 'Requisition rejected, but no email was sent (missing recipient email).'
+          end
+          redirect_to "/requisitions/#{@requisition.id}"
         else
-          Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
-          render plain: 'Requisition rejected, but no confirmation email was sent (missing recipient email). You can now close this window.', layout: false
+          flash[:alert] = 'Error rejecting requisition.'
+          redirect_to "/requisitions/#{@requisition.id}"
         end
       else
-        render plain: 'Error rejecting requisition. Please try again or contact support.', status: :unprocessable_entity, layout: false
+        # External rejection via email link (no current_user)
+        if @requisition.update(workflow_state_id: rejected_state.id)
+          recipient_email = @requisition&.user&.email
+          if recipient_email.present?
+            RequisitionMailer.rejected_request_email(@requisition).deliver_now
+            render html: <<-HTML.html_safe
+              <script>
+                alert("Requisition has been successfully rejected. The requester and admin have been notified.");
+                window.close();
+              </script>
+            HTML
+          else
+            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
+            render html: <<-HTML.html_safe
+              <script>
+                alert("Requisition rejected, but no confirmation email was sent (missing recipient email).");
+                window.close();
+              </script>
+            HTML
+          end
+        else
+          render html: <<-HTML.html_safe
+            <script>
+              alert("Error rejecting the requisition. Please try again or contact support.");
+              window.close();
+            </script>
+          HTML
+        end
       end
     else
-      flash[:alert] = 'Requisition not found.'
-      redirect_to "/requisitions/#{@requisition.id}"
+      render html: <<-HTML.html_safe
+        <script>
+          alert("Requisition not found.");
+          window.close();
+        </script>
+      HTML
     end
   end
+  
+  
 
   def resubmit_request
     @requisition = Requisition.find(params[:id])
@@ -245,23 +320,19 @@ class RequisitionsController < ApplicationController
   def deny_funds
     @requisition = Requisition.find_by(requisition_id: params[:id])
     unless @requisition
-      flash[:alert] = 'Requisition not found.'
-      return redirect_to "/requisitions/#{params[:id]}"
+      render html: <<-HTML.html_safe
+        <script>
+          alert("Requisition not found.");
+          window.close();
+        </script>
+      HTML
     end
-
+  
     workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
     denied_state = WorkflowState.find_by(state: 'Finances Rejected', workflow_process_id: workflow_process.id)
-
-    if params[:deny_funds_token].present?
-      # Denial via email
-      if @requisition.update(workflow_state_id: denied_state.id, deny_funds_token: nil)
-        send_funds_denied_email(@requisition)
-        render plain: 'Funds denied successfully and requester notified. You can now close this window.', layout: false and return
-      else
-        render plain: 'Error denying funds via email. Please try again or contact support.', status: :unprocessable_entity, layout: false and return
-      end
-    elsif current_user
-      # Denial within the application
+  
+    if current_user
+      # Denial from inside the app
       if @requisition.update(approved_by: current_user.user_id, workflow_state_id: denied_state.id)
         send_funds_denied_email(@requisition)
         flash[:notice] = 'Funds denied and email sent to the requester.'
@@ -270,8 +341,23 @@ class RequisitionsController < ApplicationController
       end
       redirect_to "/requisitions/#{@requisition.id}"
     else
-      flash[:alert] = 'Invalid denial request.'
-      redirect_to "/requisitions/#{@requisition.id}"
+      # Denial via email (external access)
+      if @requisition.update(workflow_state_id: denied_state.id)
+        send_funds_denied_email(@requisition)
+        render html: <<-HTML.html_safe
+          <script>
+            alert("Funds have been denied successfully. The requester has been notified.");
+            window.close();
+          </script>
+        HTML
+      else
+        render html: <<-HTML.html_safe
+          <script>
+            alert("Error denying funds. Please try again or contact support.");
+            window.close();
+          </script>
+        HTML
+      end
     end
   end
   
@@ -281,64 +367,62 @@ class RequisitionsController < ApplicationController
       RequisitionMailer.funds_denied_email(requisition).deliver_now
     else
       Rails.logger.warn "No recipient email for requisition ##{requisition.id}"
-      flash[:alert] = 'Funds denied, but no email was sent (missing recipient email).'
     end
   end
-  
 
   def approve_funds
     @requisition = Requisition.find_by(requisition_id: params[:id])
-    if @requisition
-      if params[:approval_funds_token].present?
-        # Approval via email (token is present)
-        workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
-        approved_state = WorkflowState.find_by(state: 'Prepared', workflow_process_id: workflow_process.id)
-
-        if @requisition.update(workflow_state_id: approved_state.id, approval_funds_token: nil)
-          recipient_email = @requisition&.user&.email
-          if recipient_email.present?
-            RequisitionMailer.funds_approved_email(@requisition).deliver_now
-            # Instead of redirecting, we render a simple success message
-            render plain: 'Funds approved successfully and requester notified . You can now close this window.', layout: false
-          else
-            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
-            render plain: 'Funds approved successfully, but no confirmation email was sent (missing recipient email). You can now close this window.', layout: false
-          end
-        else
-          render plain: 'Error approving funds via email. Please try again or contact support.', status: :unprocessable_entity, layout: false
-        end
-      elsif current_user
-        # Approval within the application (user is logged in)
-        workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
-        approved_state = WorkflowState.find_by(state: 'Prepared', workflow_process_id: workflow_process.id)
-
-        if @requisition.update(approved_by: current_user.user_id, workflow_state_id: approved_state.id)
-          recipient_email = @requisition&.user&.email
-          if recipient_email.present?
-            RequisitionMailer.funds_approved_email(@requisition).deliver_now
-            flash[:notice] = 'Funds approved and requester notified.'
-          else
-            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
-            flash[:alert] = 'Funds approved, but no email was sent (missing recipient email).'
-          end
-          redirect_to "/requisitions/#{@requisition.id}"
-          nil
-        else
-          flash[:alert] = 'Error approving funds.'
-          redirect_to "/requisitions/#{@requisition.id}"
-          nil
-        end
+    unless @requisition
+      render html: <<-HTML.html_safe
+        <script>
+          alert("Requisition not found.");
+          window.close();
+        </script>
+      HTML
+    end
+  
+    workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
+    approved_state = WorkflowState.find_by(state: 'Prepared', workflow_process_id: workflow_process.id)
+  
+    if current_user
+      # Approval from inside the application
+      if @requisition.update(approved_by: current_user.user_id, workflow_state_id: approved_state.id)
+        send_funds_approved_email(@requisition)
+        flash[:notice] = 'Funds approved and requester notified.'
       else
-        flash[:alert] = 'Invalid approval request.'
-        redirect_to "/requisitions/#{@requisition.id}"
-        nil
+        flash[:alert] = 'Error approving funds.'
       end
+      redirect_to "/requisitions/#{@requisition.id}"
     else
-      flash[:alert] = 'Requisition not found.'
-      redirect_to "/requisitions/#{params[:id]}"
-      nil
+      # Approval via email (external)
+      if @requisition.update(workflow_state_id: approved_state.id)
+        send_funds_approved_email(@requisition)
+        render html: <<-HTML.html_safe
+          <script>
+            alert("Funds have been approved successfully. The requester has been notified.");
+            window.close();
+          </script>
+        HTML
+      else
+        render html: <<-HTML.html_safe
+          <script>
+            alert("Error approving funds. Please try again or contact support.");
+            window.close();
+          </script>
+        HTML
+      end
     end
   end
+  
+  def send_funds_approved_email(requisition)
+    recipient_email = requisition&.user&.email
+    if recipient_email.present?
+      RequisitionMailer.funds_approved_email(requisition).deliver_now
+    else
+      Rails.logger.warn "No recipient email for requisition ##{requisition.id}"
+    end
+  end
+  
 
   def rescind_request
     new_state = WorkflowState.where(state: 'Rescinded',
