@@ -11,6 +11,13 @@ class MainController < ApplicationController
       @unused_leave = (@employee.leave_balance(leave_type: 'Annual Leave') - @employee.used_leave_days(
         Date.today.beginning_of_year, Date.today.end_of_year, leave_type: 'Annual Leave'))
 
+      # Notifications, birthdays, anniversaries, and farewells, new employees
+      @notifications = {
+        'Birthdays' => Person
+                       .where("TO_CHAR(birth_date, 'MM-DD') = ?", Date.today.strftime('%m-%d'))
+                       .where(person_id: Employee.select(:person_id).where(still_employed: true))
+                       .pluck(:first_name, :last_name)
+      }
 
       # Create list of upcoming deadlines and activities
       @upcoming_deadlines = Hash.new([])
