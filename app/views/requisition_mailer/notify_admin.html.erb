@@ -11,8 +11,8 @@
   <li><strong>Amount:</strong> <%= number_to_currency(@requisition.requisition_items.sum(&:value), unit: 'MWK') %></li>
   <li><strong>Purpose:</strong> <%= @requisition.purpose %></li>
   <li><strong>Project:</strong> <%= @requisition.project.project_name %></li>
-  <% if @supervisor && @supervisor.person %>
-  <li><strong>Supervisor Approval:</strong> <%= @reviewer_first_name %></li>
+  <% if @supervisor_name.present? %>
+  <li><strong>Supervisor Approval:</strong> <%= @supervisor_name%></li>
 <% else %>
   <li><strong>Supervisor Approval:</strong> <em>Not available</em></li>
 <% end %>
