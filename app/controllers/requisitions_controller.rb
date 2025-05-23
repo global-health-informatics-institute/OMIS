@@ -190,9 +190,6 @@ class RequisitionsController < ApplicationController
         render html: <<-HTML.html_safe
           <script>
             alert("This requisition has already been acted upon if you are not the one who acted on it, consult your IT team.");
-            window.close();
-          </script>
-        HTML
       end
   
     else
@@ -204,7 +201,6 @@ class RequisitionsController < ApplicationController
       HTML
     end
   end
-  
 
   def reject_request
     @requisition = Requisition.find_by(requisition_id: params[:id])
