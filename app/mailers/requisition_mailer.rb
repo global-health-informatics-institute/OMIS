@@ -12,7 +12,7 @@ class RequisitionMailer < ApplicationMailer
     @requisition = requisition
     @admin = admin
     @requester = Employee.find_by(employee_id: requisition.initiated_by)
-    @supervisor_name = @requisition.reviewed_by # Get the stored first name
+    @supervisor_name = @requisition.reviewer# Get the stored first name
   
     recipient_email = @admin.person.official_email.presence || @admin.person.email_address
   
