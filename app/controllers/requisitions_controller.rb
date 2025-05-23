@@ -121,64 +121,78 @@ class RequisitionsController < ApplicationController
     @requisition = Requisition.find_by(requisition_id: params[:id])
   
     if @requisition
+      # Get the "Requested" state ID
       workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
-      approved_state = WorkflowState.find_by(state: 'Approved', workflow_process_id: workflow_process.id)
+      requested_state = WorkflowState.find_by(state: 'Requested', workflow_process_id: workflow_process.id)
   
-      if current_user
-        # In-app approval
-        update_success = @requisition.update(
-          workflow_state_id: approved_state.id,
-          reviewed_by: current_user.user_id
-        )
+      # Check if the requisition is in the 'Requested' state
+      if @requisition.workflow_state_id == requested_state&.id
+        approved_state = WorkflowState.find_by(state: 'Approved', workflow_process_id: workflow_process.id)
   
-        if update_success
-          RequisitionMailer.request_approved_email(@requisition).deliver_now
+        if current_user
+          # In-app approval
+          update_success = @requisition.update(
+            workflow_state_id: approved_state.id,
+            reviewed_by: current_user.user_id
+          )
   
-          admin_users = User.joins(employee: :employee_designations)
-                            .where(employee_designations: { designation_id: 12 }).distinct
+          if update_success
+            RequisitionMailer.request_approved_email(@requisition).deliver_now
   
-          admin_users.each do |admin|
-            RequisitionMailer.notify_admin(@requisition, admin).deliver_now
+            admin_users = User.joins(employee: :employee_designations)
+                              .where(employee_designations: { designation_id: 12 }).distinct
+  
+            admin_users.each do |admin|
+              RequisitionMailer.notify_admin(@requisition, admin).deliver_now
+            end
+  
+            flash[:notice] = 'Requisition approved successfully, the requester and admin notified.'
+            redirect_to "/requisitions/#{@requisition.id}"
+          else
+            flash[:alert] = 'Error approving requisition.'
+            redirect_to "/requisitions/#{@requisition.id}"
           end
   
-          flash[:notice] = 'Requisition approved successfully, the requester and admin notified.'
-          redirect_to "/requisitions/#{@requisition.id}"
         else
-          flash[:alert] = 'Error approving requisition.'
-          redirect_to "/requisitions/#{@requisition.id}"
-        end
+          # Approval via email link (no current_user)
+          update_success = @requisition.update(
+            workflow_state_id: approved_state.id,
+            reviewed_by: params[:reviewer_first_name] # From the email link
+          )
   
+          if update_success
+            RequisitionMailer.request_approved_email(@requisition).deliver_now
+  
+            admin_users = User.joins(employee: :employee_designations)
+                              .where(employee_designations: { designation_id: 12 }).distinct
+  
+            admin_users.each do |admin|
+              RequisitionMailer.notify_admin(@requisition, admin).deliver_now
+            end
+  
+            render html: <<-HTML.html_safe
+              <script>
+                alert("Requisition has been approved successfully. The requester and admin have been notified.");
+                window.close();
+              </script>
+            HTML
+          else
+            render html: <<-HTML.html_safe
+              <script>
+                alert("Error approving the requisition. Please try again or contact support.");
+                window.close();
+              </script>
+            HTML
+          end
+        end
       else
-        # Approval via email link (no current_user)
-        update_success = @requisition.update(
-          workflow_state_id: approved_state.id,
-          reviewed_by: params[:reviewer_first_name] # From the email link
-        )
-  
-        if update_success
-          RequisitionMailer.request_approved_email(@requisition).deliver_now
-  
-          admin_users = User.joins(employee: :employee_designations)
-                            .where(employee_designations: { designation_id: 12 }).distinct
-  
-          admin_users.each do |admin|
-            RequisitionMailer.notify_admin(@requisition, admin).deliver_now
-          end
-  
-          render html: <<-HTML.html_safe
-            <script>
-              alert("Requisition has been approved successfully. The requester and admin have been notified.");
-              window.close();
-            </script>
-          HTML
-        else
-          render html: <<-HTML.html_safe
-            <script>
-              alert("Error approving the requisition. Please try again or contact support.");
-              window.close();
-            </script>
-          HTML
-        end
+        # Requisition is not in the 'Requested' state
+        render html: <<-HTML.html_safe
+          <script>
+            alert("This requisition has already been acted upon or is not in a state that allows approval.");
+            window.close();
+          </script>
+        HTML
       end
   
     else
@@ -190,60 +204,74 @@ class RequisitionsController < ApplicationController
       HTML
     end
   end
-  
 
   def reject_request
     @requisition = Requisition.find_by(requisition_id: params[:id])
   
     if @requisition
+      # Get the "Requested" state ID
       workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
-      rejected_state = WorkflowState.find_by(state: 'Rejected', workflow_process_id: workflow_process.id)
+      requested_state = WorkflowState.find_by(state: 'Requested', workflow_process_id: workflow_process.id)
   
-      if current_user
-        # In-app rejection
-        if @requisition.update(reviewed_by: current_user.user_id, workflow_state_id: rejected_state.id)
-          recipient_email = @requisition&.user&.email
-          if recipient_email.present?
-            RequisitionMailer.rejected_request_email(@requisition).deliver_now
-            flash[:notice] = 'Requisition rejected and requester notified.'
+      # Check if the requisition is in the 'Requested' state
+      if @requisition.workflow_state_id == requested_state&.id
+        rejected_state = WorkflowState.find_by(state: 'Rejected', workflow_process_id: workflow_process.id)
+  
+        if current_user
+          # In-app rejection
+          if @requisition.update(reviewed_by: current_user.user_id, workflow_state_id: rejected_state.id)
+            recipient_email = @requisition&.user&.email
+            if recipient_email.present?
+              RequisitionMailer.rejected_request_email(@requisition).deliver_now
+              flash[:notice] = 'Requisition rejected and requester notified.'
+            else
+              flash[:alert] = 'Requisition rejected, but no email was sent (missing recipient email).'
+            end
+            redirect_to "/requisitions/#{@requisition.id}"
           else
-            flash[:alert] = 'Requisition rejected, but no email was sent (missing recipient email).'
+            flash[:alert] = 'Error rejecting requisition.'
+            redirect_to "/requisitions/#{@requisition.id}"
           end
-          redirect_to "/requisitions/#{@requisition.id}"
         else
-          flash[:alert] = 'Error rejecting requisition.'
-          redirect_to "/requisitions/#{@requisition.id}"
+          # External rejection via email link (no current_user)
+          if @requisition.update(workflow_state_id: rejected_state.id)
+            recipient_email = @requisition&.user&.email
+            if recipient_email.present?
+              RequisitionMailer.rejected_request_email(@requisition).deliver_now
+              render html: <<-HTML.html_safe
+                <script>
+                  alert("Requisition has been successfully rejected. The requester and admin have been notified.");
+                  window.close();
+                </script>
+              HTML
+            else
+              Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
+              render html: <<-HTML.html_safe
+                <script>
+                  alert("Requisition rejected, but no confirmation email was sent (missing recipient email).");
+                  window.close();
+                </script>
+              HTML
+            end
+          else
+            render html: <<-HTML.html_safe
+              <script>
+                alert("Error rejecting the requisition. Please try again or contact support.");
+                window.close();
+              </script>
+            HTML
+          end
         end
       else
-        # External rejection via email link (no current_user)
-        if @requisition.update(workflow_state_id: rejected_state.id)
-          recipient_email = @requisition&.user&.email
-          if recipient_email.present?
-            RequisitionMailer.rejected_request_email(@requisition).deliver_now
-            render html: <<-HTML.html_safe
-              <script>
-                alert("Requisition has been successfully rejected. The requester and admin have been notified.");
-                window.close();
-              </script>
-            HTML
-          else
-            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
-            render html: <<-HTML.html_safe
-              <script>
-                alert("Requisition rejected, but no confirmation email was sent (missing recipient email).");
-                window.close();
-              </script>
-            HTML
-          end
-        else
-          render html: <<-HTML.html_safe
-            <script>
-              alert("Error rejecting the requisition. Please try again or contact support.");
-              window.close();
-            </script>
-          HTML
-        end
+        # Requisition is not in the 'Requested' state
+        render html: <<-HTML.html_safe
+          <script>
+            alert("This requisition has already been acted upon or is not in a state that allows rejection.");
+            window.close();
+          </script>
+        HTML
       end
+  
     else
       render html: <<-HTML.html_safe
         <script>
@@ -253,9 +281,6 @@ class RequisitionsController < ApplicationController
       HTML
     end
   end
-  
-  
-
   def resubmit_request
     @requisition = Requisition.find(params[:id])
     @projects = Project.all
