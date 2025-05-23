@@ -13,8 +13,8 @@
   <li><strong>Purpose:</strong> <%= @requisition.purpose %></li>
   <li><strong>Submitted:</strong> <%= @requisition.created_at.strftime('%b %d, %Y at %I:%M %p') %></li>
 </ul>
-
-<p>To review and take action, you can use the buttons below or log into <a href=<%= "#{Rails.application.config.omis_url}" %>></a>OMIS</p>
+<p>To approve or reject this request, you can use the buttons below or log into OMIS:</p>
+<p><strong>OMIS Link:</strong> <a href="http://198.251.76.216:3000/">http://198.251.76.216:3000/</a></p>
 
 <div style="display: flex; flex-direction: column; gap: 10px;">
 
