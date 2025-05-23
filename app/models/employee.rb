@@ -234,7 +234,5 @@ class Employee < ApplicationRecord
       ["Review #{x.employee.user.person.first_name}'s' #{x.leave_type} request",
        "/leave_requests/#{x.id}"]
     end
-    # raise actions.inspect
-    actions
-  end
+  end 
 end

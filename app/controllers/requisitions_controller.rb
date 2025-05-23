@@ -141,7 +141,7 @@ class RequisitionsController < ApplicationController
             RequisitionMailer.notify_admin(@requisition, admin).deliver_now
           end
   
-          flash[:notice] = 'Requisition approved and admin notified.'
+          flash[:notice] = 'Requisition approved successfully, the requester and admin notified.'
           redirect_to "/requisitions/#{@requisition.id}"
         else
           flash[:alert] = 'Error approving requisition.'
@@ -193,31 +193,68 @@ class RequisitionsController < ApplicationController
   
 
   def reject_request
-    @requisition = Requisition.find_by(requisition_id: params[:id]) # Find by ID
+    @requisition = Requisition.find_by(requisition_id: params[:id])
   
     if @requisition
       workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
       rejected_state = WorkflowState.find_by(state: 'Rejected', workflow_process_id: workflow_process.id)
   
-      # Reject the request
-      if @requisition.update(workflow_state_id: rejected_state.id)
-        # Notify the requester
-        recipient_email = @requisition&.user&.email
-        if recipient_email.present?
-          RequisitionMailer.rejected_request_email(@requisition).deliver_now
-          render plain: 'Requisition rejected successfully. You can now close this window.', layout: false
+      if current_user
+        # In-app rejection
+        if @requisition.update(reviewed_by: current_user.user_id, workflow_state_id: rejected_state.id)
+          recipient_email = @requisition&.user&.email
+          if recipient_email.present?
+            RequisitionMailer.rejected_request_email(@requisition).deliver_now
+            flash[:notice] = 'Requisition rejected and requester notified.'
+          else
+            flash[:alert] = 'Requisition rejected, but no email was sent (missing recipient email).'
+          end
+          redirect_to "/requisitions/#{@requisition.id}"
         else
-          Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
-          render plain: 'Requisition rejected, but no confirmation email was sent (missing recipient email). You can now close this window.', layout: false
+          flash[:alert] = 'Error rejecting requisition.'
+          redirect_to "/requisitions/#{@requisition.id}"
         end
       else
-        render plain: 'Error rejecting requisition. Please try again or contact support.', status: :unprocessable_entity, layout: false
+        # External rejection via email link (no current_user)
+        if @requisition.update(workflow_state_id: rejected_state.id)
+          recipient_email = @requisition&.user&.email
+          if recipient_email.present?
+            RequisitionMailer.rejected_request_email(@requisition).deliver_now
+            render html: <<-HTML.html_safe
+              <script>
+                alert("Requisition has been successfully rejected. The requester and admin have been notified.");
+                window.close();
+              </script>
+            HTML
+          else
+            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
+            render html: <<-HTML.html_safe
+              <script>
+                alert("Requisition rejected, but no confirmation email was sent (missing recipient email).");
+                window.close();
+              </script>
+            HTML
+          end
+        else
+          render html: <<-HTML.html_safe
+            <script>
+              alert("Error rejecting the requisition. Please try again or contact support.");
+              window.close();
+            </script>
+          HTML
+        end
       end
     else
-      flash[:alert] = 'Requisition not found.'
-      redirect_to "/requisitions/#{@requisition.id}"
+      render html: <<-HTML.html_safe
+        <script>
+          alert("Requisition not found.");
+          window.close();
+        </script>
+      HTML
     end
   end
+  
+  
 
   def resubmit_request
     @requisition = Requisition.find(params[:id])
@@ -332,8 +369,6 @@ class RequisitionsController < ApplicationController
       Rails.logger.warn "No recipient email for requisition ##{requisition.id}"
     end
   end
-  
-  
 
   def approve_funds
     @requisition = Requisition.find_by(requisition_id: params[:id])

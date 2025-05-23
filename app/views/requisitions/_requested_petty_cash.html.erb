@@ -121,7 +121,7 @@
   </div>
 <% end %>
 
-<script>
+<%# <script>
   document.addEventListener('DOMContentLoaded', function() {
     const rejectionReasonContainer = document.getElementById('rejection-reason-container');
     const rejectionReasonField = rejectionReasonContainer.querySelector('textarea[name="requisition[reason]"]');
@@ -169,4 +169,4 @@
     // Server-side validation in your Rails controller is crucial to
     // enforce the reason's presence.
   });
-</script>
+</script> %>
