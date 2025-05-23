@@ -189,7 +189,7 @@ class RequisitionsController < ApplicationController
         # Requisition is not in the 'Requested' state
         render html: <<-HTML.html_safe
           <script>
-            alert("This requisition has already been acted upon or is not in a state that allows approval.");
+            alert("This requisition has already been acted upon if you are not the one who acted on it, consult your IT team.");
             window.close();
           </script>
         HTML
@@ -266,7 +266,7 @@ class RequisitionsController < ApplicationController
         # Requisition is not in the 'Requested' state
         render html: <<-HTML.html_safe
           <script>
-            alert("This requisition has already been acted upon or is not in a state that allows rejection.");
+            alert("This requisition has already been acted upon if you are not the one who acted on it, consult the IT team.");
             window.close();
           </script>
         HTML
@@ -344,6 +344,7 @@ class RequisitionsController < ApplicationController
 
   def deny_funds
     @requisition = Requisition.find_by(requisition_id: params[:id])
+  
     unless @requisition
       render html: <<-HTML.html_safe
         <script>
@@ -351,9 +352,25 @@ class RequisitionsController < ApplicationController
           window.close();
         </script>
       HTML
+      return # Exit if requisition not found
     end
   
     workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
+    
+    # State the requisition MUST be in before funds can be denied/approved
+    expected_previous_state = WorkflowState.find_by(state: 'Approved', workflow_process_id: workflow_process.id)
+  
+    # Add the state check here
+    unless @requisition.workflow_state_id == expected_previous_state&.id
+      render html: <<-HTML.html_safe
+        <script>
+          alert("This requisition has already been acted upon if you are not the one who acted on it, consult your IT team.");
+          window.close();
+        </script>
+      HTML
+      return # Exit if not in the correct state
+    end
+  
     denied_state = WorkflowState.find_by(state: 'Finances Rejected', workflow_process_id: workflow_process.id)
   
     if current_user
@@ -397,6 +414,7 @@ class RequisitionsController < ApplicationController
 
   def approve_funds
     @requisition = Requisition.find_by(requisition_id: params[:id])
+  
     unless @requisition
       render html: <<-HTML.html_safe
         <script>
@@ -404,9 +422,25 @@ class RequisitionsController < ApplicationController
           window.close();
         </script>
       HTML
+      return # Exit if requisition not found
     end
   
     workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
+    
+    # State the requisition MUST be in before funds can be denied/approved
+    expected_previous_state = WorkflowState.find_by(state: 'Approved', workflow_process_id: workflow_process.id)
+  
+    # Add the state check here
+    unless @requisition.workflow_state_id == expected_previous_state&.id
+      render html: <<-HTML.html_safe
+        <script>
+          alert("This requisition has already been acted upon if you are not the one who acted on it, consult your IT team.");
+          window.close();
+        </script>
+      HTML
+      return # Exit if not in the correct state
+    end
+  
     approved_state = WorkflowState.find_by(state: 'Prepared', workflow_process_id: workflow_process.id)
   
     if current_user
@@ -447,7 +481,6 @@ class RequisitionsController < ApplicationController
       Rails.logger.warn "No recipient email for requisition ##{requisition.id}"
     end
   end
-  
 
   def rescind_request
     new_state = WorkflowState.where(state: 'Rescinded',
