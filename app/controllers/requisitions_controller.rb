@@ -117,7 +117,6 @@ class RequisitionsController < ApplicationController
   end
 
   def approve_request
-    # Use find_by(:id)
     @requisition = Requisition.find_by(requisition_id: params[:id])
   
     if @requisition
@@ -186,8 +185,6 @@ class RequisitionsController < ApplicationController
           end
         end
   
-        # Render a plain success message for email approval
-        render plain: 'Requisition approved successfully and admin has notified. You can now close this window.', layout: false
       else
         # Requisition is not in the 'Requested' state
         render html: <<-HTML.html_safe
@@ -207,6 +204,7 @@ class RequisitionsController < ApplicationController
       HTML
     end
   end
+  
 
   def reject_request
     @requisition = Requisition.find_by(requisition_id: params[:id])
@@ -413,6 +411,7 @@ class RequisitionsController < ApplicationController
     end
   end
   
+  
 
   def approve_funds
     @requisition = Requisition.find_by(requisition_id: params[:id])
@@ -483,6 +482,7 @@ class RequisitionsController < ApplicationController
       Rails.logger.warn "No recipient email for requisition ##{requisition.id}"
     end
   end
+  
 
   def rescind_request
     new_state = WorkflowState.where(state: 'Rescinded',
