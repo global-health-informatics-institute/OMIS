@@ -30,7 +30,7 @@
   <% end %>
 
   <%= form_with(url: url_for(controller: 'requisitions', action: 'deny_funds', id: @requisition.id, host: Rails.application.config.action_mailer.default_url_options[:host]), method: :put) do |f| %>
-    <%= f.submit "Reject Funds", class: "button", style: "display: block; width: 100%; padding: 10px 15px; background-color: #f44336; color: white; text-decoration: none; border-radius: 5px; border: none; cursor: pointer; margin-left: 10px; text-align: center;" %>
+    <%= f.submit "Deny Funds", class: "button", style: "display: block; width: 100%; padding: 10px 15px; background-color: #f44336; color: white; text-decoration: none; border-radius: 5px; border: none; cursor: pointer; margin-left: 10px; text-align: center;" %>
   <% end %>
 </div>
 
