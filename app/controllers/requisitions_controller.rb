@@ -2,6 +2,7 @@ class RequisitionsController < ApplicationController
   # before_action :show
   skip_before_action :verify_authenticity_token, only: %i[approve_request reject_request approve_funds deny_funds]
   skip_before_action :logged_in?, only: %i[approve_request reject_request approve_funds deny_funds]
+
   def index
   end
 
@@ -118,57 +119,57 @@ class RequisitionsController < ApplicationController
 
   def approve_request
     @requisition = Requisition.find_by(requisition_id: params[:id])
-  
+
     if @requisition
       # Get the "Requested" state ID
       workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
       requested_state = WorkflowState.find_by(state: 'Requested', workflow_process_id: workflow_process.id)
-  
+
       # Check if the requisition is in the 'Requested' state
       if @requisition.workflow_state_id == requested_state&.id
         approved_state = WorkflowState.find_by(state: 'Approved', workflow_process_id: workflow_process.id)
-  
+
         if current_user
           # In-app approval
           update_success = @requisition.update(
             workflow_state_id: approved_state.id,
             reviewed_by: current_user.user_id
           )
-  
+
           if update_success
             RequisitionMailer.request_approved_email(@requisition).deliver_now
-  
+
             admin_users = User.joins(employee: :employee_designations)
                               .where(employee_designations: { designation_id: 12 }).distinct
-  
+
             admin_users.each do |admin|
               RequisitionMailer.notify_admin(@requisition, admin).deliver_now
             end
-  
+
             flash[:notice] = 'Requisition approved successfully, the requester and admin notified.'
             redirect_to "/requisitions/#{@requisition.id}"
           else
             flash[:alert] = 'Error approving requisition.'
             redirect_to "/requisitions/#{@requisition.id}"
           end
-  
+
         else
           # Approval via email link (no current_user)
           update_success = @requisition.update(
             workflow_state_id: approved_state.id,
             reviewed_by: params[:reviewer_first_name] # From the email link
           )
-  
+
           if update_success
             RequisitionMailer.request_approved_email(@requisition).deliver_now
-  
+
             admin_users = User.joins(employee: :employee_designations)
                               .where(employee_designations: { designation_id: 12 }).distinct
-  
+
             admin_users.each do |admin|
               RequisitionMailer.notify_admin(@requisition, admin).deliver_now
             end
-  
+
             render html: <<-HTML.html_safe
               <script>
                 alert("Requisition has been approved successfully. The requester and admin have been notified.");
@@ -184,15 +185,16 @@ class RequisitionsController < ApplicationController
             HTML
           end
         end
-  
-      else
-        # Requisition is not in the 'Requested' state
+
+      else # Requisition is not in the 'Requested' state
         render html: <<-HTML.html_safe
           <script>
             alert("This requisition has already been acted upon if you are not the one who acted on it, consult your IT team.");
+            window.close();
+          </script>
+        HTML
       end
-  
-    else
+    else # Requisition not found
       render html: <<-HTML.html_safe
         <script>
           alert("Requisition not found.");
@@ -204,16 +206,16 @@ class RequisitionsController < ApplicationController
 
   def reject_request
     @requisition = Requisition.find_by(requisition_id: params[:id])
-  
+
     if @requisition
       # Get the "Requested" state ID
       workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
       requested_state = WorkflowState.find_by(state: 'Requested', workflow_process_id: workflow_process.id)
-  
+
       # Check if the requisition is in the 'Requested' state
       if @requisition.workflow_state_id == requested_state&.id
         rejected_state = WorkflowState.find_by(state: 'Rejected', workflow_process_id: workflow_process.id)
-  
+
         if current_user
           # In-app rejection
           if @requisition.update(reviewed_by: current_user.user_id, workflow_state_id: rejected_state.id)
@@ -259,8 +261,7 @@ class RequisitionsController < ApplicationController
             HTML
           end
         end
-      else
-        # Requisition is not in the 'Requested' state
+      else # Requisition is not in the 'Requested' state
         render html: <<-HTML.html_safe
           <script>
             alert("This requisition has already been acted upon if you are not the one who acted on it, consult the IT team.");
@@ -268,8 +269,7 @@ class RequisitionsController < ApplicationController
           </script>
         HTML
       end
-  
-    else
+    else # Requisition not found
       render html: <<-HTML.html_safe
         <script>
           alert("Requisition not found.");
@@ -278,6 +278,7 @@ class RequisitionsController < ApplicationController
       HTML
     end
   end
+
   def resubmit_request
     @requisition = Requisition.find(params[:id])
     @projects = Project.all
@@ -339,7 +340,7 @@ class RequisitionsController < ApplicationController
 
   def deny_funds
     @requisition = Requisition.find_by(requisition_id: params[:id])
-  
+
     unless @requisition
       render html: <<-HTML.html_safe
         <script>
@@ -349,12 +350,12 @@ class RequisitionsController < ApplicationController
       HTML
       return # Exit if requisition not found
     end
-  
+
     workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
-    
+
     # State the requisition MUST be in before funds can be denied/approved
     expected_previous_state = WorkflowState.find_by(state: 'Approved', workflow_process_id: workflow_process.id)
-  
+
     # Add the state check here
     unless @requisition.workflow_state_id == expected_previous_state&.id
       render html: <<-HTML.html_safe
@@ -365,9 +366,9 @@ class RequisitionsController < ApplicationController
       HTML
       return # Exit if not in the correct state
     end
-  
+
     denied_state = WorkflowState.find_by(state: 'Finances Rejected', workflow_process_id: workflow_process.id)
-  
+
     if current_user
       # Denial from inside the app
       if @requisition.update(approved_by: current_user.user_id, workflow_state_id: denied_state.id)
@@ -397,7 +398,7 @@ class RequisitionsController < ApplicationController
       end
     end
   end
-  
+
   def send_funds_denied_email(requisition)
     recipient_email = requisition&.user&.email
     if recipient_email.present?
@@ -406,12 +407,11 @@ class RequisitionsController < ApplicationController
       Rails.logger.warn "No recipient email for requisition ##{requisition.id}"
     end
   end
-  
-  
+
 
   def approve_funds
     @requisition = Requisition.find_by(requisition_id: params[:id])
-  
+
     unless @requisition
       render html: <<-HTML.html_safe
         <script>
@@ -421,12 +421,12 @@ class RequisitionsController < ApplicationController
       HTML
       return # Exit if requisition not found
     end
-  
+
     workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
-    
+
     # State the requisition MUST be in before funds can be denied/approved
     expected_previous_state = WorkflowState.find_by(state: 'Approved', workflow_process_id: workflow_process.id)
-  
+
     # Add the state check here
     unless @requisition.workflow_state_id == expected_previous_state&.id
       render html: <<-HTML.html_safe
@@ -437,9 +437,9 @@ class RequisitionsController < ApplicationController
       HTML
       return # Exit if not in the correct state
     end
-  
+
     approved_state = WorkflowState.find_by(state: 'Prepared', workflow_process_id: workflow_process.id)
-  
+
     if current_user
       # Approval from inside the application
       if @requisition.update(approved_by: current_user.user_id, workflow_state_id: approved_state.id)
@@ -469,7 +469,7 @@ class RequisitionsController < ApplicationController
       end
     end
   end
-  
+
   def send_funds_approved_email(requisition)
     recipient_email = requisition&.user&.email
     if recipient_email.present?
@@ -487,14 +487,7 @@ class RequisitionsController < ApplicationController
   end
 
 
-
-  def recall_request
-    new_state = WorkflowState.where(state: 'Recalled',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
-    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
-    redirect_to "/requisitions/#{params[:id]}"
-  end
-
+  # Corrected: Removed the duplicate recall_request method
   def recall_request
     new_state = WorkflowState.where(state: 'Recalled',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
