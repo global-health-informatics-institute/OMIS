@@ -64,10 +64,16 @@ Rails.application.routes.draw do
 
   get "logout", to: "user_sessions#destroy"
   resources :asset_categories
+
+  get 'tc_dashboard/index'
+  get 'tc_dashboard/growth'
+  get 'tc_dashboard/gender_age'
+  get 'tc_dashboard/tenure'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")
   get 'dashboards/dashboards'
+
 
   root "main#home"
 end

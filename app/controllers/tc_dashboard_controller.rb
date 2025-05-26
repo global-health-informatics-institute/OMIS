@@ -1,12 +1,20 @@
+class TcDashboardController < ApplicationController
 # frozen_string_literal: true
 
-class DashboardsController < ApplicationController # rubocop:disable Style/Documentation,Metrics/ClassLength
-  def dashboard_static
-    prepare_dashboard_data
+  def index
+    @common_data, @gender_age, @tenure, @project = prepare_dashboard_data
   end
 
-  def dashboards
-    prepare_dashboard_data
+  def gender_age
+    @common_data, @gender_age = prepare_dashboard_data
+  end
+
+  def tenure
+    @common_data, @tenure = prepare_dashboard_data
+  end
+
+  def project
+    @common_data, @project = prepare_dashboard_data
   end
 
   private
@@ -19,6 +27,8 @@ class DashboardsController < ApplicationController # rubocop:disable Style/Docum
 
     @gender_age = {
       title: 'WORKFORCE',
+      card_title_1: 'Age Distribution', # rubocop:disable Naming/VariableNumber
+      card_title_2: 'Gender Distribution', # rubocop:disable Naming/VariableNumber
 
       past_four_months:,
       past_four_months_trend: past_four_months_headcount,
@@ -84,6 +94,8 @@ class DashboardsController < ApplicationController # rubocop:disable Style/Docum
                                              .compact
                                              .reject { |v| v.respond_to?(:nan?) && v.nan? }
                                              .map { |v| (v * 100).round(2) if v.respond_to?(:*) }
+
+    [@common_data, @gender_age, @tenure, @project]
   end
 
   def past_four_months

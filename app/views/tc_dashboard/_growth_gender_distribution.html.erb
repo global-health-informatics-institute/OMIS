@@ -1,0 +1,22 @@
+<canvas id="genderChart" class=" h-[83%]"></canvas>
+<!-- Text Breakdown with Title on Top and Labels Centered -->
+<div class="flex flex-col h-full">
+
+    <h1 class="text-4xl font-semibold text-gray-800 mb-4 bg-gray-100 p-3 rounded-2">Gender Distribution</h1>
+
+    <!-- Center labels vertically in remaining space -->
+    <div class="flex-1 flex flex-col justify-center space-y-4  ml-10 text-left">
+        <div class="flex items-center space-x-3">
+        <span class="w-7 h-8 rounded-full bg-pink-300 inline-block"></span>
+        <span class="text-3xl text-gray-700"><strong>Total Female:</strong> <%=@gender_age[:gender_female]%></span>
+        </div>
+        <div class="flex items-center space-x-3">
+        <span class="w-7 h-8 rounded-full bg-blue-800 inline-block"></span>
+        <span class="text-3xl text-gray-700"><strong>Total Male:</strong> <%=@gender_age[:gender_male]%></span>
+        </div>
+        <div class="flex items-center space-x-3">
+        <span class="w-7 h-8 rounded-full bg-gray-500 inline-block"></span>
+        <span class="text-3xl text-gray-700"><strong>Total Other:</strong> <%=@gender_age[:gender_other]%></span>
+        </div>
+    </div>
+</div>
