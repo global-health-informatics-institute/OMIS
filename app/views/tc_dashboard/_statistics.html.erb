@@ -1,0 +1,83 @@
+    <div class="flex flex-col h-screen">
+        
+
+        <!-- Bottom 2/3 Section -->
+        <div class="h-[60%] flex flex-col flex-none">
+            <!-- Top half of bottom section -->
+            <div class="h-1/2 flex-none flex overflow-hidden">
+                <div class="w-1/2 flex items-center justify-center overflow-hidden bg-gray-10">
+                    <%# HEAD COUNT %>
+                    <div class="h-full w-full flex flex-col">
+                        <div class="bg-gray-50 rounded p-3">
+                            <h2 class="text-4xl font-semibold text-gray-800"><%= @tenure[:card_title_2] %></h2>
+                        </div>
+                        <div class="h-[83%] w-full p-3">
+                        <canvas id="growthChart" class="w-full h-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-1/2  flex items-center justify-center overflow-hidden">
+                    <%# workforce %>
+                    <div class="h-full w-full flex flex-col">
+                        <div class="bg-gray-50 rounded ">
+                            <h2 class="text-4xl font-semibold text-gray-800 m-3"><%= @tenure[:card_title_3] %></h2>
+                            </div>
+                            <div class="h-[83%] w-full p-10">
+                            <canvas id="workforceChart" class="w-full h-full"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Bottom half of bottom section -->
+                <div class="h-1/2 flex-none flex overflow-hidden">
+                <div class="w-1/2 flex items-center justify-center overflow-hidden">
+                    <%# AGE %>
+                    <div class="h-full w-full flex flex-col">
+                        <div class="bg-gray-50 rounded p-3">
+                            <h2 class="text-4xl font-semibold text-gray-800"><%=@gender_age[:card_title_1]%></h2>
+                        </div>
+                        <div class="h-[83%] w-full px-3">
+                        <canvas id="ageChart" class="w-full h-full"></canvas>
+                        </div>          
+                    </div>  
+                </div>
+                <div class="w-1/2 flex items-center justify-center overflow-hidden">
+                    <%# GENDER %>
+                    <canvas id="genderChart" class=" h-[83%]"></canvas>
+                    <!-- Text Breakdown with Title on Top and Labels Centered -->
+                    <div class="flex flex-col h-full">
+                        <h1 class="text-4xl font-semibold text-gray-800 mb-4 bg-gray-100 p-3 rounded-2">Gender Distribution</h1>
+                        <!-- Center labels vertically in remaining space -->
+                        <div class="flex-1 flex flex-col justify-center space-y-4  ml-10 text-left">
+                            <div class="flex items-center space-x-3">
+                            <span class="w-7 h-8 rounded-full bg-pink-300 inline-block"></span>
+                            <span class="text-3xl text-gray-700"><strong>Total Female:</strong> <%=@gender_age[:gender_female]%></span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                            <span class="w-7 h-8 rounded-full bg-blue-800 inline-block"></span>
+                            <span class="text-3xl text-gray-700"><strong>Total Male:</strong> <%=@gender_age[:gender_male]%></span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                            <span class="w-7 h-8 rounded-full bg-gray-500 inline-block"></span>
+                            <span class="text-3xl text-gray-700"><strong>Total Other:</strong> <%=@gender_age[:gender_other]%></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="h-[40%] flex-none  flex items-center justify-center overflow-hidden bg-gray-30">
+            <%# TENURE %>
+            <div class="h-full w-full flex flex-col">
+                <div class="bg-gray-50 rounded ">
+                    <h2 class="text-4xl font-semibold text-gray-800 m-3"><%=@tenure[:card_title_1]%></h2>
+                </div>
+                <div class="h-[83%] w-full">
+                    <canvas id="rententionChart" class="w-full h-full"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%=render 'tc_dashboard/statistics_script'%>

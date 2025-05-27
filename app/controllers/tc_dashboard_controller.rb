@@ -1,8 +1,9 @@
-class TcDashboardController < ApplicationController
 # frozen_string_literal: true
+require 'yaml'
+class TcDashboardController < ApplicationController # rubocop:disable Metrics/ClassLength,Style/Documentation
 
   def index
-    @common_data, @gender_age, @tenure, @project = prepare_dashboard_data
+    @common_data, @gender_age, @tenure, @project, @project_metadata = prepare_dashboard_data
   end
 
   def gender_age
@@ -90,12 +91,18 @@ class TcDashboardController < ApplicationController
       end # rubocop:disable Layout/BlockAlignment
     }
 
+    @project_metadata = YAML.safe_load(
+      File.read(Rails.root.join('config', 'dashboard_metadata.yml')),
+      permitted_classes: [Date], # Optional: Only if you want Dates parsed
+      aliases: true
+    )
+
     @tenure[:past_four_year_quarter_trend] = @tenure[:past_four_year_quarter_trend]
                                              .compact
                                              .reject { |v| v.respond_to?(:nan?) && v.nan? }
                                              .map { |v| (v * 100).round(2) if v.respond_to?(:*) }
 
-    [@common_data, @gender_age, @tenure, @project]
+    [@common_data, @gender_age, @tenure, @project, @project_metadata]
   end
 
   def past_four_months

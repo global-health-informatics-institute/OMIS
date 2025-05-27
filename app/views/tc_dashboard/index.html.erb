@@ -2,45 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Strict Layout</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="m-0 p-0 h-screen w-screen overflow-hidden">
-    <div class="flex flex-col h-screen">
-        
 
-        <!-- Bottom 2/3 Section -->
-        <div class="h-[60%] flex flex-col flex-none">
-            <!-- Top half of bottom section -->
-            <div class="h-1/2 flex-none flex overflow-hidden">
-                <div class="w-1/2 flex items-center justify-center overflow-hidden bg-gray-10">
-                    <%= render 'tc_dashboard/tenure_headcount' %>
-                </div>
-                <div class="w-1/2  flex items-center justify-center overflow-hidden">
-                    <%= render 'tc_dashboard/tenure_workforce_distribution' %>
-                </div>
-                </div>
-                <!-- Bottom half of bottom section -->
-                <div class="h-1/2 flex-none flex overflow-hidden">
-                <div class="w-1/2 flex items-center justify-center overflow-hidden">
-                    <%= render 'tc_dashboard/growth_age_distribution' %>
-                </div>
-                <div class="w-1/2 flex items-center justify-center overflow-hidden">
-                    <%= render 'tc_dashboard/growth_gender_distribution' %>
-                </div>
-            </div>
-        </div>
+<body class="bg-white text-gray-900 font-sans h-screen w-screen overflow-hidden">
+  <div class="view-section" id="projects-view">
+    <%= render 'tc_dashboard/projects' %>
+  </div>
+
+  <div class="view-section hidden" id="statistics-view">
+    <%= render 'tc_dashboard/statistics' %>
+  </div>
 
 
-        <div class="h-[40%] flex-none  flex items-center justify-center overflow-hidden bg-gray-30">
-            <%= render 'tc_dashboard/tenure_trend' %>
-        </div>
-    </div>
-    <%=render 'tc_dashboard/workforce_script'%>
-    <%=render 'tc_dashboard/growth_script'%>
-    <%=render 'tc_dashboard/project_script'%>
-
+  <%= render 'tc_dashboard/index_script' %>
 </body>
-</html>

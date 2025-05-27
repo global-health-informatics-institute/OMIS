@@ -1,0 +1,13 @@
+
+  <script>
+    const views = ['projects-view', 'statistics-view'];
+    let current = 0;
+
+    setInterval(() => {
+      // Hide current
+      document.getElementById(views[current]).classList.add('hidden');
+      // Show next
+      current = (current + 1) % views.length;
+      document.getElementById(views[current]).classList.remove('hidden');
+     }, 60000);
+  </script>
