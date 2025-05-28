@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 require 'yaml'
 class TcDashboardController < ApplicationController # rubocop:disable Metrics/ClassLength,Style/Documentation
-
   def index
     @common_data, @gender_age, @tenure, @project, @project_metadata = prepare_dashboard_data
   end
@@ -53,9 +52,6 @@ class TcDashboardController < ApplicationController # rubocop:disable Metrics/Cl
       age_56_65: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
                           .where(still_employed: true)
                           .where(people: { birth_date: 65.years.ago..56.years.ago }).count || 0,
-      above_65: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
-                        .where(still_employed: true)
-                        .where('people.birth_date <= ?', 65.years.ago).count || 0,
 
       headcount: Employee.where(still_employed: true).count,
       new_hires: Employee.where(still_employed: true,
@@ -70,8 +66,7 @@ class TcDashboardController < ApplicationController # rubocop:disable Metrics/Cl
       past_four_year_quarter_trend: past_four_year_quarters_trend,
 
       card_title_2: 'Headcount for the Last 4 Months', # rubocop:disable Naming/VariableNumber
-      past_four_months:,
-      past_four_months_trend: past_four_months_headcount,
+      headcount_by_quarter: headcount_by_quarter(past_four_year_quarters),
 
       card_title_3: 'Workforce Distribution', # rubocop:disable Naming/VariableNumber
       workforce_types: workforce_types.keys,
@@ -122,7 +117,6 @@ class TcDashboardController < ApplicationController # rubocop:disable Metrics/Cl
   def workforce_types # rubocop:disable Metrics/MethodLength
     counts = {
       'full_time' => 0,
-      'part_time' => 0,
       'intern' => 0,
       'volunteer' => 0
     }
@@ -135,8 +129,6 @@ class TcDashboardController < ApplicationController # rubocop:disable Metrics/Cl
         counts['intern'] += 1
       when /volunteer/
         counts['volunteer'] += 1
-      when /part/
-        counts['part_time'] += 1
       else
         counts['full_time'] += 1
       end
@@ -160,5 +152,20 @@ class TcDashboardController < ApplicationController # rubocop:disable Metrics/Cl
   rescue StandardError => e
     Rails.logger.error("Error fetching retention data: #{e.message}")
     []
+  end
+
+  def headcount_by_quarter(quarters = past_four_year_quarters)
+    quarters.each_with_object({}) do |quarter, result|
+      year, q = quarter.split('-Q').map(&:to_i)
+      start_month = (q - 1) * 3 + 1
+      start_date = Date.new(year, start_month, 1)
+      end_date = start_date.end_of_quarter
+
+      count = Employee.where('employment_date <= ?', end_date)
+                      .where('departure_date IS NULL OR departure_date >= ?', start_date)
+                      .count
+
+      result[quarter] = count
+    end
   end
 end

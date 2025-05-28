@@ -1,32 +1,72 @@
 <%# GENDER - PIE CHART %>
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const ctx = document.getElementById('genderChart')?.getContext('2d');
-    if (!ctx) return; // Safeguard
+document.addEventListener('DOMContentLoaded', function () {
+  const ctx = document.getElementById('genderChart')?.getContext('2d');
+  if (!ctx) return;
 
-    new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Female', 'Male', 'Other'],
-        datasets: [{
-          data: [<%= @gender_age[:gender_female] %>, <%= @gender_age[:gender_male] %>, <%= @gender_age[:gender_other] %>],
-          backgroundColor: ['#FBB6CE', '#2C5282', '#6B7280'],
-          borderWidth: 0,
-        }]
-      },
-      options: {
-        cutout: '60%',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: context => `${context.label}: ${context.parsed}%`
-            }
+  const dataValues = [<%= @gender_age[:gender_female] %>, <%= @gender_age[:gender_male] %>,];
+
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Female', 'Male',],
+      datasets: [{
+        data: dataValues,
+        backgroundColor: ['#DB2777', '#1E3A8A',],
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '60%',
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: {
+            font: {
+              size: 22,
+              weight: 600
+            },
+            color: '#374151',
+            boxWidth: 20,
+            padding: 16
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: context => `${context.label}: ${context.parsed}%`
           }
         }
       }
-    });
+    },
+    plugins: [{
+      id: 'valueInsideSlices',
+      afterDraw(chart) {
+        const {ctx, chartArea: {top, bottom, left, right, width, height}} = chart;
+        chart.data.datasets.forEach((dataset, i) => {
+          const meta = chart.getDatasetMeta(i);
+          meta.data.forEach((arc, index) => {
+            const centerAngle = (arc.startAngle + arc.endAngle) / 2;
+            const radius = (arc.outerRadius + arc.innerRadius) / 2;
+            const x = arc.x + Math.cos(centerAngle) * radius;
+            const y = arc.y + Math.sin(centerAngle) * radius;
+
+            ctx.save();
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 26px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(dataset.data[index], x, y);
+            ctx.restore();
+          });
+        });
+      }
+    }]
   });
+});
+
 </script>
 
 <%# AGE - BAR GRAPH %>
@@ -35,7 +75,7 @@
   new Chart(ageCtx, {
     type: 'bar',
     data: {
-      labels: ['18-24', '25-29', '30-44', '45-60', '60+'],
+      labels: ['18-24', '25-29', '30-44', '45-60',],
       datasets: [{
         label: 'Employees',
         data: [
@@ -44,14 +84,12 @@
           <%=@gender_age[:age_36_45]%>,
           <%=@gender_age[:age_46_55]%>,
           <%=@gender_age[:age_56_65]%>,
-          <%=@gender_age[:above_65]%>,
         ],
         backgroundColor: [
           'rgba(191, 219, 254, 0.8)',  // light blue
           'rgba(110, 231, 183, 0.9)',  // mint
           'rgba(34, 197, 94, 0.9)',    // green
           'rgba(20, 184, 166, 0.9)',   // teal
-          'rgba(203, 213, 225, 0.8)'   // gray (zero value)
         ],
         borderRadius: 11,
         barThickness: 86
@@ -59,7 +97,7 @@
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
+      maintainAspectRatio: true,
       scales: {
         x: {
           grid: { color: '#E5E7EB' },
@@ -90,136 +128,6 @@
   });
 </script>
 
-<%# RETENTION - TREND %>
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const retentionCtx = document.getElementById('rententionChart')?.getContext('2d');
-    if (!retentionCtx) return; // Safeguard
-
-    new Chart(retentionCtx, {
-      type: 'line',
-      data: {
-        labels: [
-          <% @tenure[:past_four_year_quarters].each do |quarter| %>
-            '<%= (quarter).gsub('20', '') %>',
-          <% end %>
-        ],
-
-        datasets: [{
-          label: 'Retention Rate',
-          data: [
-            <% @tenure[:past_four_year_quarter_trend].each do |trend| %>
-              <%= trend %>,
-            <% end %>
-          ],
-          borderColor: '#3B82F6',
-          borderWidth: 6,
-          fill: false,
-          tension: 0.3,
-          pointRadius: 4,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        layout: {
-          padding: {
-            top: 0,
-            right: 0,
-            bottom: 0,  
-            left: 0
-          }
-        },
-        scales: {
-          x: {
-            grid: { color: '#E5E7EB', drawBorder: true },
-            ticks: { color: '#6B7280', font: { size: 22, weight: 'semi-bold' } },
-            padding: 10,
-          },
-          y: {
-            grid: { color: '#E5E7EB', drawBorder: true },
-            ticks: {
-             color: '#6B7280',
-             font: { size: 22, weight: 'bold' },
-             stepSize: 5,
-             callback: function(value) {
-              return (value > 100 ? null : value) &&  (value < (<%= (@tenure[:past_four_year_quarter_trend].compact.min || 0) %>) ? null : value)
-            }
-            },
-            min: (<%= (@tenure[:past_four_year_quarter_trend].compact.min || 0) %>) - 5,
-            max: 100 + 5, // but how about if the max is 105 but it should not show 105 value only the 100 part
-          }
-        },
-        plugins: {
-          legend: { display: false },
-        }
-      }
-    });
-  });
-</script>
-
-<%# monlthy growth %>
-<script>
-  window.onload = function () {
-    const growthCtx = document.getElementById('growthChart').getContext('2d');
-    new Chart(growthCtx, {
-      type: 'line',
-      data: {
-        labels: [
-          <% @tenure[:past_four_months].each do |month| %>
-            '<%= month %>',
-          <% end %>
-        ],
-
-        datasets: [{
-          label: 'Headcount',
-          data: [
-            <% @tenure[:past_four_months_trend].each do |headcount| %>
-              <%= headcount %>,
-            <% end %>
-          ],
-          borderColor: '#3B82F6',
-          borderWidth: 6,
-          fill: false,
-          tension: 0.8,
-          pointRadius: 4,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        layout: {
-          padding: {
-            top: 0,
-            right: 0,
-            bottom: 0,  
-            left: 0
-          }
-        },
-        scales: {
-          x: {
-            grid: { color: '#E5E7EB', drawBorder: true },
-            ticks: { color: '#6B7280', font: { size: 26, weight: 'semi-bold' } }
-          },
-          y: {
-            grid: { color: '#E5E7EB', drawBorder: true },
-            ticks: { color: '#6B7280', font: { size: 26, weight: 'bold' },
-             stepSize: 4,
-             callback: function(value) {
-              return ((value >= (<%= @tenure[:past_four_months_trend].max  %>) + 4) ? null : value) &&  ((value <= (<%= @tenure[:past_four_months_trend].min %>) - 4) ? null : value)
-            }
-            },
-            min: (<%= @tenure[:past_four_months_trend].min %>) - 4,
-            max: (<%= @tenure[:past_four_months_trend].max  %>) + 4,
-          }
-        },
-        plugins: {
-          legend: { display: false },
-        }
-      }
-    });
-  };
-</script>
 
 <%# WORKFORCE - BAR GRAPH %>
 <script>
@@ -244,7 +152,6 @@
           ],
           backgroundColor: [
             'rgba(87, 92, 99, 0.8)',  // light blue
-            'rgba(110, 231, 183, 0.9)',  // mint
             'rgba(34, 197, 94, 0.9)',    // green
             'rgba(20, 184, 166, 0.9)',   // teal
           ],
@@ -254,7 +161,7 @@
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false,
+        maintainAspectRatio: true,
         scales: {
           x: {
             grid: { color: '#E5E7EB' },
@@ -278,6 +185,114 @@
           tooltip: {
             callbacks: {
               label: context => ` ${context.parsed.y} employees`
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('rententionChart').getContext('2d');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [
+           <% @tenure[:past_four_year_quarters].each do |quarter| %>
+            '<%=quarter%>',
+           <% end %>],
+        datasets: [
+          {
+            label: 'Retention Rate (%)',
+            data: [
+              <% @tenure[:past_four_year_quarter_trend].each do |trend| %>
+                <%= trend %>,
+              <% end %>
+              ],
+            borderColor: '#3B82F6',
+            backgroundColor: '#3B82F6',
+            borderWidth: 6,
+            fill: false,
+            tension: 0.3,
+            yAxisID: 'y',
+            pointRadius: 4,
+          },
+          {
+            label: 'Headcount',
+            data: <%= @tenure[:headcount_by_quarter].values.to_json %>,
+            borderColor: '#10B981',
+            backgroundColor: '#10B981',
+            borderWidth: 6,
+            fill: false,
+            tension: 0.3,
+            yAxisID: 'y1',
+            pointRadius: 4,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            ticks: { color: '#374151', font: { size: 22, weight: 'bold' } },
+            grid: { color: '#E5E7EB' },
+          },
+          y: {
+            type: 'linear',
+            position: 'left',
+            min: (<%= (@tenure[:past_four_year_quarter_trend].compact.min || 0) %>) - 5,
+            max: 100 + 5,
+            title: {
+              display: true,
+              text: 'Retention (%)',
+              color: '#3B82F6',
+              font: { size: 26, weight: 'bold' }
+            },
+            ticks: {
+              color: '#3B82F6',
+              stepSize: 1,
+              callback: function(value) {
+              return (value > 100 ? null : value) &&  (value < (<%= (@tenure[:past_four_year_quarter_trend].compact.min || 0) %>) ? null : value)
+              },
+              font: { size: 26 }
+            }
+          },
+          y1: {
+            type: 'linear',
+            position: 'right',
+            min: <%= [@tenure[:headcount_by_quarter].values.min - 5, 0].max %>,
+            max: <%= (@tenure[:headcount_by_quarter].values).max + 5 %>,
+            grid: { drawOnChartArea: false },
+            title: {
+              display: true,
+              text: 'Headcount',
+              color: '#10B981',
+              font: { size: 26, weight: 'bold' }
+            },
+            ticks: {
+              color: '#10B981',
+              stepSize: 5,
+              font: { size: 26 },
+              callback: function (value) {
+                const min = <%= [@tenure[:headcount_by_quarter].values.min].max %>;
+                const max = <%= @tenure[:headcount_by_quarter].values.max %>;
+                return (value < min || value > max) ? null : value;
+              }
+
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: true,
+            labels: {
+              font: { size: 22, weight: 'semi-bold' },
+              color: '#374151',
             }
           }
         }
