@@ -1,0 +1,13 @@
+<%# app/views/requisition_mailer/timesheet_rejected_mail.html.erb %>
+<p>Dear <%= @person.first_name %>,</p>
+<p>Your timesheet (ID: <%= @timesheet.id %>) has been rejected.</p>
+
+<% if @rejection_comment_for_email.present? %>
+  <p><strong>Reason for rejection:</strong></p>
+  <blockquote style="margin: 10px 0; padding: 10px; background-color: #f8f8f8; border-left: 4px solid #d9534f;">
+    <%= @rejection_comment_for_email %>
+  </blockquote>
+<% end %>
+
+<p>Please log in to review and correct your timesheet.</p>
+<p>Thank you.</p>
