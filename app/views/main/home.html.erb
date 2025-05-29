@@ -1,14 +1,30 @@
 <script src="/assets/chart.umd.min.js"></script>
+
 <% if current_user %>
-    <%= render partial: 'user_dashboard' %>
-    <% if @notifications['Birthdays'].present? %>
-        <% messages = @notifications['Birthdays'].map do |first, last| 
-            { title: "Birthday 🎉", description: "It's #{first} #{last}'s birthday today!" }
-            end %>
-        <%= birthday_snackbar(messages) %>
+  <%= render partial: 'user_dashboard' %>
+
+  <% all_messages = [] %>
+  <% all_colors = [] %>
+
+  <% if session[:success].present? %>
+    <% session[:success].each do |title,message| %>
+      <% all_messages << { title: title, description: message } %>
+      <% all_colors << 'success' %>
     <% end %>
+    <% session.delete(:success) %>
+  <% end %>
+  
+  <% if @notifications['Birthdays'].present? %>
+    <% @notifications['Birthdays'].each do |first, last| %>
+      <% all_messages << { title: "Birthday 🎉", description: "It's #{first} #{last}'s birthday today!" } %>
+      <% all_colors << 'info' %>
+    <% end %>
+  <% end %>
+
+  <% if all_messages.any? %>
+    <%= notification_snackbar(all_messages, all_colors) %>
+  <% end %>
 
 <% else %>
-    <%= render partial: 'app_dashboard' %>
+  <%= render partial: 'app_dashboard' %>
 <% end %>
-<% puts current_user.inspect %>

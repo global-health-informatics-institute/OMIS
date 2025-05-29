@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-# app/helpers/notifications_helper.rb
-# app/helpers/notifications_helper.rb
-module NotificationsHelper
-  def birthday_snackbar(messages, duration: 3000, color: 'success') # rubocop:disable Metrics/MethodLength
+module NotificationsHelper # rubocop:disable Style/Documentation
+  def notification_snackbar(messages, colors, duration: 3000) # rubocop:disable Metrics/MethodLength
     return if messages.blank?
 
     tag.div(
@@ -12,9 +10,10 @@ module NotificationsHelper
       data: {
         controller: 'snackbar',
         snackbar_messages_value: messages.to_json,
-        snackbar_duration_value: duration,
-        snackbar_color_value: color
+        snackbar_colors_value: colors.to_json,
+        snackbar_duration_value: duration
       }
     )
   end
 end
+

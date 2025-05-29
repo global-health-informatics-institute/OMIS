@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_10_07_064220) do
+ActiveRecord::Schema[7.0].define(version: 2025_05_13_082019) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -297,6 +297,15 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_07_064220) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "project_id"
+    t.string "approval_token"
+    t.string "rejection_token"
+    t.string "approval_funds_token"
+    t.string "deny_funds_token"
+    t.text "reason"
+    t.index ["approval_funds_token"], name: "index_requisitions_on_approval_funds_token", unique: true
+    t.index ["approval_token"], name: "index_requisitions_on_approval_token", unique: true
+    t.index ["deny_funds_token"], name: "index_requisitions_on_deny_funds_token", unique: true
+    t.index ["rejection_token"], name: "index_requisitions_on_rejection_token", unique: true
   end
 
   create_table "supervisions", primary_key: "supervision_id", force: :cascade do |t|
@@ -352,10 +361,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_07_064220) do
 
   create_table "workflow_processes", primary_key: "workflow_process_id", force: :cascade do |t|
     t.string "workflow", null: false
-    t.boolean "active", default: true
-    t.integer "start_state"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "active", default: true
   end
 
   create_table "workflow_state_actions", force: :cascade do |t|
@@ -366,7 +374,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_07_064220) do
   end
 
   create_table "workflow_state_actors", force: :cascade do |t|
-    t.integer "workflow_state_transition_id"
+    t.integer "workflow_state_id", null: false
     t.integer "employee_designation_id", null: false
     t.boolean "voided", default: false
     t.datetime "created_at", null: false

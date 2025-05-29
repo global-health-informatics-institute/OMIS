@@ -34,6 +34,12 @@ class ApplicationController < ActionController::Base
       end
     end
     # raise allowed_transitions.inspect
+
+    # Modified condition: check for workflow_state_id 35 directly
+    if current_state == 35
+      actions.append('Rescind Request')
+    end
+
     actions
   end
 
