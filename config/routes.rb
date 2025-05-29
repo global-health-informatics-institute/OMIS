@@ -21,7 +21,7 @@ Rails.application.routes.draw do
 
   put 'timesheets/:id/submit_timesheet', to: 'timesheets#submit_timesheet'
   put 'timesheets/:id/approve_timesheet', to: 'timesheets#approve_timesheet'
-  put 'timesheets/:id/reject_timesheet', to: 'timesheets#reject_timesheet'
+  put 'timesheets/:id/reject_timesheet', to: 'timesheets#reject_timesheet', as: :reject_timesheet
   put 'timesheets/:id/recall_timesheet', to: 'timesheets#recall_timesheet'
   put 'timesheets/:id/re-open_timesheet', to: 'timesheets#reopen_timesheet'
   put 'timesheets/:id/re-submit_timesheet', to: 'timesheets#resubmit_timesheet'
