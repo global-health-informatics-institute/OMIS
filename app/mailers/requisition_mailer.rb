@@ -95,4 +95,20 @@ class RequisitionMailer < ApplicationMailer
       subject: "Your Requisition Funds ##{@requisition.id} Has Been Approved"
     )
   end
+  def timesheet_rejected_mail(timesheet, rejection_reason) 
+    @timesheet = timesheet
+    @employee = @timesheet.employee
+    @person = @employee.person
+    @rejection_comment_for_email = rejection_reason
+    receiver_email = @person.official_email || @person.email_address# Assuming User has a 'person' association
+
+    receiver_email = @person.official_email || @person.email_address
+
+    Rails.logger.info "Sending email to: #{receiver_email} for timesheet ##{@timesheet.id}"
+
+    mail(
+      to: receiver_email,
+      subject: "Your Timesheet ##{@timesheet.id} Has Been Rejected"
+    )
+  end
 end
