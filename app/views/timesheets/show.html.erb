@@ -10,10 +10,20 @@
       <span class="fs-6 fw-bold">Status: </span> <%= @timesheet.current_status %>
     </div>
     <div class="col-3"
-         data-controller="timesheet" <%# Add data-controller here %>
-         data-timesheet-max-date="<%= Date.today.end_of_week.strftime("%Y-%m-%d") %>" <%# Pass dynamic values %>
-         data-timesheet-current-date="<%= @timesheet.timesheet_week.strftime("%Y-%m-%d") %>" <%# Pass dynamic values %>
-    >
+         data-controller="timesheet"
+  data-timesheet-max-date-value="<%= Date.today.end_of_week.strftime("%Y-%m-%d") %>"
+  data-timesheet-current-date-value="<%= @timesheet.timesheet_week.strftime("%Y-%m-%d") %>"
+  data-timesheet-employee-id-value="<%= @timesheet.employee_id %>"
+  data-timesheet-timesheet-id-value="<%= @timesheet.id if @timesheet.persisted? %>">
+      <%# Add Next/Previous Week Links Here %>
+      <div class="d-flex justify-content-between mb-1">
+        <%= link_to "&larr; Previous Week".html_safe,
+            timesheet_path(@timesheet, period: @timesheet.timesheet_week.prev_week, employee_id: @timesheet.employee_id),
+            class: "btn btn-sm btn-outline-secondary" %>
+        <%= link_to "Next Week &rarr;".html_safe,
+            timesheet_path(@timesheet, period: @timesheet.timesheet_week.next_week, employee_id: @timesheet.employee_id),
+            class: "btn btn-sm btn-outline-secondary" %>
+      </div>
       <input type="date" class="form-control" id="period" data-timesheet-target="periodPicker"> <%# Add data-timesheet-target %>
     </div>
   </div>
@@ -55,7 +65,7 @@
           <%= link_to "Recall Timesheet", "/timesheets/#{ @timesheet.id}/recall_timesheet", class: "btn btn-info",method: :put,
                       data: { turbo_method: :put, turbo_confirm: "Are you sure you want to recall this timesheet?" } %>
         <% else %>
-          <% if current_user.present? && current_user.supervisor? && @timesheet.status == "Pending Approval" %>
+          <% if current_user.present? && current_user.employee.supervisor? && @timesheet.status == "Pending Approval" %>
             <%= link_to "Approve Timesheet", "/timesheets/#{ @timesheet.id}/approve_timesheet", class: "btn btn-success", method: :put,
                         data: { turbo_method: :put, turbo_confirm: "Are you sure you want to approve this timesheet?" } %>
 
@@ -116,7 +126,7 @@
         <tr>
           <td>
             <%= task %>
-            <% if (@timesheet.status == "Pending Submit") && (@timesheet.employee_id == current_user.employee_id) %>
+            <% if (@timesheet.status == "Pending Submission") || (@timesheet.status == "Recalled") || (@timesheet.employee_id == current_user.employee_id) %>
             <div class="dropdown" style="display: inline-block; padding:0;">
             <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="taskDropdown" data-bs-toggle="dropdown" aria-expanded="false">
             </button>
