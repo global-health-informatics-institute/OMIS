@@ -1,13 +1,37 @@
+<script>
+  // Time in milliseconds
+  const internshipDuration = 4 * 60 * 1000;  
+  const statisticsDuration = 18 * 30 * 1000;  
 
-  <script>
-    const views = ['projects-view', 'statistics-view'];
-    let current = 0;
+  const internshipView = document.getElementById('projects-view');
+  const statisticsView = document.getElementById('statistics-view');
 
-    setInterval(() => {
-      // Hide current
-      document.getElementById(views[current]).classList.add('hidden');
-      // Show next
-      current = (current + 1) % views.length;
-      document.getElementById(views[current]).classList.remove('hidden');
-     }, 60000);
-  </script>
+  // Show internship screen initially
+  internshipView.classList.remove('hidden');
+  statisticsView.classList.add('hidden');
+
+  setTimeout(() => {
+    // After 4 minutes, show statistics and hide internship
+    internshipView.classList.add('hidden');
+    statisticsView.classList.remove('hidden');
+  }, internshipDuration);
+
+  // Optional: Repeat the cycle (loop every 21 minutes)
+  setInterval(() => {
+    internshipView.classList.remove('hidden');
+    statisticsView.classList.add('hidden');
+
+    setTimeout(() => {
+      internshipView.classList.add('hidden');
+      statisticsView.classList.remove('hidden');
+    }, internshipDuration);
+  }, internshipDuration + statisticsDuration);
+</script>
+
+
+<script>
+  const refreshInterval = 2 * 60 * 60 * 1000; // 2 hours
+  setInterval(() => {
+    window.location.reload();
+  }, refreshInterval);
+</script>
