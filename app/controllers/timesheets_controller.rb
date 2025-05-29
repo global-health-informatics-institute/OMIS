@@ -17,41 +17,78 @@ class TimesheetsController < ApplicationController
   def destroy
   end
   def show
-    if !params[:period].nil?
+    # Initialize the employee ID that will be used to fetch or create the timesheet
+    target_employee_id = current_user.employee_id
+
+    # Initialize @timesheet to nil
+    @timesheet = nil
+    if params[:period].present?
       week = Date.parse(params[:period]).beginning_of_week.strftime("%Y-%m-%d")
-      @timesheet = Timesheet.where(timesheet_week: week, employee_id: current_user.employee_id).first_or_create
-    else
-      @timesheet = Timesheet.find(params[:id])
+      if params[:employee_id].present? && current_user.supervisor? # <--- CORRECTED LINE
+        target_employee_id = params[:employee_id]
+      end
+
+      # Fetch or create the timesheet for the determined employee_id and the given week.
+      @timesheet = Timesheet.where(timesheet_week: week, employee_id: target_employee_id).first_or_create
+    elsif params[:id].present? && params[:id].to_s.match?(/\A\d+\z/) # Checks if string consists only of digits
+      begin
+        @timesheet = Timesheet.find(params[:id])
+        # If a timesheet is found by ID, update target_employee_id to match the timesheet's owner.
+        target_employee_id = @timesheet.employee_id
+      rescue ActiveRecord::RecordNotFound
+        # If ID is invalid (e.g., not found), @timesheet remains nil, and fallback logic will apply.
+        Rails.logger.warn "Timesheet with ID #{params[:id]} not found. Falling back to default timesheet."
+        @timesheet = nil # Ensure @timesheet is nil so fallback can apply
+      end
     end
 
+    unless @timesheet
+      week = Date.current.beginning_of_week.strftime("%Y-%m-%d")
+      @timesheet = Timesheet.where(timesheet_week: week, employee_id: current_user.employee_id).first_or_create
+    end
     is_owner = (@timesheet.employee_id == current_user.employee_id)
+    # Determine if the current user is a supervisor of the timesheet's employee.
     is_supervisor = current_user.employee.current_supervisees.collect{|x| x.supervisee}.include?(@timesheet.employee_id)
+
+    # IMPORTANT: Implement an explicit authorization check.
+    # Only the owner or an authorized supervisor should be able to view this timesheet.
+    unless is_owner || is_supervisor
+      raise ActionController::RoutingError.new('Not Found')
+    end
+
+    # Determine possible actions based on timesheet state and user roles.
     @possible_actions = possible_actions(@timesheet.state, is_owner, is_supervisor)
 
+    # Retrieve the Employee object associated with the timesheet.
     @person = Employee.find(@timesheet.employee_id)
 
-    @records = {}
+    # --- Timesheet Records Processing ---
+    @records = {} # Initialize hash to store structured timesheet task data.
+    # Select specific attributes from timesheet tasks for efficiency.
     records = @timesheet.timesheet_tasks.select("project_id, task_date,description, duration, id").each do |v|
-      if @records[v.project_id].blank?
-        @records[v.project_id] = {v.description => { v.task_date.cwday => v.duration.floor(2)}}
-      elsif @records[v.project_id][v.description].blank?
-        @records[v.project_id][v.description] = { v.task_date.cwday => v.duration.floor(2)}
-      end
+      # Structure the records by project_id, then description, then day of the week.
+      @records[v.project_id] ||= {} # Initialize project hash if not present
+      @records[v.project_id][v.description] ||= {} # Initialize description hash if not present
+      # Store duration (rounded) and task ID for the specific day.
       @records[v.project_id][v.description][v.task_date.cwday] = {duration: v.duration.floor(2),id: v.id}
     end
 
-    #raise @records.inspect
+    # Retrieve project details for projects referenced in the timesheet tasks.
     @projects = Project.where(project_id: records.collect{|p| p.project_id}.uniq).collect { |x| [x.project_id, x.short_name] }.to_h
+    # Retrieve all projects for dropdown options (e.g., when adding new tasks).
     @project_options = Project.all.collect { |x| [x.project_name, x.id] }
 
+    # --- Respond to Different Formats ---
     respond_to do |format|
-      format.html
-      format.json{render json: @user}
+      format.html # Renders the HTML view (e.g., show.html.erb)
+      format.json{render json: @user} # NOTE: This might be a bug. Consider rendering @timesheet or relevant data.
       format.xsl do
+        # Generate and send an Excel spreadsheet.
         helpers.weekly_spreadsheet(@records, @projects, @timesheet)
         send_file("tmp/timesheet.xls", :filename => "#{@person.person.full_name}.xls")
       end
       format.pdf do
+        # Generate and send a PDF document.
         helpers.weekly_pdf(@records,@projects, @timesheet)
         send_file("tmp/timesheet.pdf", :filename => "#{@person.person.full_name}.pdf")
       end
@@ -97,14 +134,8 @@ class TimesheetsController < ApplicationController
   def reject_timesheet
     Rails.logger.debug "--- ENTERING reject_timesheet action ---"
     Rails.logger.debug "Params: #{params.inspect}"
-
-    # Capture the rejection reason
-    # If the modal form is working, params[:rejection_reason] should be present.
     rejection_reason = params[:rejection_reason]
     Rails.logger.debug "Rejection Reason captured: '#{rejection_reason}'"
-
-    # --- Authorization check removed as per your request for now ---
-    # !!! IMPORTANT: Remember to re-add robust authorization for production. !!!
 
     if rejection_reason.blank?
       Rails.logger.warn "--- REJECTION FAILED: Rejection reason is blank. ---"
@@ -139,11 +170,6 @@ class TimesheetsController < ApplicationController
       return
     end
     Rails.logger.debug "--- Next state identified: ID #{next_state.id}, State: #{next_state.state} ---"
-
-    # Attempt to update the timesheet
-    # Ensure you are also saving the rejection_reason if you have a column for it in Timesheet model
-    # For example, if you have a `rejection_reason` column in your Timesheet model:
-    # if @timesheet.update(state: next_state.id, submitted_on: nil, rejection_reason: rejection_reason)
     if @timesheet.update(state: next_state.id, submitted_on: nil) # Updated based on your Timesheet model structure
       Rails.logger.debug "--- Timesheet updated successfully to state ID #{next_state.id} ---"
 
@@ -191,10 +217,4 @@ class TimesheetsController < ApplicationController
   rescue ActiveRecord::RecordNotFound
     @timesheet = nil
   end
-
-  # Add a strong params method if you plan to use `params.require(:timesheet).permit(:rejection_reason)`
-  # If you are directly using `params[:rejection_reason]` this is not strictly necessary for this method.
-  # def timesheet_params
-  #   params.permit(:rejection_reason)
-  # end
 end
