@@ -1,0 +1,241 @@
+- name: OpenO2
+  est_date: 2020-01-09
+  end_date: To be established
+  description: Capacity building intiative to train new biomedical engineers and repair and assess oxygen concentrators
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Trained 1400 interns
+    - Stakeholder engagement conducted
+    - Fixed 4000 oxygen concentrators
+    - Developed 3 new oxygen concentrator models
+    - Stakeholder engagement conducted
+
+- name: Oxygen Alliance
+  est_date: 2021-09-17
+  end_date: To be established
+  description: Advocacy program in 15 african countries
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Launched 15 country programs
+    - Stakeholder engagement conducted
+
+- name: MEDU
+  est_date: 2022-09-30
+  end_date: To be established
+  description: CDC funded programs to improve the utilization of CDR data for decision making
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Team trained
+    - Stakeholder engagement conducted
+
+- name: OERR
+  est_date: 2020-01-01
+  end_date: To be established
+  description: Project to improve availability and use of laboratory test results at the bedside
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Team trained
+    - Stakeholder engagement conducted
+
+- name: NeoO2
+  est_date: 2023-11-18
+  end_date: To be established
+  description: Project to develop a neonatal oxygen concentrator
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Team trained
+    - Stakeholder engagement conducted
+
+- name: PO2C
+  est_date: 2023-06-30
+  end_date: To be established
+  description: Project to develop a portable oxygen concentrator for ambulances.
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Team trained
+    - Stakeholder engagement conducted
+
+- name: GHII
+  est_date: 2020-01-01
+  end_date: To be established
+  description: Umbrella container for all core GHII activities
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Team trained
+    - Stakeholder engagement conducted
+
+- name: AppHatchery
+  est_date: 2021-01-09
+  end_date: To be established
+  description: Product Development program for Emory University
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Team trained
+    - Stakeholder engagement conducted
+
+- name: Neotree
+  est_date: 2022-09-21
+  end_date: To be established
+  description: Implementation project for neotree in partnership with UCL and Neotree charity
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Team trained
+    - Stakeholder engagement conducted
+
+- name: GHII CNC CAD
+  est_date: 2020-01-01
+  end_date: To be established
+  description: Maintaining and Building tools for CAD and CAM
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Team trained
+    - Stakeholder engagement conducted
+
+- name: SINTHA-Malawi
+  est_date: 2022-01-08
+  end_date: To be established
+  description: Implementation project for OpenO2 and OERR funded by EU
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Team trained
+    - Stakeholder engagement conducted
+
+- name: HIAM
+  est_date: 2023-08-23
+  end_date: To be established
+  description: Administrative work for HIAM
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Team trained
+    - Stakeholder engagement conducted
+
+- name: Neotree-PE
+  est_date: 2023-01-12
+  end_date: To be established
+  description: Public engagement activities for neotree
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Team trained
+    - Stakeholder engagement conducted
+
+- name: GHII-HIRI
+  est_date: 2024-01-01
+  end_date: To be established
+  description: Reference implementation for biomedical informatics interventions
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Team trained
+    - Stakeholder engagement conducted
+
+- name: EC
+  est_date: 2020-01-01
+  end_date: To be established
+  description: Drop-in session to provide hands on electronics training
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Team trained
+    - Stakeholder engagement conducted
+
+- name: Oxygen CoLab
+  est_date: 2024-06-14
+  end_date: To be established
+  description: Project for the further development of the Konza App
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Team trained
+    - Stakeholder engagement conducted
+
+- name: OpenSpO2
+  est_date: 2025-05-19
+  end_date: To be established
+  description: Assessmsnet and repair of pulse oximeters and patient monitors
+  donors:
+    - Donor A
+    - Donor B
+    - International Health Fund
+  highlights:
+    - Initial planning completed
+    - Pilot site selected
+    - Team trained
+    - Stakeholder engagement conducted
+

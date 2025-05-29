@@ -1,0 +1,22 @@
+<!-- JS to cycle projects -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const display = document.getElementById("project-display");
+    const templates = Array.from(document.querySelectorAll("template[id^='project-template-']"));
+    let current = 0;
+
+    function showProject(index) {
+      const template = templates[index];
+      const clone = document.importNode(template.content, true);
+      display.innerHTML = ''; // clear previous
+      display.appendChild(clone);
+    }
+
+    showProject(current); // show first project
+
+    setInterval(() => {
+      current = (current + 1) % templates.length;
+      showProject(current);
+    }, 30000); // 30 seconds
+  });
+</script>
