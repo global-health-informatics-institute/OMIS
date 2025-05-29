@@ -25,6 +25,7 @@ Rails.application.routes.draw do
   put 'timesheets/:id/recall_timesheet', to: 'timesheets#recall_timesheet'
   put 'timesheets/:id/re-open_timesheet', to: 'timesheets#reopen_timesheet'
   put 'timesheets/:id/re-submit_timesheet', to: 'timesheets#resubmit_timesheet'
+  get 'my_timesheet', to: 'timesheets#show', as: :my_timesheet
 
   get 'settings/index'
   get 'settings/new'
