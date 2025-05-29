@@ -9,8 +9,12 @@
       <span class="fs-6 fw-bold">Period: </span> <%= @timesheet.period %><br/>
       <span class="fs-6 fw-bold">Status: </span> <%= @timesheet.current_status %>
     </div>
-    <div class="col-3">
-      <input type="date" class="form-control" id="period">
+    <div class="col-3"
+         data-controller="timesheet" <%# Add data-controller here %>
+         data-timesheet-max-date="<%= Date.today.end_of_week.strftime("%Y-%m-%d") %>" <%# Pass dynamic values %>
+         data-timesheet-current-date="<%= @timesheet.timesheet_week.strftime("%Y-%m-%d") %>" <%# Pass dynamic values %>
+    >
+      <input type="date" class="form-control" id="period" data-timesheet-target="periodPicker"> <%# Add data-timesheet-target %>
     </div>
   </div>
   <hr>
@@ -28,27 +32,62 @@
     </div>
     <div class="col text-end">
       <% (@possible_actions || []).each do |action| %>
+         <% if action == "Reject Timesheet" %>
+         <%# This button will now OPEN the modal %>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectionModal">
+            Reject Timesheet
+        </button>
+        <% else %>
+        <%# Original behavior for all other actions %>
         <% path = "/timesheets/#{ @timesheet.id}/#{action.parameterize(separator: '_')}" %>
-        <%= link_to action, path , class: "btn btn-info",method: :put,
-                    data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action.split(" ")[0]} this timesheet?" } %>
-      <% end %>
-      <% if (@timesheet.status == "Pending Submission") || (@timesheet.status == "Recalled") ||(@timesheet.status=="Rejected") && (@timesheet.employee_id == current_user.employee_id) %>
-        <%= link_to "Add Task", new_time_sheet_task_path(time_sheet: @timesheet.id), class: "btn btn-primary",
-                    data: { turbo_frame: "remote_modal" } %>
-        <%#= link_to "Submit Timesheet", "/timesheets/#{ @timesheet.id}/submit_timesheet", class: "btn btn-success",method: :put,
-                    data: { turbo_method: :put, turbo_confirm: "Are you sure?" } %>
+         <%= link_to action, path , class: "btn btn-info", method: :put,
+                data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action.split(" ")[0]} this timesheet?" } %>
+       <% end %>
+     <% end %>
+
+      <% if (@timesheet.status == "Pending Submission") || (@timesheet.status == "Recalled") || (@timesheet.status == "Rejected") %>
+        <% if @timesheet.employee_id == current_user.employee_id %>
+          <%= link_to "Add Task", new_time_sheet_task_path(time_sheet: @timesheet.id), class: "btn btn-primary",
+                      data: { turbo_frame: "remote_modal" } %>
+        <% end %>
       <% elsif @timesheet.status == "Pending Approval" || @timesheet.status == "Approved" %>
         <% if @timesheet.employee_id == current_user.employee_id %>
           <%= link_to "Recall Timesheet", "/timesheets/#{ @timesheet.id}/recall_timesheet", class: "btn btn-info",method: :put,
                       data: { turbo_method: :put, turbo_confirm: "Are you sure you want to recall this timesheet?" } %>
-        <%# else %>
-          <%#= link_to "Approve Timesheet", "/timesheets/#{ @timesheet.id}/approve_timesheet", class: "btn btn-success",method: :put,
-                      data: { turbo_method: :put, turbo_confirm: "Are you sure you want to approve this timesheet?" } %>
-          <%#= link_to "Reject Timesheet", "/timesheets/#{ @timesheet.id}/reject_timesheet", class: "btn btn-danger",method: :put,
-                      data: { turbo_method: :put, turbo_confirm: "Are you sure you want to reject this timesheet?" } %>
+        <% else %>
+          <% if current_user.present? && current_user.supervisor? && @timesheet.status == "Pending Approval" %>
+            <%= link_to "Approve Timesheet", "/timesheets/#{ @timesheet.id}/approve_timesheet", class: "btn btn-success", method: :put,
+                        data: { turbo_method: :put, turbo_confirm: "Are you sure you want to approve this timesheet?" } %>
+
+            <%= button_tag "Reject Timesheet", class: "btn btn-danger", data: { toggle: "modal", target: "#rejectionModal" } %>
+          <% end %>
         <% end %>
       <% end %>
+    </div>
+  </div>
+</div>
 
+<div class="modal fade" id="rejectionModal" tabindex="-1" role="dialog" aria-labelledby="rejectionModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rejectionModalLabel">Reject Timesheet - Provide Reason</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <%= form_tag reject_timesheet_path(@timesheet), method: :put, local: false do %>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="rejection_reason">Rejection Reason</label>
+            <textarea name="rejection_reason" id="rejection_reason" class="form-control" rows="5" required placeholder="Please provide a detailed reason for rejection..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <%= submit_tag "Reject Timesheet", class: "btn btn-danger" %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
@@ -105,15 +144,15 @@
                       <% if !entries[day].blank? %>
                         <%= link_to 'Edit',edit_time_sheet_task_path(time_sheet_task_id: entries[day][:id]), class: 'dropdown-item', data: { turbo_frame: "remote_modal" } %>
                       <% else %>
-                        <%= link_to "Add Duration", new_time_sheet_task_path(prj: @projects[k], tsk_desc:task, 
+                        <%= link_to "Add Duration", new_time_sheet_task_path(prj: @projects[k], tsk_desc:task,
                             day: @timesheet.timesheet_week.advance(:days => day), time_sheet: @timesheet.id), class: 'dropdown-item',
                             data: { turbo_frame: "remote_modal" } %>
-                      <% end %>                      
+                      <% end %>
                     </li>
                     <li>
                       <% if !entries[day].blank? %>
                         <%= button_to 'Delete', "/time_sheet_tasks/#{entries[day][:id]}", method: :delete, class: 'dropdown-item btn btn-dark', data: { turbo_confirm: 'Are you sure?' } %>
-                      <% end %>                    
+                      <% end %>
                     </li>
                   </ul>
                   </div>
@@ -139,31 +178,6 @@
     </tfoot>
   </table>
 </div>
-
-
-
-<script>
-    const picker  = document.getElementById('period');
-    picker.setAttribute("max", '<%=Date.today.end_of_week%>');
-    const currentDate = new Date("<%= @timesheet.timesheet_week.strftime("%Y-%m-%d") %>")
-
-    function checkNewDate(event)
-    {
-        const newDate = new Date(picker.value)
-        const dateDifference = parseInt((currentDate - newDate) / (1000 * 60 * 60 * 24));
-        if((dateDifference > 0) || (dateDifference < -6))
-        {
-            window.location = "/timesheets/show?period=" + picker.value
-        }
-    }
-
-    function onLoad(){
-        picker.addEventListener('change', checkNewDate);
-    }
-
-
-    setTimeout('onLoad()', 3000)
-</script>
 
 <style>
     tbody.td {
