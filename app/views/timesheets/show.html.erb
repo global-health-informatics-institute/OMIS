@@ -20,9 +20,20 @@
         <%= link_to "&larr; Previous Week".html_safe,
             timesheet_path(@timesheet, period: @timesheet.timesheet_week.prev_week, employee_id: @timesheet.employee_id),
             class: "btn btn-sm btn-outline-secondary" %>
+
+        <%
+          next_week_path = timesheet_path(@timesheet, period: @timesheet.timesheet_week.next_week, employee_id: @timesheet.employee_id)
+          is_current_week = @timesheet.timesheet_week.end_of_week == Date.today.end_of_week
+          next_week_classes = "btn btn-sm btn-outline-secondary"
+          if is_current_week
+            next_week_classes += " disabled"
+          end
+        %>
         <%= link_to "Next Week &rarr;".html_safe,
-            timesheet_path(@timesheet, period: @timesheet.timesheet_week.next_week, employee_id: @timesheet.employee_id),
-            class: "btn btn-sm btn-outline-secondary" %>
+            next_week_path,
+            class: next_week_classes,
+            aria: { disabled: is_current_week }
+        %>
       </div>
       <input type="date" class="form-control" id="period" data-timesheet-target="periodPicker"> <%# Add data-timesheet-target %>
     </div>
