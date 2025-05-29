@@ -6,6 +6,16 @@ class User < ApplicationRecord
     validates :username, presence: true, uniqueness: true
     validates :password_digest , presence: true
     belongs_to :employee, foreign_key: :employee_id
+    belongs_to :employee, foreign_key: :employee_id, optional: true # Make sure this association is correctly set up if it's not already
+
+  def supervisor?
+   
+    if self.employee.present?
+      self.employee.current_supervisees.any?
+    else
+      false
+    end
+  end
 
     def person
         return self.employee.person
