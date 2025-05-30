@@ -33,25 +33,26 @@ class TcDashboardController < ApplicationController # rubocop:disable Metrics/Cl
       past_four_months:,
       past_four_months_trend: past_four_months_headcount,
 
-      gender_female: Employee.joins(:person).where(people: { gender: 'Female' }).count || 0,
-      gender_male: Employee.joins(:person).where(people: { gender: 'Male' }).count || 0,
-      gender_other: Employee.joins(:person).where.not(people: { gender: %w[Female Male] }).count || 0,
+      gender_female: Employee.where(still_employed: true).joins(:person).where(people: { gender: 'Female' }).count || 0,
+      gender_male: Employee.where(still_employed: true).joins(:person).where(people: { gender: 'Male' }).count || 0,
+      gender_other: Employee.where(still_employed: true).joins(:person).where.not(people: { gender: %w[Female Male] }).count || 0,
 
-      age_18_25: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
+      age_18_24: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
                           .where(still_employed: true)
-                          .where(people: { birth_date: 25.years.ago..18.years.ago }).count || 0,
-      age_26_35: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
+                          .where(people: { birth_date: 24.years.ago..18.years.ago }).count || 0,
+      age_25_29: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
                           .where(still_employed: true)
                           .where(people: { birth_date: 35.years.ago..26.years.ago }).count || 0,
-      age_36_45: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
+      age_30_44: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
                           .where(still_employed: true)
                           .where(people: { birth_date: 45.years.ago..36.years.ago }).count || 0,
-      age_46_55: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
+      age_46_60: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
                           .where(still_employed: true)
                           .where(people: { birth_date: 55.years.ago..46.years.ago }).count || 0,
-      age_56_65: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
+      age_60_plus: Employee.joins(:person)
                           .where(still_employed: true)
-                          .where(people: { birth_date: 65.years.ago..56.years.ago }).count || 0,
+                          .where('people.birth_date <= ?', 60.years.ago).count || 0,
+    
 
       headcount: Employee.where(still_employed: true).count,
       new_hires: Employee.where(still_employed: true,

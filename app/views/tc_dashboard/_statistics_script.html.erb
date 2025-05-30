@@ -71,25 +71,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <%# AGE - BAR GRAPH %>
 <script>
+  const dataValues = [
+    <%=@gender_age[:age_18_24]%>,
+    <%=@gender_age[:age_25_29]%>,
+    <%=@gender_age[:age_30_44]%>,
+    <%=@gender_age[:age_46_60]%>,
+    <%=@gender_age[:age_60_plus]%>
+  ];
+
+  const maxValue = Math.max(...dataValues);
+  const suggestedMax = maxValue + 10; // add a bit of space
+
   const ageCtx = document.getElementById('ageChart').getContext('2d');
+
   new Chart(ageCtx, {
     type: 'bar',
     data: {
-      labels: ['18-24', '25-29', '30-44', '45-60',],
+      labels: ['18-24', '25-29', '30-44', '46-60', '65+'],
       datasets: [{
         label: 'Employees',
-        data: [
-          <%=@gender_age[:age_18_25]%>,
-          <%=@gender_age[:age_26_35]%>,
-          <%=@gender_age[:age_36_45]%>,
-          <%=@gender_age[:age_46_55]%>,
-          <%=@gender_age[:age_56_65]%>,
-        ],
+        data: dataValues,
         backgroundColor: [
-          'rgba(191, 219, 254, 0.8)',  // light blue
-          'rgba(110, 231, 183, 0.9)',  // mint
-          'rgba(34, 197, 94, 0.9)',    // green
-          'rgba(20, 184, 166, 0.9)',   // teal
+          'rgba(191, 219, 254, 0.8)',
+          'rgba(110, 231, 183, 0.9)',
+          'rgba(34, 197, 94, 0.9)',
+          'rgba(20, 184, 166, 0.9)',
+          'rgba(59, 130, 246, 0.9)'
         ],
         borderRadius: 11,
         barThickness: 86
@@ -113,7 +120,8 @@ document.addEventListener('DOMContentLoaded', function () {
             stepSize: 10,
             color: '#4B5563',
             font: { size: 24, weight: '800' }
-          }
+          },
+          suggestedMax: suggestedMax
         }
       },
       plugins: {
@@ -122,9 +130,20 @@ document.addEventListener('DOMContentLoaded', function () {
           callbacks: {
             label: context => ` ${context.parsed.y} employees`
           }
+        },
+        datalabels: {
+          anchor: 'end',
+          align: 'end',
+          color: 'rgba(87, 92, 99, 0.8)',
+          font: {
+            size: 26,
+            weight: 'bold'
+          },
+          formatter: (value) => value
         }
       }
-    }
+    },
+    plugins: [ChartDataLabels]
   });
 </script>
 
@@ -133,7 +152,18 @@ document.addEventListener('DOMContentLoaded', function () {
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const workforceCtx = document.getElementById('workforceChart')?.getContext('2d');
-    if (!workforceCtx) return; // Safeguard
+    if (!workforceCtx) return;
+
+    // Collect data from your Ruby variables
+    const dataValues = [
+      <% @tenure[:workforce_type_distribution].each do |distribution| %>
+        <%= distribution %>,
+      <% end %>
+    ];
+
+    // Determine max value & add space
+    const maxValue = Math.max(...dataValues);
+    const suggestedMax = maxValue + 5; // Add 5 units of space
 
     new Chart(workforceCtx, {
       type: 'bar',
@@ -145,15 +175,11 @@ document.addEventListener('DOMContentLoaded', function () {
         ],
         datasets: [{
           label: 'Employees',
-          data: [
-            <% @tenure[:workforce_type_distribution].each do |distribution| %>
-              <%= distribution %>,
-            <% end %>
-          ],
+          data: dataValues,
           backgroundColor: [
-            'rgba(87, 92, 99, 0.8)',  // light blue
-            'rgba(34, 197, 94, 0.9)',    // green
-            'rgba(20, 184, 166, 0.9)',   // teal
+            'rgba(87, 92, 99, 0.8)',
+            'rgba(34, 197, 94, 0.9)',
+            'rgba(20, 184, 166, 0.9)'
           ],
           borderRadius: 11,
           barThickness: 80
@@ -177,7 +203,8 @@ document.addEventListener('DOMContentLoaded', function () {
               stepSize: 5,
               color: '#4B5563',
               font: { size: 26, weight: '800' }
-            }
+            },
+            suggestedMax: suggestedMax // Add headroom
           }
         },
         plugins: {
@@ -186,9 +213,20 @@ document.addEventListener('DOMContentLoaded', function () {
             callbacks: {
               label: context => ` ${context.parsed.y} employees`
             }
+          },
+          datalabels: {
+            anchor: 'end',
+            align: 'end',
+            color: 'rgba(87, 92, 99, 0.8)',
+            font: {
+              size: 26,
+              weight: 'bold'
+            },
+            formatter: (value) => value
           }
         }
-      }
+      },
+      plugins: [ChartDataLabels] // Register the datalabels plugin
     });
   });
 </script>
@@ -207,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function () {
            <% end %>],
         datasets: [
           {
-            label: 'Retention Rate (Internships Inclusive) (%)',
+            label: 'Retention Rate -Internships Inclusive ',
             data: [
               <% @tenure[:past_four_year_quarter_trend].each do |trend| %>
                 <%= trend %>,
@@ -245,8 +283,8 @@ document.addEventListener('DOMContentLoaded', function () {
           y: {
             type: 'linear',
             position: 'left',
-            min: (<%= (@tenure[:past_four_year_quarter_trend].compact.min || 0) %>) - 5,
-            max: 100 + 5,
+            min: 0,
+            max: 100 + 10,
             title: {
               display: true,
               text: 'Retention (%)',
@@ -255,9 +293,9 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             ticks: {
               color: '#3B82F6',
-              stepSize: 1,
+              stepSize: 10,
               callback: function(value) {
-              return (value > 100 ? null : value) &&  (value < (<%= (@tenure[:past_four_year_quarter_trend].compact.min || 0) %>) ? null : value)
+              return (value > 100 ? null : value) 
               },
               font: { size: 26 }
             }
