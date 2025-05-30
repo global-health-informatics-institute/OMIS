@@ -22,7 +22,9 @@ class TcDashboardController < ApplicationController # rubocop:disable Metrics/Cl
   def prepare_dashboard_data # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
     @common_data = {
       subtitle_1: "#{(Date.today.month - 1) / 3 + 1} Quarter - #{Date.today.year}", # rubocop:disable Naming/VariableNumber
-      subtitle_2: 'Informatics Team' # rubocop:disable Naming/VariableNumber
+      subtitle_2: 'Informatics Team', # rubocop:disable Naming/VariableNumber
+      organization_shortname: GlobalProperty.find_by(property: 'dashboard.metadata')&.property_value&.split(',')&.first || 'Default Shortname', # rubocop:disable Layout/LineLength
+      organization_logo: GlobalProperty.find_by(property: 'dashboard.metadata')&.property_value&.split(',')&.second || 'Default Shortname'                                                                                                       # rubocop:disable Layout/LineLength
     }
 
     @gender_age = {

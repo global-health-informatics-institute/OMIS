@@ -1,3 +1,4 @@
+<% puts(@common_data.inspect)%>
 <!-- Project Display Container -->
 <div id="project-display" class="h-screen transition-opacity duration-500 ease-in-out"></div>
 
@@ -8,9 +9,9 @@
 
       <!-- Header -->
       <div class="flex justify-between items-center bg-green-100 p-4 rounded-xl">
-        <h1 class="text-7xl font-black tracking-tight text-green-900">GHII PROJECTS</h1>
+        <h1 class="text-7xl font-black tracking-tight text-green-900"><%=@common_data[:organization_shortname]%> PROJECTS</h1>
         <div class="w-28 h-28 border-4 border-green-500 rounded-full flex items-center justify-center bg-white shadow-xl">
-          <%= image_tag 'ghii-logo.png', alt: 'ghii-logo', class: 'w-20 h-20 object-contain' %>
+          <%= image_tag  @common_data[:organization_logo], alt: 'organization logo', class: 'w-20 h-20 object-contain' %>
         </div>
       </div>
 
