@@ -21,16 +21,16 @@
         <div class="flex flex-col text-4xl space-y-6">
           <h2 class="text-6xl font-bold text-green-700 mb-6"><%= project['name'] %></h2>
 
-          <div class="p-6 bg-white rounded-xl shadow-xl border-l-8 border-green-500">
+          <div class="p-6 bg-green-200 rounded-xl shadow-xl border-l-8 border-green-500">
             <strong>Established on:</strong> <%= project['est_date'].strftime('%B %d, %Y') %>
           </div>
 
-          <div class="p-6 bg-white rounded-xl shadow-xl border-l-8 border-green-500">
+          <div class="p-6 bg-green-200 rounded-xl shadow-xl border-l-8 border-green-500">
             <strong>Description:</strong>
             <p><%= project['description'] %></p>
           </div>
 
-          <div class="p-6 bg-white rounded-xl shadow-xl border-l-8 border-green-500 flex-grow overflow-auto">
+          <div class="p-6 bg-green-200 rounded-xl shadow-xl border-l-8 border-green-500 flex-grow overflow-auto">
             <strong>Donors:</strong>
             <ul class="mt-2 list-disc list-inside text-3xl space-y-1 pl-4">
                 <% project['donors'].each do |donor| %>
@@ -45,7 +45,7 @@
           <h2 class="text-6xl font-bold text-green-700 mb-6 pb-6">Project Highlights</h2>
           <div class="grid grid-cols-1 gap-4">
             <% project['highlights'].each do |highlight| %>
-              <div class="bg-green-100 p-5 rounded-xl shadow-md"><%= highlight %></div>
+              <div class="bg-green-200 p-5  rounded-xl shadow-md"><%= highlight %></div>
             <% end %>
           </div>
         </div>
