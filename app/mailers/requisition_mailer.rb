@@ -99,7 +99,7 @@ class RequisitionMailer < ApplicationMailer
     @timesheet = timesheet
     @employee = @timesheet.employee
     @person = @employee.person
-    @rejection_comment_for_email = rejection_reason
+    @rejection_comment_for_email = rejection_reason 
     receiver_email = @person.official_email || @person.email_address# Assuming User has a 'person' association
 
     receiver_email = @person.official_email || @person.email_address
