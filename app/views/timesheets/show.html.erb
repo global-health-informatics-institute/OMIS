@@ -92,15 +92,13 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="rejectionModalLabel">Reject Timesheet - Provide Reason</h5>
-        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <h5 class="modal-title" id="rejectionModalLabel">Reject Timesheet</h5>
+       
       </div>
       <%= form_tag reject_timesheet_path(@timesheet), method: :put, local: false do %>
         <div class="modal-body">
           <div class="form-group">
-            <label for="rejection_reason">Rejection Reason</label>
+            <label for="rejection_reason">Provide a reason</label>
             <textarea name="description" id="rejection_reason" class="form-control" rows="5" required placeholder="Please provide a detailed reason for rejection..."></textarea>
           </div>
         </div>
