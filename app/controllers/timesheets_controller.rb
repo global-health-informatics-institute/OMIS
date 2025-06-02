@@ -16,7 +16,7 @@ class TimesheetsController < ApplicationController
   end
   def destroy
   end
-  def show
+ def show
     # Initialize the employee ID that will be used to fetch or create the timesheet
     target_employee_id = current_user.employee_id
 
@@ -24,7 +24,7 @@ class TimesheetsController < ApplicationController
     @timesheet = nil
     if params[:period].present?
       week = Date.parse(params[:period]).beginning_of_week.strftime("%Y-%m-%d")
-      if params[:employee_id].present? && current_user.supervisor? # <--- CORRECTED LINE
+      if params[:employee_id].present? && current_user.supervisor?
         target_employee_id = params[:employee_id]
       end
 
@@ -46,12 +46,18 @@ class TimesheetsController < ApplicationController
       week = Date.current.beginning_of_week.strftime("%Y-%m-%d")
       @timesheet = Timesheet.where(timesheet_week: week, employee_id: current_user.employee_id).first_or_create
     end
+
+    # --- NEW LOGIC: Check for previous timesheet ---
+    # This check should happen after @timesheet is guaranteed to be set.
+    @has_previous_timesheet = Timesheet.exists?(
+      employee_id: @timesheet.employee_id,
+      timesheet_week: @timesheet.timesheet_week.prev_week.beginning_of_week # Ensure we compare beginning of week
+    )
+
     is_owner = (@timesheet.employee_id == current_user.employee_id)
     # Determine if the current user is a supervisor of the timesheet's employee.
     is_supervisor = current_user.employee.current_supervisees.collect{|x| x.supervisee}.include?(@timesheet.employee_id)
 
-    # IMPORTANT: Implement an explicit authorization check.
-    # Only the owner or an authorized supervisor should be able to view this timesheet.
     unless is_owner || is_supervisor
       raise ActionController::RoutingError.new('Not Found')
     end
@@ -134,7 +140,7 @@ class TimesheetsController < ApplicationController
   def reject_timesheet
     Rails.logger.debug "--- ENTERING reject_timesheet action ---"
     Rails.logger.debug "Params: #{params.inspect}"
-    rejection_reason = params[:rejection_reason]
+    rejection_reason = params[:description]
     Rails.logger.debug "Rejection Reason captured: '#{rejection_reason}'"
 
     if rejection_reason.blank?
@@ -172,6 +178,11 @@ class TimesheetsController < ApplicationController
     Rails.logger.debug "--- Next state identified: ID #{next_state.id}, State: #{next_state.state} ---"
     if @timesheet.update(state: next_state.id, submitted_on: nil) # Updated based on your Timesheet model structure
       Rails.logger.debug "--- Timesheet updated successfully to state ID #{next_state.id} ---"
+      # Create a new comment record
+      comment = @timesheet.comments.create(description: rejection_reason, workflow_state_id: next_state.id) # You might have a 'comment_type' column
+
+      Rails.logger.debug "--- Timesheet updated successfully to state ID #{next_state.id} ---"
+      Rails.logger.debug "--- Rejection reason saved to comments table ---"
 
       # Get the recipient email
       recipient_email = @timesheet&.employee&.person&.official_email || @timesheet&.employee&.person&.email_address
