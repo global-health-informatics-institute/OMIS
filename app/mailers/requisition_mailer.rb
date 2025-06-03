@@ -47,10 +47,11 @@ class RequisitionMailer < ApplicationMailer
     mail(to: receiver_email, subject: 'New Requisition Requires Your Review') 
   end
 
-  def rejected_request_email(requisition)
+  def rejected_request_email(requisition, rejection_reason)
     @requisition = requisition
     @user = @requisition.user # Assign to instance variable for the view
     @person = @user.person # Assign parameter to instance variable
+    @rejection_comment_for_email = rejection_reason 
 
     # Get the initiator's email through associations
     user = @requisition.user
