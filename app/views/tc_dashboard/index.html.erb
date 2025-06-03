@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Conference</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+</head>
+
+<body class="bg-white text-gray-900 font-sans h-screen w-screen overflow-hidden">
+  <div class="view-section" id="projects-view">
+    <%= render 'tc_dashboard/projects' %>
+  </div>
+
+
+  <div class="view-section " id="statistics-view">
+    <%= render 'tc_dashboard/statistics' %>
+  </div>
+
+
+  <%= render 'tc_dashboard/index_script' %>
+</body>

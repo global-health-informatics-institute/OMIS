@@ -50,11 +50,13 @@ class ApplicationController < ActionController::Base
   end
 
   def logged_in?
-    # function to check if user is logged in before accessing recourses
+    return true if request.get? && (request.path.start_with?('/tc_dashboard') || request.path.start_with?('/dashboards')) # rubocop:disable Layout/LineLength
+
     return unless current_user.blank?
 
     redirect_to new_user_session_path
   end
+
   def clear_flash
     flash.discard[:warning] # Or whatever flash key you are using
     render plain: "Flash cleared"

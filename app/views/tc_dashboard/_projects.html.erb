@@ -1,0 +1,62 @@
+<% puts(@common_data.inspect)%>
+<!-- Project Display Container -->
+<div id="project-display" class="h-screen transition-opacity duration-500 ease-in-out"></div>
+
+<!-- Templates for each project -->
+<% @project_metadata.each_with_index do |project, index| %>
+  <template id="project-template-<%= index %>">
+    <div class="w-full h-full min-h-full flex flex-col p-12 bg-gradient-to-br from-green-50 to-white rounded-3xl shadow-2xl border border-gray-200">
+
+      <!-- Header -->
+      <div class="flex justify-between items-center bg-green-100 p-4 rounded-xl">
+        <h1 class="text-7xl font-black tracking-tight text-green-900"><%=@common_data[:organization_shortname]%> PROJECTS</h1>
+        <div class="w-28 h-28 border-4 border-green-500 rounded-full flex items-center justify-center bg-white shadow-xl">
+          <%= image_tag  @common_data[:organization_logo], alt: 'organization logo', class: 'w-20 h-20 object-contain' %>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="grid grid-cols-2 gap-12 items-start mt-10 flex-grow">
+        <!-- Project Details -->
+        <div class="flex flex-col text-4xl space-y-6">
+          <h2 class="text-6xl font-bold text-green-700 mb-6"><%= project['name'] %></h2>
+
+          <div class="p-6 bg-green-200 rounded-xl shadow-xl border-l-8 border-green-500">
+            <strong>Established on:</strong> <%= project['est_date'].strftime('%B %d, %Y') %>
+          </div>
+
+          <div class="p-6 bg-green-200 rounded-xl shadow-xl border-l-8 border-green-500">
+            <strong>Description:</strong>
+            <p><%= project['description'] %></p>
+          </div>
+
+          <div class="p-6 bg-green-200 rounded-xl shadow-xl border-l-8 border-green-500 flex-grow overflow-auto">
+            <strong>Donors:</strong>
+            <ul class="mt-2 list-disc list-inside text-3xl space-y-1 pl-4">
+                <% project['donors'].each do |donor| %>
+                <li ><%= donor %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Highlights -->
+        <div class="space-y-4 text-3xl">
+          <h2 class="text-6xl font-bold text-green-700 mb-6 pb-6">Project Highlights</h2>
+          <div class="grid grid-cols-1 gap-4">
+            <% project['highlights'].each do |highlight| %>
+              <div class="bg-green-200 p-5  rounded-xl shadow-md"><%= highlight %></div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sticky Footer -->
+      <div class="text-2xl text-gray-500 text-center mt-auto pt-8">
+        Global Health Informatics Institute (GHII) - Informatics Team 2025
+      </div>
+    </div>
+  </template>
+<% end %>
+
+<%=render 'tc_dashboard/project_script'%>

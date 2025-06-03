@@ -213,7 +213,7 @@ class Employee < ApplicationRecord
 
     # self requisitions
     owner_actionable_states = WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id)
-    owner_actionable_states << 24 # Explicitly include the "Approved" state (ID 22)
+    owner_actionable_states << 24 # Explicitly include the "Approved" state (ID 24)
 
     actions += Requisition.where('workflow_state_id in (?) and initiated_by = ?', owner_actionable_states.uniq, id) # Use .uniq to avoid duplicates
                           .collect do |x|
@@ -246,5 +246,7 @@ class Employee < ApplicationRecord
       ["Review #{x.employee.user.person.first_name}'s' #{x.leave_type} request",
        "/leave_requests/#{x.id}"]
     end
-  end 
+    # raise actions.inspect
+    actions
+  end
 end

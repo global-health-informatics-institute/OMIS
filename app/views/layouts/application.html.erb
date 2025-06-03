@@ -1,3 +1,4 @@
+<% unless controller_name == 'tc_dashboard' %>
 <!DOCTYPE html>
 <html>
   <head>
@@ -120,6 +121,12 @@
           <%= turbo_frame_tag "remote_modal", target: "_top" %>
         </div>
       </div>
+    </main>
+    <% else %>
+      <%= yield %>
+    <%end%>
+    <main>
+
     </main>
   </body>
 </html>
