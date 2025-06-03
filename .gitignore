@@ -4,37 +4,41 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile '~/.gitignore_global'
 
-# Ignore bundler config.
+# Ignore Bundler config directory
 /.bundle
 
-# Ignore the default SQLite database.
+# Ignore the default SQLite database files
 /db/*.sqlite3
 /db/*.sqlite3-*
 
-# Ignore all logfiles and tempfiles.
+# Ignore all log files and temporary files, but keep .keep files to track directories
 /log/*
 /tmp/*
 !/log/.keep
 !/tmp/.keep
 
-# Ignore pidfiles, but keep the directory.
+# Ignore pidfiles, but keep the directory and its .keep file
 /tmp/pids/*
 !/tmp/pids/
 !/tmp/pids/.keep
 
-# Ignore uploaded files in development.
+# Ignore uploaded files in development, but keep the directories and their .keep files
 /storage/*
 !/storage/.keep
 /tmp/storage/*
 !/tmp/storage/
 !/tmp/storage/.keep
 
+# Ignore compiled assets
 /public/assets
 
-# Ignore master key for decrypting credentials and more.
+# Ignore master key for decrypting credentials and more
 /config/master.key
 
+# Ignore application.rb in the config directory
+/config/application.rb
 
+# General ignores
 *.yml
 *.lock
 .ruby-version

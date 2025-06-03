@@ -205,41 +205,103 @@ class RequisitionsController < ApplicationController
   end
 
   def reject_request
+    Rails.logger.debug "--- ENTERING reject_request action ---"
+    Rails.logger.debug "Params: #{params.inspect}"
+  
+    # 1. Extract the rejection reason from parameters
+    rejection_reason = params[:description]
+    Rails.logger.debug "Rejection Reason captured: '#{rejection_reason}'"
+  
     @requisition = Requisition.find_by(requisition_id: params[:id])
 
     if @requisition
+      Rails.logger.debug "--- Requisition found: ID #{@requisition.id} ---"
+  
       # Get the "Requested" state ID
       workflow_process = WorkflowProcess.find_by(workflow: 'Petty Cash Request')
+      if workflow_process.nil?
+        Rails.logger.error "--- REJECTION FAILED: 'Petty Cash Request' workflow process not found. ---"
+        flash[:alert] = 'System error: Petty Cash Request workflow not configured.'
+        redirect_to "/requisitions/#{@requisition.id}"
+        return
+      end
+  
       requested_state = WorkflowState.find_by(state: 'Requested', workflow_process_id: workflow_process.id)
-
+      if requested_state.nil?
+        Rails.logger.error "--- REJECTION FAILED: 'Requested' state for Petty Cash Request workflow not found. ---"
+        flash[:alert] = 'System error: Requested state not configured for Petty Cash Request workflow.'
+        redirect_to "/requisitions/#{@requisition.id}"
+        return
+      end
+  
       # Check if the requisition is in the 'Requested' state
-      if @requisition.workflow_state_id == requested_state&.id
+      if @requisition.workflow_state_id == requested_state.id
         rejected_state = WorkflowState.find_by(state: 'Rejected', workflow_process_id: workflow_process.id)
-
+        if rejected_state.nil?
+          Rails.logger.error "--- REJECTION FAILED: 'Rejected' state for Petty Cash Request workflow not found. ---"
+          flash[:alert] = 'System error: Rejected state not configured for Petty Cash Request workflow.'
+          redirect_to "/requisitions/#{@requisition.id}"
+          return
+        end
+  
         if current_user
-          # In-app rejection
-          if @requisition.update(reviewed_by: current_user.user_id, workflow_state_id: rejected_state.id)
+          # In-app rejection: Reason is mandatory
+          if rejection_reason.blank?
+            Rails.logger.warn "--- IN-APP REJECTION FAILED: Rejection reason is blank. ---"
+            flash[:alert] = 'Rejection reason cannot be blank.'
+            redirect_to "/requisitions/#{@requisition.id}"
+            return
+          end
+  
+          # Update requisition and create comment
+          if @requisition.update(
+            reviewed_by: current_user.user_id,
+            workflow_state_id: rejected_state.id
+          )
+            # 3. Store rejection reason in a comment
+            # Assuming Requisition has a 'comments' association and a 'description' column for comments
+            @requisition.requisition_comments.create(description: rejection_reason, workflow_state_id: rejected_state.id)
+            Rails.logger.debug "--- Rejection reason saved to comments table ---"
+  
             recipient_email = @requisition&.user&.email
             if recipient_email.present?
-              RequisitionMailer.rejected_request_email(@requisition).deliver_now
+              # 4. Pass rejection reason to the mailer
+              RequisitionMailer.rejected_request_email(@requisition, rejection_reason).deliver_now
               flash[:notice] = 'Requisition rejected and requester notified.'
             else
+              Rails.logger.warn "--- Email not sent: Missing recipient email for Requisition ID #{@requisition.id} ---"
               flash[:alert] = 'Requisition rejected, but no email was sent (missing recipient email).'
             end
             redirect_to "/requisitions/#{@requisition.id}"
           else
+            Rails.logger.error "--- IN-APP REQUISITION UPDATE FAILED. Errors: #{@requisition.errors.full_messages.join(', ')} ---"
             flash[:alert] = 'Error rejecting requisition.'
             redirect_to "/requisitions/#{@requisition.id}"
           end
         else
           # External rejection via email link (no current_user)
+          # For external rejection, we proceed even if reason is blank,
+          # but log a warning and inform the user. A full solution would involve a form.
+          if rejection_reason.blank?
+            Rails.logger.warn "--- EXTERNAL REJECTION: Rejection reason is blank. Proceeding but noting. ---"
+          end
+  
           if @requisition.update(workflow_state_id: rejected_state.id)
+            # 3. Store rejection reason in a comment (if provided externally)
+            if rejection_reason.present?
+              @requisition.requisition_comments.create(description: rejection_reason, workflow_state_id: rejected_state.id)
+              Rails.logger.debug "--- External rejection reason saved to comments table ---"
+            else
+              Rails.logger.warn "--- No rejection reason provided for external rejection. ---"
+            end
+  
             recipient_email = @requisition&.user&.email
             if recipient_email.present?
-              RequisitionMailer.rejected_request_email(@requisition).deliver_now
+              # 4. Pass rejection reason to the mailer
+              RequisitionMailer.rejected_request_email(@requisition, rejection_reason).deliver_now
               render html: <<-HTML.html_safe
                 <script>
-                  alert("Requisition has been successfully rejected. The requester and admin have been notified.");
+                  alert("Requisition has been successfully rejected. The requester and admin have been notified. #{"Reason: #{rejection_reason}" if rejection_reason.present?}");
                   window.close();
                 </script>
               HTML
@@ -247,12 +309,13 @@ class RequisitionsController < ApplicationController
               Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
               render html: <<-HTML.html_safe
                 <script>
-                  alert("Requisition rejected, but no confirmation email was sent (missing recipient email).");
+                  alert("Requisition rejected, but no confirmation email was sent (missing recipient email). #{"Reason: #{rejection_reason}" if rejection_reason.present?}");
                   window.close();
                 </script>
               HTML
             end
           else
+            Rails.logger.error "--- EXTERNAL REQUISITION UPDATE FAILED. Errors: #{@requisition.errors.full_messages.join(', ')} ---"
             render html: <<-HTML.html_safe
               <script>
                 alert("Error rejecting the requisition. Please try again or contact support.");
@@ -261,15 +324,19 @@ class RequisitionsController < ApplicationController
             HTML
           end
         end
-      else # Requisition is not in the 'Requested' state
+      else
+        # Requisition is not in the 'Requested' state
+        Rails.logger.warn "--- REJECTION FAILED: Requisition ID #{@requisition.id} is not in 'Requested' state. Current state: #{@requisition.workflow_state&.state} ---"
         render html: <<-HTML.html_safe
           <script>
-            alert("This requisition has already been acted upon if you are not the one who acted on it, consult the IT team.");
+            alert("This requisition has already been acted upon. If you are not the one who acted on it, consult the IT team.");
             window.close();
           </script>
         HTML
       end
-    else # Requisition not found
+  
+    else
+      Rails.logger.error "--- REJECTION FAILED: Requisition not found for ID: #{params[:id]} ---"
       render html: <<-HTML.html_safe
         <script>
           alert("Requisition not found.");
@@ -277,8 +344,22 @@ class RequisitionsController < ApplicationController
         </script>
       HTML
     end
+  rescue ActiveRecord::RecordNotFound
+    Rails.logger.error "--- RESCUE: ActiveRecord::RecordNotFound for Requisition ID #{params[:id]} ---"
+    flash[:alert] = 'Requisition not found.'
+    redirect_to requisitions_path # Redirect to index if requisition not found
+  rescue StandardError => e
+    Rails.logger.error "--- RESCUE: Unexpected error during rejection: #{e.class}: #{e.message} ---"
+    Rails.logger.error e.backtrace.join("\n")
+    flash[:alert] = 'An unexpected error occurred during requisition rejection.'
+    if @requisition
+      redirect_to "/requisitions/#{@requisition.id}"
+    else
+      redirect_to requisitions_path
+    end
+  ensure
+    Rails.logger.debug "--- EXITING reject_request action ---"
   end
-
   def resubmit_request
     @requisition = Requisition.find(params[:id])
     @projects = Project.all

@@ -1,8 +1,5 @@
 class Requisition < ApplicationRecord
-  # before_create :generate_approval_token
-  # before_create :generate_rejection_token 
-  # before_create :generate_approval_funds_token
-  # before_create :generate_deny_funds_token
+  has_many :requisition_comments, dependent: :destroy
   belongs_to :user, :foreign_key =>  :initiated_by
   # attribute :approval_token, :string
   # attribute :rejection_token, :string 
