@@ -40,6 +40,18 @@ class Employee < ApplicationRecord
   def current_position
     current_designations.collect { |x| x.pretty_display }.map { |x| x[:title] }.join(',')
   end
+  def current_supervisors
+    people = Supervision.where(supervisee: employee_id, ended_on: nil)
+  end
+
+  def current_supervisees
+    people = Supervision.where(supervisor: employee_id, ended_on: nil)
+  end
+  def supervisor?
+    # An employee is considered a supervisor if they have any active supervisees.
+    # `current_supervisees` is already defined in your Employee model.
+    self.current_supervisees.any?
+  end
 
   def current_department
     current_affiliations.collect { |x| x.pretty_display }.map { |x| "#{x[:department_name]}" }.uniq.join(' | ')

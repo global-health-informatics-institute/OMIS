@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_05_13_082019) do
+ActiveRecord::Schema[7.0].define(version: 2025_05_30_140551) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -57,6 +57,15 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_13_082019) do
     t.boolean "is_open", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "comments", id: :serial, force: :cascade do |t|
+    t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }
+    t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }
+    t.text "description"
+    t.integer "timesheet_id"
+    t.boolean "voided", default: false
+    t.integer "workflow_state_id"
   end
 
   create_table "departments", primary_key: "department_id", force: :cascade do |t|
@@ -297,15 +306,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_13_082019) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "project_id"
-    t.string "approval_token"
-    t.string "rejection_token"
-    t.string "approval_funds_token"
-    t.string "deny_funds_token"
-    t.text "reason"
-    t.index ["approval_funds_token"], name: "index_requisitions_on_approval_funds_token", unique: true
-    t.index ["approval_token"], name: "index_requisitions_on_approval_token", unique: true
-    t.index ["deny_funds_token"], name: "index_requisitions_on_deny_funds_token", unique: true
-    t.index ["rejection_token"], name: "index_requisitions_on_rejection_token", unique: true
   end
 
   create_table "supervisions", primary_key: "supervision_id", force: :cascade do |t|
