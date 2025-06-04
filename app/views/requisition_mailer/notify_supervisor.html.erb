@@ -14,7 +14,7 @@
   <li><strong>Submitted:</strong> <%= @requisition.created_at.strftime('%b %d, %Y at %I:%M %p') %></li>
 </ul>
 <p>To approve or reject this request, you can use the buttons below or log into OMIS:</p>
-<p><strong>OMIS Link:</strong> <a href="http://198.251.76.216:3000/">http://198.251.76.216:3000/</a></p>
+<p><strong>OMIS Link:</strong> <a href="<%= Rails.application.config.omis_url %>"><%= Rails.application.config.omis_url %></a></p>
 
 <div style="display: flex; flex-direction: column; gap: 10px;">
 
