@@ -54,22 +54,5 @@ class Requisition < ApplicationRecord
   # def generate_rejection_token 
   #   token = SecureRandom.urlsafe_base64(32)
   #   Rails.logger.info "Requisition Model: Inside generate_rejection_token. Token: #{token}"
-  #   self.rejection_token = token
-  #   Rails.logger.info "Requisition Model: After assignment, self.rejection_token: #{self.rejection_token}"
-  # end
-  # def generate_approval_funds_token
-  #   token = SecureRandom.urlsafe_base64(32)
-  #   Rails.logger.info "Requisition Model: Inside generate_approval_funds_token. Token: #{token}"
-  #   self.approval_funds_token = token
-  #   Rails.logger.info "Requisition Model: After assignment, self.approval_funds_token: #{self.approval_funds_token}"
-  # end
-  # def generate_deny_funds_token
-  #   token = SecureRandom.urlsafe_base64(32)
-  #   Rails.logger.info "Requisition Model: Inside generate_deny_funds_token. Token: #{token}"
-  #   self.deny_funds_token = token
-  #   Rails.logger.info "Requisition Model: After assignment, self.deny_funds_token: #{self.deny_funds_token}"
-  # end
-  # def being_rejected?
-  #   workflow_state_id_changed? && WorkflowState.find_by(workflow_state_id: workflow_state_id)&.state == "Rejected"
-  # end
+
 end
