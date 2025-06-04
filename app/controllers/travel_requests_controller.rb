@@ -44,12 +44,8 @@ class TravelRequestController < ApplicationController
       employee_ids: [], # Use `employee_ids` if `Requisition` `has_and_belongs_to_many` or `has_many :through` Employees
       # Or if `project_id` in your form is meant for employee IDs, then:
       # project_id: [],
-
-      # For the external travellers table, as discussed, the current form structure
-      # means only the last row's data will be captured unless you modify the view
-      # to use array notation or nested attributes. For now, matching current view.
       :name_of_external_travellers, # This will capture the first row's value for this field.
-      :organization,                # This will capture the first row's value for this field.
+      :organization                # This will capture the first row's value for this field.
     )
   end
 end
