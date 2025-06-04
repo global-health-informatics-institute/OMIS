@@ -1,21 +1,9 @@
 class Requisition < ApplicationRecord
-  # before_create :generate_approval_token
-  # before_create :generate_rejection_token 
-  # before_create :generate_approval_funds_token
-  # before_create :generate_deny_funds_token
   belongs_to :user, :foreign_key =>  :initiated_by
-  # attribute :approval_token, :string
-  # attribute :rejection_token, :string 
-  # belongs_to :approver, class_name: 'User', :foreign_key =>  :approved_by
   belongs_to :project, foreign_key: :project_id
   has_many :requisition_items, :foreign_key => :requisition_id
   has_many :requisition_notes, :foreign_key => :requisition_id
   has_one :workflow_state, :foreign_key => :workflow_state_id
-  #validating the reason field if the requisition is rejected
-  # validates :reason, presence: { message: "must be provided when rejecting" }, 
-  #                    if: :being_rejected?
-
-
   def assign_state
     self.workflow_state_id = InitialState.find_by_workflow_process_id(WorkflowProcess.find_by_workflow('Petty Cash Request')).workflow_state_id
   end
