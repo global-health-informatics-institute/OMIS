@@ -4,7 +4,10 @@
 <%= form_with model: @requisition, url: create_travel_requests_path do |form| %> <%# Reverted URL to create_travel_request_path as per your route %>
 
   <div class="row">
-    
+    <div class="col-3">
+      <%= form.label :Vehicle %>
+      <%= form.text_field :vehicle, class: 'form-control', required: true %>
+    </div>
     <div class="col-md-4">
       <%= form.label :destination %>
       <%= form.text_field :destination, class: 'form-control', required: true %>
