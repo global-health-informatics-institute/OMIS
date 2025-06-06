@@ -1,0 +1,32 @@
+<%# app/views/travel_requests/_budget_form.html.erb %>
+
+<div class="modal fade" id="budgetFormModal" tabindex="-1" aria-labelledby="budgetFormModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="budgetFormModalLabel">Travel Budget Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <%# Give this form an ID so we can easily target it in JS %>
+        <%= form_with url: save_budget_details_path, local: true, id: "budgetDetailsForm" do |form| %>
+          <div class="mb-3">
+            <%= form.label :fuel_cost, "Estimated Fuel Cost" %>
+            <%= form.number_field :fuel_cost, step: 0.01, class: 'form-control', required: true %>
+          </div>
+          <div class="mb-3">
+            <%= form.label :allowances_per_person, "Daily Allowance Per Person" %>
+            <%= form.number_field :allowances_per_person, step: 0.01, class: 'form-control', required: true %>
+          </div>
+          <div class="mb-3">
+            <%= form.label :other_expenses, "Other Estimated Expenses" %>
+            <%= form.number_field :other_expenses, step: 0.01, class: 'form-control' %>
+          </div>
+          <div class="d-flex justify-content-end">
+            <%= form.submit "Save Budget", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
