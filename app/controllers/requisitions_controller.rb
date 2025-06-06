@@ -443,7 +443,7 @@ class RequisitionsController < ApplicationController
     if current_user
       # Approval from inside the application
       if @requisition.update(approved_by: current_user.user_id, workflow_state_id: approved_state.id)
-        #send_funds_approved_email(@requisition)
+        send_funds_approved_email(@requisition)
         flash[:notice] = 'Funds approved and requester notified.'
       else
         flash[:alert] = 'Error approving funds.'
@@ -502,21 +502,33 @@ class RequisitionsController < ApplicationController
     redirect_to "/requisitions/#{params[:id]}"
   end
   def liquidate_funds
-    new_state = WorkflowState.where(state: 'Liquidated',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
-    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
-    redirect_to "/requisitions/#{params[:id]}"
+  @requisition = Requisition.find(params[:id])
+
+  new_state = WorkflowState.find_by(
+    state: 'Liquidated',
+    workflow_process_id: WorkflowProcess.find_by(workflow: 'Petty Cash Request')&.id
+  )
+
+  ActiveRecord::Base.transaction do
+    if @requisition.requisition_items.first.update(used_amount: params[:requisition][:used_amount])
+      @requisition.update!(workflow_state_id: new_state.id)
+      redirect_to "/requisitions/#{params[:id]}", notice: "Funds liquidated successfully."
+    else
+      redirect_to "/requisitions/#{params[:id]}", alert: "Failed to update used amount."
+    end
   end
+rescue => e
+  redirect_to "/requisitions/#{params[:id]}", alert: "Error: #{e.message}"
+end
 
   private
 
   def task_params
     params.require(:requisition).permit(:purpose, :project_id, :initiated_by, :initiated_on,
-                                        :requisition_type, :workflow_state_id, :amount)
+                                        :requisition_type, :workflow_state_id, :amount,)
   end
-  # private
+  def liquidate_params
+     params.require(:requisition).permit(:used_amount, :workflow_state_id)
+  end
 
-  # def requisition_params
-  #   params.require(:requisition).permit(:purpose, :amount, :project_id)
-  # end
 end
