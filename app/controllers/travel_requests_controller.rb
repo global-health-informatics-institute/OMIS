@@ -1,5 +1,5 @@
 # app/controllers/travel_request_controller.rb
-class TravelRequestController < ApplicationController
+class TravelRequestsController < ApplicationController
   # GET /travel_request/new
   # This action will render the form for a new travel request
   def new
@@ -34,18 +34,14 @@ class TravelRequestController < ApplicationController
   private
   def travel_request_params
     params.require(:requisition).permit(
-      :Department,
+      :Vehicle,
       :Destination,
       :Project,
       :departure_date,
       :return_date, # Make sure this matches your form if it's there
       :purpose,
       :amount_requested,
-      employee_ids: [], # Use `employee_ids` if `Requisition` `has_and_belongs_to_many` or `has_many :through` Employees
-      # Or if `project_id` in your form is meant for employee IDs, then:
-      # project_id: [],
-      :name_of_external_travellers, # This will capture the first row's value for this field.
-      :organization                # This will capture the first row's value for this field.
+      employee_ids: []
     )
   end
 end
