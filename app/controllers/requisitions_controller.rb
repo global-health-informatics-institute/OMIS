@@ -443,7 +443,7 @@ class RequisitionsController < ApplicationController
     if current_user
       # Approval from inside the application
       if @requisition.update(approved_by: current_user.user_id, workflow_state_id: approved_state.id)
-        send_funds_approved_email(@requisition)
+        #send_funds_approved_email(@requisition)
         flash[:notice] = 'Funds approved and requester notified.'
       else
         flash[:alert] = 'Error approving funds.'
@@ -497,6 +497,12 @@ class RequisitionsController < ApplicationController
 
   def collect_funds
     new_state = WorkflowState.where(state: 'Collected',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+  end
+  def liquidate_funds
+    new_state = WorkflowState.where(state: 'Liquidated',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
