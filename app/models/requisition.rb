@@ -31,7 +31,11 @@ class Requisition < ApplicationRecord
       return self.requisition_items.first.value
     end
   end
-
+ def used_amount
+   if self.requisition_type == "Petty Cash"
+     return self.requisition_items.first.used_amount 
+   end
+ end
   private
 
   # def generate_approval_token
