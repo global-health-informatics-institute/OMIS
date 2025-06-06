@@ -202,8 +202,11 @@ class Employee < ApplicationRecord
     allowed_transitions = WorkflowStateActor.where(
       employee_designation_id: current_designations.collect { |x| x.designation_id }
     ).where.not(workflow_state_id: [22, 27, 28, 29]).pluck(:workflow_state_id)
-    # Add exception: allow workflow_state_id 28 for designation_id 78
-    allowed_transitions << 28 if designation_ids.include?(12) && !allowed_transitions.include?(28)
+    # Add exception: allow workflow_state_ids 28 and 29 for designation_id 12
+      [28, 29].each do |workflow_state_id|
+      allowed_transitions << workflow_state_id if designation_ids.include?(12) && !allowed_transitions.include?(workflow_state_id)
+
+      end
     # requisition finance reviews
     actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
                           .collect do |x|
@@ -220,6 +223,10 @@ class Employee < ApplicationRecord
       if x.workflow_state_id == 28
         ["Collect Funds for #{x.requisition_type} request: #{x.purpose}",
          "/requisitions/#{x.id}"]
+      elsif x.workflow_state_id == 29
+        ["Liquidate Funds for #{x.requisition_type} request: #{x.purpose}",
+          "/requisitions/#{x.id}"]
+        
       else
         ["Check #{x.requisition_type} request: #{x.purpose}",
          "/requisitions/#{x.id}"]
