@@ -1,80 +1,185 @@
-<h4>Travel Request</h4>
-<hr>
+<%# app/views/travel_requests/_travel_request.html.erb %>
 
-<%= form_with model: @requisition, url: create_travel_requests_path do |form| %> <%# Reverted URL to create_travel_request_path as per your route %>
-
-  <div class="row">
-    <div class="col-3">
-      <%= form.label :Vehicle %>
-      <%= form.text_field :vehicle, class: 'form-control', required: true %>
-    </div>
-    <div class="col-md-4">
-      <%= form.label :destination %>
-      <%= form.text_field :destination, class: 'form-control', required: true %>
-    </div>
- <div class="col-md-3 mb-3">
-      <div>
-        Project
-      </div>
-      <div>
-        <%= form.select :project_id, options_for_select(@project_options, (@selected_project.id rescue nil)),
-                        prompt:(@selected_project.full_name rescue params[:"prj"]),
-                        :class => 'form-control', required: true %>
-      </div>
-    </div>
+<%# This div wraps the entire content managed by the Stimulus controller %>
+<div data-controller="travel-request">
+  <div class="d-flex justify-content-between align-items-center">
+    <h4>Travel Request</h4>
+    <button type="button" class="btn btn-primary" data-action="click->travel-request#fillBudgetForm">Fill the Budget Form</button>
   </div>
+  <hr>
 
-  <div class="row mt-4">
-    <div class="col-3">
-      <%= form.label :departure_date, "Departure Date" %>
-      <%= form.date_field :departure_date, class: 'form-control', required: true %>
-    </div>
-    <div class="col-4">
-      <%= form.label :return_date, "Return Date" %>
-      <%= form.date_field :return_date, class: 'form-control', required: true %> <%# Corrected field name to :return_date %>
-    </div>
-    <div class="col-md-4 mb-4">
-      <%= form.label :purpose %>
-      <%= form.text_field :purpose, class: 'form-control', required: true %>
-    </div>
-  </div>
+  <%# Travel Request Form Container %>
+  <div id="travelRequestFormContainer">
+    <%= form_with model: @requisition, 
+                  url: create_travel_requests_path,
+                  id: "travelRequestForm",
+                  data: { travel_request_target: "travelRequestForm" } do |form| %> <%# <-- CORRECTED HERE: "travelRequestForm" %>
 
-  <div class="row mt-4"> <%# This is the row for Amount, Distance, and Travellers %>
-    <div class="col-md-3 mb-3">
-      <%= form.label :amount_requested, "Amount Requested" %>
-      <%= form.number_field :amount_requested, step:0.00, max: 100000.00, class: 'form-control', required: true %>
-    </div>
-    <div class="col-md-4 mb-4">
-      <%= form.label :distance %>
-      <%= form.number_field :distance, step:0.00, max: 200.00, min: 0, class: 'form-control', required: true %>
-    </div>
-    <%# Moved "Names of Travellers" here, as a direct child of the row %>
-    <div class="col-md-3 mb-3">
-        <%= form.label :traveller_ids, "Names of Travellers" %>
-    <div class="form-control" style="height: auto; max-height: 100px; overflow-y: auto;">
-      <% @employees.each do |employee| %>
-        <div class="form-check">
-          <%= form.check_box :employee_ids, {
-                multiple: true,
-                class: 'form-check-input',
-                checked: form.object.employee_ids&.include?(employee)
-              }, employee, nil %>
-          <%= form.label "employee_ids_#{employee}", employee, class: 'form-check-label' %>
+      <div class="row">
+        <div class="col-3">
+          <%= form.label :Vehicle %>
+          <%= form.text_field :vehicle, class: 'form-control', required: true %>
         </div>
-      <% end %>
+        <div class="col-md-4">
+          <%= form.label :destination %>
+          <%= form.text_field :destination, class: 'form-control', required: true %>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div>Project</div>
+          <div>
+            <%= form.select :project_id, 
+                          options_for_select(@project_options, (@selected_project.id rescue nil)),
+                          prompt: (@selected_project.full_name rescue params[:"prj"]),
+                          class: 'form-control', 
+                          required: true %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-3">
+          <%= form.label :departure_date, "Departure Date" %>
+          <%= form.datetime_local_field :departure_date, class: 'form-control', required: true %>
+        </div>
+        <div class="col-4">
+          <%= form.label :return_date, "Return Date" %>
+          <%= form.datetime_local_field :return_date, class: 'form-control', required: true %>
+        </div>
+        <div class="col-md-4 mb-4">
+          <%= form.label :purpose %>
+          <%= form.text_field :purpose, class: 'form-control', required: true %>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-md-3 mb-3">
+          <%= form.label :amount_requested, "Amount Requested" %>
+          <%= form.number_field :amount_requested, step: 0.00, max: 100000.00, class: 'form-control', required: true %>
+        </div>
+        <div class="col-md-4 mb-4">
+          <%= form.label :distance %>
+          <%= form.number_field :distance, step: 0.00, max: 200.00, min: 0, class: 'form-control', required: true %>
+        </div>
+        <div class="col-md-3 mb-3">
+          <%= form.label :traveller_ids, "Names of Travellers" %>
+          <input
+           type="text"
+           class="form-control mb-2"
+           placeholder="Search employees..."
+           data-action="input->travel-request#filterEmployees"
+          />
+          <div 
+  class="form-control" 
+  style="height: auto; max-height: 100px; overflow-y: auto;"
+  data-travel-request-target="employeeCheckboxList"
+>
+  <% @employees.sort.each do |employee| %>
+    <div class="form-check">
+      <%= form.check_box :employee_ids, {
+            multiple: true,
+            class: 'form-check-input',
+            checked: form.object.employee_ids&.include?(employee.to_s)
+          }, employee, nil %>
+      <%= form.label "employee_ids_#{employee}", employee, class: 'form-check-label' %>
     </div>
+  <% end %>
+</div>
+
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-auto">
+          <button type="button" class="btn btn-danger ms-2">Cancel</button>
+        </div>
+      </div>
+    <% end %>
   </div>
 
-  <%# External Travellers Table - remains in its own row %>
-  
-  <%# Buttons section - moved inside form_with and correctly styled %>
-  <div class="row mt-4">
-    <div class="col-auto">
-      <%= form.submit "Submit Request", class: "btn btn-success" %>
+  <%# Budget Form Modal %>
+  <div class="modal fade" 
+       id="budgetFormModal" 
+       tabindex="-1" 
+       aria-labelledby="budgetFormModalLabel" 
+       aria-hidden="true"
+       data-travel-request-target="budgetFormModal"> 
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="budgetFormModalLabel">Travel Budget Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+     <div class="modal-body">
+  <%= form_with model: @requisition, 
+                url: create_travel_requests_path, 
+                local: true,
+                id: "budgetDetailsForm",
+                data: { travel_request_target: "budgetDetailsForm" } do |form| %>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <%= form.label :fuel_cost, "Estimated Unit Fuel Cost" %>
+        <%= form.number_field :fuel_cost, step: 0.01, class: 'form-control', required: true %>
+      </div>
+      <div class="col-md-6 mb-3">
+        <%= form.label :allowances_per_person, "Daily Allowance Per Person" %>
+        <%= form.number_field :allowances_per_person, step: 0.01, class: 'form-control', required: true %>
+      </div>
     </div>
-    <div class="col-auto">
-      <button type="button" class="btn btn-danger ms-2">Cancel</button>
+
+    <div class="mb-3">
+      <%= form.label :other_expenses, "Other Estimated Expenses" %>
+      <%= form.number_field :other_expenses, step: 0.01, class: 'form-control' %>
+    </div>
+
+  <!-- Budget summary table -->
+ <!-- Budget summary table -->
+<h6 class="mb-3">Budget Summary</h6>
+<table class="table table-bordered table-striped">
+  <thead class="table-light">
+    <tr>
+      <th>Name of Person</th>
+      <th>Number of Days</th>
+      <th>Lunch Allowance</th>
+      <th>Accommodation</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <%= select_tag "budget[people][0][name]", 
+      options_for_select(@employees), 
+      prompt: "Select Person", 
+      class: "form-control", required: true %>
+
+      </td>
+      <td>
+        <input type="number" name="budget[people][0][days]" class="form-control" min="1" required>
+      </td>
+      <td>
+        <input type="number" name="budget[people][0][lunch]" step="0.01" class="form-control" required>
+      </td>
+      <td>
+        <input type="number" name="budget[people][0][accommodation]" step="0.01" class="form-control" required>
+      </td>
+      <td>
+        <input type="number" name="budget[people][0][total]" step="0.01" class="form-control" readonly>
+      </td>
+    </tr>
+
+    <!-- Add more rows as needed, or dynamically with JavaScript -->
+  </tbody>
+</table>
+
+ <div class="d-flex justify-content-end mb-4">
+      <%= form.submit "Save Budget", class: "btn btn-primary" %>
+    </div>
+</div>
+ <% end %>
+
+
+      </div>
     </div>
   </div>
-
-<% end %>
+</div>
