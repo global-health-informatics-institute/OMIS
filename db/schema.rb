@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_05_30_140551) do
+ActiveRecord::Schema[7.0].define(version: 2025_06_06_124843) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -276,6 +276,17 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_30_140551) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "requisition_comments", force: :cascade do |t|
+    t.bigint "requisition_id", null: false
+    t.text "description"
+    t.bigint "workflow_state_id", null: false
+    t.boolean "voided", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["requisition_id"], name: "index_requisition_comments_on_requisition_id"
+    t.index ["workflow_state_id"], name: "index_requisition_comments_on_workflow_state_id"
+  end
+
   create_table "requisition_items", primary_key: "requisition_item_id", force: :cascade do |t|
     t.integer "requisition_id", null: false
     t.decimal "quantity"
@@ -283,6 +294,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_30_140551) do
     t.string "item_description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "used_amount", precision: 10, scale: 2
   end
 
   create_table "requisition_notes", force: :cascade do |t|
@@ -413,4 +425,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_30_140551) do
 
   add_foreign_key "departments", "branches", primary_key: "branch_id"
   add_foreign_key "employees", "people", primary_key: "person_id"
+  add_foreign_key "requisition_comments", "requisitions", primary_key: "requisition_id"
+  add_foreign_key "requisition_comments", "workflow_states", primary_key: "workflow_state_id"
 end
