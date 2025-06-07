@@ -26,6 +26,7 @@
           <th class="text-center">Description</th>
           <th>Project</th>
           <th class="text-center">Amount Requested</th>
+          <th class="text-center">Used Amount</th>
           <th class="text-center">Status</th>
         </tr>
         </thead>
@@ -40,6 +41,7 @@
               <td class="text-center"><%= record.purpose %></td>
               <td class="text-center"><%= record.project.short_name %></td>
               <td class="text-center"><%= record.amount %></td>
+              <td class="text-center"><%= record.used_amount %></td>
               <td class="text-center"><%= record.workflow_state.state %></td>
             </tr>
             <% i +=1 %>
