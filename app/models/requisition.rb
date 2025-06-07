@@ -3,7 +3,7 @@ class Requisition < ApplicationRecord
   belongs_to :project, foreign_key: :project_id
   has_many :requisition_items, :foreign_key => :requisition_id
   has_many :requisition_notes, :foreign_key => :requisition_id
-  has_one :workflow_state, :foreign_key => :workflow_state_id
+  belongs_to :workflow_state, foreign_key: :workflow_state_id, primary_key: :workflow_state_id, optional: true
   has_and_belongs_to_many :employees
   def assign_state
     self.workflow_state_id = InitialState.find_by_workflow_process_id(WorkflowProcess.find_by_workflow('Petty Cash Request')).workflow_state_id
