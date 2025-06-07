@@ -525,10 +525,9 @@ end
 
   def task_params
     params.require(:requisition).permit(:purpose, :project_id, :initiated_by, :initiated_on,
-                                        :requisition_type, :workflow_state_id, :amount,)
+                                        :requisition_type, :workflow_state_id, :amount)
   end
   def liquidate_params
      params.require(:requisition).permit(:used_amount, :workflow_state_id)
   end
-
 end
