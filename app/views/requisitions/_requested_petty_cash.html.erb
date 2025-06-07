@@ -83,11 +83,14 @@
               <div class="col-2 fw-normal">Used Amount (MWK)</div>
               <div class="col-2">
                 <% if @requisition.workflow_state_id == 29 %>
-                  <%= form.number_field :used_amount,
-                      step: "0.01",
-                      class: "form-control #{'is-invalid' if flash[:amount_error]}",
-                      min: 0,
-                      required: true %>
+                 <%= form.number_field :used_amount,
+                     step: "0.01",
+                     max: @requisition.amount,
+                     min: 0,
+                     required: true,
+                     class: "form-control #{'is-invalid' if flash[:amount_error]}",
+                      placeholder: "Max: MWK#{number_with_precision(@requisition.amount, precision: 2)}" %>
+
                   <% if flash[:amount_error] %>
                     <div class="invalid-feedback d-block">
                       <%= flash[:amount_error] %>
