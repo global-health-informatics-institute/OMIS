@@ -47,21 +47,32 @@ class ReportsController < ApplicationController
     start_date = params[:start_date]
     end_date = params[:end_date]
 
-    @petty_cash_data = Requisition.where("requisition_type in (?) AND initiated_on >= ? AND initiated_on <= ?", ['Petty Cash'], start_date, end_date)
-    respond_to do |format|
-      format.turbo_stream
+    @petty_cash_data = Requisition
+                      .includes(:user, :project, :workflow_state)
+                      .where(requisition_type: 'Petty Cash')
+                      .where(initiated_on: start_date..end_date)
+                      .where(workflow_states: { state: 'Liquidated' })
+                      .references(:workflow_states)
+ respond_to do |format|
+  format.turbo_stream
 
-      format.xsl do
-        helpers.petty_cash_report_xls(@petty_cash_data, start_date, end_date)
-        send_file('tmp/petty_cash_report.xls',
-                  filename: "petty_cash_report_#{start_date}_to_#{end_date}.xls")
-      end
-
-      format.pdf do
-        helpers.petty_cash_report_pdf(@petty_cash_data, start_date, end_date)
-        send_file('tmp/petty_cash_report.pdf', filename: "petty_cash_report_#{start_date}_to_#{end_date}.pdf")
-      end
+  format.xsl do
+    helpers.petty_cash_report_xls(@petty_cash_data, start_date, end_date) do |requisition|
+      requisition.used_amount
     end
+    send_file('tmp/petty_cash_report.xls',
+              filename: "petty_cash_report_#{start_date}_to_#{end_date}.xls")
+  end
+
+  format.pdf do
+    helpers.petty_cash_report_pdf(@petty_cash_data, start_date, end_date) do |requisition|
+      requisition.used_amount
+    end
+    send_file('tmp/petty_cash_report.pdf',
+              filename: "petty_cash_report_#{start_date}_to_#{end_date}.pdf")
+  end
+end
+
   end
 
   def project_progress_report; end
