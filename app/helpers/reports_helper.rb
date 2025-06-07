@@ -152,7 +152,7 @@ module ReportsHelper
       pdf.text "<b>Period:</b> #{start_day} - #{end_day}", inline_format: true
       pdf.move_down 10
 
-      table_data = [['#', 'Date Requested', 'Requester', 'Description', 'Project', 'Amount Requested', 'Status']]
+      table_data = [['#', 'Date Requested', 'Requester', 'Description', 'Project', 'Amount Requested', 'Used Amount','Status']]
 
       petty_cash_data.each_with_index do |requisition, index|
         row = [
@@ -162,6 +162,7 @@ module ReportsHelper
           requisition.purpose,
           requisition.project.short_name,
           requisition.amount,
+          requisition.used_amount || 0,
           requisition.workflow_state.state
         ]
         table_data << row
@@ -188,7 +189,7 @@ module ReportsHelper
     sheet.row(1).push("Period: #{start_day} - #{end_day}")
     sheet.row(2).push("")
 
-    sheet.row(3).push('#', 'Date Requested', 'Requester', 'Description', 'Project', 'Amount Requested', 'Status')
+    sheet.row(3).push('#', 'Date Requested', 'Requester', 'Description', 'Project', 'Amount Requested','Used Amount', 'Status')
 
     petty_cash_data.each_with_index do |requisition, index|
       row_index = index + 4
@@ -199,6 +200,7 @@ module ReportsHelper
         requisition.purpose,
         requisition.project.short_name,
         requisition.amount,
+        requisition.used_amount || 0,
         requisition.workflow_state.state
       )
     end
