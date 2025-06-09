@@ -223,23 +223,22 @@ class Employee < ApplicationRecord
       if x.workflow_state_id == 28
         ["Collect Funds for #{x.requisition_type} request: #{x.purpose}",
          "/requisitions/#{x.id}"]
-      elsif x.workflow_state_id == 29
-        ["Liquidate Funds for #{x.requisition_type} request: #{x.purpose}",
-          "/requisitions/#{x.id}"]
-        
       else
         ["Check #{x.requisition_type} request: #{x.purpose}",
          "/requisitions/#{x.id}"]
       end
     end
 
-    # requisition reviews
-    actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
-                          .where(by_supervisor: true).collect { |x| x.workflow_state_id }, jnrs)
-                          .collect do |x|
-      ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition for #{x.purpose}",
-       "/requisitions/#{x.id}"]
-    end
+ actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
+                      .where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
+                      .collect do |x|
+  designation_ids = current_designations.pluck(:designation_id)
+  action_label = (x.workflow_state_id == 29 && designation_ids.include?(12)) ? "Liquidate" : "Review"
+  ["#{action_label} #{x.user.person.first_name}'s #{x.requisition_type} requisition for #{x.purpose}",
+   "/requisitions/#{x.id}"]
+end
+
+
 
     actions += LeaveRequest.where('status in (?) and employee_id in (?)', WorkflowStateTransition
                            .where(by_owner: true).collect { |x| x.workflow_state_id }, id)
