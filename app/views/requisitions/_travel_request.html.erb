@@ -53,8 +53,8 @@
 
       <div class="row mt-4">
         <div class="col-md-3 mb-3">
-          <%= form.label :amount_requested, "Amount Requested" %>
-          <%= form.number_field :amount_requested, step: 0.00, max: 100000.00, class: 'form-control', required: true %>
+          <%= form.label :amount_requested, "Grand Total" %>
+          <%= form.number_field :grand_total, step: 0.00, max: 100000.00, class: 'form-control', required: true %>
         </div>
         <div class="col-md-4 mb-4">
           <%= form.label :distance %>
