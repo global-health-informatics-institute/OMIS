@@ -237,10 +237,8 @@ class Employee < ApplicationRecord
  actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
                       .where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
                       .collect do |x|
-  designation_ids = current_designations.pluck(:designation_id)
-  action_label = (x.workflow_state_id == 29 && designation_ids.include?(12)) ? "Liquidate" : "Review"
-  ["#{action_label} #{x.user.person.first_name}'s #{x.requisition_type} requisition for #{x.purpose}",
-   "/requisitions/#{x.id}"]
+  ["Review #{x.user.person.first_name}'s #{x.requisition_type} requisition for #{x.purpose}",
+  "/requisitions/#{x.id}"]
 end
 
 
@@ -257,6 +255,7 @@ end
       ["Review #{x.employee.user.person.first_name}'s' #{x.leave_type} request",
        "/leave_requests/#{x.id}"]
     end
+    
     # raise actions.inspect
     actions
   end
