@@ -240,19 +240,20 @@ document.addEventListener('DOMContentLoaded', function () {
       type: 'line',
       data: {
         labels: [
-           <% @tenure[:past_four_year_quarters].each do |quarter| %>
+          <% @tenure[:past_four_year_quarters].each do |quarter| %>
             '<%=quarter%>',
-           <% end %>],
+          <% end %>
+        ],
         datasets: [
           {
-            label: 'Retention Rate -Internships Inclusive ',
+            label: 'Retention Rate - Internships Inclusive',
             data: [
               <% @tenure[:past_four_year_quarter_trend].each do |trend| %>
                 <%= trend %>,
               <% end %>
-              ],
-            borderColor: '#3B82F6',
-            backgroundColor: '#3B82F6',
+            ],
+            borderColor: '#2563EB', // Mid-dark blue
+            backgroundColor: '#2563EB',
             borderWidth: 6,
             fill: false,
             tension: 0.3,
@@ -262,8 +263,8 @@ document.addEventListener('DOMContentLoaded', function () {
           {
             label: 'Headcount',
             data: <%= @tenure[:headcount_by_quarter].values.to_json %>,
-            borderColor: '#10B981',
-            backgroundColor: '#10B981',
+            borderColor: '#5B21B6', // Muted purple
+            backgroundColor: '#5B21B6',
             borderWidth: 6,
             fill: false,
             tension: 0.3,
@@ -277,25 +278,25 @@ document.addEventListener('DOMContentLoaded', function () {
         maintainAspectRatio: false,
         scales: {
           x: {
-            ticks: { color: '#374151', font: { size: 22, weight: 'bold' } },
+            ticks: { color: '#374151', font: { size: 26, weight: 'bold' } },
             grid: { color: '#E5E7EB' },
           },
           y: {
             type: 'linear',
             position: 'left',
             min: 0,
-            max: 100 + 10,
+            max: 110,
             title: {
               display: true,
               text: 'Retention (%)',
-              color: '#3B82F6',
+              color: '#2563EB', // Match data color
               font: { size: 26, weight: 'bold' }
             },
             ticks: {
-              color: '#3B82F6',
+              color: '#2563EB',
               stepSize: 10,
               callback: function(value) {
-              return (value > 100 ? null : value) 
+                return (value > 100 ? null : value);
               },
               font: { size: 26 }
             }
@@ -309,19 +310,18 @@ document.addEventListener('DOMContentLoaded', function () {
             title: {
               display: true,
               text: 'Headcount',
-              color: '#10B981',
+              color: '#5B21B6', // Match data color
               font: { size: 26, weight: 'bold' }
             },
             ticks: {
-              color: '#10B981',
+              color: '#5B21B6',
               stepSize: 5,
-              font: { size: 26 },
+              font: { size: 26, weight: 'bold' },
               callback: function (value) {
                 const min = <%= [@tenure[:headcount_by_quarter].values.min].max %>;
                 const max = <%= @tenure[:headcount_by_quarter].values.max %>;
                 return (value < min || value > max) ? null : value;
               }
-
             }
           }
         },
@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function () {
           legend: {
             display: true,
             labels: {
-              font: { size: 22, weight: 'semi-bold' },
+              font: { size: 26, weight: 'bold' },
               color: '#374151',
             }
           }
