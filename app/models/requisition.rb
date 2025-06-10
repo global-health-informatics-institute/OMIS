@@ -3,11 +3,13 @@ class Requisition < ApplicationRecord
   belongs_to :project, foreign_key: :project_id
   has_many :requisition_items, :foreign_key => :requisition_id
   has_many :requisition_notes, :foreign_key => :requisition_id
+  has_many :petty_cash_comments, foreign_key: :requisition_id
   belongs_to :workflow_state, foreign_key: :workflow_state_id, primary_key: :workflow_state_id, optional: true
   has_and_belongs_to_many :employees
   def assign_state
     self.workflow_state_id = InitialState.find_by_workflow_process_id(WorkflowProcess.find_by_workflow('Petty Cash Request')).workflow_state_id
   end
+  default_scope { where(voided: false) }
 
   def current_state
     return WorkflowState.find(self.workflow_state_id).state rescue ''
@@ -32,10 +34,13 @@ class Requisition < ApplicationRecord
     end
   end
  def used_amount
-   if self.requisition_type == "Petty Cash"
-     return self.requisition_items.first.used_amount 
-   end
- end
+    if self.requisition_type == "Petty Cash"
+      # This will return nil if petty_cash_comments.first is nil,
+      # preventing the error.
+      return self.petty_cash_comments.first&.used_amount
+    end
+    nil # Or 0, or some default value if not a "Petty Cash" requisition
+  end
   private
 
   # def generate_approval_token
