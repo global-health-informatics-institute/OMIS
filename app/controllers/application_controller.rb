@@ -16,7 +16,7 @@ class ApplicationController < ActionController::Base
     # need to know possible actions, know things you are owner of, supervisor on, need your role
 
     (WorkflowStateTransition.where(workflow_state_id: current_state) || []).each do |transition|
-      if ['Recall Request', 'Recall Timesheet','Rescind Request'].include?(transition.action) && !is_owner
+      if ['Recall Request', 'Collect Funds','Recall Timesheet','Rescind Request'].include?(transition.action) && !is_owner
         next
       end
       if (is_owner && transition.by_owner) or (!is_owner && allowed_transitions.include?(transition.id))
