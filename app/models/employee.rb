@@ -210,8 +210,13 @@ class Employee < ApplicationRecord
     # requisition finance reviews
     actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
                           .collect do |x|
-      ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition for #{x.purpose}",
-       "/requisitions/#{x.id}"]
+      if x.workflow_state_id == 29
+        ["Liquidate Funds for #{x.requisition_type} request: #{x.purpose}",
+         "/requisitions/#{x.id}"]
+      else
+        ["Review #{x.requisition_type} request: #{x.purpose}",
+         "/requisitions/#{x.id}"]
+      end
     end
 
     # self requisitions
