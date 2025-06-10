@@ -3,6 +3,7 @@
 # bundle exec rails runner 'load "db/seeds/petty_cash_transitions_and_states.rb"'
 ActiveRecord::Base.transaction do
   liquidate_funds_workflow_state_transition = WorkflowStateTransition.find_by(action: 'Liquidate Funds')
+  disburse_funds_workflow_state_transition= WorkflowStateTransition.find_by(action: 'Disburse Funds')
   liquidated_workflow_state = WorkflowState.find_by(workflow_state_id: 36)
 
   if liquidated_workflow_state.nil?
@@ -21,7 +22,17 @@ ActiveRecord::Base.transaction do
       voided: false,
       action: 'Liquidate Funds',
       by_owner: false,
-      by_supervisor: false,
+      by_supervisor: false
+    )
+  end
+  if disburse_funds_workflow_state_transition.nil?
+    WorkflowStateTransition.create(
+      workflow_state_id: 28,
+      next_state: 29,
+      voided: false,
+      action: 'Disburse Funds',
+      by_owner: false,
+      by_supervisor: false
     )
   end
 end
