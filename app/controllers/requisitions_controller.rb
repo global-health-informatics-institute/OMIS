@@ -509,15 +509,32 @@ class RequisitionsController < ApplicationController
     workflow_process_id: WorkflowProcess.find_by(workflow: 'Petty Cash Request')&.id
   )
 
+  # Make sure used_amount is permitted via strong parameters
+  # You already have liquidate_params, let's use it!
+  liquidate_params = params.require(:requisition).permit(:used_amount, :workflow_state_id)
+  submitted_used_amount = liquidate_params[:used_amount]
+
+  # Find or create the PettyCashComment
+  # This is the crucial part: Ensure a comment record exists to update
+  petty_cash_comment = @requisition.petty_cash_comments.first_or_create(
+    comment: nil, # Provide a default comment if creating
+    used_amount: 0.0 # Provide a default used_amount if creating
+  )
+
   ActiveRecord::Base.transaction do
-    if @requisition.requisition_items.first.update(used_amount: params[:requisition][:used_amount])
+    # Now, attempt to update the found or created comment
+    if petty_cash_comment.update(used_amount: submitted_used_amount)
+      # Only update the workflow state if the used_amount update was successful
       @requisition.update!(workflow_state_id: new_state.id)
       redirect_to "/requisitions/#{params[:id]}", notice: "Funds liquidated successfully."
     else
-      redirect_to "/requisitions/#{params[:id]}", alert: "Failed to update used amount."
+      # If comment update failed (e.g., validations), provide a specific alert
+      redirect_to "/requisitions/#{params[:id]}", alert: "Failed to update used amount: #{petty_cash_comment.errors.full_messages.to_sentence}"
     end
   end
 rescue => e
+  # This catch-all rescue should ideally be more specific,
+  # but it's useful for debugging unexpected errors.
   redirect_to "/requisitions/#{params[:id]}", alert: "Error: #{e.message}"
 end
 
