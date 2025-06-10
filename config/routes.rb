@@ -54,6 +54,7 @@ Rails.application.routes.draw do
   put 'requisitions/:id/reject_request', to: 'requisitions#reject_request'
   put 'requisitions/:id/recall_request', to: 'requisitions#recall_request'
   put 'requisitions/:id/collect_funds', to: 'requisitions#collect_funds'
+  put 'requisitions/:id/disburse_funds', to: 'requisitions#disburse_funds'
   patch 'requisitions/:id/liquidate_funds', to: 'requisitions#liquidate_funds', as: :liquidate_funds_requisition
 
   put 'leave_requests/:id/approve_leave', to: 'leave_requests#approve_leave'
