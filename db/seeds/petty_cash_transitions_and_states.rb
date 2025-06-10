@@ -1,0 +1,27 @@
+# frozen_string_literal: true
+
+# bundle exec rails runner 'load "db/seeds/petty_cash_transitions_and_states.rb"'
+ActiveRecord::Base.transaction do
+  liquidate_funds_workflow_state_transition = WorkflowStateTransition.find_by(action: 'Liquidate Funds')
+  liquidated_workflow_state = WorkflowState.find_by(workflow_state_id: 36)
+
+  if liquidated_workflow_state.nil?
+    WorkflowState.create(
+      workflow_state_id: 36,
+      workflow_process_id: 4,
+      state: 'Liquidated',
+      description: 'Petty cash funds have been liquidated',
+      voided: false
+    )
+  end
+  if liquidate_funds_workflow_state_transition.nil?
+    WorkflowStateTransition.create(
+      workflow_state_id: 29,
+      next_state: 36,
+      voided: false,
+      action: 'Liquidate Funds',
+      by_owner: false,
+      by_supervisor: false,
+    )
+  end
+end
