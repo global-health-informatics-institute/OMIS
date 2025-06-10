@@ -40,8 +40,8 @@
               <td class="text-center"><%= record.user.full_name %></td>
               <td class="text-center"><%= record.purpose %></td>
               <td class="text-center"><%= record.project.short_name %></td>
-              <td class="text-center"><%= record.amount %></td>
-              <td class="text-center"><%= record.used_amount %></td>
+              <td class="text-center"><%= number_with_precision(record.amount, precision: 2) %></td>
+              <td class="text-center"><%= number_with_precision(record.used_amount, precision: 2) %></td>
               <td class="text-center"><%= record.workflow_state.state %></td>
             </tr>
             <% i +=1 %>
