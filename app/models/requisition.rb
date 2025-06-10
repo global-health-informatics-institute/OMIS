@@ -37,9 +37,9 @@ class Requisition < ApplicationRecord
     if self.requisition_type == "Petty Cash"
       # This will return nil if petty_cash_comments.first is nil,
       # preventing the error.
-      return self.petty_cash_comments.first&.used_amount
+      return self.petty_cash_comments.first&.used_amount || 'Missing'
     end
-    nil # Or 0, or some default value if not a "Petty Cash" requisition
+    # nil # Or 0, or some default value if not a "Petty Cash" requisition
   end
   private
 
