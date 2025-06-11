@@ -91,7 +91,7 @@ class Employee < ApplicationRecord
   end
 
   def current_projects
-    ProjectTeam.where(employee_id: employee_id, voided: false)
+    ProjectTeam.where(employee_id: employee_id, voided: false, end_date: nil)
   end
 
   def current_supervisors
