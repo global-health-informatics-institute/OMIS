@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_05_13_082019) do
+ActiveRecord::Schema[7.0].define(version: 2025_06_10_143533) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -213,6 +213,14 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_13_082019) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "petty_cash_comments", force: :cascade do |t|
+    t.text "comment"
+    t.decimal "used_amount", precision: 10, scale: 2
+    t.bigint "requisition_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "project_task_assignments", primary_key: "project_task_assignment_id", force: :cascade do |t|
     t.integer "project_task_id", null: false
     t.integer "assigned_to", null: false
@@ -297,15 +305,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_13_082019) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "project_id"
-    t.string "approval_token"
-    t.string "rejection_token"
-    t.string "approval_funds_token"
-    t.string "deny_funds_token"
-    t.text "reason"
-    t.index ["approval_funds_token"], name: "index_requisitions_on_approval_funds_token", unique: true
-    t.index ["approval_token"], name: "index_requisitions_on_approval_token", unique: true
-    t.index ["deny_funds_token"], name: "index_requisitions_on_deny_funds_token", unique: true
-    t.index ["rejection_token"], name: "index_requisitions_on_rejection_token", unique: true
   end
 
   create_table "supervisions", primary_key: "supervision_id", force: :cascade do |t|
@@ -413,4 +412,5 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_13_082019) do
 
   add_foreign_key "departments", "branches", primary_key: "branch_id"
   add_foreign_key "employees", "people", primary_key: "person_id"
+  add_foreign_key "petty_cash_comments", "requisitions", primary_key: "requisition_id"
 end

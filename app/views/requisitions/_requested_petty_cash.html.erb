@@ -1,7 +1,16 @@
 <div id="flash-messages">
   <%= render "layouts/flashes" %>
 </div>
-<%= form_with model: @requisition, url: resubmit_request_requisition_path(@requisition), method: :patch, local: true do |form| %>
+
+<% form_url =
+  if @possible_actions&.include?("Liquidate Funds")
+    liquidate_funds_requisition_path(@requisition)
+  else
+    resubmit_request_requisition_path(@requisition)
+  end
+%>
+
+<%= form_with model: @requisition, url: form_url, method: :patch, local: true do |form| %>
   <div class="row mt-3 p-2">
     <div class="col p-2">
       <div class="card">
@@ -45,7 +54,7 @@
                 <% end %>
               </div>
 
-              <div class="col-2 fw-normal">Amount (MWK)</div>
+              <div class="col-2 fw-normal">Requested Amount (MWK)</div>
               <div class="col-2">
                 <% if @requisition.current_state == "Recalled" %>
                   <%= form.number_field :amount,
@@ -54,7 +63,7 @@
                         min: 0,
                         max: @petty_cash_limit,
                         required: true,
-                         data: { limit: @petty_cash_limit },
+                        data: { limit: @petty_cash_limit },
                         placeholder: "Max allowed: MWK#{number_with_precision(@petty_cash_limit, precision: 2)}" %>
                   <% if flash[:amount_error] %>
                     <div class="invalid-feedback d-block">
@@ -70,8 +79,29 @@
                   <div class="fw-bold fst-italic"><%= number_with_precision(@requisition.amount.to_i, precision: 2) %></div>
                 <% end %>
               </div>
-            </div>
 
+              <div class="col-2 fw-normal">Used Amount (MWK)</div>
+              <div class="col-2">
+                <% if @requisition.workflow_state_id == 29 %>
+                 <%= form.number_field :used_amount,
+                     step: "0.01",
+                     max: @requisition.amount,
+                     min: 0,
+                     required: true,
+                     class: "form-control #{'is-invalid' if flash[:amount_error]}",
+                      placeholder: "Max: MWK#{number_with_precision(@requisition.amount, precision: 2)}" %>
+
+                  <% if flash[:amount_error] %>
+                    <div class="invalid-feedback d-block">
+                      <%= flash[:amount_error] %>
+                    </div>
+                  <% end %>
+                <% else %>
+                  <%= form.hidden_field :used_amount, value: @requisition.used_amount %>
+                  <div class="fw-bold fst-italic"><%= number_with_precision(@requisition.used_amount.to_i, precision: 2) %></div>
+                <% end %>
+              </div>
+            </div>
 
             <div class="row mt-3 mb-3">
               <div class="col-2 fw-normal">Authorized By</div>
@@ -99,19 +129,16 @@
 
       <div class="mt-3">
         <% (@possible_actions || []).each do |action| %>
-          <% if action == "Re-submit Request" %>
-              <%= form.submit action, class: "btn btn-success btn-block", data: { disable_with: "Processing..." } %>
+          <% btn_class = "btn btn-info" %>
+          <% if @requisition.current_state == "Requested" %>
+            <% btn_class = "btn btn-danger" if action == "Reject Request" %>
+            <% btn_class = "btn btn-success" if action == "Approve Request" %>
+          <% end %>
+
+          <% if action == "Re-submit Request" || action == "Liquidate Funds" %>
+            <%= form.submit action, class: "#{btn_class} btn-block", data: { disable_with: "Processing..." } %>
           <% else %>
-            <%
-              btn_class = "btn btn-info"
-              if @requisition.current_state == "Requested"
-                btn_class = "btn btn-danger" if action == "Reject Request"
-                btn_class = "btn btn-success" if action == "Approve Request"
-              end
-
-              path = "/requisitions/#{@requisition.id}/#{action.parameterize(separator: '_')}"
-            %>
-
+            <% path = "/requisitions/#{@requisition.id}/#{action.parameterize(separator: '_')}" %>
             <%= link_to action, path, class: btn_class, method: :put,
                         data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action.split(' ').first.downcase} this request?" } %>
           <% end %>
@@ -120,53 +147,3 @@
     </div>
   </div>
 <% end %>
-
-<%# <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const rejectionReasonContainer = document.getElementById('rejection-reason-container');
-    const rejectionReasonField = rejectionReasonContainer.querySelector('textarea[name="requisition[reason]"]');
-    const actionLinks = document.querySelectorAll('a.btn'); // Assuming your action buttons have the class 'btn'
-
-    // Function to handle showing/hiding the reason field
-    function toggleReasonField(show) {
-      if (show) {
-        rejectionReasonContainer.style.display = 'block';
-        rejectionReasonField.setAttribute('required', '');
-      } else {
-        rejectionReasonContainer.style.display = 'none';
-        rejectionReasonField.removeAttribute('required');
-        rejectionReasonField.value = ''; // Clear the field if hidden
-      }
-    }
-
-    // Initially hide the reason field
-    toggleReasonField(false);
-
-    // Add event listeners to the action buttons
-    actionLinks.forEach(link => {
-      link.addEventListener('click', function(event) {
-        const actionText = this.textContent.trim();
-        if (actionText == 'Reject Request') {
-          // Prevent default link behavior, we'll handle submission if reason is filled
-          event.preventDefault();
-          toggleReasonField(true);
-
-          // You might want to add an additional listener to a submit button
-          // that appears when the reject button is clicked, or handle the
-          // form submission more directly here after the reason is filled.
-          // For this example, we'll rely on the 'required' attribute and
-          // server-side validation.
-
-        } else {
-          toggleReasonField(false);
-        }
-      });
-    });
-
-    // Note: The form submission for actions other than "Re-submit Request"
-    // is handled by the link_to with the PUT method. For "Reject Request",
-    // the browser's built-in required attribute will prompt the user.
-    // Server-side validation in your Rails controller is crucial to
-    // enforce the reason's presence.
-  });
-</script> %>

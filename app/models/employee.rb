@@ -40,6 +40,18 @@ class Employee < ApplicationRecord
   def current_position
     current_designations.collect { |x| x.pretty_display }.map { |x| x[:title] }.join(',')
   end
+  def current_supervisors
+    people = Supervision.where(supervisee: employee_id, ended_on: nil)
+  end
+
+  def current_supervisees
+    people = Supervision.where(supervisor: employee_id, ended_on: nil)
+  end
+  def supervisor?
+    # An employee is considered a supervisor if they have any active supervisees.
+    # `current_supervisees` is already defined in your Employee model.
+    self.current_supervisees.any?
+  end
 
   def current_department
     current_affiliations.collect { |x| x.pretty_display }.map { |x| "#{x[:department_name]}" }.uniq.join(' | ')
@@ -190,13 +202,21 @@ class Employee < ApplicationRecord
     allowed_transitions = WorkflowStateActor.where(
       employee_designation_id: current_designations.collect { |x| x.designation_id }
     ).where.not(workflow_state_id: [22, 27, 28, 29]).pluck(:workflow_state_id)
-    # Add exception: allow workflow_state_id 28 for designation_id 78
-    allowed_transitions << 28 if designation_ids.include?(12) && !allowed_transitions.include?(28)
+    # Add exception: allow workflow_state_ids 28 and 29 for designation_id 12
+      [28, 29].each do |workflow_state_id|
+      allowed_transitions << workflow_state_id if designation_ids.include?(12) && !allowed_transitions.include?(workflow_state_id)
+
+      end
     # requisition finance reviews
     actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
                           .collect do |x|
-      ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition for #{x.purpose}",
-       "/requisitions/#{x.id}"]
+      if x.workflow_state_id == 29
+        ["Liquidate Funds for #{x.requisition_type} request: #{x.purpose}",
+         "/requisitions/#{x.id}"]
+      else
+        ["Review #{x.requisition_type} request: #{x.purpose}",
+         "/requisitions/#{x.id}"]
+      end
     end
 
     # self requisitions
@@ -214,13 +234,14 @@ class Employee < ApplicationRecord
       end
     end
 
-    # requisition reviews
-    actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
-                          .where(by_supervisor: true).collect { |x| x.workflow_state_id }, jnrs)
-                          .collect do |x|
-      ["Review #{x.user.person.first_name}\'s #{x.requisition_type} requisition for #{x.purpose}",
-       "/requisitions/#{x.id}"]
-    end
+ actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
+                      .where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
+                      .collect do |x|
+  ["Review #{x.user.person.first_name}'s #{x.requisition_type} requisition for #{x.purpose}",
+  "/requisitions/#{x.id}"]
+end
+
+
 
     actions += LeaveRequest.where('status in (?) and employee_id in (?)', WorkflowStateTransition
                            .where(by_owner: true).collect { |x| x.workflow_state_id }, id)
@@ -234,6 +255,7 @@ class Employee < ApplicationRecord
       ["Review #{x.employee.user.person.first_name}'s' #{x.leave_type} request",
        "/leave_requests/#{x.id}"]
     end
+    
     # raise actions.inspect
     actions
   end
