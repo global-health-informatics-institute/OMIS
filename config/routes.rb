@@ -19,12 +19,18 @@ Rails.application.routes.draw do
   resources :project_task_assignments
   resources :user_sessions, only: [:new, :create, :destroy]
 
+  get 'travel_requests/new', to: 'travel_requests#new', as: :save_budget_details
+  post 'travel_requests/create', to: 'travel_requests#create', as: :create_travel_requests
+  get 'travel_requests/:id', to: 'travel_requests#show', as: :travel_request_show
+
+  
   put 'timesheets/:id/submit_timesheet', to: 'timesheets#submit_timesheet'
   put 'timesheets/:id/approve_timesheet', to: 'timesheets#approve_timesheet'
-  put 'timesheets/:id/reject_timesheet', to: 'timesheets#recall_timesheet'
+  put 'timesheets/:id/reject_timesheet', to: 'timesheets#reject_timesheet', as: :reject_timesheet
   put 'timesheets/:id/recall_timesheet', to: 'timesheets#recall_timesheet'
   put 'timesheets/:id/re-open_timesheet', to: 'timesheets#reopen_timesheet'
   put 'timesheets/:id/re-submit_timesheet', to: 'timesheets#resubmit_timesheet'
+  get 'my_timesheet', to: 'timesheets#show', as: :my_timesheet
 
   get 'settings/index'
   get 'settings/new'
@@ -48,6 +54,8 @@ Rails.application.routes.draw do
   put 'requisitions/:id/reject_request', to: 'requisitions#reject_request'
   put 'requisitions/:id/recall_request', to: 'requisitions#recall_request'
   put 'requisitions/:id/collect_funds', to: 'requisitions#collect_funds'
+  put 'requisitions/:id/disburse_funds', to: 'requisitions#disburse_funds'
+  patch 'requisitions/:id/liquidate_funds', to: 'requisitions#liquidate_funds', as: :liquidate_funds_requisition
 
   put 'leave_requests/:id/approve_leave', to: 'leave_requests#approve_leave'
   put 'leave_requests/:id/cancel_leave', to: 'leave_requests#cancel_leave'

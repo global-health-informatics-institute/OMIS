@@ -16,7 +16,7 @@ class ApplicationController < ActionController::Base
     # need to know possible actions, know things you are owner of, supervisor on, need your role
 
     (WorkflowStateTransition.where(workflow_state_id: current_state) || []).each do |transition|
-      if ['Recall Request', 'Rescind Request'].include?(transition.action) && !is_owner
+      if ['Recall Request', 'Collect Funds','Recall Timesheet','Rescind Request'].include?(transition.action) && !is_owner
         next
       end
       if (is_owner && transition.by_owner) or (!is_owner && allowed_transitions.include?(transition.id))
@@ -24,7 +24,7 @@ class ApplicationController < ActionController::Base
       elsif is_supervisor && transition.by_supervisor and !is_owner
         actions.append(transition.action)
       # Special case: allow only designation_id = 12 for workflow_state_id = 28
-      elsif !is_owner && current_state == 28 && designation_ids.include?(12)
+      elsif !is_owner && [28, 29].include?(current_state) && designation_ids.include?(12)
         actions.append(transition.action)
       elsif !is_owner && WorkflowStateActor.where(
         workflow_state_id: current_state,
@@ -34,9 +34,8 @@ class ApplicationController < ActionController::Base
       end
     end
     # raise allowed_transitions.inspect
-
-    # Modified condition: check for workflow_state_id 35 directly
-    if current_state == 35
+    #Add this condition when one has recalled the requisition can rescind that also
+    if  current_state== 35
       actions.append('Rescind Request')
     end
 
