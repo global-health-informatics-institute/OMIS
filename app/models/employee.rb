@@ -213,6 +213,9 @@ class Employee < ApplicationRecord
       if x.workflow_state_id == 29
         ["Liquidate Funds for #{x.requisition_type} request: #{x.purpose}",
          "/requisitions/#{x.id}"]
+         elsif x.workflow_state_id == 28
+        ["Disburse Funds for #{x.requisition_type} request: #{x.purpose}",
+          "/requisitions/#{x.id}"]
       else
         ["Review #{x.requisition_type} request: #{x.purpose}",
          "/requisitions/#{x.id}"]
@@ -221,8 +224,6 @@ class Employee < ApplicationRecord
 
     # self requisitions
     owner_actionable_states = WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id)
-    owner_actionable_states << 24 # Explicitly include the "Approved" state (ID 24)
-
     actions += Requisition.where('workflow_state_id in (?) and initiated_by = ?', owner_actionable_states.uniq, id) # Use .uniq to avoid duplicates
                           .collect do |x|
       if x.workflow_state_id == 28
