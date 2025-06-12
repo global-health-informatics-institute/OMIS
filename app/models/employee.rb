@@ -211,7 +211,7 @@ class Employee < ApplicationRecord
     actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
                           .collect do |x|
       if x.workflow_state_id == 29
-        ["Liquidate Funds for #{x.requisition_type} request: #{x.purpose}",
+          ["Liquidate Funds for #{x.requisition_type} request: #{x.purpose}",
          "/requisitions/#{x.id}"]
          elsif x.workflow_state_id == 28
         ["Disburse Funds for #{x.requisition_type} request: #{x.purpose}",
