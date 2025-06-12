@@ -3,12 +3,12 @@
 
   <div class="row">
     <div class="col-md-3 mb-3">
-      <%= form.label :request_date %>
-      <%= form.date_field :request_date, value: Date.today,  class: 'form-control', required: true %>
+      <%= form.label :initiated_on %>
+      <%= form.date_field :initiated_on, value: Date.today,  class: 'form-control', required: true %>
     </div>
      <div class="col-md-3 mb-3">
-      <%= form.label :requested_by %>
-      <%= form.text_field :requested_by, value: current_user.full_name,  class: 'form-control', required: true %>
+      <%= form.label :initiated_by %>
+      <%= form.text_field :initiated_by, value: current_user.full_name,  class: 'form-control', required: true %>
     </div>
      <div class="col-md-3 mb-3">
       <%= form.label :item_requested %>
@@ -29,7 +29,7 @@
 
   </div>
   <div class="col-md-4 mb-4">
-    <%= form.label :description %>
+    <%= form.label :item_description %>
     <%= form.text_area :description, class: 'form-control', rows: 2, required: true %>
   </div>
   <hr>
