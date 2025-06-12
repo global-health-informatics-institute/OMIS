@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function () {
               color: '#4B5563',
               font: { size: 26, weight: '800' }
             },
-            suggestedMax: suggestedMax // Add headroom
+            suggestedMax: suggestedMax 
           }
         },
         plugins: {
@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         }
       },
-      plugins: [ChartDataLabels] // Register the datalabels plugin
+      plugins: [ChartDataLabels]
     });
   });
 </script>
@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function () {
               callback: function(value) {
                 return (value > 100 ? null : value);
               },
-              font: { size: 26 }
+              font: { size: 26, weight: 'bold' }
             }
           },
           y1: {
@@ -319,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function () {
               font: { size: 26, weight: 'bold' },
               callback: function (value) {
                 const min = <%= [@tenure[:headcount_by_quarter].values.min].max %>;
-                const max = <%= @tenure[:headcount_by_quarter].values.max %>;
+                const max = <%= @tenure[:headcount_by_quarter].values.max%>;
                 return (value < min || value > max) ? null : value;
               }
             }
@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function () {
           legend: {
             display: true,
             labels: {
-              font: { size: 26, weight: 'bold' },
+              font: { size: 30, weight: 'bold' },
               color: '#374151',
             }
           }
