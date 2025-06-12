@@ -1,49 +1,44 @@
 <h4>Purchase Request</h4>
-<%= form_with model: @requisition, url: time_sheet_tasks_path do |form| %>
+<%= form_with model: @requisition, url: create_purchase_request_path do |form| %>
 
   <div class="row">
     <div class="col-md-3 mb-3">
       <%= form.label :request_date %>
       <%= form.date_field :request_date, value: Date.today,  class: 'form-control', required: true %>
     </div>
-    <div class="col-md-3 mb-3">
+     <div class="col-md-3 mb-3">
       <%= form.label :requested_by %>
-      <%= form.text_field :name_of_supplier,  class: 'form-control', required: true %>
+      <%= form.text_field :requested_by, value: current_user.full_name,  class: 'form-control', required: true %>
     </div>
-    <div class="col-md-6 mb-4">
-      <%= form.label :purpose_of_purchase %>
-      <%= form.text_field :purpose_of_purchase, class: 'form-control', required: true %>
+     <div class="col-md-3 mb-3">
+      <%= form.label :item_requested %>
+      <%= form.text_field :item_requested, class: 'form-control', required: true %>
     </div>
+    <div class="col-md-3 mb-3">
+      <%= form.label :quantity %>
+      <%= form.number_field :quantity, step: 0.01, min:1, max: 4.00, class: 'form-control', required: true %>
   </div>
+  <div class="col-md-1 mb-3">
+      <%= form.label :project_id, "Project" %>
+      <%= form.select :project_id, options_for_select(@project_options, (@selected_project.id rescue nil)),
+                      prompt: (@selected_project.full_name rescue params[:"prj"]),
+                      class: 'form-control', required: true %>
+    </div>
+
   <div class="row">
 
   </div>
-
-  <div class="row">
-    <div class="border p-2 mt-2">
-      <table class="table table-striped ml-8 table-hover", style="width: 100%">
-        <thead class="table-dark">
-            <th width=30%>Quantity</th>
-            <th>Description</th>     
-        </thead>
-        <tbody>
-            <tr>
-                <td><%= form.number_field :amount, step:0.00, max: 100000.00, class: 'form-control', required: true %></td>        
-                <td><%= form.text_field :description, class: 'form-control', required: true %></td>        
-            </tr>
-            <tr>
-                <td><%= form.number_field :amount, step:0.00, max: 100000.00, class: 'form-control'%></td>        
-                <td><%= form.text_field :description, class: 'form-control'%></td>     
-            </tr>
-            <tr>
-                <td><%= form.number_field :amount, step:0.00, max: 100000.00, class: 'form-control'%></td>        
-                <td><%= form.text_field :description, class: 'form-control'%></td>     
-            </tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="col-md-4 mb-4">
+    <%= form.label :description %>
+    <%= form.text_area :description, class: 'form-control', rows: 2, required: true %>
   </div>
   <hr>
 
-  <%= form.submit "Submit Request", class: "btn btn-success btn-block" %>
+  <%= form.hidden_field :requisition_type, value: "Purchase Request"%>
+  <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
+   <div class="row"> 
+    <div class="col-md-3"> 
+      <%= form.submit "Submit Request", class: "btn btn-success" %>
+    </div>
+  </div>
 <% end %>
