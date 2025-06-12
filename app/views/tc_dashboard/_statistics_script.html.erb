@@ -26,8 +26,8 @@ document.addEventListener('DOMContentLoaded', function () {
           position: 'bottom',
           labels: {
             font: {
-              size: 22,
-              weight: 600
+              size: 28,
+              weight: 'bold'
             },
             color: '#374151',
             boxWidth: 20,
@@ -290,7 +290,11 @@ document.addEventListener('DOMContentLoaded', function () {
               display: true,
               text: 'Retention (%)',
               color: '#2563EB', // Match data color
+<<<<<<< HEAD
               font: { size: 26, weight: 'bold' }
+=======
+              font: { size: 30, weight: 'bold' }
+>>>>>>> conference_dashboard
             },
             ticks: {
               color: '#2563EB',
@@ -298,7 +302,11 @@ document.addEventListener('DOMContentLoaded', function () {
               callback: function(value) {
                 return (value > 100 ? null : value);
               },
+<<<<<<< HEAD
               font: { size: 26, weight: 'bold' }
+=======
+              font: { size: 30, weight: 'bold' }
+>>>>>>> conference_dashboard
             }
           },
           y1: {
@@ -311,12 +319,20 @@ document.addEventListener('DOMContentLoaded', function () {
               display: true,
               text: 'Headcount',
               color: '#5B21B6', // Match data color
+<<<<<<< HEAD
               font: { size: 26, weight: 'bold' }
+=======
+              font: { size: 30, weight: 'bold' }
+>>>>>>> conference_dashboard
             },
             ticks: {
               color: '#5B21B6',
               stepSize: 5,
+<<<<<<< HEAD
               font: { size: 26, weight: 'bold' },
+=======
+              font: { size: 30, weight: 'bold' },
+>>>>>>> conference_dashboard
               callback: function (value) {
                 const min = <%= [@tenure[:headcount_by_quarter].values.min].max %>;
                 const max = <%= @tenure[:headcount_by_quarter].values.max%>;
