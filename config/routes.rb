@@ -40,6 +40,7 @@ Rails.application.routes.draw do
   post 'purchase_requests/create', to: 'purchase_requests#create', as: :create_purchase_request
   get 'purchase_request/show', to: 'purchase_request#show'
   put 'purchase_requests/:id/approve_request', to: 'purchase_requests#approve_request'
+  put 'purchase_requests/:id/reject_request', to: 'purchase_requests#reject_request'
 
   get 'requisitions', to: 'requisitions#index'
   get 'requisitions/new', to: 'requisitions#new', defaults: { format: :turbo_stream }
