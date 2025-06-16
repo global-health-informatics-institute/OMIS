@@ -8,7 +8,13 @@ class RequisitionsController < ApplicationController
 
   def show
     @requisition = Requisition.find(params[:id])
-    @projects = Project.all
+   if @requisition.requisition_type == 'Purchase Request'
+      @project_options = Project.all.collect { |x| [x.project_name, x.id] }
+      @selected_project = @requisition.project # This will correctly select the project for the displayed PR
+    else
+      @projects = Project.all 
+      @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f if @requisition.requisition_type == 'Petty Cash'
+    end
     @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f if @requisition.requisition_type == 'Petty Cash'
     is_owner = (@requisition.initiated_by == current_user.employee_id)
     is_supervisor = current_user.employee.current_supervisees.collect do |x|
