@@ -36,8 +36,8 @@
               <div class="col-2 fw-normal">Paid By</div>
 <!--              <div class="col-2 fw-bold fst-italic"><%#= @requisition.approved_by %></div>-->
               <div class="col-2 fw-bold fst-italic"><%= @requisition.approver  rescue nil%></div>
-              <div class="col-2 fw-normal">Liquidated By</div>
-              <div class="col-2 fw-bold fst-italic"><%= @requisition.approver rescue nil%></div>
+              <div class="col-2 fw-normal">Item Description</div>
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.item_description%></div>
             </div>
           </div>
         </div>
