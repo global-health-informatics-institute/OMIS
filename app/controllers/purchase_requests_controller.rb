@@ -1,40 +1,67 @@
 class PurchaseRequestsController < ApplicationController
-  # Inherit from ApplicationController or a more specific base controller if you have one
-  # before_action :authenticate_user! # Example: if you have
-
   def new
-    # Initialize a new Requisition object for a purchase request
-    @purchase_request = Requisition.new(requisition_type: "Purchase Request")
-    # You might also want to load project options here if they are specific to purchase requests
-    @project_options = Project.all.map { |p| [p.full_name, p.id] } # Example
-    # @selected_project = Project.find_by(id: params[:"prj"]) # Example for pre-selecting
+    @requisition = Requisition.new(requisition_type: "Purchase Request")
+    @requisition.requisition_items.build
+    @project_options = Project.all.collect { |x| [x.project_name, x.id] }
+    @selected_project = Project.find_by_short_name(params[:prj])
   end
 
-  def create
-    @purchase_request = Requisition.new(purchase_request_params)
-    @purchase_request.requisition_type = "Purchase Request"
+ def create
+    # Determine the initial workflow state for Purchase Request
+    state_id = InitialState.find_by_workflow_process_id(
+      WorkflowProcess.find_by_workflow('Purchase Request')
+    ).workflow_state_id
 
-    # Assign the value from :item_requested to the :purpose attribute
-    # This happens before saving the record to the database
-    @purchase_request.purpose = @purchase_request.item_requested if @purchase_request.item_requested.present?
+    # Initialize Requisition object with core parameters
+    @requisition = Requisition.new(
+      purpose: params[:requisition][:item_requested],
+      initiated_by: current_user.id,
+      initiated_on: params[:requisition][:initiated_on] || Date.today,
+      requisition_type: "Purchase Request", # Hardcode as this controller is only for PR
+      workflow_state_id: state_id,
+      project_id: params[:requisition][:project_id]
+    )
 
-    if @purchase_request.save
-      # Redirect to a success page or the new purchase request's show page
-      redirect_to "/requisitions/#{@requisition_id}", notice: 'Purchase Request was successfully created.'
+    ActiveRecord::Base.transaction do
+      # Save the Requisition first
+      raise ActiveRecord::Rollback unless @requisition.save
+      RequisitionItem.create!(
+        requisition_id: @requisition.id,
+        quantity: params[:requisition][:quantity],
+        item_description: params[:requisition][:item_description],
+        value: 0 # Default value, or nil, as amount isn't used for PR
+      )
+    end # End of transaction block
+
+    if @requisition.errors.empty?
+     # supervisor = current_user.employee.supervisor
+
+      # Send email (assuming this is only for PR now)
+      #RequisitionMailer.notify_supervisor(@requisition, supervisor).deliver_now
+
+      flash[:notice] = 'Purchase Request successful. An email has been sent to your supervisor.'
+      redirect_to "/requisitions/#{@requisition.id}" # Consider using Rails' path helpers
     else
-      # Re-render the form if save fails
-      @project_options = Project.all.collect { |x| [x.project_name, x.id] }
-      @selected_project = Project.find_by_short_name(params[:prj])# Reload options for re-render
-      render :new, status: :unprocessable_entity
+      flash[:error] = 'Purchase Request failed.'
+      render :new # Rerender the form with validation errors
     end
+  rescue ActiveRecord::RecordInvalid => e
+    # Catch validation errors from @requisition.save or RequisitionItem.create!
+    flash[:error] = "Purchase Request failed: #{e.message}"
+    render :new
+  rescue StandardError => e
+    # Catch any other unexpected errors during the process
+    flash[:error] = "An unexpected error occurred: #{e.message}"
+    render :new
   end
 
   def show
-    @purchase_request = Requisition.find(params[:id])
-    @projects = Project.all
-  end
+  @requisition = Requisition.find(params[:id])
+  @project_options = Project.all.collect { |x| [x.project_name, x.id] }
+  @selected_project = @requisition.project
+  @projects = Project.all
+end
 
-  # Add other actions as needed (edit, update, index, destroy) specific to purchase requests
 
   private
 
@@ -42,14 +69,13 @@ class PurchaseRequestsController < ApplicationController
     params.require(:requisition).permit(
       :initiated_on,
       :initiated_by,
-      :item_requested, # Keep this permitted to capture the input from the form
-      :requisition_type,
+      :item_requested,
       :project_id,
-      :item_description,
-      :workflow_state_id, 
+      :requisition_type,
       :purpose,
-      requisition_items_attributes: [:quantity, :item_description, :_destroy] # adjust attributes as needed
-  )
-    
+      :workflow_state_id,
+      :quantity,
+      :item_description
+    )
   end
 end
