@@ -3,7 +3,7 @@
 <% if @requisition.requisition_type == 'Petty Cash' %>
   <%= render partial: 'requested_petty_cash' %>
 <% elsif @requisition.requisition_type == 'Purchase Request' %>
-  <%= render partial: 'purchase_request' %>
+  <%= render partial: 'requested_purchase_request' %>
 <% else %>
   <%= render partial: 'travel_request' %>
 <% end %>
