@@ -1,5 +1,7 @@
 class RequisitionItem < ApplicationRecord
   belongs_to :requisition, foreign_key: :requisition_id
+  self.primary_key = 'requisition_item_id'
+
     #  validating petty cash limit
     validate :petty_cash_limit
     #validates :value, presence: true, numericality: { greater_than_or_equal_to: 1.00 }
