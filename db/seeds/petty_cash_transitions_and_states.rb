@@ -6,7 +6,7 @@ liquidate_funds_workflow_state_transition = WorkflowStateTransition.find_by(acti
 disburse_funds_workflow_state_transition = WorkflowStateTransition.find_by(action: 'Disburse Funds')
 liquidated_workflow_state = WorkflowState.find_by(workflow_state_id: 36)
 purchase_request_workflow_process = WorkflowProcess.find_by(workflow: 'Purchase Request')
-approve_purchase_request_workflow_state_transition = WorkflowStateTransition.find_by(action: 'Approve Purchase Request')
+approve_purchase_request_workflow_state_transition = WorkflowStateTransition.find_by(next_state: 38)
 requested_purchase_request_workflow_state = WorkflowState.find_by(workflow_state_id: 37)
 approved_purchase_request_workflow_state = WorkflowState.find_by(workflow_state_id: 38)
 initial_state_purchase_request = InitialState.find_by(workflow_process_id: 6)
@@ -82,7 +82,7 @@ ActiveRecord::Base.transaction do
       workflow_state_id: 37,
       next_state: 38,
       voided: false,
-      action: 'Approve Purchase Request',
+      action: 'Approve Request',
       by_owner: false,
       by_supervisor: true
     )
