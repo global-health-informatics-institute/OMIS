@@ -1,42 +1,42 @@
 <h4>Purchase Request</h4>
 <%= form_with model: @requisition, url: create_purchase_request_path do |form| %>
-
   <div class="row">
     <div class="col-md-3 mb-3">
       <%= form.label :initiated_on %>
-      <%= form.date_field :initiated_on, value: Date.today,  class: 'form-control', required: true %>
+      <%= form.date_field :initiated_on, value: Date.today, class: 'form-control', required: true %>
     </div>
-     <div class="col-md-3 mb-3">
+    <div class="col-md-3 mb-3">
       <%= form.label :initiated_by %>
-      <%= form.text_field :initiated_by, value: current_user.full_name,  class: 'form-control', required: true %>
+      <%= form.text_field :initiated_by, value: current_user.full_name, class: 'form-control', required: true %>
     </div>
-     <div class="col-md-3 mb-3">
+    <div class="col-md-3 mb-3">
       <%= form.label :item_requested %>
       <%= form.text_field :item_requested, class: 'form-control', required: true %>
     </div>
     <div class="col-md-3 mb-3">
       <%= form.label :quantity %>
-      <%= form.number_field :quantity, step: 0.01, min:1, max: 4.00, class: 'form-control', required: true %>
-  </div>
-  <div class="col-md-1 mb-3">
+      <%= form.number_field :quantity, quantity: params[:quantity], step: 0.01, min:1, max: 4.00, class: 'form-control', required: true %>
+    </div>
+    <div class="col-md-1 mb-3">
       <%= form.label :project_id, "Project" %>
       <%= form.select :project_id, options_for_select(@project_options, (@selected_project.id rescue nil)),
                       prompt: (@selected_project.full_name rescue params[:"prj"]),
                       class: 'form-control', required: true %>
     </div>
+  </div>
 
   <div class="row">
-
+    <div class="col-md-4 mb-4">
+      <%= form.label :item_description %>
+      <%= form.text_area :item_description, value: params[:item_description], class: 'form-control', rows: 2, required: true %>
+    </div>
   </div>
-  <div class="col-md-4 mb-4">
-    <%= form.label :item_description %>
-    <%= form.text_area :description, class: 'form-control', rows: 2, required: true %>
-  </div>
-  <hr>
-
-  <%= form.hidden_field :requisition_type, value: "Purchase Request"%>
+  
+  <%= form.hidden_field :purpose, id: 'requisition_purpose' %>
+  <%= form.hidden_field :requisition_type, value: "Purchase Request" %>
   <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
-   <div class="row"> 
+  
+  <div class="row"> 
     <div class="col-md-3"> 
       <%= form.submit "Submit Request", class: "btn btn-success" %>
     </div>
