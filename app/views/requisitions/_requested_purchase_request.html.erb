@@ -1,0 +1,56 @@
+<%= form_with model: @requisition, url: "/requisition_item/#{@requisition.id}" do |form| %>
+  <div class="row mt-3 p-2">
+    <div class="col p-2">
+      <div class="card">
+        <div class="card-header card-header-dark">
+          <div class="row">
+            <div class="col col-md-9">
+              <h5>Purchase Request</h5>
+            </div>
+            <div class="col col-md-2">
+              <span class="fw-bold fst-italic">Status:  <%= @requisition.current_state %></span>
+            </div>
+          </div>
+
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="row mt-3">
+              <div class="col-2 fw-normal">Initiated On</div>
+              <div class="col-2 fw-bold fst-italic"><%=  @requisition.initiated_on.strftime("%m/%d/%Y") %></div>
+              <div class="col-2 fw-normal">Initiated By</div>
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.user.full_name %></div>
+              <div class="col-1 fw-normal">Project</div>
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.project.short_name %></div>
+            </div>
+            <div class="row mt-4 mb-4">
+              <div class="col-2 fw-normal">Item Requested</div>
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.purpose%></div>
+              <div class="col-2 fw-normal">Quantity</div>
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.quantity %></div>
+            </div>
+            <div class="row mt-3 mb-3">
+              <div class="col-2 fw-normal">Authorized By</div>
+<!--              <div class="col-2 fw-bold fst-italic"><%#= @requisition.employee.person.full_name %></div>-->
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.reviewer rescue nil %></div>
+              <div class="col-2 fw-normal">Paid By</div>
+<!--              <div class="col-2 fw-bold fst-italic"><%#= @requisition.approved_by %></div>-->
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.approver  rescue nil%></div>
+              <div class="col-2 fw-normal">Liquidated By</div>
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.approver rescue nil%></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+      <%= form.hidden_field :requisition_type, value: "Purchase Request"%>
+      <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
+      <% (@possible_actions || []).each do |action| %>
+        <% path = "/purchase_requests/#{ @requisition.id}/#{action.parameterize(separator: '_')}" %>
+        <%= link_to action, path , class: "btn btn-info",method: :put,
+                    data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action.split(" ")[0]} this request?" } %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
