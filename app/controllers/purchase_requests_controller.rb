@@ -17,7 +17,7 @@ class PurchaseRequestsController < ApplicationController
       purpose: params[:requisition][:item_requested],
       initiated_by: current_user.id,
       initiated_on: params[:requisition][:initiated_on] || Date.today,
-      requisition_type: "Purchase Request", # Hardcode as this controller is only for PR
+      requisition_type: "Purchase Request", 
       workflow_state_id: state_id,
       project_id: params[:requisition][:project_id]
     )
@@ -39,7 +39,7 @@ class PurchaseRequestsController < ApplicationController
       # Send email (assuming this is only for PR now)
       #RequisitionMailer.notify_supervisor(@requisition, supervisor).deliver_now
 
-      flash[:notice] = 'Purchase Request successful. An email has been sent to your supervisor.'
+      flash[:notice] = 'Purchase Request successful.'
       redirect_to "/requisitions/#{@requisition.id}" # Consider using Rails' path helpers
     else
       flash[:error] = 'Purchase Request failed.'
@@ -60,6 +60,12 @@ class PurchaseRequestsController < ApplicationController
   @project_options = Project.all.collect { |x| [x.project_name, x.id] }
   @selected_project = @requisition.project
   @projects = Project.all
+end
+def approve_request
+  new_state = WorkflowState.where(state: 'Approved',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
 end
 
 
