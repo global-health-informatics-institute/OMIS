@@ -1,34 +1,4 @@
 <script>
-  // Time in milliseconds
-  const projectDuration = 18 * 30 * 1000;  
-  const statisticsDuration = 4 * 60 * 1000;  
-
-  const projectView = document.getElementById('projects-view');
-  const statisticsView = document.getElementById('statistics-view');
-
-  // Show statistics screen initially
-  statisticsView.classList.remove('hidden');
-  projectView.classList.add('hidden');
-
-  setTimeout(() => {
-    // After statisticsDuration, show project view
-    statisticsView.classList.add('hidden');
-    projectView.classList.remove('hidden');
-  }, statisticsDuration);
-
-  // Optional: Repeat the cycle (loop every 21 minutes)
-  setInterval(() => {
-    statisticsView.classList.remove('hidden');
-    projectView.classList.add('hidden');
-
-    setTimeout(() => {
-      statisticsView.classList.add('hidden');
-      projectView.classList.remove('hidden');
-    }, statisticsDuration);
-  }, projectDuration + statisticsDuration);
-</script>
-
-<script>
   const refreshInterval = 2 * 60 * 60 * 1000; // 2 hours
   setInterval(() => {
     window.location.reload();
