@@ -47,6 +47,15 @@
                 <%= form.file_field :attachments, multiple: true, class: "form-control", direct_upload: true %>
               </div>
             </div>
+            <%= form.label :amount, "Approved Amount", class: "form-label" %>
+            <%= form.number_field :amount,
+                        step: "0.01",
+                        class: "form-control #{'is-invalid' if flash[:amount_error]}",
+                        min: 0,
+                        max: @purchase_request_threshold,
+                        required: true,
+                        data: { limit: @purchase_request_threshold },
+                        placeholder: "Max allowed: MWK#{number_with_precision(@purchase_request_threshold, precision: 2)}" %>
           <% end %>
         </div>
       </div>
