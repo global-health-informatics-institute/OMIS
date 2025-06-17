@@ -15,12 +15,21 @@ start_procurement_workflow_state_transition = WorkflowStateTransition.find_by(ne
 complete_procurement_workflow_state_transition = WorkflowStateTransition.find_by(next_state: 41)
 procured_purchase_request_workflow_state = WorkflowState.find_by(workflow_state_id: 41)
 admin_designation_under_procurement_workflow_state_actor = WorkflowStateActor.find_by(workflow_state_id: 40)
+threshold_purchase_request_global_properties = GlobalProperty.find_by(property: 'purchase.request.threshold')
 
 ActiveRecord::Base.transaction do
   if initial_state_purchase_request.nil?
     InitialState.create(
       workflow_process_id: 6,
       workflow_state_id: 37
+    )
+  end
+  # global_property
+  if threshold_purchase_request_global_properties.nil?
+    GlobalProperty.create(
+      property: 'purchase.request.threshold',
+      property_value: 3000000,
+      description: 'Allocated threshold for purchase request that trigger internal procurement committee review'
     )
   end
   # workflow_state_model
