@@ -10,7 +10,8 @@ class RequisitionsController < ApplicationController
     @requisition = Requisition.find(params[:id])
    if @requisition.requisition_type == 'Purchase Request'
       @project_options = Project.all.collect { |x| [x.project_name, x.id] }
-      @selected_project = @requisition.project # This will correctly select the project for the displayed PR
+      @selected_project = @requisition.project
+      @purchase_request_threshold = GlobalProperty.purchase_request_threshold
     else
       @projects = Project.all 
       @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f if @requisition.requisition_type == 'Petty Cash'
