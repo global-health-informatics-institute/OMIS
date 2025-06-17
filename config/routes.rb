@@ -41,6 +41,8 @@ Rails.application.routes.draw do
   get 'purchase_request/show', to: 'purchase_request#show'
   put 'purchase_requests/:id/approve_request', to: 'purchase_requests#approve_request'
   put 'purchase_requests/:id/reject_request', to: 'purchase_requests#reject_request'
+  put 'purchase_requests/:id/start_procurement', to: 'purchase_requests#start_procurement'
+  put 'purchase_requests/:id/complete_procurement', to: 'purchase_requests#complete_procurement'
 
   get 'requisitions', to: 'requisitions#index'
   get 'requisitions/new', to: 'requisitions#new', defaults: { format: :turbo_stream }
