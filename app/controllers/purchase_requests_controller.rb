@@ -73,6 +73,18 @@ def reject_request
     @requisition = Requisition.find(params[:id]).update(reviewed_by: current_user.id, workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
 end
+  def start_procurement
+    new_state = WorkflowState.where(state: 'Under Procurement',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+  end
+  def complete_procurement 
+    new_state = WorkflowState.where(state: 'Procured',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(approved_by: current_user.id, workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+  end
 
   private
 
