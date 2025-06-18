@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_06_16_134335) do
+ActiveRecord::Schema[7.0].define(version: 2025_06_18_104009) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -222,6 +222,14 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_16_134335) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "partners", primary_key: "partner_id", id: :serial, force: :cascade do |t|
+    t.string "partner_name"
+    t.text "description"
+    t.boolean "voided"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "people", primary_key: "person_id", force: :cascade do |t|
     t.string "first_name", null: false
     t.string "middle_name"
@@ -300,6 +308,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_16_134335) do
     t.text "comments"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "department_id"
   end
 
   create_table "report_statistics", primary_key: "statistic_id", force: :cascade do |t|
@@ -452,5 +461,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_16_134335) do
   add_foreign_key "departments", "branches", primary_key: "branch_id"
   add_foreign_key "employees", "people", primary_key: "person_id"
   add_foreign_key "petty_cash_comments", "requisitions", primary_key: "requisition_id"
+  add_foreign_key "purchase_request_attachments", "departments", primary_key: "department_id"
   add_foreign_key "purchase_request_attachments", "requisitions", primary_key: "requisition_id"
 end
