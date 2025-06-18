@@ -263,8 +263,8 @@ document.addEventListener('DOMContentLoaded', function () {
           {
             label: 'Headcount',
             data: <%= @tenure[:headcount_by_quarter].values.to_json %>,
-            borderColor: '#5B21B6', // Muted purple
-            backgroundColor: '#5B21B6',
+            borderColor: '#DB2777', // Muted purple
+            backgroundColor: '#DB2777',
             borderWidth: 6,
             fill: false,
             tension: 0.3,
@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function () {
               display: true,
               text: 'Retention (%)',
               color: '#2563EB', // Match data color
-              font: { size: 30, weight: 'bold' }
+              font: { size: 32, weight: 'bold' }
             },
             ticks: {
               color: '#2563EB',
@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function () {
               callback: function(value) {
                 return (value > 100 ? null : value);
               },
-              font: { size: 30, weight: 'bold' }
+              font: { size: 32, weight: 'bold' }
             }
           },
           y1: {
@@ -310,13 +310,13 @@ document.addEventListener('DOMContentLoaded', function () {
             title: {
               display: true,
               text: 'Headcount',
-              color: '#5B21B6', // Match data color
-              font: { size: 30, weight: 'bold' }
+              color: '#DB2777', // Match data color
+              font: { size: 32, weight: 'bold' }
             },
             ticks: {
-              color: '#5B21B6',
+              color: '#DB2777',
               stepSize: 5,
-              font: { size: 30, weight: 'bold' },
+              font: { size: 32, weight: 'bold' },
               callback: function (value) {
                 const min = <%= [@tenure[:headcount_by_quarter].values.min].max %>;
                 const max = <%= @tenure[:headcount_by_quarter].values.max%>;
@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function () {
           legend: {
             display: true,
             labels: {
-              font: { size: 30, weight: 'bold' },
+              font: { size: 32, weight: 'bold' },
               color: '#374151',
             }
           }
