@@ -1,6 +1,10 @@
 class Requisition < ApplicationRecord
   belongs_to :user, :foreign_key =>  :initiated_by
-  belongs_to :project, foreign_key: :project_id
+  #belongs_to :project, foreign_key: :project_id
+  #the project to be option
+  belongs_to :project, foreign_key: :project_id, optional: true
+
+  has_one :purchase_request_attachment, foreign_key: :requisition_id
   has_many :requisition_items, :foreign_key => :requisition_id
   has_many :requisition_notes, :foreign_key => :requisition_id
   has_many :petty_cash_comments, foreign_key: :requisition_id
