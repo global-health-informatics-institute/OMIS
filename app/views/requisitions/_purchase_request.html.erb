@@ -10,17 +10,17 @@
       <%= form.text_field :initiated_by, value: current_user.full_name, class: 'form-control', required: true %>
     </div>
     <div class="col-md-3 mb-3">
-      <%= form.label :item_requested %>
-      <%= form.text_field :item_requested, class: 'form-control', required: true %>
+      <%= form.label :purpose %>
+      <%= form.text_field :purpose, class: 'form-control', required: true %>
     </div>
     <div class="col-md-3 mb-3">
       <%= form.label :quantity %>
       <%= form.number_field :quantity, quantity: params[:quantity], step: 0.01, min:1, max: 4.00, class: 'form-control', required: true %>
     </div>
     <div class="col-md-1 mb-3">
-      <%= form.label :project_id, "Project" %>
-      <%= form.select :project_id, options_for_select(@project_options, (@selected_project.id rescue nil)),
-                      prompt: (@selected_project.full_name rescue params[:"prj"]),
+      <%= form.label :department_id, "Department" %>
+      <%= form.select :department_id, options_for_select(@department_options, (@selected_department.id rescue nil)),
+                      prompt: (@selected_department.department_name rescue params[:"department_id"]),
                       class: 'form-control', required: true %>
     </div>
   </div>
@@ -32,7 +32,7 @@
     </div>
   </div>
   
-  <%= form.hidden_field :purpose, id: 'requisition_purpose' %>
+  
   <%= form.hidden_field :requisition_type, value: "Purchase Request" %>
   <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
   
