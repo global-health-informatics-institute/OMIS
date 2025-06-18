@@ -48,6 +48,7 @@ class RequisitionsController < ApplicationController
     @selected_request = params['request_type']
 
     @project_options = Project.all.collect { |x| [x.project_name, x.id] }
+    @department_options = Department.all.collect { |x| [x.department_name, x.id] }
     @selected_project = Project.find_by_short_name(params[:prj])
 
     case @selected_request
