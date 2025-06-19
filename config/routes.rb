@@ -42,7 +42,11 @@ Rails.application.routes.draw do
   put 'purchase_requests/:id/approve_request', to: 'purchase_requests#approve_request'
   put 'purchase_requests/:id/reject_request', to: 'purchase_requests#reject_request'
   put 'purchase_requests/:id/start_procurement', to: 'purchase_requests#start_procurement'
-  match 'purchase_requests/:id/complete_procurement', to: 'purchase_requests#complete_procurement', via: [:patch, :put], as: :complete_procurement_purchase_request
+  #put 'purchase_requests/:id/request_payment', to: 'purchase_requests#request_payment'
+  match 'purchase_requests/:id/request_payment', to: 'purchase_requests#request_payment', via: [:patch, :put], as: :complete_procurement_purchase_request
+  put 'purchase_requests/:id/appeal_request', to: 'purchase_requests#appeal_request'
+  put 'purchase_requests/:id/approve_funds', to: 'purchase_requests#approve_funds'
+  put 'purchase_requests/:id/deny_funds', to: 'purchase_requests#deny_funds'
 
   get 'requisitions', to: 'requisitions#index'
   get 'requisitions/new', to: 'requisitions#new', defaults: { format: :turbo_stream }
