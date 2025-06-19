@@ -80,15 +80,21 @@ end
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
+  def appeal_request
+    new_state = WorkflowState.where(state: 'Under LPC',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+  end
 
-def complete_procurement
+def request_payment
     @requisition = Requisition.find(params[:id])
 
-    new_state = WorkflowState.find_by(state: 'Procured',
+    new_state = WorkflowState.find_by(state: 'Payment Requested',
                                       workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
 
     unless new_state
-      flash[:error] = "Error: 'Procured' workflow state not found."
+      flash[:error] = "Error: 'Payment Requested' workflow state not found."
       redirect_to "/requisitions/#{params[:id]}" and return
     end
     # Get the approved amount from the form parameters
@@ -112,6 +118,19 @@ def complete_procurement
   rescue StandardError => e
     flash[:error] = "An unexpected error occurred: #{e.message}"
     redirect_to "/requisitions/#{params[:id]}" and return
+  end
+
+  def approve_funds
+    new_state = WorkflowState.where(state: 'Funds Approved',
+                                      workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update( workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+  end
+  def deny_funds
+    new_state = WorkflowState.where(state: 'Funds Rejected',
+                                      workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update( workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
   end
 
   private
