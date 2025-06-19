@@ -13,9 +13,19 @@ reject_purchase_request_workflow_state_transition = WorkflowStateTransition.find
 under_procurement_workflow_state = WorkflowState.find_by(workflow_state_id: 40)
 start_procurement_workflow_state_transition = WorkflowStateTransition.find_by(next_state: 40)
 complete_procurement_workflow_state_transition = WorkflowStateTransition.find_by(next_state: 41)
+request_payment_workflow_state_transition = WorkflowStateTransition.find_by(next_state: 42)
 procured_purchase_request_workflow_state = WorkflowState.find_by(workflow_state_id: 41)
 admin_designation_under_procurement_workflow_state_actor = WorkflowStateActor.find_by(workflow_state_id: 40)
 threshold_purchase_request_global_properties = GlobalProperty.find_by(property: 'purchase.request.threshold')
+payment_requested_workflow_state = WorkflowState.find_by(workflow_state_id: 42)
+finance_designation_workflow_state_actor = WorkflowStateActor.find_by(workflow_state_id: 42)
+payment_request_on_appealed_request_workflow_state_transition = WorkflowStateTransition.find_by(workflow_state_id: 41)
+under_lpc_admin_designation_workflow_state_actor = WorkflowStateActor.find_by(workflow_state_id: 41)
+approve_funds_workflow_state_transition = WorkflowStateTransition.find_by(next_state: 43)
+deny_funds_workflow_state_transition = WorkflowStateTransition.find_by(next_state: 44)
+funds_approved_workflow_state = WorkflowState.find_by(workflow_state_id: 43)
+funds_rejected_workflow_state = WorkflowState.find_by(workflow_state_id: 44)
+
 
 ActiveRecord::Base.transaction do
   if initial_state_purchase_request.nil?
@@ -64,8 +74,17 @@ ActiveRecord::Base.transaction do
     WorkflowState.create(
       workflow_state_id: 41,
       workflow_process_id: 6,
-      state: 'Procured',
-      description: 'Purchase request has been procured',
+      state: 'Under LPC',
+      description: 'Purchase request has been appealed to LPC',
+      voided: false
+    )
+  end
+  if payment_requested_workflow_state.nil?
+    WorkflowState.create(
+      workflow_state_id: 42,
+      workflow_process_id: 6,
+      state: 'Payment Requested',
+      description: 'Purchase request has requested payment',
       voided: false
     )
   end
@@ -75,6 +94,24 @@ ActiveRecord::Base.transaction do
       workflow_process_id: 6,
       state: 'Approved',
       description: 'Purchase request has been approved',
+      voided: false
+    )
+  end
+  if funds_approved_workflow_state.nil?
+    WorkflowState.create(
+      workflow_state_id: 43,
+      workflow_process_id: 6,
+      state: 'Funds Approved',
+      description: 'Funds for the purchase request have been approved',
+      voided: false
+    )
+  end
+  if funds_rejected_workflow_state.nil?
+    WorkflowState.create(
+      workflow_state_id: 44,
+      workflow_process_id: 6,
+      state: 'Funds Rejected',
+      description: 'Funds for the purchase request have been rejected',
       voided: false
     )
   end
@@ -93,7 +130,21 @@ ActiveRecord::Base.transaction do
       voided: false
     )
   end
-  # workflow_state_transitions_model
+  if finance_designation_workflow_state_actor.nil?
+    WorkflowStateActor.create(
+      workflow_state_id: 42,
+      employee_designation_id: 5,
+      voided: false
+    )
+  end
+  if under_lpc_admin_designation_workflow_state_actor.nil?
+    WorkflowStateActor.create(
+      workflow_state_id: 41,
+      employee_designation_id: 12,
+      voided: false
+    )
+  end
+  # workflow_process_model
   if purchase_request_workflow_process.nil?
     WorkflowProcess.create(
       workflow_process_id: 6,
@@ -101,6 +152,7 @@ ActiveRecord::Base.transaction do
       active: true
     )
   end
+  # workflow_state_transitions_model
   if approve_purchase_request_workflow_state_transition.nil?
     last_id = WorkflowStateTransition.maximum(:id) || 0
     WorkflowStateTransition.create(
@@ -145,6 +197,54 @@ ActiveRecord::Base.transaction do
       next_state: 41,
       voided: false,
       action: 'Complete Procurement',
+      by_owner: false,
+      by_supervisor: false
+    )
+  end
+  if request_payment_workflow_state_transition.nil?
+    last_id = WorkflowStateTransition.maximum(:id) || 0
+    WorkflowStateTransition.create(
+      id: last_id + 1,
+      workflow_state_id: 40,
+      next_state: 42,
+      voided: false,
+      action: 'Request Payment',
+      by_owner: false,
+      by_supervisor: false
+    )
+  end
+  if payment_request_on_appealed_request_workflow_state_transition.nil?
+    last_id = WorkflowStateTransition.maximum(:id) || 0
+    WorkflowStateTransition.create(
+      id: last_id + 1,
+      workflow_state_id: 41,
+      next_state: 42,
+      voided: false,
+      action: 'Request Payment',
+      by_owner: false,
+      by_supervisor: false
+    )
+  end
+  if approve_funds_workflow_state_transition.nil?
+    last_id = WorkflowStateTransition.maximum(:id) || 0
+    WorkflowStateTransition.create(
+      id: last_id + 1,
+      workflow_state_id: 42,
+      next_state: 43,
+      voided: false,
+      action: 'Approve Funds',
+      by_owner: false,
+      by_supervisor: false
+    )
+  end
+  if deny_funds_workflow_state_transition.nil?
+    last_id = WorkflowStateTransition.maximum(:id) || 0
+    WorkflowStateTransition.create(
+      id: last_id + 1,
+      workflow_state_id: 42,
+      next_state: 44,
+      voided: false,
+      action: 'Deny Funds',
       by_owner: false,
       by_supervisor: false
     )
