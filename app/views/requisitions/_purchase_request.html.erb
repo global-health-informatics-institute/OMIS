@@ -13,6 +13,12 @@
       <%= form.label :purpose %>
       <%= form.text_field :purpose, class: 'form-control', required: true %>
     </div>
+    <div class="col-md-1 mb-3">
+      <%= form.label :stakeholder_id, "Donor" %>
+      <%= form.select :stakeholder_id, options_for_select(@stakeholder_options, (@selected_stakeholder.id rescue nil)),
+                      prompt: (@selected_stakeholder.stakeholder_name rescue params[:"stakeholder_id"]),
+                      class: 'form-control', required: true %>
+    </div>
     <div class="col-md-3 mb-3">
       <%= form.label :quantity %>
       <%= form.number_field :quantity, quantity: params[:quantity], step: 0.01, min:1, max: 4.00, class: 'form-control', required: true %>
@@ -23,6 +29,7 @@
                       prompt: (@selected_department.department_name rescue params[:"department_id"]),
                       class: 'form-control', required: true %>
     </div>
+    
   </div>
 
   <div class="row">
