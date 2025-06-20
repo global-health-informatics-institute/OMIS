@@ -1,36 +1,56 @@
-<h2>Petty Cash Request Approval</h2>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  <style>
+    body {
+      font-family: 'Trebuchet MS', sans-serif;
+    }
+  </style>
+</head>
+<body style="background-color: #F3F4F6; padding: 20px;">
 
-<p>Dear <%= @supervisor.person.first_name %>,</p>
+  <div style="border: 1px solid #002130; width:100%; margin: 0 auto;">
+    <div style="background-color: #002130; font-weight: bold; color: #E3E4E7; padding: 20px; text-align: center; font-size: 1.5rem;">
+      Petty Cash Request Approval
+    </div>
 
-<p>
-  You have a new petty cash request awaiting your approval from
-  <strong><%= @requester.person.first_name %></strong>:
-</p>
+    <div style="padding: 30px; font-size: 1.2rem;">
+      <p>Dear <%= @supervisor.person.first_name %>,</p>
 
-<ul>
-  <li><strong>Request ID:</strong> <%= @requisition.id %></li>
-  <li><strong>Amount:</strong> <%= number_to_currency(@requisition.requisition_items.sum(&:value), unit:'MWK') %></li>
-  <li><strong>Purpose:</strong> <%= @requisition.purpose %></li>
-  <li><strong>Submitted:</strong> <%= @requisition.created_at.strftime('%b %d, %Y at %I:%M %p') %></li>
-</ul>
-<p>To approve or reject this request, you can use the buttons below or log into OMIS:</p>
-<p><strong>OMIS Link:</strong> <a href="<%= Rails.application.config.omis_url %>"><%= Rails.application.config.omis_url %></a></p>
+      <p>
+        You have a new petty cash request awaiting your approval from
+        <strong><%= @requester.person.first_name %></strong>.
+      </p>
 
-<div style="display: flex; flex-direction: column; gap: 10px;">
+      <ul style="list-style: none; padding: 0;">
+        <li><strong>Request ID:</strong> <%= @requisition.id %></li>
+        <li><strong>Amount:</strong> <%= number_to_currency(@requisition.requisition_items.sum(&:value), unit: 'MWK') %></li>
+        <li><strong>Purpose:</strong> <%= @requisition.purpose %></li>
+        <li><strong>Submitted:</strong> <%= @requisition.created_at.strftime('%b %d, %Y at %I:%M %p') %></li>
+      </ul>
 
-  <%= form_with(url: url_for(controller: 'requisitions', action: 'reject_request', id: @requisition.id, host: Rails.application.config.omis_url), method: :put) do |f| %>
-    <%= f.submit "Reject Request", class: "button", style: "display: block; width: 100%; padding: 10px 15px; background-color: #f44336; color: white; text-decoration: none; border-radius: 5px; border: none; cursor: pointer; text-align: center;" %>
-  <% end %>
+      <p style="margin-top: 20px;">
+        To approve or reject this request, please log into OMIS using the button below:
+      </p>
 
-  <%= form_with(url: url_for(controller: 'requisitions', action: 'approve_request', id: @requisition.id, host: Rails.application.config.omis_url), method: :put) do |f| %>
-    <%= hidden_field_tag :reviewer_first_name, @supervisor.person.first_name %>
-    <%= f.submit "Approve Request", class: "button", style: "display: block; width: 100%; padding: 10px 15px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; border: none; cursor: pointer; margin-left: 10px; text-align: center;" %>
-  <% end %>
+      <div style="display: flex; justify-content: center; margin-top: 20px;">
+        <a href="<%= "#{Rails.application.config.omis_url}/requisitions/#{@requisition.id}" %>"
+           style="display: inline-block; padding: 10px 20px; background-color: #002130; color: #E3E4E7;
+                  text-decoration: none; border-radius: 5px; font-weight: bold;">
+          Review on OMIS
+        </a>
+      </div>
 
-</div>
+      <p style="margin-top: 30px;">Please respond in time.</p>
 
+      <p>Thank you,<br><%= @requester.person.first_name %></p>
+    </div>
+  </div>
 
+  <div style="margin-top: 30px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+    <p>Informatics Team. <%= Time.current.year %></p>
+  </div>
 
-<p>Please respond in time.</p>
-
-<p>Thank you,<br><%= @requester.person.first_name %></p>
+</body>
+</html>
