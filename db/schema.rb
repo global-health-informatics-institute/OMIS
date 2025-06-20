@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_06_18_104009) do
+ActiveRecord::Schema[7.0].define(version: 2025_06_20_072307) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -222,14 +222,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_18_104009) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "partners", primary_key: "partner_id", id: :serial, force: :cascade do |t|
-    t.string "partner_name"
-    t.text "description"
-    t.boolean "voided"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "people", primary_key: "person_id", force: :cascade do |t|
     t.string "first_name", null: false
     t.string "middle_name"
@@ -309,6 +301,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_18_104009) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "department_id"
+    t.integer "stakeholder_id"
+    t.string "supplier"
+    t.index ["stakeholder_id"], name: "index_purchase_request_attachments_on_stakeholder_id"
   end
 
   create_table "report_statistics", primary_key: "statistic_id", force: :cascade do |t|
@@ -351,6 +346,18 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_18_104009) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "project_id"
+  end
+
+  create_table "stakeholders", primary_key: "stakeholder_id", force: :cascade do |t|
+    t.string "stakeholder_name", null: false
+    t.string "contact_email"
+    t.boolean "is_partner", default: false
+    t.boolean "is_donor", default: false
+    t.string "donation_frequency"
+    t.string "partnership_tier"
+    t.boolean "voided", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "supervisions", primary_key: "supervision_id", force: :cascade do |t|
@@ -463,4 +470,5 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_18_104009) do
   add_foreign_key "petty_cash_comments", "requisitions", primary_key: "requisition_id"
   add_foreign_key "purchase_request_attachments", "departments", primary_key: "department_id"
   add_foreign_key "purchase_request_attachments", "requisitions", primary_key: "requisition_id"
+  add_foreign_key "purchase_request_attachments", "stakeholders", primary_key: "stakeholder_id"
 end
