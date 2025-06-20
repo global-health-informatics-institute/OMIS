@@ -25,6 +25,11 @@ approve_funds_workflow_state_transition = WorkflowStateTransition.find_by(next_s
 deny_funds_workflow_state_transition = WorkflowStateTransition.find_by(next_state: 44)
 funds_approved_workflow_state = WorkflowState.find_by(workflow_state_id: 43)
 funds_rejected_workflow_state = WorkflowState.find_by(workflow_state_id: 44)
+#for stakeholders
+usaid_donor = Stakeholder.find_by(stakeholder_name: 'USAID')
+unhcr_donor = Stakeholder.find_by(stakeholder_name: 'UNHCR')
+unima_partner = Stakeholder.find_by(stakeholder_name: 'UNIMA')
+kch_partner = Stakeholder.find_by(stakeholder_name: 'KCH')
 
 
 ActiveRecord::Base.transaction do
@@ -34,6 +39,40 @@ ActiveRecord::Base.transaction do
       workflow_state_id: 37
     )
   end
+  #partners model
+  if usaid_donor.nil?
+  usaid_donor = Stakeholder.create(
+    stakeholder_name: 'USAID', 
+    contact_email: 'usaid@gmail.com',
+    is_donor: true,
+    donation_frequency: 'annually',
+    voided:false)
+end
+if unhcr_donor.nil?
+  unhcr_donor = Stakeholder.create(
+    stakeholder_name: 'UNHCR',
+    contact_email:'unhcr@gmail.com',
+    is_donor: true,
+    donation_frequency: 'quarterly',
+    voided: false
+  )
+end
+if unima_partner.nil?
+  unima_partner = Stakeholder.create(
+    stakeholder_name: 'UNIMA',
+    contact_email: 'unima.ac.mw',
+    is_partner: true,
+    partnership_tier:'silver'
+  )
+end
+if kch_partner.nil?
+  kch_partner = Stakeholder.create(
+    stakeholder_name: 'KCH',
+    contact_email: 'kch@gmail.com',
+    is_partner: true,
+    partnership_tier: 'gold'
+  )
+end
   # global_property
   if threshold_purchase_request_global_properties.nil?
     GlobalProperty.create(
