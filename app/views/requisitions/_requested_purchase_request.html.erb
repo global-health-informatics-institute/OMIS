@@ -1,5 +1,3 @@
-<%# app/views/requisitions/_requested_purchase_request.html.erb %>
-
 <%= form_with model: @requisition, url: complete_procurement_purchase_request_path(@requisition), multipart: true, method: :patch do |form| %>
   <div class="row mt-3 p-2">
     <div class="col p-2">
@@ -31,18 +29,17 @@
             <div class="col-2 fw-normal">Quantity</div>
             <div class="col-2 fw-bold fst-italic"><%= @requisition.quantity %></div>
             <% if ["Under Procurement", "Under LPC"].include?(@requisition.current_state) %>
-            <div class="col-4">
-            <%= form.label :supplier, "Supplier", class: "form-label" %>
-            <%= form.text_field :supplier,
-               value: @requisition.purchase_request_attachment&.supplier,
-               class: "form-control",
-               name: "requisition[supplier]" %>
-           </div>
-          <% else %>
-           <div class="col-2 fw-normal">Supplier</div>
-           <div class="col-2 fw-bold fst-italic"><%= @requisition.purchase_request_attachment&.supplier %></div>
-          <% end %>
-
+              <div class="col-4">
+                <%= form.label :supplier, "Supplier", class: "form-label" %>
+                <%= form.text_field :supplier,
+                      value: @requisition.purchase_request_attachment&.supplier,
+                      class: "form-control",
+                      name: "requisition[supplier]" %>
+              </div>
+            <% else %>
+              <div class="col-2 fw-normal">Supplier</div>
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.purchase_request_attachment&.supplier %></div>
+            <% end %>
           </div>
 
           <div class="row mt-3 mb-3">
@@ -63,19 +60,20 @@
             </div>
           <% end %>
 
-          <%# Unit Price field - NOW MIMICKING "Used Amount" BEHAVIOR %>
           <div class="row mt-3">
             <div class="col-md-4">
               <%= form.label :amount, "Total Amount", class: "form-label" %>
-              <% if @requisition.current_state == "Under Procurement" || @requisition.current_state == "Under LPC" %>
-                <%= form.number_field :amount,
-                          step: "0.01",
-                          class: "form-control #{'is-invalid' if flash[:amount_error]}",
-                          min: 0,
-                          max: @purchase_request_threshold,
-                          required: true,
-                          value: (@requisition.requisition_items.first&.value || 0).to_s == "0.0" ? 0 : @requisition.requisition_items.first&.value,
-                          data: { limit: @purchase_request_threshold } %>
+              <% if ["Under Procurement", "Under LPC"].include?(@requisition.current_state) %>
+                <% options = {
+                  step: "0.01",
+                  class: "form-control #{'is-invalid' if flash[:amount_error]}",
+                  min: 0,
+                  required: true,
+                  value: (@requisition.requisition_items.first&.value || 0).to_s == "0.0" ? 0 : @requisition.requisition_items.first&.value,
+                  data: { limit: @purchase_request_threshold }
+                } %>
+                <% options[:max] = @purchase_request_threshold if @requisition.current_state == "Under Procurement" %>
+                <%= form.number_field :amount, options %>
                 <% if flash[:amount_error] %>
                   <div class="invalid-feedback d-block">
                     <%= flash[:amount_error] %>
@@ -88,13 +86,11 @@
                 </div>
               <% end %>
             </div>
-            
-            <%# New Unit Price column %>
+
             <div class="col-md-4">
               <%= form.label :unit_price, "Unit Price", class: "form-label" %>
-              <% if @requisition.current_state == "Under Procurement || Under LPC" %>
-                <% # Calculate unit price based on amount and quantity %>
-                <% unit_price = @requisition.quantity.to_f > 0 ? (@requisition.requisition_items.first&.value.to_f / @requisition.quantity.to_f) : 0 %>
+              <% unit_price = @requisition.quantity.to_f > 0 ? (@requisition.requisition_items.first&.value.to_f / @requisition.quantity.to_f) : 0 %>
+              <% if ["Under Procurement", "Under LPC"].include?(@requisition.current_state) %>
                 <%= form.number_field :unit_price,
                           step: "0.01",
                           class: "form-control",
@@ -102,22 +98,19 @@
                           readonly: true,
                           value: number_with_precision(unit_price, precision: 2) %>
               <% else %>
-                <% # Display calculated unit price in read-only mode %>
-                <% unit_price = @requisition.quantity.to_f > 0 ? (@requisition.requisition_items.first&.value.to_f / @requisition.quantity.to_f) : 0 %>
                 <div class="fw-bold fst-italic">
                   <%= number_with_precision(unit_price, precision: 2) %>
                 </div>
               <% end %>
             </div>
+
             <div class="col-2 fw-normal">Donor</div>
             <div class="col-2 fw-bold fst-italic">
-            <%= @requisition.purchase_request_attachment&.stakeholder&.stakeholder_name %>
+              <%= @requisition.purchase_request_attachment&.stakeholder&.stakeholder_name %>
             </div>
           </div>
-          <%# End of Unit Price field block %>
-
-        </div> <%# End of card-body %>
-      </div> <%# End of card %>
+        </div>
+      </div>
 
       <hr>
 
@@ -125,27 +118,22 @@
       <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
 
       <% (@possible_actions || []).each do |action| %>
-          <% btn_class = case action
-                         when "Approve Request"
-                           "btn btn-success"
-                         when "Reject Request"
-                           "btn btn-danger"
-                         when "Start Procurement"
-                           "btn btn-warning"
-                         when "Recalled"
-                           "btn btn-secondary"
-                         else
-                           "btn btn-primary"
-                         end %>
+        <% btn_class = case action
+                      when "Approve Request" then "btn btn-success"
+                      when "Reject Request" then "btn btn-danger"
+                      when "Start Procurement" then "btn btn-warning"
+                      when "Recalled" then "btn btn-secondary"
+                      else "btn btn-primary"
+                      end %>
 
-          <% if action == "Request Payment" %>
-            <%= form.submit action, class: "btn btn-info btn-block", data: { disable_with: "Processing..." } %>
-          <% else %>
-            <% path = "/purchase_requests/#{@requisition.id}/#{action.parameterize(separator: '_')}" %>
-            <%= link_to action, path, class: btn_class, method: :put,
-                        data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action.split(' ').first.downcase} this request?" } %>
-          <% end %>
+        <% if action == "Request Payment" %>
+          <%= form.submit action, class: "btn btn-info btn-block", data: { disable_with: "Processing..." } %>
+        <% else %>
+          <% path = "/purchase_requests/#{@requisition.id}/#{action.parameterize(separator: '_')}" %>
+          <%= link_to action, path, class: btn_class, method: :put,
+                    data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action.split(' ').first.downcase} this request?" } %>
         <% end %>
+      <% end %>
     </div>
   </div>
 <% end %>
