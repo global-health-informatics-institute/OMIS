@@ -1,10 +1,17 @@
 class PurchaseRequestsController < ApplicationController
   def new
-    @requisition = Requisition.new(requisition_type: "Purchase Request")
-    @requisition.requisition_items.build
-    @department_options = Department.all.collect { |x| [x.department_name, x.id] }
-    @selected_department = Department.find_by_department_name(params[:department_name]) if params[:department_name].present?
-  end
+  @requisition = Requisition.new(requisition_type: "Purchase Request")
+  @requisition.requisition_items.build
+
+  @department_options = Department.all.collect { |x| [x.department_name, x.id] }
+  @selected_department = Department.find_by_department_name(params[:department_name]) if params[:department_name].present?
+
+  # Load only stakeholders marked as donors
+  @stakeholder_options = Stakeholder.where(is_donor: true).pluck(:stakeholder_name, :stakeholder_id)
+
+  # Pre-select stakeholder if coming from params
+  @selected_stakeholder = Stakeholder.find_by(stakeholder_id: params[:stakeholder_id]) if params[:stakeholder_id].present?
+end
 
 def create
   # 1. Find workflow configuration
@@ -35,7 +42,9 @@ def create
       PurchaseRequestAttachment.create(
         requisition_id: @requisition.id,
         department_id: params[:requisition][:department_id],
+        stakeholder_id: params[:requisition][:stakeholder_id],
         comments: params[:requisition][:comments],
+        supplier: params[:requisition][:supplier],
         voided: false
       )
 
@@ -98,13 +107,21 @@ def request_payment
       redirect_to "/requisitions/#{params[:id]}" and return
     end
     # Get the approved amount from the form parameters
-    approved_amount = params[:requisition][:amount] # This is where the amount comes from the form
+    approved_amount = params[:requisition][:amount] 
+    supplier = params[:requisition][:supplier]
 
     ActiveRecord::Base.transaction do
       # Update the Requisition's state and approved_by
       @requisition.update!(approved_by: current_user.id, workflow_state_id: new_state.id)
       if @requisition.requisition_items.any?
         @requisition.requisition_items.first.update!(value: approved_amount)
+      end
+
+      # Update supplier in PurchaseRequestAttachment
+      if supplier.present?
+        attachment = @requisition.purchase_request_attachment || @requisition.build_purchase_request_attachment
+        attachment.supplier = supplier
+        attachment.save!
       end
     end
     redirect_to "/requisitions/#{@requisition.id}", notice: "Procurement completed successfully."
@@ -148,7 +165,9 @@ def request_payment
       :item_description,
       :amount,
       :department_id,
-      :comments 
+      :comments,
+      :supplier,
+      :stakeholder_id 
     )
   end
 end
