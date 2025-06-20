@@ -12,6 +12,10 @@ class RequisitionsController < ApplicationController
       @project_options = Project.all.collect { |x| [x.project_name, x.id] }
       @selected_project = @requisition.project
       @purchase_request_threshold = GlobalProperty.purchase_request_threshold
+      @stakeholder_options = Stakeholder.where(is_donor: true).pluck(:stakeholder_name, :stakeholder_id)
+
+  # Pre-select stakeholder if coming from params
+    @selected_stakeholder = Stakeholder.find_by(stakeholder_id: params[:stakeholder_id]) if params[:stakeholder_id].present?
     else
       @projects = Project.all 
       @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f if @requisition.requisition_type == 'Petty Cash'
@@ -50,6 +54,11 @@ class RequisitionsController < ApplicationController
     @project_options = Project.all.collect { |x| [x.project_name, x.id] }
     @department_options = Department.all.collect { |x| [x.department_name, x.id] }
     @selected_project = Project.find_by_short_name(params[:prj])
+     #Load only stakeholders marked as donors
+    @stakeholder_options = Stakeholder.where(is_donor: true).pluck(:stakeholder_name, :stakeholder_id)
+
+  # Pre-select stakeholder if coming from params
+    @selected_stakeholder = Stakeholder.find_by(stakeholder_id: params[:stakeholder_id]) if params[:stakeholder_id].present?
 
     case @selected_request
     when 'Petty Cash'
