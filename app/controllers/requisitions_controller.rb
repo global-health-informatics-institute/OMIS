@@ -504,20 +504,20 @@ class RequisitionsController < ApplicationController
   def disburse_funds
     new_state = WorkflowState.where(state: 'Collected',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
-    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    @requisition = Requisition.find(params[:id]).update( workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
   def liquidate_funds
   @requisition = Requisition.find(params[:id])
 
-  new_state = WorkflowState.find_by(approved_by: current_user.user_id,
+  new_state = WorkflowState.find_by(
     state: 'Liquidated',
     workflow_process_id: WorkflowProcess.find_by(workflow: 'Petty Cash Request')&.id
   )
 
   # Make sure used_amount is permitted via strong parameters
   # You already have liquidate_params, let's use it!
-  liquidate_params = params.require(:requisition).permit(:used_amount, :workflow_state_id)
+  liquidate_params = params.require(:requisition).permit(:used_amount, :workflow_state_id, :approved_by)
   submitted_used_amount = liquidate_params[:used_amount]
 
   # Find or create the PettyCashComment
@@ -531,7 +531,7 @@ class RequisitionsController < ApplicationController
     # Now, attempt to update the found or created comment
     if petty_cash_comment.update(used_amount: submitted_used_amount)
       # Only update the workflow state if the used_amount update was successful
-      @requisition.update!(workflow_state_id: new_state.id)
+      @requisition.update!(approved_by: current_user.user_id, workflow_state_id: new_state.id)
       redirect_to "/requisitions/#{params[:id]}", notice: "Funds liquidated successfully."
     else
       # If comment update failed (e.g., validations), provide a specific alert
@@ -551,6 +551,6 @@ end
                                         :requisition_type, :workflow_state_id, :amount)
   end
   def liquidate_params
-     params.require(:requisition).permit(:used_amount, :workflow_state_id)
+     params.require(:requisition).permit(:used_amount, :workflow_state_id, :approved_by)
   end
 end
