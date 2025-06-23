@@ -371,7 +371,7 @@ class RequisitionsController < ApplicationController
 
     if current_user
       # Denial from inside the app
-      if @requisition.update(approved_by: current_user.user_id, workflow_state_id: denied_state.id)
+      if @requisition.update( workflow_state_id: denied_state.id)
         send_funds_denied_email(@requisition)
         flash[:notice] = 'Funds denied and email sent to the requester.'
       else
@@ -442,7 +442,7 @@ class RequisitionsController < ApplicationController
 
     if current_user
       # Approval from inside the application
-      if @requisition.update(approved_by: current_user.user_id, workflow_state_id: approved_state.id)
+      if @requisition.update(workflow_state_id: approved_state.id)
         send_funds_approved_email(@requisition)
         flash[:notice] = 'Funds approved and requester notified.'
       else
@@ -510,7 +510,7 @@ class RequisitionsController < ApplicationController
   def liquidate_funds
   @requisition = Requisition.find(params[:id])
 
-  new_state = WorkflowState.find_by(
+  new_state = WorkflowState.find_by(approved_by: current_user.user_id,
     state: 'Liquidated',
     workflow_process_id: WorkflowProcess.find_by(workflow: 'Petty Cash Request')&.id
   )
