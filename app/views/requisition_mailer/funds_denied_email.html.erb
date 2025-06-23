@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <style>
+    body {
+      font-family: 'Trebuchet MS', sans-serif;
+    }
+  </style>
+</head>
+<body style="background-color: #F3F4F6; padding: 20px;">
+
+  <div style="border: 1px solid #002130; width: 100%; margin: 0 auto;">
+    <div style="background-color: #002130; font-weight: bold; color: #E3E4E7; padding: 20px; text-align: center; font-size: 1.5rem;">
+      Requisition Funding Denied
+    </div>
+
+    <div style="padding: 30px; font-size: 1.2rem;">
+      <p>
+        Dear <%= @requisition_details[:requester_name] %>,
+      </p>
+
+      <p>
+        Your requisition request for 
+        "<em><%= @requisition.purpose %></em>" was approved during the review process.
+      </p>
+
+      <p>
+        However, due to funding constraints or budgetary issues, the requested funds could not be disbursed at this time.
+      </p>
+
+      <p>
+        We understand this may be disappointing. Please contact the finance department for further clarification or next steps.
+      </p>
+
+      <p style="margin-top: 30px;">Best regards,<br/>Finance Team</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 30px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+    <p>Informatics Team. <%= Time.current.year %></p>
+  </div>
+
+</body>
+</html>
