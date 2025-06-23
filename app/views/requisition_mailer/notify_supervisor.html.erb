@@ -16,17 +16,17 @@
     </div>
 
     <div style="padding: 30px; font-size: 1.2rem;">
-      Dear <%= @requisition[:supervisor_full_name] %>,</p>
+      Dear <%= @requisition_details[:supervisor_full_name] %>,</p>
 
       <p>
         You have a new petty cash request awaiting your approval from
-        <strong><%= @requester.person.first_name %></strong>.
+        <strong><%= @requisition_details[:requester_name]%></strong>.
       </p>
 
-      <ul style="list-style: none; padding: 0;">
-        <li><strong>Amount:</strong> <%= number_to_currency(@requisition.requisition_items.sum(&:value), unit: 'MWK') %></li>
-        <li><strong>Purpose:</strong> <%= @requisition.purpose %></li>
-        <li><strong>Submitted:</strong> <%= @requisition.created_at.strftime('%b %d, %Y at %I:%M %p') %></li>
+       <ul style="list-style: none; padding: 0;">
+        <li><strong>Amount:</strong> <%= @requisition_details[:amount] %></li>
+        <li><strong>Purpose:</strong> <%= @requisition[:purpose]%></li>
+        <li><strong>Submitted:</strong> <%= @requisition_details[:created_at]%></li>
       </ul>
 
       <div style="display: flex; justify-content: center; margin-top: 20px;">
