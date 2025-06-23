@@ -24,15 +24,10 @@
       </p>
 
       <ul style="list-style: none; padding: 0;">
-        <li><strong>Request ID:</strong> <%= @requisition.id %></li>
         <li><strong>Amount:</strong> <%= number_to_currency(@requisition.requisition_items.sum(&:value), unit: 'MWK') %></li>
         <li><strong>Purpose:</strong> <%= @requisition.purpose %></li>
         <li><strong>Submitted:</strong> <%= @requisition.created_at.strftime('%b %d, %Y at %I:%M %p') %></li>
       </ul>
-
-      <p style="margin-top: 20px;">
-        To approve or reject this request, please log into OMIS using the button below:
-      </p>
 
       <div style="display: flex; justify-content: center; margin-top: 20px;">
         <a href="<%= "#{Rails.application.config.omis_url}/requisitions/#{@requisition.id}" %>"
@@ -44,7 +39,6 @@
 
       <p style="margin-top: 30px;">Please respond in time.</p>
 
-      <p>Thank you,<br><%= @requester.person.first_name %></p>
     </div>
   </div>
 

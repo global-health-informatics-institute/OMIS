@@ -23,7 +23,6 @@
       </p>
 
       <ul style="list-style: none; padding: 0;">
-        <li><strong>Request ID:</strong> <%= @requisition.id %></li>
         <li><strong>Amount:</strong> <%= number_to_currency(@requisition.requisition_items.sum(&:value), unit: 'MWK') %></li>
         <li><strong>Purpose:</strong> <%= @requisition.purpose %></li>
         <li><strong>Project:</strong> <%= @requisition.project.project_name %></li>
@@ -35,9 +34,6 @@
         <li><strong>Submitted:</strong> <%= @requisition.created_at.strftime('%b %d, %Y at %I:%M %p') %></li>
       </ul>
 
-      <p style="margin-top: 25px;">
-        To review and take action on this request, please use the button below:
-      </p>
 
       <div style="margin-top: 20px; text-align: center;">
         <a href="<%= "#{Rails.application.config.omis_url}/requisitions/#{@requisition.id}" %>"
@@ -49,7 +45,6 @@
 
       <p style="margin-top: 30px;">Please process this in time.</p>
 
-      <p>Thank you,<br>The Supervisor</p>
     </div>
   </div>
 
