@@ -5,6 +5,11 @@ class RequisitionMailer < ApplicationMailer
     @supervisor = supervisor
     @requester = Employee.find_by(employee_id: requisition.initiated_by)
     recipient_email = @supervisor.person.official_email || @supervisor.person.email_address
+     @requisition = {
+    
+     
+      supervisor_full_name: Employee.find_by_employee_id(requisition[:reviewed_by])&.person&.full_name
+    }
 
     mail(to: recipient_email, subject: 'New Requisition Requires Your Review') 
   end

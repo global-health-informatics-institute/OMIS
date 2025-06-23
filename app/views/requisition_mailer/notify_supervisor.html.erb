@@ -12,11 +12,11 @@
 
   <div style="border: 1px solid #002130; width:100%; margin: 0 auto;">
     <div style="background-color: #002130; font-weight: bold; color: #E3E4E7; padding: 20px; text-align: center; font-size: 1.5rem;">
-      Petty Cash Request Approval
+      Petty Cash Request Review Required
     </div>
 
     <div style="padding: 30px; font-size: 1.2rem;">
-      <p>Dear <%= @supervisor.person.first_name %>,</p>
+      Dear <%= @requisition[:supervisor_full_name] %>,</p>
 
       <p>
         You have a new petty cash request awaiting your approval from
