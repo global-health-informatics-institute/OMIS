@@ -16,18 +16,18 @@
     </div>
 
     <div style="padding: 30px; font-size: 1.2rem;">
-      <p>Dear <%= @admin.person.first_name %>,</p>
+      <p>Dear <%= @requisition_details[:admin_full_name] %>,</p>
 
       <p>
-        A petty cash request from <strong><%= @requester.person.first_name %></strong> has been approved by their supervisor and now requires your financial review:
+        A petty cash request from <strong><%= @requisition_details[:requester_name]%></strong> has been approved by their supervisor and now requires your financial review:
       </p>
 
       <ul style="list-style: none; padding: 0;">
-        <li><strong>Amount:</strong> <%= number_to_currency(@requisition.requisition_items.sum(&:value), unit: 'MWK') %></li>
-        <li><strong>Purpose:</strong> <%= @requisition.purpose %></li>
-        <li><strong>Project:</strong> <%= @requisition.project.project_name %></li>
-        <% if @supervisor_name.present? %>
-          <li><strong>Supervisor Approval:</strong> <%= @supervisor_name %></li>
+        <li><strong>Amount:</strong> <%= @requisition_details[:amount] %></li>
+        <li><strong>Purpose:</strong> <%= @requisition_details[:purpose] %></li>
+        <li><strong>Project:</strong> <%= @requisition_details[:project]%></li>
+        <% if @requisition_details[:supervisor_full_name].present? %>
+          <li><strong>Supervisor Approval:</strong> <%= @requisition_details[:supervisor_full_name] %></li>
         <% else %>
           <li><strong>Supervisor Approval:</strong> <em>Not available</em></li>
         <% end %>
