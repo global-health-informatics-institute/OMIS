@@ -480,7 +480,7 @@ class RequisitionsController < ApplicationController
   def rescind_request
     new_state = WorkflowState.where(state: 'Rescinded',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
-    @requisition = Requisition.find(params[:id]).update(voided: true, workflow_state_id: new_state.first.id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
 
