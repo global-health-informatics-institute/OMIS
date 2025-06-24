@@ -5,7 +5,6 @@ class RequisitionsController < ApplicationController
 
   def index
   end
-
   def show
     @requisition = Requisition.find(params[:id])
     @projects = Project.all
@@ -35,7 +34,6 @@ class RequisitionsController < ApplicationController
       render :edit
     end
   end
-
   def new
     @requisition = Requisition.new
     @selected_request = params['request_type']
@@ -486,7 +484,6 @@ class RequisitionsController < ApplicationController
     redirect_to "/requisitions/#{params[:id]}"
   end
 
-
   # Corrected: Removed the duplicate recall_request method
   def recall_request
     new_state = WorkflowState.where(state: 'Recalled',
@@ -514,14 +511,12 @@ class RequisitionsController < ApplicationController
     state: 'Liquidated',
     workflow_process_id: WorkflowProcess.find_by(workflow: 'Petty Cash Request')&.id
   )
-
   # Make sure used_amount is permitted via strong parameters
-  # You already have liquidate_params, let's use it!
   liquidate_params = params.require(:requisition).permit(:used_amount, :workflow_state_id, :approved_by)
   submitted_used_amount = liquidate_params[:used_amount]
 
   # Find or create the PettyCashComment
-  # This is the crucial part: Ensure a comment record exists to update
+  # Ensure a comment record exists to update
   petty_cash_comment = @requisition.petty_cash_comments.first_or_create(
     comment: nil, # Provide a default comment if creating
     used_amount: 0.0 # Provide a default used_amount if creating
@@ -540,7 +535,6 @@ class RequisitionsController < ApplicationController
   end
 rescue => e
   # This catch-all rescue should ideally be more specific,
-  # but it's useful for debugging unexpected errors.
   redirect_to "/requisitions/#{params[:id]}", alert: "Error: #{e.message}"
 end
 
