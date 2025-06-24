@@ -203,10 +203,10 @@ allowed_transitions = WorkflowStateActor
 # Fetch only requisitions that are in allowed states
 actions += Requisition.where(workflow_state_id: allowed_transitions).map do |x|
   if x.workflow_state_id == 29
-    ["Liquidate Funds for #{x.requisition_type} request: #{x.purpose}",
+    ["Liquidate Funds #{x.user.person.first_name}'s for #{x.requisition_type} request: #{x.purpose}",
      "/requisitions/#{x.id}"]
   else
-    ["Review #{x.requisition_type} request: #{x.purpose}",
+    ["Review #{x.user.person.first_name}'s #{x.requisition_type} request: #{x.purpose}",
      "/requisitions/#{x.id}"]
   end
 end
