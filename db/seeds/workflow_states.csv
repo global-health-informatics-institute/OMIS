@@ -34,3 +34,4 @@
 "33",5,"Rescinded","Leave Request rescinded",False,"2024-09-27 13:26:38.572892","2024-09-27 13:26:38.572892"
 "34",5,"Canceled","Leave request canceled by supervisor",False,"2024-09-27 13:26:38.579848","2024-09-27 13:26:38.579848"
 "35",4,"Recalled","State where petty cash has been recalled",False,"2025-04-10 08:38:58.92175","2025-04-10 08:38:58.92175"
+"36",4,"Liquidated","State where petty cash has been liquidated",False,"2025-04-10 08:38:58.92701","2025-04-10 08:38:58.92701"
