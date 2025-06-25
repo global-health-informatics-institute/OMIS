@@ -2,7 +2,7 @@ class RequisitionMailer < ApplicationMailer
   default from: 'omis@ghii.org'
 include ActionView::Helpers::NumberHelper  
   
-  def notify_supervisor(requisition, supervisor)
+  def request_petty_cash(requisition, supervisor)
   @requisition = requisition
   @requisition_details = {
     amount: number_to_currency(requisition.requisition_items.sum(&:value), unit: 'MWK'),
@@ -16,7 +16,7 @@ include ActionView::Helpers::NumberHelper
   recipient_email = supervisor.person.official_email || supervisor.person.email_address
   mail(to: recipient_email, subject: 'New Requisition Requires Your Review')
 end
-  def notify_admin(requisition, admin)
+  def request_funds_petty_cash(requisition, admin)
     @requisition = requisition
     @admin = admin
       @requisition_details = {
