@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Execute with:
-# bundle exec rails runner "db/seeds/timesheet_workflow_transition_fix.rb"
+# bundle exec rails runner "db/seeds/workflow_transition.rb"
 # This script clears existing WorkflowStateTransitions (via void or delete),
 # then loads new transitions from a JSON source file.
 
