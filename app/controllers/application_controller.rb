@@ -6,7 +6,7 @@ class ApplicationController < ActionController::Base
     @current_user ||= session[:user_id] && User.find_by(user_id: session[:user_id])
   end
 
-  def possible_actions(current_state, is_owner, is_supervisor)
+  def possible_actions(current_state, is_owner, is_supervisor, requisition=nil)
     actions = []
     designation_ids = current_user.employee.current_designations.collect { |x| x.designation_id }
     allowed_transitions = WorkflowStateActor.where(employee_designation_id:
@@ -24,8 +24,22 @@ class ApplicationController < ActionController::Base
       elsif is_supervisor && transition.by_supervisor and !is_owner
         actions.append(transition.action)
       # Special case: allow only designation_id = 12 for workflow_state_id = 28
-      elsif is_owner && [24,28, 29].include?(current_state) && designation_ids.include?(12)
-        actions.append(transition.action)
+     elsif is_owner && designation_ids.include?(12)
+  # Get the workflow process name for the current state
+     process = WorkflowState
+              .joins(:workflow_process)
+              .where(workflow_state_id: current_state)
+              .select('workflow_processes.workflow')
+              .first
+              &.workflow
+
+  if process == 'Petty Cash Request'
+    initial_state_id = InitialState.find_by(
+      workflow_process_id: WorkflowProcess.find_by(workflow: 'Petty Cash Request')&.id
+    )&.workflow_state_id
+
+    actions.append(transition.action) unless current_state == initial_state_id
+      end
       elsif !is_owner && WorkflowStateActor.where(
         workflow_state_id: current_state,
         employee_designation_id: designation_ids
