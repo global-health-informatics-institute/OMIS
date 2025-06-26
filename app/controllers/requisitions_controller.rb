@@ -1,8 +1,4 @@
 class RequisitionsController < ApplicationController
-  # before_action :show
-  skip_before_action :verify_authenticity_token, only: %i[approve_request reject_request approve_funds deny_funds]
-  skip_before_action :logged_in?, only: %i[approve_request reject_request approve_funds deny_funds]
-
   def index
   end
 
@@ -107,7 +103,7 @@ class RequisitionsController < ApplicationController
       supervisor = current_user.employee.supervisor
 
       # Send email without error checking
-      RequisitionMailer.notify_supervisor(@requisition, supervisor).deliver_now
+      RequisitionMailer.request_petty_cash(@requisition, supervisor).deliver_now
 
       flash[:notice] = 'Request successful. An email has been sent to your supervisor.'
       redirect_to "/requisitions/#{@requisition.id}"
@@ -143,7 +139,7 @@ class RequisitionsController < ApplicationController
                               .where(employee_designations: { designation_id: 12 }).distinct
 
             admin_users.each do |admin|
-              RequisitionMailer.notify_admin(@requisition, admin).deliver_now
+              RequisitionMailer.request_funds_petty_cash(@requisition, admin).deliver_now
             end
 
             flash[:notice] = 'Requisition approved successfully, the requester and admin notified.'
