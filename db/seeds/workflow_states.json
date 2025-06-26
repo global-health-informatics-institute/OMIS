@@ -1,0 +1,254 @@
+[
+  {
+    "workflow_state_id": 1,
+    "workflow_process_id": 1,
+    "state": "Requested",
+    "description": "Initial State of requesting an asset",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 2,
+    "workflow_process_id": 1,
+    "state": "Approved",
+    "description": "Request for the asset has been approved and asset can be given",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 3,
+    "workflow_process_id": 1,
+    "state": "Rejected",
+    "description": "Request for the asset has been rejected",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 4,
+    "workflow_process_id": 1,
+    "state": "Prepared",
+    "description": "Asset approved for use is ready for collection",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 5,
+    "workflow_process_id": 1,
+    "state": "Collected",
+    "description": "Approved asset has been collected by requester",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 6,
+    "workflow_process_id": 2,
+    "state": "Pending Submission",
+    "description": "State where the timesheet is open for editing by the user",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 7,
+    "workflow_process_id": 2,
+    "state": "Submitted",
+    "description": "State where the timesheet has been submitted by the employee to the supervisor for review",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 8,
+    "workflow_process_id": 2,
+    "state": "Recalled",
+    "description": "State where the timesheet was previously submitted by the employee to the supervisor for review but the employee requested the timesheet to be re-opened for editing",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 9,
+    "workflow_process_id": 2,
+    "state": "Rejected",
+    "description": "State where a submitted timesheet has been sent back by the supervisor for the employee to fix something",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 10,
+    "workflow_process_id": 2,
+    "state": "Approved",
+    "description": "State where a submitted timesheet has been cleared by the supervisor",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 11,
+    "workflow_process_id": 2,
+    "state": "Re-opened",
+    "description": "State where a previously approved timesheet is made available for editing by the supervisor or designated official",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 12,
+    "workflow_process_id": 2,
+    "state": "Re-submitted",
+    "description": "State where a timesheet has been resubmitted and has to be approves by the supervisor or designated official",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 13,
+    "workflow_process_id": 1,
+    "state": "Rescinded",
+    "description": "Request for asset has been withdrawn",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 14,
+    "workflow_process_id": 3,
+    "state": "Initiated",
+    "description": "Initial state were someone has requested travel",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 15,
+    "workflow_process_id": 3,
+    "state": "Program Approved",
+    "description": "State where the program manager has approved the trip as being necessary",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 16,
+    "workflow_process_id": 3,
+    "state": "Budget Approved",
+    "description": "State where the finance team has confirmed that the necessary budget for the travel is available",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 17,
+    "workflow_process_id": 3,
+    "state": "Approved",
+    "description": "The travel has been fully approved and can take place",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 18,
+    "workflow_process_id": 3,
+    "state": "Rescinded",
+    "description": "Original Requester has withdrawn the request for the travel",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 19,
+    "workflow_process_id": 3,
+    "state": "Program Rejected",
+    "description": "Travel rejected for programmatic reasons",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 20,
+    "workflow_process_id": 3,
+    "state": "Budget Rejected",
+    "description": "Travel rejected for budget or financial reasons",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 21,
+    "workflow_process_id": 3,
+    "state": "Denied",
+    "description": "Travel not approved and shouldn\u2019t take place",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 22,
+    "workflow_process_id": 4,
+    "state": "Requested",
+    "description": "State where petty cash has been requested",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 23,
+    "workflow_process_id": 4,
+    "state": "Rescinded",
+    "description": "State where request for petty cash has been withdrawn",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 24,
+    "workflow_process_id": 4,
+    "state": "Approved",
+    "description": "State where supervisor has approved request for petty cash",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 25,
+    "workflow_process_id": 4,
+    "state": "Finances Approved",
+    "description": "State where finance team has confirmed availability of funds",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 26,
+    "workflow_process_id": 4,
+    "state": "Rejected",
+    "description": "State where supervisor has rejected the request for petty cash",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 27,
+    "workflow_process_id": 4,
+    "state": "Finances Rejected",
+    "description": "State where finance team has rejected request due to insufficient funds",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 28,
+    "workflow_process_id": 4,
+    "state": "Prepared",
+    "description": "State where petty cash is ready for collection",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 29,
+    "workflow_process_id": 4,
+    "state": "Collected",
+    "description": "State where petty cash has been collected",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 30,
+    "workflow_process_id": 5,
+    "state": "Requested",
+    "description": "Initial State for leave requests",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 31,
+    "workflow_process_id": 5,
+    "state": "Approved",
+    "description": "Leave request approved by supervisor and can be taken",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 32,
+    "workflow_process_id": 5,
+    "state": "Rejected",
+    "description": "Leave rejected by supervisor",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 33,
+    "workflow_process_id": 5,
+    "state": "Rescinded",
+    "description": "Leave Request rescinded",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 34,
+    "workflow_process_id": 5,
+    "state": "Canceled",
+    "description": "Leave request canceled by supervisor",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 35,
+    "workflow_process_id": 4,
+    "state": "Recalled",
+    "description": "State where petty cash has been recalled",
+    "voided": false
+  },
+  {
+    "workflow_state_id": 36,
+    "workflow_process_id": 4,
+    "state": "Liquidated",
+    "description": "State where petty cash has been liquidated",
+    "voided": false
+  }
+]

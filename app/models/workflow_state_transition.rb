@@ -5,6 +5,7 @@ class WorkflowStateTransition < ApplicationRecord
   has_one :workflow_process, through: :workflow_state
   default_scope { where(voided: false) }
   def self.possible_actions(state, user, is_owner= false)
+    
     actions = []
 
     (WorkflowStateTransition.where(workflow_state_id: state) || []).each do |transition|

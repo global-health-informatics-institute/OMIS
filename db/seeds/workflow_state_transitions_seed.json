@@ -346,9 +346,17 @@
   {
     "workflow_state_id": 32,
     "next_state": 31,
-    "voided": true,
+    "voided": false,
     "action": "Approve Leave",
     "by_owner": false,
     "by_supervisor": true
+  },
+  {
+    "workflow_state_id": 9,
+    "next_state": 8,
+    "voided": false,
+    "action": "Recall Timesheet",
+    "by_owner": true,
+    "by_supervisor": false
   }
 ]
