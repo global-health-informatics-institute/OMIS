@@ -91,7 +91,7 @@ class Employee < ApplicationRecord
   end
 
   def current_projects
-    ProjectTeam.where(employee_id: employee_id, voided: false)
+    ProjectTeam.where(employee_id: employee_id, voided: false, end_date: nil)
   end
 
   def current_supervisors
@@ -173,12 +173,8 @@ class Employee < ApplicationRecord
   def pending_actions
     # this function is for getting things that a person should act on
     actions = []
-
-    # Get things that I need to do routinely as an employee
-
     # Get things that need my approval or review as a supervisor
     supervisor_transitions = WorkflowStateActor.where(by_supervisor: true)
-    # Get things that need my approval or review based on my role
 
     # outstanding timesheets
     actions += Timesheet.select('timesheet_id, employee_id, timesheet_week')
@@ -197,43 +193,39 @@ class Employee < ApplicationRecord
       ["Review #{x.employee.person.first_name}\'s #{x.timesheet_week.strftime('%d %b, %Y')} timesheet",
        "/timesheets/#{x.id}"]
     end
-    designation_ids = current_designations.collect(&:designation_id)
+    designation_ids = current_designations.map(&:designation_id)
 
-    allowed_transitions = WorkflowStateActor.where(
-      employee_designation_id: current_designations.collect { |x| x.designation_id }
-    ).where.not(workflow_state_id: [22, 27, 28, 29]).pluck(:workflow_state_id)
-    # Add exception: allow workflow_state_ids 28 and 29 for designation_id 12
-      [28, 29].each do |workflow_state_id|
-      allowed_transitions << workflow_state_id if designation_ids.include?(12) && !allowed_transitions.include?(workflow_state_id)
+# Get workflow_state_ids from non-voided actors only
+allowed_transitions = WorkflowStateActor
+  .where(employee_designation_id: designation_ids, voided: false)
+  .pluck(:workflow_state_id)
 
-      end
-    # requisition finance reviews
-    actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
-                          .collect do |x|
-      if x.workflow_state_id == 29
-          ["Liquidate Funds for #{x.requisition_type} request: #{x.purpose}",
-         "/requisitions/#{x.id}"]
-         elsif x.workflow_state_id == 28
-        ["Disburse Funds for #{x.requisition_type} request: #{x.purpose}",
-          "/requisitions/#{x.id}"]
-      else
-        ["Review #{x.requisition_type} request: #{x.purpose}",
-         "/requisitions/#{x.id}"]
-      end
-    end
+# Fetch only requisitions that are in allowed states
+actions += Requisition.where(workflow_state_id: allowed_transitions).map do |x|
+  if x.workflow_state_id == 29
+    ["Liquidate Funds #{x.user.person.first_name}'s for #{x.requisition_type} request: #{x.purpose}",
+     "/requisitions/#{x.id}"]
+  else
+    ["Review #{x.user.person.first_name}'s #{x.requisition_type} request: #{x.purpose}",
+     "/requisitions/#{x.id}"]
+  end
+end
 
     # self requisitions
-    owner_actionable_states = WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id)
-    actions += Requisition.where('workflow_state_id in (?) and initiated_by = ?', owner_actionable_states.uniq, id) # Use .uniq to avoid duplicates
-                          .collect do |x|
-      if x.workflow_state_id == 28
-        ["Collect Funds for #{x.requisition_type} request: #{x.purpose}",
-         "/requisitions/#{x.id}"]
-      else
-        ["Check #{x.requisition_type} request: #{x.purpose}",
-         "/requisitions/#{x.id}"]
-      end
-    end
+   # Get workflow_state_ids where owner can act (filtered by the database)
+owner_actionable_states = WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id).uniq
+
+# Find requisitions in owner-actionable states initiated by current user
+actions += Requisition.where(workflow_state_id: owner_actionable_states, initiated_by: id).map do |x|
+  if x.workflow_state_id == 28
+    ["Collect Funds for #{x.requisition_type} request: #{x.purpose}",
+     "/requisitions/#{x.id}"]
+  else
+    ["Check #{x.requisition_type} request: #{x.purpose}",
+     "/requisitions/#{x.id}"]
+  end
+end
+
 
  actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
                       .where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
@@ -241,8 +233,6 @@ class Employee < ApplicationRecord
   ["Review #{x.user.person.first_name}'s #{x.requisition_type} requisition for #{x.purpose}",
   "/requisitions/#{x.id}"]
 end
-
-
 
     actions += LeaveRequest.where('status in (?) and employee_id in (?)', WorkflowStateTransition
                            .where(by_owner: true).collect { |x| x.workflow_state_id }, id)

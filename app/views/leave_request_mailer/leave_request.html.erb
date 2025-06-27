@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  <style>
+      body {
+          font-family: 'Trebuchet MS', sans-serif;
+      }
+  </style>
+</head>
+<body style="background-color: #F3F4F6; padding: 20px;">
+
+<div style="border: 1px solid #002130; width:100%; margin: 0 auto;">
+  <div style="background-color: #002130; font-weight: bold; color: #E3E4E7; padding: 20px; text-align: center; font-size: 1.5rem;">
+    <%= @leave_details[:leave_type] %> Request
+  </div>
+  <div style="padding: 30px; font-size: 1.2rem;">
+    <p>
+      Dear <%= @leave_details[:supervisor_full_name] %>,
+    </p>
+    <p>
+      Please review the <%= @leave_details[:leave_type] %> request from <%= @leave_details[:requester_full_name] %>.
+      Requesting leave <%= @leave_details[:duration] %>.
+    </p>
+    <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+      <a href="<%= "#{Rails.application.config.omis_url}/leave_requests/#{@leave_details[:leave_id]}" %>"
+         style="display: inline-block; padding: 10px 20px; background-color: #002130; color: #E3E4E7;
+                text-decoration: none; border-radius: 5px; font-weight: bold; margin-right: 20px;">
+        Review on OMIS
+      </a>
+    </div>
+  </div>
+</div>
+<div style="margin-top: 30px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+    <p>Informatics Team. <%= Time.current.year %></p>
+</div>
+</body>
+</html>

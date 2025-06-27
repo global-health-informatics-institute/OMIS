@@ -1,11 +1,13 @@
 # require 'holidays'
 
+
 class LeaveRequestsController < ApplicationController
   def create
     state_id = InitialState.find_by_workflow_process_id(WorkflowProcess.find_by_workflow('Leave Request')).workflow_state_id
     @leave_request = LeaveRequest.create(leave_type: params[:request_type], employee_id: params[:requester],
                                          start_on: params[:start_date], end_on: params[:end_date],
                                          stand_in: params[:stand_in], status: state_id)
+    LeaveRequestMailer.leave_request(@leave_request).deliver_now
     redirect_to "/leave_requests/#{@leave_request.id}"
   end
 
@@ -82,7 +84,7 @@ class LeaveRequestsController < ApplicationController
                                  .update(reviewed_by: current_user.user_id, reviewed_on: Time.now,
                                          approved_by: current_user.user_id, approved_on: Time.now,
                                          status: new_state.first.id)
-
+    LeaveRequestMailer.approve_leave_request(@leave_request).deliver_now
     redirect_to "/leave_requests/#{params[:id]}"
   end
   def cancel_leave
@@ -108,6 +110,8 @@ class LeaveRequestsController < ApplicationController
                                     workflow_process_id: WorkflowProcess.find_by_workflow("Leave Request").id)
     @leave_request = LeaveRequest.where(leave_request_id: params[:id])
                                  .update(status: new_state.first.id)
+    LeaveRequestMailer.deny_leave_request(@leave_request).deliver_now
+    
 
     redirect_to "/leave_requests/#{params[:id]}"
   end
