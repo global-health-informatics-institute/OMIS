@@ -24,7 +24,8 @@ class PurchaseRequestsController < ApplicationController
       initiated_on: params[:requisition][:initiated_on] || Date.today,
       purpose: params[:requisition][:purpose],
       requisition_type: "Purchase Request",
-      workflow_state_id: initial_state&.workflow_state_id
+      workflow_state_id: initial_state&.workflow_state_id,
+      department_id: params[:requisition][:department_id]
     )
 
     # 3. Save all records in transaction
@@ -41,7 +42,6 @@ class PurchaseRequestsController < ApplicationController
         # Create attachment
         PurchaseRequestAttachment.create(
           requisition_id: @requisition.id,
-          department_id: params[:requisition][:department_id],
           stakeholder_id: params[:requisition][:stakeholder_id],
           comments: params[:requisition][:comments],
           supplier: params[:requisition][:supplier],
