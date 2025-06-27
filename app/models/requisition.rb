@@ -3,6 +3,7 @@ class Requisition < ApplicationRecord
   #belongs_to :project, foreign_key: :project_id
   #the project to be option
   belongs_to :project, foreign_key: :project_id, optional: true
+  belongs_to :department, foreign_key: :department_id, optional: true
 
   has_one :purchase_request_attachment, foreign_key: :requisition_id
   has_many :requisition_items, :foreign_key => :requisition_id
