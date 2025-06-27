@@ -20,7 +20,7 @@
             <div class="col-2 fw-normal">Initiated By</div>
             <div class="col-2 fw-bold fst-italic"><%= @requisition.user.full_name %></div>
             <div class="col-2 fw-normal">Department</div>
-            <div class="col-2 fw-bold fst-italic"><%= @requisition.purchase_request_attachment&.department&.department_name %></div>
+            <div class="col-2 fw-bold fst-italic"><%= @requisition&.department&.department_name %></div>
           </div>
 
           <div class="row mt-4 mb-4">
