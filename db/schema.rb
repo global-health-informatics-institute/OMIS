@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_06_20_072307) do
+ActiveRecord::Schema[7.0].define(version: 2025_06_26_125755) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -243,11 +243,10 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_20_072307) do
 
   create_table "petty_cash_comments", force: :cascade do |t|
     t.text "comment"
-    t.decimal "used_amount"
+    t.decimal "used_amount", precision: 10, scale: 2
     t.bigint "requisition_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["requisition_id"], name: "index_petty_cash_comments_on_requisition_id"
   end
 
   create_table "project_task_assignments", primary_key: "project_task_assignment_id", force: :cascade do |t|
@@ -300,7 +299,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_20_072307) do
     t.text "comments"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "department_id"
     t.integer "stakeholder_id"
     t.string "supplier"
     t.index ["stakeholder_id"], name: "index_purchase_request_attachments_on_stakeholder_id"
@@ -346,6 +344,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_20_072307) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "project_id"
+    t.integer "department_id"
   end
 
   create_table "stakeholders", primary_key: "stakeholder_id", force: :cascade do |t|
@@ -468,7 +467,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_20_072307) do
   add_foreign_key "departments", "branches", primary_key: "branch_id"
   add_foreign_key "employees", "people", primary_key: "person_id"
   add_foreign_key "petty_cash_comments", "requisitions", primary_key: "requisition_id"
-  add_foreign_key "purchase_request_attachments", "departments", primary_key: "department_id"
   add_foreign_key "purchase_request_attachments", "requisitions", primary_key: "requisition_id"
   add_foreign_key "purchase_request_attachments", "stakeholders", primary_key: "stakeholder_id"
+  add_foreign_key "requisitions", "departments", primary_key: "department_id"
 end
