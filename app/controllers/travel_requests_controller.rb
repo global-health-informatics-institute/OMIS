@@ -3,12 +3,9 @@ class TravelRequestsController < ApplicationController
   # GET /travel_request/new
   # This action will render the form for a new travel request
   def new
-    @requisition = Requisition.new # Still using @requisition as per your form model
-    # You'll need to define @employees for your select field.
-    @employees = Employee.all # Make sure Employee model exists and has data
+    @requisition = Requisition.new 
+    @employees = Employee.all 
   end
-
-  # POST /travel_request
   # This action handles the form submission to create a new travel request
   def create
     @requisition = Requisition.new(travel_request_params)
@@ -38,7 +35,7 @@ class TravelRequestsController < ApplicationController
       :Destination,
       :Project,
       :departure_date,
-      :return_date, # Make sure this matches your form if it's there
+      :return_date,
       :purpose,
       :amount_requested,
       employee_ids: []
