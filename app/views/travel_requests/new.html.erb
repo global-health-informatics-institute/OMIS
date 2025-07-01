@@ -1,0 +1,68 @@
+<% content_for :title, "New Travel Request" %>
+
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header text-center">
+          <h2 class="mb-0">New Travel Request</h2>
+          <div class="progress mt-3">
+            <% current_step_index = TravelRequest.steps.index(@travel_request.current_step) %>
+            <div class="progress-bar" role="progressbar" style="width: <%= ((current_step_index + 1).to_f / TravelRequest.steps.size) * 100 %>%" aria-valuenow="<%= current_step_index + 1 %>" aria-valuemin="0" aria-valuemax="<%= TravelRequest.steps.size %>">
+              Step <%= current_step_index + 1 %> of <%= TravelRequest.steps.size %>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <%#
+             The form_with helper dynamically determines the HTTP method:
+             - POST to travel_requests_path for the initial step (create action)
+             - PATCH/PUT to travel_request_path(@travel_request) for subsequent steps (update action)
+             This is handled by Rails internally because the model object is passed.
+          %>
+          <%= form_with(model: @travel_request, url: travel_requests_path, local: true) do |form| %>
+            <%# Hidden field to pass the current step to the controller %>
+            <%= form.hidden_field :current_step, value: @travel_request.current_step %>
+
+            <%# Display validation errors %>
+            <% if @travel_request.errors.any? %>
+              <div id="error_explanation" class="alert alert-danger">
+                <h2><%= pluralize(@travel_request.errors.count, "error") %> prohibited this travel request from being saved:</h2>
+                <ul>
+                  <% @travel_request.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <%# Render the appropriate partial based on the current step %>
+            <% case @travel_request.current_step %>
+            <% when 'travel_details' %>
+              <%= render 'travel_details_form', form: form %>
+            <% when 'financial_details' %>
+              <%= render 'financial_details_form', form: form %>
+            <% end %>
+
+            <div class="d-flex justify-content-between mt-4">
+              <%# "Back" button - hidden on the first step %>
+              <% if @travel_request.current_step != TravelRequest.steps.first %>
+                <%= form.submit "Back", name: :back_button, class: "btn btn-secondary" %>
+              <% else %>
+                <%# Placeholder to maintain spacing if no back button %>
+                <div></div>
+              <% end %>
+
+              <%# "Next Step" or "Submit Request" button %>
+              <% if @travel_request.current_step == TravelRequest.steps.last %>
+                <%= form.submit "Submit Request", class: "btn btn-primary" %>
+              <% else %>
+                <%= form.submit "Next Step", class: "btn btn-primary" %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
