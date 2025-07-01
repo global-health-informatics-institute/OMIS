@@ -1,0 +1,46 @@
+<h3>Step 1: Travel Details</h3>
+<div class="mb-3">
+  <%= form.label :destination, class: "form-label" %>
+  <%= form.text_field :destination, class: "form-control" %>
+</div>
+
+<div class="mb-3">
+  <%= form.label :vehicle_id, class: "form-label" %>
+  <%# Uses the Asset.vehicles scope to filter for vehicles only %>
+  <%= form.collection_select :vehicle_id, Asset.vehicles, :id, :description, { prompt: "Select a Vehicle" }, class: "form-select" %>
+</div>
+
+<div class="mb-3">
+  <%= form.label :distance, class: "form-label" %>
+  <%= form.number_field :distance, step: :any, class: "form-control" %>
+</div>
+
+<div class="mb-3">
+  <%= form.label :traveler_names, class: "form-label" %>
+  <%= form.text_area :traveler_names, class: "form-control", rows: 3, placeholder: "Enter names separated by commas (e.g., John Doe, Jane Smith)" %>
+</div>
+
+<div class="mb-3">
+  <%= form.label :departure_date, class: "form-label" %>
+  <%= form.date_field :departure_date, class: "form-control" %>
+</div>
+
+<div class="mb-3">
+  <%= form.label :return_date, class: "form-label" %>
+  <%= form.date_field :return_date, class: "form-control" %>
+</div>
+
+<div class="mb-3">
+  <%= form.label :purpose, class: "form-label" %>
+  <%= form.text_area :purpose, class: "form-control", rows: 3 %>
+</div>
+
+<div class="mb-3">
+  <%= form.label :department, class: "form-label" %>
+  <%= form.text_field :department, class: "form-control" %>
+</div>
+
+<div class="mb-3">
+  <%= form.label :project, class: "form-label" %>
+  <%= form.text_field :project, class: "form-control" %>
+</div>
