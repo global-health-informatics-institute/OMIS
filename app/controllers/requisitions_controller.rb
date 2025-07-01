@@ -51,7 +51,8 @@ class RequisitionsController < ApplicationController
     when 'Purchase Request'
 
     when 'Travel Request'
-      @employees = Employee.where(still_employed: true).collect { |x| x.person.full_name }
+      redirect_to new_travel_request_path and return 
+      #@employees = Employee.where(still_employed: true).collect { |x| x.person.full_name }
     when 'Personnel Requests'
 
     when 'Token Request'
