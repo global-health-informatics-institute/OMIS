@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_05_30_140551) do
+ActiveRecord::Schema[7.0].define(version: 2025_07_01_070117) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -57,15 +57,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_30_140551) do
     t.boolean "is_open", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "comments", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }
-    t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }
-    t.text "description"
-    t.integer "timesheet_id"
-    t.boolean "voided", default: false
-    t.integer "workflow_state_id"
   end
 
   create_table "departments", primary_key: "department_id", force: :cascade do |t|
@@ -222,6 +213,14 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_30_140551) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "petty_cash_comments", force: :cascade do |t|
+    t.text "comment"
+    t.decimal "used_amount", precision: 10, scale: 2
+    t.bigint "requisition_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "project_task_assignments", primary_key: "project_task_assignment_id", force: :cascade do |t|
     t.integer "project_task_id", null: false
     t.integer "assigned_to", null: false
@@ -345,6 +344,18 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_30_140551) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "travel_requests", force: :cascade do |t|
+    t.bigint "requisition_id", null: false
+    t.integer "distance"
+    t.boolean "voided", default: false
+    t.text "traveler_names"
+    t.datetime "departure_date", precision: nil
+    t.datetime "return_date", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "destination"
+  end
+
   create_table "users", primary_key: "user_id", force: :cascade do |t|
     t.integer "employee_id", null: false
     t.string "username", null: false
@@ -413,4 +424,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_30_140551) do
 
   add_foreign_key "departments", "branches", primary_key: "branch_id"
   add_foreign_key "employees", "people", primary_key: "person_id"
+  add_foreign_key "petty_cash_comments", "requisitions", primary_key: "requisition_id"
+  add_foreign_key "travel_requests", "requisitions", primary_key: "requisition_id"
 end
