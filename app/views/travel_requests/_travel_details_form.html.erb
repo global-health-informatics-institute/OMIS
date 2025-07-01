@@ -5,9 +5,9 @@
 </div>
 
 <div class="mb-3">
-  <%= form.label :vehicle_id, class: "form-label" %>
+  <%= form.label :Vehicle, class: "form-label" %>
   <%# Uses the Asset.vehicles scope to filter for vehicles only %>
-  <%= form.collection_select :vehicle_id, Asset.vehicles, :id, :description, { prompt: "Select a Vehicle" }, class: "form-select" %>
+  <%= form.collection_select :Asset_id, Asset.vehicles, :id, :description, { prompt: "Select a Vehicle" }, class: "form-select" %>
 </div>
 
 <div class="mb-3">
