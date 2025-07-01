@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_07_01_070117) do
+ActiveRecord::Schema[7.0].define(version: 2025_07_01_084304) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -354,6 +354,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_01_070117) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "destination"
+    t.integer "asset_id"
+    t.index ["asset_id"], name: "index_travel_requests_on_asset_id"
   end
 
   create_table "users", primary_key: "user_id", force: :cascade do |t|
@@ -425,5 +427,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_01_070117) do
   add_foreign_key "departments", "branches", primary_key: "branch_id"
   add_foreign_key "employees", "people", primary_key: "person_id"
   add_foreign_key "petty_cash_comments", "requisitions", primary_key: "requisition_id"
+  add_foreign_key "travel_requests", "assets", primary_key: "asset_id"
   add_foreign_key "travel_requests", "requisitions", primary_key: "requisition_id"
 end
