@@ -19,9 +19,9 @@ Rails.application.routes.draw do
   resources :project_task_assignments
   resources :user_sessions, only: [:new, :create, :destroy]
 
-  get 'travel_requests/new', to: 'travel_requests#new', as: :save_budget_details
-  post 'travel_requests/create', to: 'travel_requests#create', as: :create_travel_requests
-  get 'travel_requests/:id', to: 'travel_requests#show', as: :travel_request_show
+  resources :travel_requests, only: [:new, :create, :show, :update] 
+  get '/requisition_items/new_step2', to: 'requisition_items#new_step2', as: 'new_step2'
+  post '/requisition_items/create_step2', to: 'requisition_items#create_step2', as: 'create_step2'
 
   
   put 'timesheets/:id/submit_timesheet', to: 'timesheets#submit_timesheet'
