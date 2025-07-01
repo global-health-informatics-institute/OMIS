@@ -1,0 +1,98 @@
+<h3>Step 2: Financial Details</h3>
+
+<div class="mb-3">
+  <%= form.label :unit_fuel_cost, class: "form-label" %>
+  <%= form.number_field :unit_fuel_cost, step: :any, class: "form-control", id: "unit_fuel_cost_field" %>
+</div>
+
+<div class="mb-3">
+  <%= form.label :consumption, class: "form-label" %>
+  <%= form.number_field :consumption, step: :any, class: "form-control", id: "consumption_field" %>
+</div>
+
+<div class="mb-3">
+  <%# total_fuel_cost is calculated client-side and displayed here %>
+  <%= form.label :total_fuel_cost, class: "form-label" %>
+  <%= form.number_field :total_fuel_cost, step: :any, class: "form-control", readonly: true, id: "total_fuel_cost_field" %>
+</div>
+
+<div class="mb-3">
+  <%= form.label :lunch_allowance, class: "form-label" %>
+  <%# Pre-populate from global properties or existing value %>
+  <%= form.number_field :lunch_allowance, step: :any, class: "form-control allowance-field", id: "lunch_allowance_field", value: @travel_request.lunch_allowance.presence || GlobalProperty.get('default_lunch_allowance').to_f %>
+</div>
+
+<div class="mb-3">
+  <%= form.label :dinner_allowance, class: "form-label" %>
+  <%# Pre-populate from global properties or existing value %>
+  <%= form.number_field :dinner_allowance, step: :any, class: "form-control allowance-field", id: "dinner_allowance_field", value: @travel_request.dinner_allowance.presence || GlobalProperty.get('default_dinner_allowance').to_f %>
+</div>
+
+<div class="mb-3">
+  <%= form.label :accommodation, class: "form-label" %>
+  <%= form.number_field :accommodation, step: :any, class: "form-control allowance-field", id: "accommodation_field" %>
+</div>
+
+<div class="mb-3">
+  <%# total_allowance is calculated client-side and displayed here %>
+  <%= form.label :total_allowance, class: "form-label" %>
+  <%= form.number_field :total_allowance, step: :any, class: "form-control", readonly: true, id: "total_allowance_field" %>
+</div>
+
+<div class="mb-3">
+  <%# grand_total is calculated client-side and displayed here %>
+  <%= form.label :grand_total, class: "form-label" %>
+  <%= form.number_field :grand_total, step: :any, class: "form-control", readonly: true, id: "grand_total_field" %>
+</div>
+
+<%# JavaScript for dynamic calculations %>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const unitFuelCostField = document.getElementById('unit_fuel_cost_field');
+    const consumptionField = document.getElementById('consumption_field');
+    const totalFuelCostField = document.getElementById('total_fuel_cost_field');
+
+    const lunchAllowanceField = document.getElementById('lunch_allowance_field');
+    const dinnerAllowanceField = document.getElementById('dinner_allowance_field');
+    const accommodationField = document.getElementById('accommodation_field');
+    const totalAllowanceField = document.getElementById('total_allowance_field');
+
+    const grandTotalField = document.getElementById('grand_total_field');
+
+    function calculateFuelCost() {
+      const unitCost = parseFloat(unitFuelCostField.value) || 0;
+      const consumption = parseFloat(consumptionField.value) || 0;
+      const total = unitCost * consumption;
+      totalFuelCostField.value = total.toFixed(2); // Format to 2 decimal places
+      updateGrandTotal();
+    }
+
+    function calculateTotalAllowance() {
+      const lunch = parseFloat(lunchAllowanceField.value) || 0;
+      const dinner = parseFloat(dinnerAllowanceField.value) || 0;
+      const accommodation = parseFloat(accommodationField.value) || 0;
+      const total = lunch + dinner + accommodation;
+      totalAllowanceField.value = total.toFixed(2);
+      updateGrandTotal();
+    }
+
+    function updateGrandTotal() {
+      const totalFuel = parseFloat(totalFuelCostField.value) || 0;
+      const totalAllowance = parseFloat(totalAllowanceField.value) || 0;
+      const grandTotal = totalFuel + totalAllowance;
+      grandTotalField.value = grandTotal.toFixed(2);
+    }
+
+    // Add event listeners for input changes
+    unitFuelCostField.addEventListener('input', calculateFuelCost);
+    consumptionField.addEventListener('input', calculateFuelCost);
+
+    lunchAllowanceField.addEventListener('input', calculateTotalAllowance);
+    dinnerAllowanceField.addEventListener('input', calculateTotalAllowance);
+    accommodationField.addEventListener('input', calculateTotalAllowance);
+
+    // Initial calculation on page load in case fields are pre-filled (e.g., from session)
+    calculateFuelCost();
+    calculateTotalAllowance();
+  });
+</script>
