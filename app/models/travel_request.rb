@@ -30,7 +30,7 @@ class TravelRequest < ApplicationRecord
   end
 
   def calculate_total_fuel_cost
-    (unit_fuel_cost || 0) * (consumption || 0)
+    (unit_fuel_cost || 0) * (fuel_consumption || 0) * (distance || 0)
   end
 
   def calculate_total_allowance

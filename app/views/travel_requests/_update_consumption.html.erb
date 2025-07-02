@@ -1,9 +1,19 @@
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const fuelField = document.getElementById('consumption_field');
-    if (fuelField) {
-      fuelField.value = <%= fuel || 0 %>;
-      fuelField.dispatchEvent(new Event('input')); // trigger JS calculations
-    }
-  });
-</script>
+
+<%# app/views/travel_requests/_update_consumption.html.erb %>
+
+<turbo-frame id="fuel_consumption_frame">
+  <script type="text/javascript">
+    (() => {
+      console.log("Injecting fuel value...");
+      const field = document.getElementById('consumption_field');
+      if (field) {
+        // Use raw to prevent double-escaping the to_json output
+        console.log("Field found. Setting value to", <%= raw (fuel || 0).to_json %>);
+        field.value = <%= raw (fuel || 0).to_json %>;
+        field.dispatchEvent(new Event('input'));
+      } else {
+        console.warn("Consumption field not found!");
+      }
+    })();
+  </script>
+</turbo-frame>

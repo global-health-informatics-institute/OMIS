@@ -4,8 +4,7 @@ class TravelRequestsController < ApplicationController
   def new
     @travel_request = TravelRequest.new(session[:travel_request_params])
     @travel_request.current_step = session[:travel_request_step] || TravelRequest.steps.first
-    @project_options = Project.all.collect { |x| [x.project_name, x.id] }
-    @selected_project = Project.find_by_short_name(params[:prj])
+    prepare_project_options
 
 
     # Set default values for financial details if it's the current step
@@ -23,6 +22,7 @@ class TravelRequestsController < ApplicationController
   def create
     @travel_request = TravelRequest.new(travel_request_params)
     @travel_request.current_step = TravelRequest.steps.first # Always start with the first step's validation
+    prepare_project_options
 
     if @travel_request.current_step_valid?
       # Store all permitted parameters (including attr_accessor ones) in the session
@@ -58,8 +58,7 @@ class TravelRequestsController < ApplicationController
 
     # Validate data for the current step
     if @travel_request.current_step_valid?
-      if @travel_request.current_step == TravelRequest.steps.last # This is the final step
-        # --- FINAL SAVE: Create Requisition and TravelRequest in a transaction ---
+      if @travel_request.current_step == TravelRequest.steps.last
         ActiveRecord::Base.transaction do
           # 1. Determine the workflow state for Travel Requests
           travel_workflow_process = WorkflowProcess.find_by_workflow('Travel Request')
@@ -106,9 +105,6 @@ class TravelRequestsController < ApplicationController
             raise ActiveRecord::Rollback
           end
 
-          # 6. Create the RequisitionItem (if needed, linked to the new Requisition)
-          # Ensure create_requisition_item! properly uses @travel_request.requisition_id or requisition.id
-          # If create_requisition_item! is on TravelRequest model and uses self.requisition_id, it's fine.
           RequisitionItem.create!(
             requisition_id: @travel_request.requisition_id,
             value: grand_total,
@@ -144,20 +140,29 @@ class TravelRequestsController < ApplicationController
 
   def show
     @requisition = Requisition.find(params[:id])
-    @projects = Project.all
-    @project_options = Project.all.collect { |x| [x.project_name, x.id] }
+    prepare_project_options
   end
 
   # Action for Turbo Frame to dynamically update fuel consumption based on asset selection
   def fuel_consumption
-    asset = Asset.find_by(asset_id: params[:asset_id]) # Assuming asset_id is the unique identifier
-    key = asset&.fuel_key # Assuming Asset has a fuel_key attribute
-    @fuel_value = GlobalProperty.find_by(property: key)&.property_value # Assuming GlobalProperty stores values
-    render partial: "travel_requests/update_consumption", locals: { fuel: @fuel_value }
-  end
+  asset = Asset.find_by(asset_id: params[:asset_id])
+  key = asset&.fuel_key
+  fuel_property = GlobalProperty.find_by(property: key)
+  @fuel_value = fuel_property&.property_value
+
+  Rails.logger.debug "Fuel Key: #{key}"
+  Rails.logger.debug "Fuel Value: #{@fuel_value.inspect}"
+
+  render partial: "travel_requests/update_consumption", locals: { fuel: @fuel_value }
+end
 
 
   private
+
+def prepare_project_options
+  @project_options = Project.all.map { |p| [p.project_name, p.id] }
+  @selected_project = Project.find_by_short_name(params[:prj])
+end
 
   def set_travel_request
     @travel_request = TravelRequest.find(params[:id])

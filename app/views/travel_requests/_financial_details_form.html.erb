@@ -4,11 +4,13 @@
   <%= form.label :unit_fuel_cost, class: "form-label" %>
   <%= form.number_field :unit_fuel_cost, step: :any, class: "form-control", id: "unit_fuel_cost_field" %>
 </div>
+  <turbo-frame id="fuel_consumption_frame">
+  <div class="mb-3">
+    <%= form.label :consumption, class: "form-label" %>
+    <%= form.number_field :consumption, step: :any, class: "form-control", id: "consumption_field" %>
+  </div>
+</turbo-frame>
 
-<div class="mb-3">
-  <%= form.label :consumption, class: "form-label" %>
-  <%= form.number_field :consumption, step: :any, class: "form-control", id: "consumption_field" %>
-</div>
 
 <div class="mb-3">
   <%# total_fuel_cost is calculated client-side and displayed here %>
