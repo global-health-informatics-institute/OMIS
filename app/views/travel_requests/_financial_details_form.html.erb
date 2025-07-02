@@ -19,18 +19,18 @@
 <div class="mb-3">
   <%= form.label :lunch_allowance, class: "form-label" %>
   <%# Pre-populate from global properties or existing value %>
-  <%= form.number_field :lunch_allowance, step: :any, class: "form-control allowance-field", id: "lunch_allowance_field", value: @travel_request.lunch_allowance.presence || GlobalProperty.get('default_lunch_allowance').to_f %>
+  <%= form.number_field :lunch_allowance, step: :any, class: "form-control allowance-field", id: "lunch_allowance_field", value: @travel_request.lunch_allowance.presence || GlobalProperty.lunch_allowance.to_f%>
 </div>
 
 <div class="mb-3">
   <%= form.label :dinner_allowance, class: "form-label" %>
   <%# Pre-populate from global properties or existing value %>
-  <%= form.number_field :dinner_allowance, step: :any, class: "form-control allowance-field", id: "dinner_allowance_field", value: @travel_request.dinner_allowance.presence || GlobalProperty.get('default_dinner_allowance').to_f %>
+  <%= form.number_field :dinner_allowance, step: :any, class: "form-control allowance-field", id: "dinner_allowance_field", value: @travel_request.dinner_allowance.presence || GlobalProperty.dinner_allowance.to_f %>
 </div>
 
 <div class="mb-3">
   <%= form.label :accommodation, class: "form-label" %>
-  <%= form.number_field :accommodation, step: :any, class: "form-control allowance-field", id: "accommodation_field" %>
+  <%= form.number_field :accommodation, step: :any, class: "form-control allowance-field", id: "accommodation_field", value: @travel_request.accommodation.presence || GlobalProperty.accommodation.to_f %>
 </div>
 
 <div class="mb-3">
