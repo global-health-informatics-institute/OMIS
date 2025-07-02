@@ -4,8 +4,13 @@ class TravelRequestsController < ApplicationController
   def new
     @travel_request = TravelRequest.new(session[:travel_request_params])
     @travel_request.current_step = session[:travel_request_step] || TravelRequest.steps.first
+    @project_options = Project.all.collect { |x| [x.project_name, x.id] }
+    @selected_project = Project.find_by_short_name(params[:prj])
 
+
+    # Set default values for financial details if it's the current step
     if @travel_request.current_step == 'financial_details'
+      # Ensure GlobalProperty.lunch_allowance etc. return numeric values (e.g., .to_f)
       @travel_request.lunch_allowance ||= GlobalProperty.lunch_allowance.to_f
       @travel_request.dinner_allowance ||= GlobalProperty.dinner_allowance.to_f
       @travel_request.accommodation ||= GlobalProperty.accommodation.to_f
@@ -13,62 +18,144 @@ class TravelRequestsController < ApplicationController
     end
   end
 
+  # This action handles the submission of the FIRST step of the multi-step form.
+  # It does NOT save the Requisition or TravelRequest to the database yet.
   def create
-    # When a new request is created, it always starts at the first step
     @travel_request = TravelRequest.new(travel_request_params)
-    @travel_request.current_step = TravelRequest.steps.first # Ensure current_step is set for initial validation
+    @travel_request.current_step = TravelRequest.steps.first # Always start with the first step's validation
 
     if @travel_request.current_step_valid?
-      session[:travel_request_params] = travel_request_params.to_h # Convert to_h to store in session
+      # Store all permitted parameters (including attr_accessor ones) in the session
+      session[:travel_request_params] = travel_request_params.to_h
+      # Advance the step in the session to prepare for the next form rendering
       session[:travel_request_step] = TravelRequest.steps.second
+      # Redirect to the new action, which will now display the second step
       redirect_to new_travel_request_path
     else
+      # If validation fails for the first step, re-render the 'new' template with errors
       render :new, status: :unprocessable_entity
     end
   end
 
+  # This action handles submissions for ALL subsequent steps (2, 3, ..., final).
+  # The final saving to the database happens only when @travel_request.current_step is the last step.
   def update
+    # Handle 'Back' button functionality
     if params[:back_button]
       current_step_index = TravelRequest.steps.index(session[:travel_request_step])
-      session[:travel_request_step] = TravelRequest.steps[current_step_index - 1]
-      @travel_request = TravelRequest.new(session[:travel_request_params])
-      @travel_request.current_step = session[:travel_request_step]
-      render :new and return
+      session[:travel_request_step] = TravelRequest.steps[current_step_index - 1] # Go back one step
+      @travel_request = TravelRequest.new(session[:travel_request_params]) # Rebuild from session
+      @travel_request.current_step = session[:travel_request_step] # Set current step for display
+      render :new and return # Render the previous step's form
     end
 
+    # Rebuild @travel_request from session (contains previous steps' data)
     @travel_request = TravelRequest.new(session[:travel_request_params])
+    # Assign attributes from the current form submission (merges with session data)
     @travel_request.assign_attributes(travel_request_params)
+    # Set the current step from the session for validation
     @travel_request.current_step = session[:travel_request_step]
 
+    # Validate data for the current step
     if @travel_request.current_step_valid?
-      if @travel_request.current_step == TravelRequest.steps.last
-        # At the final step, save the request
-        if @travel_request.save
-          grand_total = @travel_request.calculate_total_allowance + @travel_request.calculate_total_fuel_cost
-          @travel_request.create_requisition_item!(grand_total: grand_total)
+      if @travel_request.current_step == TravelRequest.steps.last # This is the final step
+        # --- FINAL SAVE: Create Requisition and TravelRequest in a transaction ---
+        ActiveRecord::Base.transaction do
+          # 1. Determine the workflow state for Travel Requests
+          travel_workflow_process = WorkflowProcess.find_by_workflow('Travel Request')
+          unless travel_workflow_process
+            # Raise an error if the workflow process is not defined
+            raise "WorkflowProcess 'Travel Request' not found. Please define it."
+          end
 
-          session[:travel_request_params] = nil
+          initial_state = InitialState.find_by_workflow_process_id(travel_workflow_process.id)
+          initial_state_id = initial_state&.workflow_state_id
+          unless initial_state_id
+            # Raise an error if the initial state is not found
+            raise "InitialState for workflow process '#{travel_workflow_process.workflow}' not found."
+          end
+
+          # 2. Calculate grand total for the Requisition amount
+          grand_total = @travel_request.calculate_total_allowance + @travel_request.calculate_total_fuel_cost
+
+          # 3. Create the Requisition record (THIS IS SAVED FIRST)
+          requisition = Requisition.new(
+            purpose: @travel_request.purpose, # Assuming this is an attr_accessor on TravelRequest
+            initiated_by: current_user.id,
+            initiated_on: Date.today,
+            requisition_type: 'Travel', # Explicitly set for travel requests
+            workflow_state_id: initial_state_id,
+            project_id: params[:requisition][:project_id]
+            # Add department_id here if it's a column on Requisition:
+            # department_id: @travel_request.department_id
+          )
+
+          unless requisition.save
+            # If Requisition fails to save, add errors to travel_request and rollback
+            @travel_request.errors.add(:base, "Failed to create Requisition: #{requisition.errors.full_messages.join(', ')}")
+            raise ActiveRecord::Rollback
+          end
+
+          # 4. Assign the newly created requisition's ID to the travel request
+          @travel_request.requisition_id = requisition.id # Assuming Requisition's primary key is 'id'
+
+          # 5. Save the TravelRequest (THIS IS SAVED SECOND)
+          unless @travel_request.save
+            # If TravelRequest fails to save, add errors and rollback
+            @travel_request.errors.add(:base, "Failed to create Travel Request: #{@travel_request.errors.full_messages.join(', ')}")
+            raise ActiveRecord::Rollback
+          end
+
+          # 6. Create the RequisitionItem (if needed, linked to the new Requisition)
+          # Ensure create_requisition_item! properly uses @travel_request.requisition_id or requisition.id
+          # If create_requisition_item! is on TravelRequest model and uses self.requisition_id, it's fine.
+          RequisitionItem.create!(
+            requisition_id: @travel_request.requisition_id,
+            value: grand_total,
+            quantity: 1.0,
+            item_description: 'Travel Request' # or a more specific description
+          )
+
+          # If we reach here, both Requisition and TravelRequest (and Item) are saved successfully
+          session[:travel_request_params] = nil # Clear session data
           session[:travel_request_step] = nil
           flash[:notice] = "Travel request created successfully!"
-          redirect_to @travel_request
-        else
-          render :new, status: :unprocessable_entity
-        end
-      else
-        # Not the last step, update session params and advance step
-        # Merge new params with existing session params
+          redirect_to @travel_request # Redirect to the show page of the TravelRequest
+        end # End of ActiveRecord::Base.transaction block
+
+      else # Not the last step
+        # Merge new params with existing session params to carry data forward
         session[:travel_request_params] = session[:travel_request_params].to_h.merge(travel_request_params.to_h)
+        # Advance the step in the session
         session[:travel_request_step] = TravelRequest.steps[TravelRequest.steps.index(@travel_request.current_step) + 1]
+        # Redirect to the new action, which will now display the next step
         redirect_to new_travel_request_path
       end
-    else
+    else # Validation failed for the current step
       render :new, status: :unprocessable_entity
     end
+  rescue ActiveRecord::Rollback # Catch the explicit rollback from validation failures
+    render :new, status: :unprocessable_entity
+  rescue StandardError => e # Catch any other unexpected errors during the process
+    flash[:error] = "An unexpected error occurred: #{e.message}"
+    Rails.logger.error "Travel Request creation error: #{e.message}\n#{e.backtrace.join("\n")}"
+    render :new, status: :unprocessable_entity
   end
 
   def show
-    # loaded by set_travel_request
+    @requisition = Requisition.find(params[:id])
+    @projects = Project.all
+    @project_options = Project.all.collect { |x| [x.project_name, x.id] }
   end
+
+  # Action for Turbo Frame to dynamically update fuel consumption based on asset selection
+  def fuel_consumption
+    asset = Asset.find_by(asset_id: params[:asset_id]) # Assuming asset_id is the unique identifier
+    key = asset&.fuel_key # Assuming Asset has a fuel_key attribute
+    @fuel_value = GlobalProperty.find_by(property: key)&.property_value # Assuming GlobalProperty stores values
+    render partial: "travel_requests/update_consumption", locals: { fuel: @fuel_value }
+  end
+
 
   private
 
@@ -78,22 +165,21 @@ class TravelRequestsController < ApplicationController
 
   def travel_request_params
     params.require(:travel_request).permit(
-      :current_step, 
-      :destination, 
+      :current_step,
+      :destination,
       :distance,
       :traveler_names,
-      :departure_date, 
-      :departure_time,
+      :departure_date,
       :return_date,
-      :return_time
-      # :purpose,
-      # :department,
-      # :project,
-      # :unit_fuel_cost,
-      # :consumption,
-      # :lunch_allowance,
-      # :dinner_allowance,
-      # :accommodation
+      :asset_id,
+      :purpose, 
+      :department,
+      # :project_id,
+      :unit_fuel_cost,
+      :consumption,
+      :lunch_allowance,
+      :dinner_allowance,
+      :accommodation
     )
   end
 end
