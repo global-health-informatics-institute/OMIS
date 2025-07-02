@@ -1,0 +1,9 @@
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const fuelField = document.getElementById('consumption_field');
+    if (fuelField) {
+      fuelField.value = <%= fuel || 0 %>;
+      fuelField.dispatchEvent(new Event('input')); // trigger JS calculations
+    }
+  });
+</script>
