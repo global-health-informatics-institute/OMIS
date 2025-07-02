@@ -19,9 +19,11 @@ Rails.application.routes.draw do
   resources :project_task_assignments
   resources :user_sessions, only: [:new, :create, :destroy]
 
+  get 'travel_requests/fuel_consumption', to: 'travel_requests#fuel_consumption'
   resources :travel_requests, only: [:new, :create, :show, :update] 
   get '/requisition_items/new_step2', to: 'requisition_items#new_step2', as: 'new_step2'
   post '/requisition_items/create_step2', to: 'requisition_items#create_step2', as: 'create_step2'
+ 
 
   
   put 'timesheets/:id/submit_timesheet', to: 'timesheets#submit_timesheet'
