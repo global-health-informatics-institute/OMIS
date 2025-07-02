@@ -16,4 +16,7 @@ class Asset < ApplicationRecord
       none
     end
   }
+  def fuel_key
+    "fuel.consumption.#{description.parameterize.underscore}"
+  end
 end
