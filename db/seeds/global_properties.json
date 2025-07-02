@@ -1,0 +1,17 @@
+[
+  {
+    "property": "unit.fuel.cost",
+    "property_value": 2500,
+    "description": "Allocated cost per litre of fuel for vehicles"
+  },
+  {
+    "property": "fuel.consumption.mitsubishi_rosa",
+    "property_value": 0.125,
+    "description": "Fuel consumption per 1km for Mitsubishi Rosa"
+  },
+  {
+    "property": "fuel.consumption.toyota_coaster",
+    "property_value": 0.143,
+    "description": "Fuel consumption per 1km for Toyota Coaster"
+  }
+]
