@@ -5,10 +5,18 @@
 </div>
 
 <div class="mb-3">
-  <%= form.label :Vehicle, class: "form-label" %>
-  <%# Uses the Asset.vehicles scope to filter for vehicles only %>
-  <%= form.collection_select :Asset_id, Asset.vehicles, :id, :description, { prompt: "Select a Vehicle" }, class: "form-select" %>
+  <%= form.label :vehicle, class: "form-label" %>
+  <%= form.collection_select :asset_id, Asset.vehicles, :id, :description,
+        { prompt: "Select a Vehicle" },
+        {
+          class: "form-select",
+          data: { turbo_frame: "fuel_consumption_frame" },
+          onchange: "Turbo.visit('/travel_requests/fuel_consumption?asset_id=' + this.value, { frame: 'fuel_consumption_frame' })"
+        } %>
+
+  <turbo-frame id="fuel_consumption_frame"></turbo-frame>
 </div>
+
 
 <div class="mb-3">
   <%= form.label :distance, class: "form-label" %>
@@ -40,7 +48,14 @@
   <%= form.text_field :department, class: "form-control" %>
 </div>
 
+<%= hidden_field_tag 'requisition[project_id]', @selected_project&.id || params[:prj] %>
+
 <div class="mb-3">
-  <%= form.label :project, class: "form-label" %>
-  <%= form.text_field :project, class: "form-control" %>
+  <label for="requisition_project_id" class="form-label">Project</label>
+  <%= select_tag 'requisition[project_id]',
+        options_for_select(@project_options, @selected_project&.id),
+        prompt: @selected_project&.full_name || 'Select Project',
+        class: 'form-control',
+        required: true %>
 </div>
+
