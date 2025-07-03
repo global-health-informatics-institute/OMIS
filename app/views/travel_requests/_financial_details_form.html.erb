@@ -7,7 +7,7 @@
   <turbo-frame id="fuel_consumption_frame">
   <div class="mb-3">
     <%= form.label :consumption, class: "form-label" %>
-    <%= form.number_field :consumption, step: :any, class: "form-control", id: "consumption_field" %>
+    <%= form.number_field :consumption, value: form.object.consumption || session[:vehicle_consumption], class: "form-control", id: "consumption_field" %>
   </div>
 </turbo-frame>
 
