@@ -14,8 +14,11 @@
           onchange: "Turbo.visit('/travel_requests/fuel_consumption?asset_id=' + this.value, { frame: 'fuel_consumption_frame' })".html_safe
         } %>
 
+  <%= hidden_field_tag :vehicle_consumption, '', id: "vehicle_consumption" %>
+
   <turbo-frame id="fuel_consumption_frame"></turbo-frame>
 </div>
+
 
 
 <div class="mb-3">
