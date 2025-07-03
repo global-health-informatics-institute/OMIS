@@ -1,18 +1,14 @@
-
-<%# app/views/travel_requests/_update_consumption.html.erb %>
-
 <turbo-frame id="fuel_consumption_frame">
   <script type="text/javascript">
     (() => {
-      console.log("Injecting fuel value...");
-      const field = document.getElementById('consumption_field');
+      const field = document.getElementById("vehicle_consumption");
+      const value = <%= raw (fuel || 0).to_json %>;
+
       if (field) {
-        // Use raw to prevent double-escaping the to_json output
-        console.log("Field found. Setting value to", <%= raw (fuel || 0).to_json %>);
-        field.value = <%= raw (fuel || 0).to_json %>;
-        field.dispatchEvent(new Event('input'));
+        field.value = value;
+        console.log("Injected fuel consumption into hidden field:", value);
       } else {
-        console.warn("Consumption field not found!");
+        console.warn("Hidden field for fuel not found (vehicle_consumption)");
       }
     })();
   </script>
