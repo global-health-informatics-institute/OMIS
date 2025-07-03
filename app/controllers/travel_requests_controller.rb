@@ -29,7 +29,7 @@ class TravelRequestsController < ApplicationController
       session[:travel_request_params] = travel_request_params.to_h
       # Advance the step in the session to prepare for the next form rendering
       session[:travel_request_step] = TravelRequest.steps.second
-      # Redirect to the new action, which will now display the second step
+      session[:vehicle_consumption] = params[:vehicle_consumption]
       redirect_to new_travel_request_path
     else
       # If validation fails for the first step, re-render the 'new' template with errors
