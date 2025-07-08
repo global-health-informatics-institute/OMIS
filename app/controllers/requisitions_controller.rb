@@ -135,8 +135,9 @@ class RequisitionsController < ApplicationController
           if update_success
             RequisitionMailer.request_approved_email(@requisition).deliver_now
 
-            admin_users = User.joins(employee: :employee_designations)
-                              .where(employee_designations: { designation_id: 12 }).distinct
+            admin_users = User.joins(employee: { employee_designations: :designation })
+                              .where(designations: { designated_role: 'Administration Officer' })
+                              .distinct
 
             admin_users.each do |admin|
               RequisitionMailer.request_funds_petty_cash(@requisition, admin).deliver_now
