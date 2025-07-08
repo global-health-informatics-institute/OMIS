@@ -30,6 +30,8 @@ class TravelRequestsController < ApplicationController
       # Advance the step in the session to prepare for the next form rendering
       session[:travel_request_step] = TravelRequest.steps.second
       session[:vehicle_consumption] = params[:vehicle_consumption]
+      @travel_request.distance ||= session[:travel_request_params]["distance"]
+      session[:selected_traveller_count] = params[:selected_traveller_count]
       redirect_to new_travel_request_path
     else
       # If validation fails for the first step, re-render the 'new' template with errors
@@ -162,6 +164,7 @@ end
 def prepare_project_options
   @project_options = Project.all.map { |p| [p.project_name, p.id] }
   @selected_project = Project.find_by_short_name(params[:prj])
+  @employees = Employee.includes(:person).all.sort_by { |e| e.person.full_name }
 end
 
   def set_travel_request

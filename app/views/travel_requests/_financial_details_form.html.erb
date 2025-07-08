@@ -46,6 +46,11 @@
   <%= form.label :grand_total, class: "form-label" %>
   <%= form.number_field :grand_total, step: :any, class: "form-control", readonly: true, id: "grand_total_field" %>
 </div>
+<%= hidden_field_tag :distance_field, @travel_request.distance || session[:travel_request_params]["distance"], id: 'distance_field' %>
+<%= hidden_field_tag :selected_traveler_count_field,
+      session[:travel_request_params]["selected_traveler_count"],
+      id: 'selected_traveler_count_field' %>
+
 
 <%# JavaScript for dynamic calculations %>
 <script>
@@ -58,25 +63,37 @@
     const dinnerAllowanceField = document.getElementById('dinner_allowance_field');
     const accommodationField = document.getElementById('accommodation_field');
     const totalAllowanceField = document.getElementById('total_allowance_field');
+    const totalDistanceField = document.getElementById('distance_field');
+    //const travelerCountField = document.getElementById('selected_traveler_count_field')
+    //const travelerCount = parseInt(travelerCountField?.value) || 0
+
 
     const grandTotalField = document.getElementById('grand_total_field');
 
     function calculateFuelCost() {
       const unitCost = parseFloat(unitFuelCostField.value) || 0;
       const consumption = parseFloat(consumptionField.value) || 0;
-      const total = unitCost * consumption;
+      const total = unitCost * consumption * (parseFloat(totalDistanceField.value) || 1); 
       totalFuelCostField.value = total.toFixed(2); // Format to 2 decimal places
       updateGrandTotal();
     }
 
     function calculateTotalAllowance() {
-      const lunch = parseFloat(lunchAllowanceField.value) || 0;
-      const dinner = parseFloat(dinnerAllowanceField.value) || 0;
-      const accommodation = parseFloat(accommodationField.value) || 0;
-      const total = lunch + dinner + accommodation;
-      totalAllowanceField.value = total.toFixed(2);
-      updateGrandTotal();
-    }
+  const lunch = parseFloat(lunchAllowanceField.value) || 0;
+  const dinner = parseFloat(dinnerAllowanceField.value) || 0;
+  const accommodation = parseFloat(accommodationField.value) || 0;
+
+  // Safely get the traveler count field value and convert to an integer
+  const travelerCountField = document.getElementById('selected_traveler_count') || document.getElementById('selected_traveler_count_field')
+  const travelerCount = parseInt(travelerCountField?.value) || 0
+
+
+  const total = (lunch + dinner + accommodation) * travelerCount;
+  totalAllowanceField.value = total.toFixed(2);
+  updateGrandTotal();
+}
+
+
 
     function updateGrandTotal() {
       const totalFuel = parseFloat(totalFuelCostField.value) || 0;

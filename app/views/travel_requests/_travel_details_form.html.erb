@@ -19,17 +19,32 @@
   <turbo-frame id="fuel_consumption_frame"></turbo-frame>
 </div>
 
-
-
 <div class="mb-3">
   <%= form.label :distance, class: "form-label" %>
-  <%= form.number_field :distance, step: :any, class: "form-control" %>
+  <%= form.number_field :distance, step: :any, class: "form-control", id:"distance_field" %>
 </div>
 
-<div class="mb-3">
-  <%= form.label :traveler_names, class: "form-label" %>
-  <%= form.text_area :traveler_names, class: "form-control", rows: 3, placeholder: "Enter names separated by commas (e.g., John Doe, Jane Smith)" %>
+<div class="mb-3" data-controller="travel-request">
+  <%= form.label :traveler_names, "Names of Travellers" %>
+
+  <div style="max-height: 150px; overflow-y: auto;" data-travel-request-target="employeeCheckboxList">
+    <% @employees.each do |employee| %>
+      <div class="form-check">
+        <%= check_box_tag 'employee_ids[]', employee.id, false,
+            class: 'form-check-input',
+            id: "employee_#{employee.id}",
+            data: { action: "change->travel-request#updateTravelerNames" } %>
+        <%= label_tag "employee_#{employee.id}", employee.person.full_name, class: "form-check-label" %>
+      </div>
+    <% end %>
+  </div>
+
+  <%= form.text_area :traveler_names, class: "form-control mt-2", rows: 3,
+        placeholder: "Selected traveler names will appear here",
+        data: { travel_request_target: "travelerNames" } %>
 </div>
+<%= hidden_field_tag :selected_traveler_count, 0, id: 'selected_traveler_count' %>
+
 
 <div class="mb-3">
   <%= form.label :departure_date, class: "form-label" %>
@@ -61,4 +76,3 @@
         class: 'form-control',
         required: true %>
 </div>
-
