@@ -36,12 +36,18 @@ end
   end
   
   def resubmitted_mail(requisition, supervisor)
-    @requisition = requisition
-    @supervisor = supervisor
-    @requester = Employee.find_by(employee_id: requisition.initiated_by)
-    receiver_email = @supervisor.person.official_email || @supervisor.person.email_address
-
-    mail(to: receiver_email, subject: 'New Requisition Requires Your Review') 
+   @requisition = requisition
+  @requisition_details = {
+    amount: number_to_currency(requisition.requisition_items.sum(&:value), unit: 'MWK'),
+    purpose: requisition.purpose,
+    requester_name: Employee.find_by(employee_id: requisition.initiated_by)&.person&.full_name,
+    supervisor_full_name: Employee.find_by(employee_id: requisition.reviewed_by)&.person&.full_name || 
+                         supervisor.person.full_name,
+    created_at: requisition.created_at.strftime('%b %d, %Y at %I:%M %p')
+    }
+  
+    recipient_email = supervisor.person.official_email || supervisor.person.email_address
+    mail(to: recipient_email, subject: 'New Requisition Requires Your Review')
   end
 
   def rejected_request_email(requisition)
