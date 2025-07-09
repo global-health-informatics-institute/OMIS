@@ -1,0 +1,118 @@
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<%# progress indicator %>
+<script>
+    document.querySelectorAll('.nav-link').forEach(tab => {
+        tab.addEventListener('click', function () {
+            const progress = this.getAttribute('data-progress');
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = progress + '%';
+            progressBar.setAttribute('aria-valuenow', progress);
+            progressBar.textContent = progress + '%';
+        });
+    });
+</script>
+
+<%# drag and drop, source Qouatations %>
+<script>
+    const dropZone = document.getElementById('source_qoutation_drop_zone');
+    const fileInput = document.getElementById('source_qoutation_upload');
+    const fileList = document.getElementById('source_qoutation_file_list');
+    const uploadButton = document.getElementById('source_qoutation_upload_button');
+
+    let selectedFiles = [];
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('bg-white', 'border-primary');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('bg-white', 'border-primary');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('bg-white', 'border-primary');
+        selectedFiles = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf');
+        showFileList(selectedFiles);
+    });
+
+    fileInput.addEventListener('change', () => {
+        selectedFiles = Array.from(fileInput.files).filter(file => file.type === 'application/pdf');
+        showFileList(selectedFiles);
+    });
+
+    uploadButton.addEventListener('click', () => {
+        if (!selectedFiles.length) {
+            alert('Please select at least one PDF file.');
+            return;
+        }
+        // Handle the actual upload logic here
+        alert(`${selectedFiles.length} file(s) ready to be uploaded.`);
+    });
+
+    function showFileList(files) {
+        fileList.innerHTML = '';
+        files.forEach(file => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.textContent = file.name;
+            fileList.appendChild(li);
+        });
+    }
+</script>
+
+<%# drag and drop, vendor analysis %>
+<script>
+    const vendor_analysis_dropZone = document.getElementById('vendor_analysis_drop_zone');
+    const vendor_analysis_fileInput = document.getElementById('vendor_analysis_upload');
+    const vendor_analysis_fileList = document.getElementById('vendor_analysis_file_list');
+    const vendor_analysis_uploadButton = document.getElementById('vendor_analysis_upload_button');
+
+    let vendor_analysis_selectedFiles = [];
+
+    vendor_analysis_dropZone.addEventListener('click', () => vendor_analysis_fileInput.click());
+
+    vendor_analysis_dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        vendor_analysis_dropZone.classList.add('bg-white', 'border-primary');
+    });
+
+    vendor_analysis_dropZone.addEventListener('dragleave', () => {
+        vendor_analysis_dropZone.classList.remove('bg-white', 'border-primary');
+    });
+
+    vendor_analysis_dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        vendor_analysis_dropZone.classList.remove('bg-white', 'border-primary');
+        vendor_analysis_selectedFiles = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf');
+        vendor_analysis_showFileList(vendor_analysis_selectedFiles);
+    });
+
+    vendor_analysis_fileInput.addEventListener('change', () => {
+        vendor_analysis_selectedFiles = Array.from(vendor_analysis_fileInput.files).filter(file => file.type === 'application/pdf');
+        vendor_analysis_showFileList(vendor_analysis_selectedFiles);
+    });
+
+    vendor_analysis_uploadButton.addEventListener('click', () => {
+        if (!vendor_analysis_selectedFiles.length) {
+            alert('Please select at least one PDF file.');
+            return;
+        }
+        // Upload logic goes here
+        alert(`${vendor_analysis_selectedFiles.length} file(s) ready to be uploaded.`);
+    });
+
+    function vendor_analysis_showFileList(files) {
+        vendor_analysis_fileList.innerHTML = '';
+        files.forEach(file => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.textContent = file.name;
+            vendor_analysis_fileList.appendChild(li);
+        });
+    }
+</script>
