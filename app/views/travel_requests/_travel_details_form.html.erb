@@ -48,13 +48,14 @@
 
 <div class="mb-3">
   <%= form.label :departure_date, class: "form-label" %>
-  <%= form.date_field :departure_date, class: "form-control" %>
+  <%= form.datetime_local_field :departure_date, class: "form-control" %>
 </div>
 
 <div class="mb-3">
   <%= form.label :return_date, class: "form-label" %>
-  <%= form.date_field :return_date, class: "form-control" %>
+  <%= form.datetime_local_field :return_date, class: "form-control" %>
 </div>
+
 
 <div class="mb-3">
   <%= form.label :purpose, class: "form-label" %>
@@ -76,3 +77,34 @@
         class: 'form-control',
         required: true %>
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const departureField = document.getElementById('travel_request_departure_date');
+    const returnField = document.getElementById('travel_request_return_date');
+    const lunchField = document.getElementById('lunch_allowance_field');
+    const dinnerField = document.getElementById('dinner_allowance_field');
+    const accommodationField = document.getElementById('accommodation_field');
+
+    function evaluateAllowance() {
+      const departure = new Date(departureField.value);
+      const returnDate = new Date(returnField.value);
+
+      if (isNaN(departure.getTime()) || isNaN(returnDate.getTime())) return;
+
+      const sameDay = departure.toDateString() === returnDate.toDateString();
+      const departedBeforeNoon = departure.getHours() < 12;
+      const returnedAfter130 = returnDate.getHours() > 13 || (returnDate.getHours() === 13 && returnDate.getMinutes() >= 30);
+
+      if (sameDay && departedBeforeNoon && returnedAfter130) {
+        lunchField.value = parseFloat(lunchField.dataset.default || 0).toFixed(2);
+        dinnerField.value = 0;
+        accommodationField.value = 0;
+      } else {
+        // Optionally reset to original values or leave as-is
+      }
+    }
+
+    departureField.addEventListener('change', evaluateAllowance);
+    returnField.addEventListener('change', evaluateAllowance);
+  });
+</script>
