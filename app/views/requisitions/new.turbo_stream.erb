@@ -5,7 +5,7 @@
   <% elsif @selected_request == "Asset Request" %>
     <%= render partial: "asset_request", locals: {selected_report: @selected_request} %>
   <% elsif @selected_request == 'Purchase Request' %>
-    <%= render partial: "purchase_request", locals: {selected_report: @selected_request} %>
+    <%= render partial: "requisitions/purchase_requests/new", locals: {selected_report: @selected_request} %>
   <% elsif @selected_request == 'Travel Request' %>
     <%= render partial: "travel_request", locals: {selected_report: @selected_request} %>
   <% elsif @selected_request == 'Personnel Request' %>
