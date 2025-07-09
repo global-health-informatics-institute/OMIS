@@ -31,7 +31,9 @@ class TravelRequestsController < ApplicationController
       session[:travel_request_step] = TravelRequest.steps.second
       session[:vehicle_consumption] = params[:vehicle_consumption]
       @travel_request.distance ||= session[:travel_request_params]["distance"]
-      session[:selected_traveller_count] = params[:selected_traveller_count]
+      session[:travel_request_params] ||= {}
+      session[:travel_request_params]["selected_traveler_count"] = params[:selected_traveler_count]
+
       redirect_to new_travel_request_path
     else
       # If validation fails for the first step, re-render the 'new' template with errors
