@@ -2,7 +2,6 @@ class PurchaseRequestsController < ApplicationController
   def new
     @requisition = Requisition.new(requisition_type: "Purchase Request")
     @requisition.requisition_items.build
-
     @department_options = Department.all.collect { |x| [x.department_name, x.id] }
     @selected_department = Department.find_by_department_name(params[:department_name]) if params[:department_name].present?
 
