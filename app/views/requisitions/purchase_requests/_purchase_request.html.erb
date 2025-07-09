@@ -1,0 +1,51 @@
+<h4>Purchase Request</h4>
+<%= form_with model: @requisition, url: create_purchase_request_path do |form| %>
+  <div class="row">
+    <div class="col-md-3 mb-3">
+      <%= form.label :initiated_on %>
+      <%= form.date_field :initiated_on, value: Date.today, class: 'form-control', required: true %>
+    </div>
+    <div class="col-md-3 mb-3">
+      <%= form.label :initiated_by %>
+      <%= form.text_field :initiated_by, value: current_user.full_name, class: 'form-control', required: true %>
+    </div>
+    <div class="col-md-3 mb-3">
+      <%= form.label :purpose %>
+      <%= form.text_field :purpose, class: 'form-control', required: true %>
+    </div>
+    <div class="col-md-1 mb-3">
+      <%= form.label :stakeholder_id, "Donor" %>
+      <%= form.select :stakeholder_id, options_for_select(@stakeholder_options, (@selected_stakeholder.id rescue nil)),
+                      prompt: (@selected_stakeholder.stakeholder_name rescue params[:"stakeholder_id"]),
+                      class: 'form-control', required: true %>
+    </div>
+    <div class="col-md-3 mb-3">
+      <%= form.label :quantity %>
+      <%= form.number_field :quantity, quantity: params[:quantity], step: 0.01, min:1, max: 4.00, class: 'form-control', required: true %>
+    </div>
+    <div class="col-md-1 mb-3">
+      <%= form.label :department_id, "Department" %>
+      <%= form.select :department_id, options_for_select(@department_options, (@selected_department.id rescue nil)),
+                      prompt: (@selected_department.department_name rescue params[:"department_id"]),
+                      class: 'form-control', required: true %>
+    </div>
+    
+  </div>
+
+  <div class="row">
+    <div class="col-md-4 mb-4">
+      <%= form.label :item_description %>
+      <%= form.text_area :item_description, value: params[:item_description], class: 'form-control', rows: 2, required: true %>
+    </div>
+  </div>
+  
+  
+  <%= form.hidden_field :requisition_type, value: "Purchase Request" %>
+  <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
+  
+  <div class="row"> 
+    <div class="col-md-3"> 
+      <%= form.submit "Submit Request", class: "btn btn-success" %>
+    </div>
+  </div>
+<% end %>
