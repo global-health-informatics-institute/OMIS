@@ -16,7 +16,8 @@ class TravelRequest < ApplicationRecord
                 :vehicle_id,
                 :purpose,
                 :department,
-                :project 
+                :project,
+                :selected_traveler_count
 
   validates :requisition_id, presence: true
 
