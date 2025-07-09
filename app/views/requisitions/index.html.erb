@@ -1,37 +1,35 @@
-<p class="h5 ">Requisitions Center</p>
-<div class="border p-2">
-  <div class="row p-2 pb-1">
-    <div class="card m-1 col-5" >
-      <span class="fs-6 fw-bold">Requisitions Summary</span>
+<% unless @selected_request == 'Purchase Request' %>
+  <p class="h5 ">Requisitions Center</p>
+  <div class="border p-2">
+    <div class="row p-2 pb-1">
+      <div class="card m-1 col-5" >
+        <span class="fs-6 fw-bold">Requisitions Summary</span>
+      </div>
+      <div class="card m-1 col-6" >
+        <%= form_tag(requisitions_new_path, method: "GET") do %>
+          <div class="row pt-2 pb-2">
+            <div class="col fs-6 fw-bold">
+              Select Requisition Form
+            </div>
+          </div>
+          <div class="row pt-2 pb-2">
+            <div class="col-6 ">
+              <%= select_tag(:request_type, options_for_select(select_requisition), class: "form-select") %>
+            </div>
+            <div class="col-6 ">
+              <%= submit_tag("Show Requisition Form", class: "btn btn-primary") %>
+            </div>
+          </div>
+        <% end %>
+      </div>
     </div>
-    <div class="card m-1 col-6" >
-      <%= form_tag(requisitions_new_path, method: "GET") do %>
-        <div class="row pt-2 pb-2">
-          <div class="col fs-6 fw-bold">
-            Select Requisition Form
-          </div>
-        </div>
-        <div class="row pt-2 pb-2">
-          <div class="col-6 ">
-            <%= select_tag(:request_type, options_for_select(select_requisition), class: "form-select") %>
-          </div>
-          <div class="col-6 ">
-            <%= submit_tag("Show Requisition Form", class: "btn btn-primary") %>
-          </div>
-        </div>
-      <% end %>
-    </div>
-
   </div>
-</div>
+<% end %>
 
 <div class="border p-2 mt-2">
   <%= turbo_stream_from "requisitions" %>
-
 
   <div id="request_content">
     <%= render partial: "requisitions/new" %>
   </div>
 </div>
-
-
