@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Purchase Request</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+
+<div class="container-fluid mt-4 ml-4 mr-4 ">
+
+        <div class="progress mb-3">
+                <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+        </div>
+        
+        <div class="card w-100 shadow-sm">
+            <div class="card-header">
+                    <nav>
+                        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                            <button class="nav-link active" id="nav-purchase-request-tab" data-bs-toggle="tab" data-bs-target="#nav-purchase-request" type="button" role="tab" data-progress="9">1. Purchase Request</button>
+                            <button class="nav-link" id="nav-purchase-request-review-tab" data-bs-toggle="tab" data-bs-target="#nav-purchase-request-review" type="button" role="tab" data-progress="16">2. Purchase Request Review</button>
+                            <button class="nav-link" id="nav-source-qoutation-tab" data-bs-toggle="tab" data-bs-target="#nav-source-qoutation" type="button" role="tab" data-progress="25">3. Source Qoutation</button>
+                            <button class="nav-link" id="nav-vendor-analysis-tab" data-bs-toggle="tab" data-bs-target="#nav-vendor-analysis" type="button" role="tab" data-progress="33">4. Vendor Analysis</button>
+                            <button class="nav-link" id="nav-fulfillment-method-tab" data-bs-toggle="tab" data-bs-target="#nav-fulfillment-method" type="button" role="tab" data-progress="41">5. Fulfillment Method</button>
+                            <button class="nav-link" id="nav-payment-request-tab" data-bs-toggle="tab" data-bs-target="#nav-payment-request" type="button" role="tab" data-progress="49">6. Payment Request</button>
+                            <button class="nav-link" id="nav-payment-voucher-tab" data-bs-toggle="tab" data-bs-target="#nav-payment-voucher" type="button" role="tab" data-progress="58">7. Payment Voucher</button>
+                            <button class="nav-link" id="nav-pop-tab" data-bs-toggle="tab" data-bs-target="#nav-pop" type="button" role="tab" data-progress="66">8. POP</button>
+                            <button class="nav-link" id="nav-receipt-tab" data-bs-toggle="tab" data-bs-target="#nav-receipt" type="button" role="tab" data-progress="74">9. Receipt</button>
+                            <button class="nav-link" id="nav-delivery-tab" data-bs-toggle="tab" data-bs-target="#nav-delivery" type="button" role="tab" data-progress="83">10. Delivery</button>
+                            <button class="nav-link" id="nav-asset-registration-tab" data-bs-toggle="tab" data-bs-target="#nav-asset-registration" type="button" role="tab" data-progress="91">11. Asset Registration</button>
+                        </div>
+                    </nav>
+            </div>
+        </div>
+
+        <div class="tab-content border" id="nav-tabContent">
+
+            <div class="tab-pane fade show active m-4" id="nav-purchase-request" role="tabpanel">
+                <div class="mb-4">
+                    <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fs-6">
+                        Pending Submission
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <label for="date" class="form-label">Date</label>
+                                    <input type="date" class="form-control" id="date" placeholder="Enter Date">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div>
+                                    <label for="department" class="form-label">Department</label>
+                                    <select class="form-select" id="department">
+                                        <option value="" selected disabled>Select Department</option>
+                                        <option value="HR">HR</option>
+                                        <option value="Finance">Finance</option>
+                                        <option value="IT">IT</option>
+                                        <option value="Marketing">Marketing</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <label for="donor" class="form-label">Donor</label>
+                                    <input type="text" class="form-control" id="donor" placeholder="Enter name of the Donor">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="purpose" class="form-label">purpose of Purchase</label>
+                                    <input type="text" class="form-control" id="donor" placeholder="Enter the purpose of this purchase">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <label for="supplier" class="form-label">Supplier</label>
+                                    <input type="text" class="form-control" id="supplier" placeholder="Enter name of the supplier">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div>
+                                    <label for="quantity" class="form-label">Quantity</label>
+                                    <input type="number" class="form-control" id="quantity" placeholder="Enter the quantity">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" rows="4" placeholder="Enter the description"></textarea>
+                        </div>
+                    </div>
+
+                    
+                    <div class="row mb-5">
+                        <div class="col">
+                            <button type="button" class="btn btn-primary ms-2">Submit</button>
+                            <button type="button" class="btn btn-primary ms-2">Re Submit</button>
+                            <button type="button" class="btn btn-warning ms-2">Recall</button>
+                            <button type="button" class="btn btn-danger ms-2">Rescind</button>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+
+            <div class="tab-pane fade m-4" id="nav-purchase-request-review" role="tabpanel">
+                <div class="mb-4">
+                    <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fs-6">
+                        Pending Submission
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <label for="date" class="form-label">Date</label>
+                                    <input type="date" class="form-control" id="date" placeholder="Enter Date">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div>
+                                    <label for="department" class="form-label">Department</label>
+                                    <select class="form-select" id="department" disabled>
+                                        <option value="" >Select Department</option>
+                                        <option value="HR" selected>HR</option>
+                                        <option value="Finance">Finance</option>
+                                        <option value="IT">IT</option>
+                                        <option value="Marketing">Marketing</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <label for="donor" class="form-label">Donor</label>
+                                    <input type="text" class="form-control" id="donor" placeholder="Enter name of the Donor">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="purpose" class="form-label">purpose of Purchase</label>
+                                    <input type="text" class="form-control" id="donor" placeholder="Enter the purpose of this purchase">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <label for="supplier" class="form-label">Supplier</label>
+                                    <input type="text" class="form-control" id="supplier" placeholder="Enter name of the supplier">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div>
+                                    <label for="quantity" class="form-label">Quantity</label>
+                                    <input type="number" class="form-control" id="quantity" placeholder="Enter the quantity">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" rows="4" placeholder="Enter the description"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="review_comment" class="form-label">Review Comment</label>
+                            <textarea class="form-control" id="review_comment" rows="2" placeholder="Optional: Add a Comment if you decide to reject this"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <label for="approved_on" class="form-label">Approved On</label>
+                                    <input type="date" class="form-control" id="approved_on" disabled value="2025-06-18">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div>
+                                    <label for="approved_by" class="form-label">Approved By</label>
+                                    <input type="text" class="form-control" id="approved_by" value="Eight Nine" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-5">
+                        <div class="col">
+                            <button type="button" class="btn btn-primary ms-2">Approve</button>
+                            <button type="button" class="btn btn-danger ms-2">Reject</button>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+            <div class="tab-pane fade m-4" id="nav-source-qoutation" role="tabpanel">
+                <div class="mb-4">
+                    <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fs-6">
+                        Pending Submission
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <!-- Drag and drop area -->
+                            <div class="border border-secondary rounded p-4 text-center bg-light" 
+                                 id="source_qoutation_drop_zone"
+                                 style="cursor: pointer;">
+                                <p class="mb-2"><strong>Drag & drop PDF files here</strong> or click to select</p>
+                                <p class="text-muted small">(PDF files only)</p>
+                                <input type="file" id="source_qoutation_upload" accept=".pdf" multiple hidden>
+                            </div>
+            
+                            <!-- Upload button -->
+                            <div class="text-end mt-3">
+                                <button class="btn btn-secondary" type="button" id="source_qoutation_upload_button">Upload</button>
+                            </div>
+            
+                            <!-- File preview list -->
+                            <ul class="list-group mt-3 mb-5" id="source_qoutation_file_list"></ul>
+            
+                            <!-- IPC Radio Buttons Styled -->
+                            <div class="row mb-4">
+                                <div class="col">
+                                    <div class="d-flex gap-3 justify-content-start">
+                                        <input type="radio" class="btn-check" name="ipc_option" id="requires_ipc" value="requires" autocomplete="off">
+                                        <label class="btn btn-outline-primary px-4 py-2" for="requires_ipc">Requires IPC</label>
+            
+                                        <input type="radio" class="btn-check" name="ipc_option" id="does_not_require_ipc" value="does_not_require" autocomplete="off">
+                                        <label class="btn btn-outline-primary px-4 py-2" for="does_not_require_ipc">Does not Require IPC</label>
+                                    </div>
+                                </div>
+                            </div>
+            
+                            <!-- Submit Button -->
+                            <div class="row mb-5">
+                                <div class="col">
+                                    <button type="button" class="btn btn-success btn-lg px-4" id="ipc_submit_button">
+                                        Submit
+                                    </button>
+                                </div>
+                            </div>
+            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+
+            <div class="tab-pane fade m-4" id="nav-vendor-analysis" role="tabpanel">
+                <div class="mb-4">
+                    <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fs-6">
+                        Pending Submission
+                    </span>
+                    <span class="badge rounded-pill bg-info text-dark px-3 py-2 fs-6">
+                        Done through IPC
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <!-- Drag and drop area -->
+                            <div class="border border-secondary rounded p-4 text-center bg-light" 
+                                 id="vendor_analysis_drop_zone"
+                                 style="cursor: pointer;">
+                                <p class="mb-2"><strong>Drag & drop PDF files here</strong> or click to select</p>
+                                <p class="text-muted small">(PDF files only)</p>
+                                <input type="file" id="vendor_analysis_upload" accept=".pdf" multiple hidden>
+                            </div>
+            
+                            <!-- Upload button -->
+                            <div class="text-end mt-3">
+                                <button class="btn btn-secondary" type="button" id="vendor_analysis_upload_button">Upload</button>
+                            </div>
+            
+                            <!-- Optional preview list -->
+                            <ul class="list-group mt-3 mt-5" id="vendor_analysis_file_list"></ul>
+
+                            <div class="row mb-5">
+                                <div class="col">
+                                    <button type="button" class="btn btn-primary ms-2">Next</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+            
+            </div>
+
+            <div class="tab-pane fade m-4" id="nav-fulfillment-method" role="tabpanel">
+                <div class="mb-4">
+                    <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fs-6">
+                        Pending Submission
+                    </span>
+                    <span class="badge rounded-pill bg-info text-dark px-3 py-2 fs-6">
+                        Done through IPC
+                    </span>
+                </div>
+                <div class="card-body">
+                    <!-- Fulfillment Method Selection -->
+                    <div class="row mb-4 justify-content-center">
+                        <div class="col-md-10">
+                            <div class="d-flex justify-content-center gap-4 flex-wrap">
+                                <!-- Option 1: Can be procured locally -->
+                                <div class="flex-fill text-center">
+                                    <input type="radio" class="btn-check" name="fulfillment_option" id="local_procurement" value="local" autocomplete="off">
+                                    <!-- Disabbled if ordered through ipc -->
+                                    <label class="btn btn-outline-primary w-100 py-4 fs-5 fw-semibold" for="local_procurement">
+                                        Can Be Procured Locally
+                                    </label>
+                                </div>
+            
+                                <!-- Option 2: Confirm Delivery Through IPC -->
+                                <div class="flex-fill text-center">
+                                    <input type="radio" class="btn-check" name="fulfillment_option" id="ipc_delivery" value="ipc" autocomplete="off">
+                                    <label class="btn btn-outline-primary w-100 py-4 fs-5 fw-semibold" for="ipc_delivery">
+                                        Confirm Delivery Through IPC
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Submit Button -->
+                    <div class="row mb-5">
+                        <div class="col-auto">
+                            <!-- capgture timestamp -->
+                            <button type="button" class="btn btn-primary btn-lg px-5" id="fulfillment_submit_button">
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade m-4" id="nav-payment-request" role="tabpanel">
+                <div class="mb-4">
+                    <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fs-6">
+                        Pending Payment
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <label for="date" class="form-label">Purchase Request Date</label>
+                                    <input type="date" class="form-control" id="date" placeholder="Enter Date">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div>
+                                    <label for="department" class="form-label">Department</label>
+                                    <select class="form-select" id="department">
+                                        <option value="" selected disabled>Select Department</option>
+                                        <option value="HR">HR</option>
+                                        <option value="Finance">Finance</option>
+                                        <option value="IT">IT</option>
+                                        <option value="Marketing">Marketing</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <label for="donor" class="form-label">Donor</label>
+                                    <input type="text" class="form-control" id="donor" placeholder="Enter name of the Donor">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="purpose" class="form-label">purpose of Purchase</label>
+                                    <input type="text" class="form-control" id="donor" placeholder="Enter the purpose of this purchase">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <label for="supplier" class="form-label">Supplier</label>
+                                    <input type="text" class="form-control" id="supplier" placeholder="Enter name of the supplier">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div>
+                                    <label for="quantity" class="form-label">Quantity</label>
+                                    <input type="number" class="form-control" id="quantity" placeholder="Enter the quantity">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" rows="4" placeholder="Enter the description"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row mb-5">
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <label for="supplier" class="form-label">Unit Price (MWK)</label>
+                                    <input type="number" class="form-control" id="unit_price" placeholder="Enter price assigned to the unit">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div>
+                                    <label for="quantity" class="form-label">Total Price (MWK)</label>
+                                    <input type="number" class="form-control" id="total_price" placeholder="Unit price against the quantity">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="row mb-5">
+                        <div class="col">
+                            <button type="button" class="btn btn-primary ms-2">Submit</button>
+                            <button type="button" class="btn btn-primary ms-2">Re Submit</button>
+                            <button type="button" class="btn btn-warning ms-2">Recall</button>
+                            <button type="button" class="btn btn-danger ms-2">Rescind</button>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+
+            <div class="tab-pane fade m-4" id="nav-payment-voucher" role="tabpanel">
+                <div class="mb-4">
+                    <span class="badge rounded-pill bg-info text-dark px-3 py-2 fs-6">
+                        Please upload the payment voucher
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <!-- Drag and drop area -->
+                            <div class="border border-secondary rounded p-4 text-center bg-light" 
+                                 id="payment_voucher_drop_zone"
+                                 style="cursor: pointer;">
+                                <p class="mb-2"><strong>Drag & drop PDF files here</strong> or click to select</p>
+                                <p class="text-muted small">(PDF files only)</p>
+                                <input type="file" id="payment_voucher_upload" accept=".pdf" multiple hidden>
+                            </div>
+            
+                            <!-- Upload button -->
+                            <div class="text-end mt-3">
+                                <button class="btn btn-secondary" type="button" id="payment_voucher_upload_button">Upload</button>
+                            </div>
+            
+                            <!-- File preview list -->
+                            <ul class="list-group mt-3 mb-5" id="payment_voucher_file_list"></ul>
+            
+    
+                            <!-- Submit Button -->
+                            <div class="row mb-5">
+                                <div class="col">
+                                    <button type="button" class="btn btn-success btn-lg px-4" id="ipc_submit_button">
+                                        Submit
+                                    </button>
+                                </div>
+                            </div>
+            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="tab-pane fade m-4" id="nav-pop" role="tabpanel">
+                <div class="mb-4">
+                    <span class="badge rounded-pill bg-info text-dark px-3 py-2 fs-6">
+                        Please upload POP
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <!-- Drag and drop area -->
+                            <div class="border border-secondary rounded p-4 text-center bg-light" 
+                                 id="pop_drop_zone"
+                                 style="cursor: pointer;">
+                                <p class="mb-2"><strong>Drag & drop PDF files here</strong> or click to select</p>
+                                <p class="text-muted small">(PDF files only)</p>
+                                <input type="file" id="pop_upload" accept=".pdf" multiple hidden>
+                            </div>
+            
+                            <!-- Upload button -->
+                            <div class="text-end mt-3">
+                                <button class="btn btn-secondary" type="button" id="pop_upload_button">Upload</button>
+                            </div>
+            
+                            <!-- File preview list -->
+                            <ul class="list-group mt-3 mb-5" id="pop_file_list"></ul>
+            
+    
+                            <!-- Submit Button -->
+                            <div class="row mb-5">
+                                <div class="col">
+                                    <button type="button" class="btn btn-success btn-lg px-4" id="pop_submit_button">
+                                        Submit
+                                    </button>
+                                </div>
+                            </div>
+            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade m-4" id="nav-receipt" role="tabpanel">
+                <div class="mb-4">
+                    <span class="badge rounded-pill bg-info text-dark px-3 py-2 fs-6">
+                        Please upload Receipt
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <!-- Drag and drop area -->
+                            <div class="border border-secondary rounded p-4 text-center bg-light" 
+                                 id="receipt_drop_zone"
+                                 style="cursor: pointer;">
+                                <p class="mb-2"><strong>Drag & drop PDF files here</strong> or click to select</p>
+                                <p class="text-muted small">(PDF files only)</p>
+                                <input type="file" id="receipt_upload" accept=".pdf" multiple hidden>
+                            </div>
+            
+                            <!-- Upload button -->
+                            <div class="text-end mt-3">
+                                <button class="btn btn-secondary" type="button" id="receipt_upload_button">Upload</button>
+                            </div>
+            
+                            <!-- File preview list -->
+                            <ul class="list-group mt-3 mb-5" id="receipt_file_list"></ul>
+            
+    
+                            <!-- Submit Button -->
+                            <div class="row mb-5">
+                                <div class="col">
+                                    <button type="button" class="btn btn-success btn-lg px-4" id="receipt_submit_button">
+                                        Submit
+                                    </button>
+                                </div>
+                            </div>
+            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade m-4" id="nav-delivery" role="tabpanel">
+                <div class="mb-4">
+                    <button type="button" class="badge rounded-pill bg-info text-dark px-3 py-2 fs-6 border-0" id="delivery_badge">
+                        Click to Confirm
+                    </button>
+                </div>
+            
+                <div class="card-body">
+                    <!-- Confirm Delivery Banner Button -->
+                    <div class="row mb-4 justify-content-center">
+                        <div class="col-md-10">
+                            <div class="d-flex justify-content-center gap-4 flex-wrap">
+                                <div class="flex-fill text-center">
+                                    <input type="radio" class="btn-check" name="delivery_option" id="confirm_delivery" value="confirm" autocomplete="off">
+                                    <label class="btn btn-outline-success w-100 py-4 fs-5 fw-semibold" for="confirm_delivery">
+                                        Confirm Delivery
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Submit Button -->
+                    <div class="row mb-5">
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-success btn-lg px-4" id="delivery_submit_button" disabled>
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+
+            <div class="tab-pane fade m-4" id="nav-asset-registration" role="tabpanel">
+                <div class="mb-4">
+                    <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fs-6">
+                        Pending Submission
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <label for="date" class="form-label">Date</label>
+                                    <input type="date" class="form-control" id="date" placeholder="Enter Date">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div>
+                                    <label for="category" class="form-label">Category</label>
+                                    <select class="form-select" id="category">
+                                        <option value="" selected disabled>Select Department</option>
+                                        <option value="Tools">Tools</option>
+                                        <option value="Vehicles">Vehicles</option>
+                                        <option value="Art">Art</option>
+                                        <option value="Antiques">Antiques</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <label for="make" class="form-label">Make</label>
+                                    <input type="text" class="form-control" id="make" placeholder="Enter asset make">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div>
+                                    <label for="model" class="form-label">Model</label>
+                                    <input type="text" class="form-control" id="model" placeholder="Enter model of the asset">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row mb-5">
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <label for="serial_number" class="form-label">Serial Number</label>
+                                    <input type="text" class="form-control" id="serial_number" placeholder="Enter asset serial number">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div>
+                                    <label for="location" class="form-label">Location</label>
+                                    <input type="text" class="form-control" id="location" placeholder="Enter asset location">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="row mb-5">
+                        <div class="col">
+                            <button type="button" class="btn btn-primary ms-2">Save</button>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+</div>
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelectorAll('.nav-link').forEach(tab => {
+        tab.addEventListener('click', function () {
+            const progress = this.getAttribute('data-progress');
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = progress + '%';
+            progressBar.setAttribute('aria-valuenow', progress);
+            progressBar.textContent = progress + '%';
+        });
+    });
+</script>
+
+<script>
+    const dropZone = document.getElementById('source_qoutation_drop_zone');
+    const fileInput = document.getElementById('source_qoutation_upload');
+    const fileList = document.getElementById('source_qoutation_file_list');
+    const uploadButton = document.getElementById('source_qoutation_upload_button');
+
+    let selectedFiles = [];
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('bg-white', 'border-primary');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('bg-white', 'border-primary');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('bg-white', 'border-primary');
+        selectedFiles = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf');
+        showFileList(selectedFiles);
+    });
+
+    fileInput.addEventListener('change', () => {
+        selectedFiles = Array.from(fileInput.files).filter(file => file.type === 'application/pdf');
+        showFileList(selectedFiles);
+    });
+
+    uploadButton.addEventListener('click', () => {
+        if (!selectedFiles.length) {
+            alert('Please select at least one PDF file.');
+            return;
+        }
+        // Handle the actual upload logic here
+        alert(`${selectedFiles.length} file(s) ready to be uploaded.`);
+    });
+
+    function showFileList(files) {
+        fileList.innerHTML = '';
+        files.forEach(file => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.textContent = file.name;
+            fileList.appendChild(li);
+        });
+    }
+</script>
+
+
+<script>
+    const vendor_analysis_dropZone = document.getElementById('vendor_analysis_drop_zone');
+    const vendor_analysis_fileInput = document.getElementById('vendor_analysis_upload');
+    const vendor_analysis_fileList = document.getElementById('vendor_analysis_file_list');
+    const vendor_analysis_uploadButton = document.getElementById('vendor_analysis_upload_button');
+
+    let vendor_analysis_selectedFiles = [];
+
+    vendor_analysis_dropZone.addEventListener('click', () => vendor_analysis_fileInput.click());
+
+    vendor_analysis_dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        vendor_analysis_dropZone.classList.add('bg-white', 'border-primary');
+    });
+
+    vendor_analysis_dropZone.addEventListener('dragleave', () => {
+        vendor_analysis_dropZone.classList.remove('bg-white', 'border-primary');
+    });
+
+    vendor_analysis_dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        vendor_analysis_dropZone.classList.remove('bg-white', 'border-primary');
+        vendor_analysis_selectedFiles = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf');
+        vendor_analysis_showFileList(vendor_analysis_selectedFiles);
+    });
+
+    vendor_analysis_fileInput.addEventListener('change', () => {
+        vendor_analysis_selectedFiles = Array.from(vendor_analysis_fileInput.files).filter(file => file.type === 'application/pdf');
+        vendor_analysis_showFileList(vendor_analysis_selectedFiles);
+    });
+
+    vendor_analysis_uploadButton.addEventListener('click', () => {
+        if (!vendor_analysis_selectedFiles.length) {
+            alert('Please select at least one PDF file.');
+            return;
+        }
+        // Upload logic goes here
+        alert(`${vendor_analysis_selectedFiles.length} file(s) ready to be uploaded.`);
+    });
+
+    function vendor_analysis_showFileList(files) {
+        vendor_analysis_fileList.innerHTML = '';
+        files.forEach(file => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.textContent = file.name;
+            vendor_analysis_fileList.appendChild(li);
+        });
+    }
+</script>
+
+<script>
+    const paymentVoucherDropZone = document.getElementById('payment_voucher_drop_zone');
+    const paymentVoucherFileInput = document.getElementById('payment_voucher_upload');
+    const paymentVoucherFileList = document.getElementById('payment_voucher_file_list');
+    const paymentVoucherUploadButton = document.getElementById('payment_voucher_upload_button');
+
+    let paymentVoucherSelectedFiles = [];
+
+    paymentVoucherDropZone.addEventListener('click', () => {
+        paymentVoucherFileInput.click();
+    });
+
+    paymentVoucherDropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        paymentVoucherDropZone.classList.add('bg-white', 'border-primary');
+    });
+
+    paymentVoucherDropZone.addEventListener('dragleave', () => {
+        paymentVoucherDropZone.classList.remove('bg-white', 'border-primary');
+    });
+
+    paymentVoucherDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        paymentVoucherDropZone.classList.remove('bg-white', 'border-primary');
+        paymentVoucherSelectedFiles = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf');
+        showFileList(paymentVoucherSelectedFiles);
+    });
+
+    paymentVoucherFileInput.addEventListener('change', () => {
+        paymentVoucherSelectedFiles = Array.from(paymentVoucherFileInput.files).filter(file => file.type === 'application/pdf');
+        showFileList(paymentVoucherSelectedFiles);
+    });
+
+    paymentVoucherUploadButton.addEventListener('click', () => {
+        if (!paymentVoucherSelectedFiles.length) {
+            alert('Please select at least one PDF file.');
+            return;
+        }
+
+        // Handle the actual upload logic here
+        alert(`${paymentVoucherSelectedFiles.length} file(s) ready to be uploaded.`);
+    });
+
+    function showFileList(files) {
+        paymentVoucherFileList.innerHTML = '';
+        files.forEach(file => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.textContent = file.name;
+            paymentVoucherFileList.appendChild(li);
+        });
+    }
+</script>
+
+<script>
+    const popDropZone = document.getElementById('pop_drop_zone');
+    const popFileInput = document.getElementById('pop_upload');
+    const popFileList = document.getElementById('pop_file_list');
+    const popUploadButton = document.getElementById('pop_upload_button');
+
+    let popSelectedFiles = [];
+
+    popDropZone.addEventListener('click', () => {
+        popFileInput.click();
+    });
+
+    popDropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        popDropZone.classList.add('bg-white', 'border-primary');
+    });
+
+    popDropZone.addEventListener('dragleave', () => {
+        popDropZone.classList.remove('bg-white', 'border-primary');
+    });
+
+    popDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        popDropZone.classList.remove('bg-white', 'border-primary');
+        popSelectedFiles = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf');
+        showPopFileList(popSelectedFiles);
+    });
+
+    popFileInput.addEventListener('change', () => {
+        popSelectedFiles = Array.from(popFileInput.files).filter(file => file.type === 'application/pdf');
+        showPopFileList(popSelectedFiles);
+    });
+
+    popUploadButton.addEventListener('click', () => {
+        if (!popSelectedFiles.length) {
+            alert('Please select at least one PDF file.');
+            return;
+        }
+
+        // Handle actual upload logic here
+        alert(`${popSelectedFiles.length} file(s) ready to be uploaded.`);
+    });
+
+    function showPopFileList(files) {
+        popFileList.innerHTML = '';
+        files.forEach(file => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.textContent = file.name;
+            popFileList.appendChild(li);
+        });
+    }
+</script>
+
+<script>
+    const receiptDropZone = document.getElementById('receipt_drop_zone');
+    const receiptFileInput = document.getElementById('receipt_upload');
+    const receiptFileList = document.getElementById('receipt_file_list');
+    const receiptUploadButton = document.getElementById('receipt_upload_button');
+
+    let receiptSelectedFiles = [];
+
+    receiptDropZone.addEventListener('click', () => {
+        receiptFileInput.click();
+    });
+
+    receiptDropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        receiptDropZone.classList.add('bg-white', 'border-primary');
+    });
+
+    receiptDropZone.addEventListener('dragleave', () => {
+        receiptDropZone.classList.remove('bg-white', 'border-primary');
+    });
+
+    receiptDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        receiptDropZone.classList.remove('bg-white', 'border-primary');
+        receiptSelectedFiles = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf');
+        showReceiptFileList(receiptSelectedFiles);
+    });
+
+    receiptFileInput.addEventListener('change', () => {
+        receiptSelectedFiles = Array.from(receiptFileInput.files).filter(file => file.type === 'application/pdf');
+        showReceiptFileList(receiptSelectedFiles);
+    });
+
+    receiptUploadButton.addEventListener('click', () => {
+        if (!receiptSelectedFiles.length) {
+            alert('Please select at least one PDF file.');
+            return;
+        }
+
+        // Handle actual upload logic here
+        alert(`${receiptSelectedFiles.length} file(s) ready to be uploaded.`);
+    });
+
+    function showReceiptFileList(files) {
+        receiptFileList.innerHTML = '';
+        files.forEach(file => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.textContent = file.name;
+            receiptFileList.appendChild(li);
+        });
+    }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const receiptRadio = document.getElementById('confirm_delivery');
+        const receiptSubmitButton = document.getElementById('delivery_submit_button');
+        const receiptBadge = document.getElementById('delivery_badge'); // fixed ID
+        const receiptLabel = document.querySelector('label[for="confirm_delivery"]');
+
+        // Enable submit when radio selected
+        receiptRadio.addEventListener('change', () => {
+            if (receiptRadio.checked) {
+                receiptSubmitButton.disabled = false;
+                receiptLabel.classList.add('active');
+            }
+        });
+
+        // Badge click triggers the radio selection
+        receiptBadge.addEventListener('click', () => {
+            receiptRadio.checked = true;
+            receiptRadio.dispatchEvent(new Event('change'));
+        });
+
+        // Capture timestamp on submit
+        receiptSubmitButton.addEventListener('click', () => {
+            const timestamp = new Date().toISOString();
+            console.log('Delivery confirmed at:', timestamp);
+            alert('Delivery confirmed at: ' + timestamp);
+        });
+    });
+</script>
+
+
+</body>
+</html>
