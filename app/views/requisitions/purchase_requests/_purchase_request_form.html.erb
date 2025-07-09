@@ -1,64 +1,77 @@
-<div class="tab-pane fade show active m-4" id="nav-purchase-request" role="tabpanel">
+<h4 class="mb-4">Purchase Request</h4>
+
+<%= form_with model: @requisition, url: create_purchase_request_path, local: true do |form| %>
   <div class="mb-4">
     <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fs-6">
       Pending Submission
     </span>
   </div>
 
-  <div class="card-body">
-    <div class="row mb-3">
-      <div class="col">
-        <label for="date" class="form-label">Date</label>
-        <input type="date" class="form-control" id="date" placeholder="Enter Date">
-      </div>
-      <div class="col">
-        <label for="department" class="form-label">Department</label>
-        <select class="form-select" id="department">
-          <option value="" selected disabled>Select Department</option>
-          <option value="HR">HR</option>
-          <option value="Finance">Finance</option>
-          <option value="IT">IT</option>
-          <option value="Marketing">Marketing</option>
-        </select>
-      </div>
-    </div>
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <%= form.label :initiated_on, "Date", class: "form-label" %>
+          <%= form.date_field :initiated_on, value: Date.today, class: 'form-control', required: true %>
+        </div>
 
-    <div class="row mb-3">
-      <div class="col">
-        <label for="donor" class="form-label">Donor</label>
-        <input type="text" class="form-control" id="donor" placeholder="Enter name of the Donor">
+        <div class="col-md-6">
+          <%= form.label :initiated_by, class: "form-label" %>
+          <%= form.text_field :initiated_by, value: current_user.full_name, class: 'form-control', required: true %>
+        </div>
       </div>
-      <div class="col">
-        <label for="purpose" class="form-label">Purpose of Purchase</label>
-        <input type="text" class="form-control" id="purpose" placeholder="Enter the purpose of this purchase">
-      </div>
-    </div>
 
-    <div class="row mb-3">
-      <div class="col">
-        <label for="supplier" class="form-label">Supplier</label>
-        <input type="text" class="form-control" id="supplier" placeholder="Enter name of the supplier">
-      </div>
-      <div class="col">
-        <label for="quantity" class="form-label">Quantity</label>
-        <input type="number" class="form-control" id="quantity" placeholder="Enter the quantity">
-      </div>
-    </div>
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <%= form.label :purpose, class: "form-label" %>
+          <%= form.text_field :purpose, class: 'form-control', placeholder: "Enter the purpose of this purchase", required: true %>
+        </div>
 
-    <div class="row mb-3">
-      <div class="col">
-        <label for="description" class="form-label">Description</label>
-        <textarea class="form-control" id="description" rows="4" placeholder="Enter the description"></textarea>
-      </div>
-    </div>
+        <div class="col-md-6">
+           <%= form.label :stakeholder_id, "Donor" %>
+           <%= form.select :stakeholder_id, options_for_select(@stakeholder_options),
+            { prompt: "Select Donor" }, class: "form-select" %>
+        </div>
 
-    <div class="row mb-5">
-      <div class="col">
-        <button type="button" class="btn btn-primary ms-2">Submit</button>
-        <button type="button" class="btn btn-primary ms-2">Re Submit</button>
-        <button type="button" class="btn btn-warning ms-2">Recall</button>
-        <button type="button" class="btn btn-danger ms-2">Rescind</button>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+              <%= form.label :department_id, "Department", class: "form-label" %>
+              <%= form.select :department_id,
+                   options_for_select(@department_options, @selected_department&.id),
+                   { prompt: @selected_department&.department_name || "Select Department" },
+                    class: "form-select",
+                    required: true %>
+        </div>
+
+
+        <div class="col-md-6">
+          <%= form.label :quantity, class: "form-label" %>
+          <%= form.number_field :quantity, step: 1, min: 1, class: 'form-control', placeholder: "Enter quantity", required: true %>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <%= form.label :item_description, class: "form-label" %>
+          <%= form.text_area :item_description, class: 'form-control', rows: 3, placeholder: "Enter item description", required: true %>
+        </div>
+
+        <div class="col-md-6">
+          <%# You can add another field or leave this side blank %>
+        </div>
+      </div>
+
+      <%= form.hidden_field :requisition_type, value: "Purchase Request" %>
+      <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
+
+      <div class="row">
+        <div class="col-md-6">
+          <%= form.submit "Submit Request", class: "btn btn-success me-2" %>
+          <%= button_tag "Reset", type: "reset", class: "btn btn-secondary" %>
+        </div>
       </div>
     </div>
   </div>
-</div>
+<% end %>
