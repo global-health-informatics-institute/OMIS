@@ -84,16 +84,16 @@
   const accommodation = parseFloat(accommodationField.value) || 0;
 
   // Safely get the traveler count field value and convert to an integer
-  const travelerCountField = document.getElementById('selected_traveler_count') || document.getElementById('selected_traveler_count_field')
-  const travelerCount = parseInt(travelerCountField?.value) || 0
+  const travelerCountField = document.getElementById('selected_traveler_count_field');
+  const travelerCount = parseInt(travelerCountField?.value) || 0;
+
+  console.log("Traveler count:", travelerCount);
 
 
   const total = (lunch + dinner + accommodation) * travelerCount;
   totalAllowanceField.value = total.toFixed(2);
   updateGrandTotal();
 }
-
-
 
     function updateGrandTotal() {
       const totalFuel = parseFloat(totalFuelCostField.value) || 0;
