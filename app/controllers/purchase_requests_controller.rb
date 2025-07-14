@@ -85,15 +85,15 @@ class PurchaseRequestsController < ApplicationController
     redirect_to "/requisitions/#{params[:id]}"
   end
 
-  def start_procurement
+  def source_quotations
     new_state = WorkflowState.where(state: 'Under Procurement',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
 
-  def appeal_request
-    new_state = WorkflowState.where(state: 'Under LPC',
+  def require_ipc
+    new_state = WorkflowState.where(state: 'Under IPC',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
