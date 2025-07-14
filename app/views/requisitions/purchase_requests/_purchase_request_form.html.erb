@@ -1,77 +1,139 @@
-<h4 class="mb-4">Purchase Request</h4>
-
-<%= form_with model: @requisition, url: create_purchase_request_path, local: true do |form| %>
-  <div class="mb-4">
-    <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fs-6">
-      Pending Submission
-    </span>
-  </div>
-
-  <div class="card shadow-sm mb-4">
-    <div class="card-body">
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <%= form.label :initiated_on, "Date", class: "form-label" %>
-          <%= form.date_field :initiated_on, value: Date.today, class: 'form-control', required: true %>
+<%= form_with model: @requisition, url: complete_procurement_purchase_request_path(@requisition), multipart: true, method: :patch do |form| %>
+  <div class="row mt-3 p-2">
+    <div class="col p-2">
+      <div class="card">
+        <div class="card-header card-header-dark">
+          <div class="row">
+            <div class="col col-md-9">
+              <h5>Purchase Request</h5>
+            </div>
+            <div class="col col-md-2">
+              <span class="fw-bold fst-italic">Status: <%= @requisition.current_state %></span>
+            </div>
+          </div>
         </div>
 
-        <div class="col-md-6">
-          <%= form.label :initiated_by, class: "form-label" %>
-          <%= form.text_field :initiated_by, value: current_user.full_name, class: 'form-control', required: true %>
+        <div class="card-body">
+          <div class="row mt-3">
+            <div class="col-2 fw-normal">Initiated On</div>
+            <div class="col-2 fw-bold fst-italic"><%= @requisition.initiated_on.strftime("%m/%d/%Y") %></div>
+            <div class="col-2 fw-normal">Initiated By</div>
+            <div class="col-2 fw-bold fst-italic"><%= @requisition.user.full_name %></div>
+            <div class="col-2 fw-normal">Department</div>
+            <div class="col-2 fw-bold fst-italic"><%= @requisition&.department&.department_name %></div>
+          </div>
+
+          <div class="row mt-4 mb-4">
+            <div class="col-2 fw-normal">Purpose</div>
+            <div class="col-2 fw-bold fst-italic"><%= @requisition.purpose %></div>
+            <div class="col-2 fw-normal">Quantity</div>
+            <div class="col-2 fw-bold fst-italic"><%= @requisition.quantity %></div>
+            <% if ["Under Procurement", "Under LPC"].include?(@requisition.current_state) %>
+              <div class="col-4">
+                <%= form.label :supplier, "Supplier", class: "form-label" %>
+                <%= form.text_field :supplier,
+                      value: @requisition.purchase_request_attachment&.supplier,
+                      class: "form-control",
+                      name: "requisition[supplier]" %>
+              </div>
+            <% else %>
+              <div class="col-2 fw-normal">Supplier</div>
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.purchase_request_attachment&.supplier %></div>
+            <% end %>
+          </div>
+
+          <div class="row mt-3 mb-3">
+            <div class="col-2 fw-normal">Reviewed By</div>
+            <div class="col-2 fw-bold fst-italic"><%= @requisition.reviewer rescue nil %></div>
+            <div class="col-2 fw-normal">Approved By</div>
+            <div class="col-2 fw-bold fst-italic"><%= @requisition.approver rescue nil %></div>
+            <div class="col-2 fw-normal">Item Description</div>
+            <div class="col-2 fw-bold fst-italic"><%= @requisition.item_description %></div>
+          </div>
+
+          <% if @requisition.current_state == "Procured" %>
+            <div class="row mt-4 mb-3">
+              <div class="col-4">
+                <%= form.label :attachments, "Attach Supporting Documents (PDF, Images, Excel)", class: "form-label" %>
+                <%= form.file_field :attachments, multiple: true, class: "form-control", direct_upload: true %>
+              </div>
+            </div>
+          <% end %>
+
+          <div class="row mt-3">
+            <div class="col-md-4">
+              <%= form.label :amount, "Total Amount", class: "form-label" %>
+              <% if ["Under Procurement", "Under LPC"].include?(@requisition.current_state) %>
+                <% options = {
+                  step: "0.01",
+                  class: "form-control #{'is-invalid' if flash[:amount_error]}",
+                  min: 0,
+                  required: true,
+                  value: (@requisition.requisition_items.first&.value || 0).to_s == "0.0" ? 0 : @requisition.requisition_items.first&.value,
+                  data: { limit: @purchase_request_threshold }
+                } %>
+                <% options[:max] = @purchase_request_threshold if @requisition.current_state == "Under Procurement" %>
+                <%= form.number_field :amount, options %>
+                <% if flash[:amount_error] %>
+                  <div class="invalid-feedback d-block">
+                    <%= flash[:amount_error] %>
+                  </div>
+                <% end %>
+              <% else %>
+                <%= form.hidden_field :amount, value: @requisition.requisition_items.first&.value %>
+                <div class="fw-bold fst-italic">
+                  <%= number_with_precision(@requisition.requisition_items.first&.value || 0, precision: 2) %>
+                </div>
+              <% end %>
+            </div>
+
+            <div class="col-md-4">
+              <%= form.label :unit_price, "Unit Price", class: "form-label" %>
+              <% unit_price = @requisition.quantity.to_f > 0 ? (@requisition.requisition_items.first&.value.to_f / @requisition.quantity.to_f) : 0 %>
+              <% if ["Under Procurement", "Under LPC"].include?(@requisition.current_state) %>
+                <%= form.number_field :unit_price,
+                          step: "0.01",
+                          class: "form-control",
+                          min: 0,
+                          readonly: true,
+                          value: number_with_precision(unit_price, precision: 2) %>
+              <% else %>
+                <div class="fw-bold fst-italic">
+                  <%= number_with_precision(unit_price, precision: 2) %>
+                </div>
+              <% end %>
+            </div>
+
+            <div class="col-2 fw-normal">Donor</div>
+            <div class="col-2 fw-bold fst-italic">
+              <%= @requisition.purchase_request_attachment&.stakeholder&.stakeholder_name %>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <%= form.label :purpose, class: "form-label" %>
-          <%= form.text_field :purpose, class: 'form-control', placeholder: "Enter the purpose of this purchase", required: true %>
-        </div>
-
-        <div class="col-md-6">
-           <%= form.label :stakeholder_id, "Donor" %>
-           <%= form.select :stakeholder_id, options_for_select(@stakeholder_options),
-            { prompt: "Select Donor" }, class: "form-select" %>
-        </div>
-
-      </div>
-
-      <div class="row mb-3">
-        <div class="col-md-6">
-              <%= form.label :department_id, "Department", class: "form-label" %>
-              <%= form.select :department_id,
-                   options_for_select(@department_options, @selected_department&.id),
-                   { prompt: @selected_department&.department_name || "Select Department" },
-                    class: "form-select",
-                    required: true %>
-        </div>
-
-
-        <div class="col-md-6">
-          <%= form.label :quantity, class: "form-label" %>
-          <%= form.number_field :quantity, step: 1, min: 1, class: 'form-control', placeholder: "Enter quantity", required: true %>
-        </div>
-      </div>
-
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <%= form.label :item_description, class: "form-label" %>
-          <%= form.text_area :item_description, class: 'form-control', rows: 3, placeholder: "Enter item description", required: true %>
-        </div>
-
-        <div class="col-md-6">
-          <%# You can add another field or leave this side blank %>
-        </div>
-      </div>
+      <hr>
 
       <%= form.hidden_field :requisition_type, value: "Purchase Request" %>
       <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
 
-      <div class="row">
-        <div class="col-md-6">
-          <%= form.submit "Submit Request", class: "btn btn-success me-2" %>
-          <%= button_tag "Reset", type: "reset", class: "btn btn-secondary" %>
-        </div>
-      </div>
+      <% (@possible_actions || []).each do |action| %>
+        <% btn_class = case action
+                      when "Approve Request" then "btn btn-success"
+                      when "Reject Request" then "btn btn-danger"
+                      when "Start Procurement" then "btn btn-warning"
+                      when "Recalled" then "btn btn-secondary"
+                      else "btn btn-primary"
+                      end %>
+
+        <% if action == "Request Payment" %>
+          <%= form.submit action, class: "btn btn-info btn-block", data: { disable_with: "Processing..." } %>
+        <% else %>
+          <% path = "/purchase_requests/#{@requisition.id}/#{action.parameterize(separator: '_')}" %>
+          <%= link_to action, path, class: btn_class, method: :put,
+                    data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action.split(' ').first.downcase} this request?" } %>
+        <% end %>
+      <% end %>
     </div>
   </div>
 <% end %>
