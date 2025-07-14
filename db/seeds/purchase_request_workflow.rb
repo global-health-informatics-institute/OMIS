@@ -113,8 +113,8 @@ end
     WorkflowState.create(
       workflow_state_id: 41,
       workflow_process_id: 6,
-      state: 'Under LPC',
-      description: 'Purchase request has been appealed to LPC',
+      state: 'Under IPC',
+      description: 'Purchase request has been appealed to IPC',
       voided: false
     )
   end
@@ -223,7 +223,7 @@ end
       workflow_state_id: 38,
       next_state: 40,
       voided: false,
-      action: 'Start Procurement',
+      action: 'Source Quotations',
       by_owner: false,
       by_supervisor: false
     )
