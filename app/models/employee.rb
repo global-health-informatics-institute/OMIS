@@ -214,8 +214,8 @@ class Employee < ApplicationRecord
         ["Liquidate Funds for #{x.requisition_type} request: #{x.purpose}",
          "/requisitions/#{x.id}"]
       else
-        ["Review #{x.requisition_type} request: #{x.purpose}",
-         "/requisitions/#{x.id}"]
+        ["Review #{x.user.person.first_name}'s #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type}"} requisition for #{x.purpose}", "/requisitions/#{x.id}"]
+
       end
     end
 
@@ -226,19 +226,19 @@ class Employee < ApplicationRecord
     actions += Requisition.where('workflow_state_id in (?) and initiated_by = ?', owner_actionable_states.uniq, id) # Use .uniq to avoid duplicates
                           .collect do |x|
       if x.workflow_state_id == 28
-        ["Collect Funds for #{x.requisition_type} request: #{x.purpose}",
-         "/requisitions/#{x.id}"]
+        ["Collect Funds for #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type} request"}: #{x.purpose}", "/requisitions/#{x.id}"]
+
       else
-        ["Check #{x.requisition_type} request: #{x.purpose}",
-         "/requisitions/#{x.id}"]
+        ["Check #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type} request"}: #{x.purpose}", "/requisitions/#{x.id}"]
+
       end
     end
 
  actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
                       .where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
                       .collect do |x|
-  ["Review #{x.user.person.first_name}'s #{x.requisition_type} requisition for #{x.purpose}",
-  "/requisitions/#{x.id}"]
+  ["Review #{x.user.person.first_name}'s #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type}"} request for #{x.purpose}", "/requisitions/#{x.id}"]
+
 end
 
 
