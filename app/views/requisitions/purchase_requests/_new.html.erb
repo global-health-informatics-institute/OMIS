@@ -10,7 +10,19 @@
         </div>
 
         <div class="tab-pane fade" id="nav-step2" role="tabpanel">
-          <%= render 'requisitions/purchase_requests/request_review', form: form %>
+          <%= render 'requisitions/purchase_requests/under_ipc', form: form %>
+        </div>
+         
+          <div class="tab-pane fade" id="nav-step3" role="tabpanel">
+          <%= render 'requisitions/purchase_requests/proof_of_payment', form: form %>
+        </div>
+
+         <div class="tab-pane fade" id="nav-step4" role="tabpanel">
+          <%= render 'requisitions/purchase_requests/confirm_delivery_form', form: form %>
+        </div>
+
+        <div class="tab-pane fade" id="nav-step5" role="tabpanel">
+          <%= render 'requisitions/purchase_requests/asset_registration_form', form: form %>
         </div>
 
         <div class="d-flex justify-content-between mt-3 p-3">
