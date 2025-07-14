@@ -1,0 +1,36 @@
+<h4 class="mb-4">Request Review</h4>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <p class="text-muted">Review your request details before submission.</p>
+
+    <div class="mb-3">
+      <strong>Date:</strong> <%= form.object.initiated_on %>
+    </div>
+
+    <div class="mb-3">
+      <strong>Initiated By:</strong> <%= form.object.initiated_by %>
+    </div>
+
+    <div class="mb-3">
+      <strong>Purpose:</strong> <%= form.object.purpose %>
+    </div>
+
+    <div class="mb-3">
+       <strong>Donor:</strong> <%= params[:donor_name].presence || "Not selected" %>
+    </div>
+
+
+    <div class="mb-3">
+      <strong>Department:</strong> <%= Department.find_by(department_id: form.object.department_id)&.department_name %>
+    </div>
+
+    <div class="mb-3">
+      <strong>Quantity:</strong> <%= form.object.quantity %>
+    </div>
+
+    <div class="mb-3">
+      <strong>Description:</strong> <%= form.object.item_description %>
+    </div>
+  </div>
+</div>
