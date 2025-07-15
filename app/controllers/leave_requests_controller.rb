@@ -77,16 +77,50 @@ class LeaveRequestsController < ApplicationController
 
   end
 
-  def approve_leave
+  def approve_leave # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
     new_state = WorkflowState.where(state: 'Approved',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow("Leave Request").id)
-    @leave_request = LeaveRequest.where(leave_request_id: params[:id])
-                                 .update(reviewed_by: current_user.user_id, reviewed_on: Time.now,
-                                         approved_by: current_user.user_id, approved_on: Time.now,
-                                         status: new_state.first.id)
-    LeaveRequestMailer.approve_leave_request(@leave_request).deliver_now
-    redirect_to "/leave_requests/#{params[:id]}"
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Leave Request').id)
+    @leave_request = LeaveRequest.find_by(leave_request_id: params[:id])
+
+    return render_error(status: 404, message: 'requisition not found.') unless @leave_request
+
+    if @leave_request.update(
+      reviewed_by: current_user.user_id,
+      reviewed_on: Time.now,
+      approved_by: current_user.user_id,
+      approved_on: Time.now,
+      status: new_state.first.id
+    )
+      begin
+        LeaveRequestMailer.approve_leave_request(@leave_request).deliver_now
+      rescue Net::OpenTimeout => e
+        return render_error(
+          status: 408,
+          message: 'Leave was approved, but email notification timed out.'
+        )
+      rescue Net::ReadTimeout => e
+        return render_error(
+          status: 408,
+          message: 'Leave was approved, but email notification timed out.'
+        )
+      rescue Net::SMTPFatalError => e
+        return render_error(
+          status: 422,
+          message: 'Leave was approved, but email notification failed due to a fatal error.'
+        )
+      rescue StandardError => e
+        return render_error(
+          status: 500,
+          message: 'Leave was approved, but email notification failed.'
+        )
+      end
+
+      redirect_to "/leave_requests/#{params[:id]}"
+    else
+      render_error(status: 422, message: 'Failed to update leave request.')
+    end
   end
+
   def cancel_leave
     new_state = WorkflowState.where(state: 'Canceled',
                                     workflow_process_id: WorkflowProcess.find_by_workflow("Leave Request").id)
@@ -105,14 +139,46 @@ class LeaveRequestsController < ApplicationController
     redirect_to "/leave_requests/#{params[:id]}"
   end
 
-  def deny_leave
+  def deny_leave # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
     new_state = WorkflowState.where(state: 'Rejected',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow("Leave Request").id)
-    @leave_request = LeaveRequest.where(leave_request_id: params[:id])
-                                 .update(status: new_state.first.id)
-    LeaveRequestMailer.deny_leave_request(@leave_request).deliver_now
-    
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Leave Request').id)
 
-    redirect_to "/leave_requests/#{params[:id]}"
+    @leave_request = LeaveRequest.find_by(leave_request_id: params[:id])
+
+    if @leave_request.update(
+      reviewed_by: current_user.user_id,
+      reviewed_on: Time.now,
+      approved_by: current_user.user_id,
+      approved_on: Time.now,
+      status: new_state.first.id
+    )
+      begin
+        LeaveRequestMailer.deny_leave_request(@leave_request).deliver_now
+      rescue Net::OpenTimeout
+        return render_error(
+          status: 408,
+          message: 'Leave was denied, but email notification timed out.'
+        )
+      rescue Net::ReadTimeout
+        return render_error(
+          status: 408,
+          message: 'Leave was denied, but email notification timed out.'
+        )
+      rescue Net::SMTPFatalError
+        return render_error(
+          status: 422,
+          message: 'Leave was denied, but email notification failed due to a fatal error.'
+        )
+      rescue StandardError
+        return render_error(
+          status: 500,
+          message: 'Leave was denied, but email notification failed.'
+        )
+      end
+
+      redirect_to "/leave_requests/#{params[:id]}"
+    else
+      render_error(status: 422, message: 'Failed to update leave request.')
+    end
   end
 end

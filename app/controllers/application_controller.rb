@@ -65,4 +65,15 @@ class ApplicationController < ActionController::Base
   def can_access?
     # function to check if user has access rights to the resource
   end
+
+  def render_error(status:, message:)
+    template = if status.to_i.between?(400, 499)
+                 'shared/errors/error_400'
+               else
+                 'shared/errors/error_500'
+               end
+  
+    render template: template, locals: { status: status, error: message }, status: status
+  end
+  
 end
