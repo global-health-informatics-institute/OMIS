@@ -1,65 +1,43 @@
-<%= form_with model: @requisition, url: complete_procurement_purchase_request_path(@requisition), multipart: true, method: :patch do |form| %>
-  <div class="container m-4">
-    <div class="row mt-3 p-2">
-      <div class="col p-2">
-        <div class="card">
-          <div class="card-header card-header-dark">
-            <div class="row">
-              <div class="col col-md-9">
-                <h5>Purchase Request</h5>
-              </div>
-              <div class="col col-md-3 text-end">
-                <span class="fw-bold fst-italic">Status: <%= @requisition.current_state %></span>
-              </div>
-            </div>
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4>IPC Requirement</h4>
+        </div>
+        <div class="card-body">
+          <div class="form-check form-check-inline">
+            <%= form.radio_button :requires_ipc, true, 
+                class: "form-check-input", 
+                id: "requires_ipc_true",
+                data: { action: "change->purchase#ipcChanged" } %>
+            <%= form.label :requires_ipc_true, "Requires IPC", class: "form-check-label" %>
           </div>
+          
+          <div class="form-check form-check-inline">
+            <%= form.radio_button :requires_ipc, false, 
+                class: "form-check-input", 
+                id: "requires_ipc_false",
+                data: { action: "change->purchase#ipcChanged" } %>
+            <%= form.label :requires_ipc_false, "Does not require IPC", class: "form-check-label" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-          <div class="card-body">
-            <!-- Drag and drop area -->
-            <div class="row mb-3">
-              <div class="col">
-                <div class="border border-secondary rounded p-4 text-center bg-light" 
-                     id="source_qoutation_drop_zone"
-                     style="cursor: pointer;">
-                  <p class="mb-2"><strong>Drag & drop PDF files here</strong> or click to select</p>
-                  <p class="text-muted small">(PDF files only)</p>
-                  <input type="file" id="source_qoutation_upload" accept=".pdf" multiple hidden>
-                </div>
-
-                <!-- Upload button -->
-                <div class="text-end mt-3">
-                  <button class="btn btn-secondary" type="button" id="source_qoutation_upload_button">Upload</button>
-                </div>
-
-                <!-- File preview list -->
-                <ul class="list-group mt-3 mb-5" id="source_qoutation_file_list"></ul>
-              </div>
-            </div>
-
-            <!-- IPC Radio Buttons Styled -->
-            <div class="row mb-4">
-              <div class="col">
-                <div class="d-flex gap-3 justify-content-start">
-                  <input type="radio" class="btn-check" name="ipc_option" id="requires_ipc" value="requires" autocomplete="off">
-                  <label class="btn btn-outline-primary px-4 py-2" for="requires_ipc">Requires IPC</label>
-
-                  <input type="radio" class="btn-check" name="ipc_option" id="does_not_require_ipc" value="does_not_require" autocomplete="off">
-                  <label class="btn btn-outline-primary px-4 py-2" for="does_not_require_ipc">Does not Require IPC</label>
-                </div>
-              </div>
-            </div>
-
-            <!-- Submit Button -->
-            <div class="row mb-5">
-              <div class="col">
-                <button type="submit" class="btn btn-success btn-lg px-4" id="ipc_submit_button">
-                  Submit
-                </button>
-              </div>
-            </div>
-          </div> <!-- end of card-body -->
-        </div> <!-- end of card -->
-      </div> <!-- end of col -->
-    </div> <!-- end of row -->
-  </div> <!-- end of container -->
-<% end %>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const ipcRadios = document.querySelectorAll('input[name="requisition[requires_ipc]"]');
+  
+  ipcRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      const event = new CustomEvent('ipc:changed', {
+        detail: { requiresIpc: this.value === 'true' }
+      });
+      document.dispatchEvent(event);
+    });
+  });
+});
+</script>
