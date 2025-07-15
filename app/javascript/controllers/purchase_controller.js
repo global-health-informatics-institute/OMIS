@@ -1,95 +1,102 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["submitButton"]
+  static targets = ["submitButton", "nextButton", "previousButton"]
+  static values = {
+    currentStep: { type: Number, default: 0 },
+    requiresIpc: { type: Boolean, default: false }
+  }
 
   connect() {
-    this.tabs = Array.from(document.querySelectorAll('.nav-link'))
+    this.panels = Array.from(this.element.querySelectorAll('.tab-pane'))
+    this.setupIPCListeners()
+    this.updateStepVisibility()
+  }
 
-    window.addEventListener("ipc:changed", (event) => {
-  const requiresIPC = event.detail.value
-  this.reorderPanels(requiresIPC)
-})
-
-// Initial value check
-const ipcHidden = document.querySelector("#ipcRequirement")
-if (ipcHidden && ipcHidden.value) {
-  this.reorderPanels(ipcHidden.value === "true")
-}
-
-
-    this.panels = Array.from(document.querySelectorAll('.tab-pane'))
-    this.currentStep = 0
-    this.updateSteps()
+  setupIPCListeners() {
+    // Listen for IPC selection changes from under_ipc form
+    document.addEventListener('ipc:changed', (event) => {
+      this.requiresIpcValue = event.detail.requiresIpc
+      this.reorderSteps()
+    })
   }
 
   nextStep() {
-    if (this.currentStep < this.tabs.length - 1) {
-      this.currentStep++
-      this.updateSteps()
+    if (this.currentStepValue < this.panels.length - 1) {
+      this.currentStepValue++
+      this.updateStepVisibility()
     }
   }
 
   previousStep() {
-    if (this.currentStep > 0) {
-      this.currentStep--
-      this.updateSteps()
+    if (this.currentStepValue > 0) {
+      this.currentStepValue--
+      this.updateStepVisibility()
     }
   }
 
-  updateSteps() {
-    this.tabs.forEach((tab, index) => {
-      tab.classList.toggle('active', index === this.currentStep)
+  updateStepVisibility() {
+    // Hide all panels
+    this.panels.forEach(panel => {
+      panel.classList.remove('show', 'active')
     })
 
-    this.panels.forEach((panel, index) => {
-      panel.classList.toggle('show', index === this.currentStep)
-      panel.classList.toggle('active', index === this.currentStep)
-    })
+    // Show current panel
+    const currentPanel = this.panels[this.currentStepValue]
+    if (currentPanel) {
+      currentPanel.classList.add('show', 'active')
+    }
 
-    if (this.currentStep === this.tabs.length - 1) {
-      this.submitButtonTarget.classList.remove('d-none')
+    // Update button states
+    this.updateButtonStates()
+  }
+
+  updateButtonStates() {
+    const isLastStep = this.currentStepValue === this.panels.length - 1
+    const isNonIpcFlow = !this.requiresIpcValue && this.currentStepValue >= 1
+
+    this.submitButtonTarget.classList.toggle('d-none', !isLastStep)
+    this.nextButtonTarget.classList.toggle('d-none', isLastStep || isNonIpcFlow)
+    this.previousButtonTarget.classList.toggle('d-none', this.currentStepValue === 0 || isNonIpcFlow)
+  }
+
+  reorderSteps() {
+    const stepContainer = document.getElementById('nav-tabContent')
+    const currentPanelId = this.panels[this.currentStepValue]?.id
+
+    // Get all panels
+    const step1 = document.getElementById('nav-step1') // request_purchase
+    const underIpc = document.getElementById('nav-step2') // under_ipc
+    const requestPayment = document.getElementById('nav-step3')
+    const proofOfPayment = document.getElementById('nav-step4')
+    const confirmDelivery = document.getElementById('nav-step5')
+    const assetRegistration = document.getElementById('nav-step6')
+
+    // Clear container
+    stepContainer.innerHTML = ""
+
+    if (this.requiresIpcValue) {
+      // IPC Flow Order:
+      // 1. request_purchase
+      // 2. payment_request_form
+      // 3. confirm_delivery_form
+      // 4. proof_of_payment
+      // 5. asset_registration_form
+      stepContainer.append(step1, requestPayment, confirmDelivery, proofOfPayment, assetRegistration)
     } else {
-      this.submitButtonTarget.classList.add('d-none')
+      // Non-IPC Flow Order:
+      // 1. request_purchase
+      // 2. under_ipc
+      stepContainer.append(step1, underIpc)
     }
+
+    // Update panels reference
+    this.panels = Array.from(stepContainer.querySelectorAll('.tab-pane'))
+
+    // Try to maintain current position or reset to step 0
+    const newIndex = this.panels.findIndex(panel => panel.id === currentPanelId)
+    this.currentStepValue = newIndex >= 0 ? newIndex : 0
+
+    this.updateStepVisibility()
   }
-
-  reorderPanels(requiresIPC) {
-  const stepContainer = document.querySelector('#nav-tabContent')
-
-  const step1 = document.querySelector('#nav-step1') // request_purchase
-  const underIPC = document.querySelector('#nav-step2') // under_ipc
-  const requestPayment = document.querySelector('#nav-step3')
-  const confirmDelivery = document.querySelector('#nav-step4')
-  const proofOfPayment = document.querySelector('#nav-step5')
-  const assetRegistration = document.querySelector('#nav-step6')
-
-  // Capture current panel
-  const currentPanelId = this.panels[this.currentStep]?.id
-
-  // Clear container
-  stepContainer.innerHTML = ""
-
-  // Reorder based on IPC selection
-  if (requiresIPC) {
-    stepContainer.appendChild(step1)           // Step 1: request_purchase
-    stepContainer.appendChild(requestPayment)  // Step 2: request_payment
-    stepContainer.appendChild(confirmDelivery) // Step 3: confirm_delivery
-    stepContainer.appendChild(proofOfPayment)  // Step 4: proof_of_payment
-    stepContainer.appendChild(assetRegistration) // Step 5: asset_registration
-  } else {
-    stepContainer.appendChild(step1)     // Step 1: request_purchase
-    stepContainer.appendChild(underIPC)  // Step 2: under_ipc
-  }
-
-  // Update step list
-  this.panels = Array.from(document.querySelectorAll('.tab-pane'))
-  this.tabs = Array.from(document.querySelectorAll('.nav-link'))
-
-  // Try to preserve step or fallback
-  const newIndex = this.panels.findIndex(p => p.id === currentPanelId)
-  this.currentStep = newIndex >= 0 ? newIndex : 0
-
-  this.updateSteps()
-}
 }
