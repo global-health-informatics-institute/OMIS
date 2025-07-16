@@ -8,21 +8,79 @@ export default class extends Controller {
   }
 
   connect() {
-    this.panels = Array.from(this.element.querySelectorAll('.tab-pane'))
+    this.allPanels = Array.from(document.getElementById('nav-tabContent').querySelectorAll('.tab-pane'))
+    this.visiblePanels = [...this.allPanels] // Track visible panels separately
     this.setupIPCListeners()
+    this.setupNavigationListeners()
+    this.reorderSteps() // Initial ordering
     this.updateStepVisibility()
   }
 
   setupIPCListeners() {
-    // Listen for IPC selection changes from under_ipc form
     document.addEventListener('ipc:changed', (event) => {
-      this.requiresIpcValue = event.detail.requiresIpc
-      this.reorderSteps()
+      this.handleIpcChange(event.detail.requiresIpc)
     })
   }
 
+  handleIpcChange(requiresIpc) {
+    const currentPanelId = this.visiblePanels[this.currentStepValue]?.id
+    
+    this.requiresIpcValue = requiresIpc
+    this.reorderSteps()
+    
+    // Find current panel in new order
+    if (currentPanelId) {
+      const newIndex = this.visiblePanels.findIndex(panel => panel.id === currentPanelId)
+      this.currentStepValue = newIndex >= 0 ? newIndex : 0
+    } else {
+      this.currentStepValue = 0
+    }
+    
+    this.updateStepVisibility()
+  }
+
+  reorderSteps() {
+    const stepContainer = document.getElementById('nav-tabContent')
+    const panelsToReorder = [...this.allPanels]
+
+    // Clear only panels from container
+    this.allPanels.forEach(panel => panel.remove())
+
+    // Always include first step
+    const firstStep = panelsToReorder.find(p => p.id === 'nav-step1')
+    if (firstStep) {
+      stepContainer.appendChild(firstStep)
+      this.visiblePanels = [firstStep]
+    }
+
+    if (this.requiresIpcValue) {
+      // IPC Flow Order
+      const ipcOrder = [
+        'nav-step3',  // payment_request_form
+        'nav-step5',  // confirm_delivery_form
+        'nav-step4',  // proof_of_payment
+        'nav-step6'   // asset_registration_form
+      ]
+      
+      ipcOrder.forEach(id => {
+        const panel = panelsToReorder.find(p => p.id === id)
+        if (panel) {
+          stepContainer.appendChild(panel)
+          this.visiblePanels.push(panel)
+        }
+      })
+    } else {
+      // Non-IPC Flow
+      const underIpc = panelsToReorder.find(p => p.id === 'nav-step2')
+      if (underIpc) {
+        stepContainer.appendChild(underIpc)
+        this.visiblePanels.push(underIpc)
+      }
+    }
+  }
+
   nextStep() {
-    if (this.currentStepValue < this.panels.length - 1) {
+    if (this.currentStepValue < this.visiblePanels.length - 1) {
       this.currentStepValue++
       this.updateStepVisibility()
     }
@@ -36,67 +94,29 @@ export default class extends Controller {
   }
 
   updateStepVisibility() {
-    // Hide all panels
-    this.panels.forEach(panel => {
-      panel.classList.remove('show', 'active')
+    this.visiblePanels.forEach((panel, index) => {
+      if (index === this.currentStepValue) {
+        panel.classList.add('show', 'active')
+      } else {
+        panel.classList.remove('show', 'active')
+      }
     })
 
-    // Show current panel
-    const currentPanel = this.panels[this.currentStepValue]
-    if (currentPanel) {
-      currentPanel.classList.add('show', 'active')
-    }
-
-    // Update button states
     this.updateButtonStates()
   }
 
   updateButtonStates() {
-    const isLastStep = this.currentStepValue === this.panels.length - 1
+    const isLastStep = this.currentStepValue === this.visiblePanels.length - 1
+    const isFirstStep = this.currentStepValue === 0
     const isNonIpcFlow = !this.requiresIpcValue && this.currentStepValue >= 1
 
+    // Show submit only on last step
     this.submitButtonTarget.classList.toggle('d-none', !isLastStep)
+    
+    // Show next button except on last step or in non-IPC flow after first step
     this.nextButtonTarget.classList.toggle('d-none', isLastStep || isNonIpcFlow)
-    this.previousButtonTarget.classList.toggle('d-none', this.currentStepValue === 0 || isNonIpcFlow)
-  }
-
-  reorderSteps() {
-    const stepContainer = document.getElementById('nav-tabContent')
-    const currentPanelId = this.panels[this.currentStepValue]?.id
-
-    // Get all panels
-    const step1 = document.getElementById('nav-step1') // request_purchase
-    const underIpc = document.getElementById('nav-step2') // under_ipc
-    const requestPayment = document.getElementById('nav-step3')
-    const proofOfPayment = document.getElementById('nav-step4')
-    const confirmDelivery = document.getElementById('nav-step5')
-    const assetRegistration = document.getElementById('nav-step6')
-
-    // Clear container
-    stepContainer.innerHTML = ""
-
-    if (this.requiresIpcValue) {
-      // IPC Flow Order:
-      // 1. request_purchase
-      // 2. payment_request_form
-      // 3. confirm_delivery_form
-      // 4. proof_of_payment
-      // 5. asset_registration_form
-      stepContainer.append(step1, requestPayment, confirmDelivery, proofOfPayment, assetRegistration)
-    } else {
-      // Non-IPC Flow Order:
-      // 1. request_purchase
-      // 2. under_ipc
-      stepContainer.append(step1, underIpc)
-    }
-
-    // Update panels reference
-    this.panels = Array.from(stepContainer.querySelectorAll('.tab-pane'))
-
-    // Try to maintain current position or reset to step 0
-    const newIndex = this.panels.findIndex(panel => panel.id === currentPanelId)
-    this.currentStepValue = newIndex >= 0 ? newIndex : 0
-
-    this.updateStepVisibility()
+    
+    // Show previous button except on first step or in non-IPC flow after first step
+    this.previousButtonTarget.classList.toggle('d-none', isFirstStep || isNonIpcFlow)
   }
 }
