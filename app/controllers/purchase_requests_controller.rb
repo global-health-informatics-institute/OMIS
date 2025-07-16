@@ -43,6 +43,7 @@ class PurchaseRequestsController < ApplicationController
           requisition_id: @requisition.id,
           stakeholder_id: params[:requisition][:stakeholder_id],
           comments: params[:requisition][:comments],
+          item_requested: params[:requisition][:item_requested],
           supplier: params[:requisition][:supplier],
           voided: false
         )
@@ -190,6 +191,7 @@ class PurchaseRequestsController < ApplicationController
       :department_id,
       :comments,
       :supplier,
+      :item_requested,
       :stakeholder_id
     )
   end
