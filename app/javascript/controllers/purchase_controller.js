@@ -70,12 +70,21 @@ export default class extends Controller {
         }
       })
     } else {
-      // Non-IPC Flow
-      const underIpc = panelsToReorder.find(p => p.id === 'nav-step2')
-      if (underIpc) {
-        stepContainer.appendChild(underIpc)
-        this.visiblePanels.push(underIpc)
-      }
+      // Non-IPC Flow (new order: step1 → step3 → step4 → step5 → step6)
+      const nonIpcOrder = [
+        'nav-step3',  // payment_request_form
+        'nav-step4',  // proof_of_payment
+        'nav-step5',  // confirm_delivery_form
+        'nav-step6'   // asset_registration_form
+      ]
+      
+      nonIpcOrder.forEach(id => {
+        const panel = panelsToReorder.find(p => p.id === id)
+        if (panel) {
+          stepContainer.appendChild(panel)
+          this.visiblePanels.push(panel)
+        }
+      })
     }
   }
 
@@ -108,15 +117,15 @@ export default class extends Controller {
   updateButtonStates() {
     const isLastStep = this.currentStepValue === this.visiblePanels.length - 1
     const isFirstStep = this.currentStepValue === 0
-    const isNonIpcFlow = !this.requiresIpcValue && this.currentStepValue >= 1
+    const isNonIpcFlow = !this.requiresIpcValue
 
     // Show submit only on last step
     this.submitButtonTarget.classList.toggle('d-none', !isLastStep)
     
-    // Show next button except on last step or in non-IPC flow after first step
-    this.nextButtonTarget.classList.toggle('d-none', isLastStep || isNonIpcFlow)
+    // Show next button except on last step
+    this.nextButtonTarget.classList.toggle('d-none', isLastStep)
     
-    // Show previous button except on first step or in non-IPC flow after first step
-    this.previousButtonTarget.classList.toggle('d-none', isFirstStep || isNonIpcFlow)
+    // Show previous button except on first step
+    this.previousButtonTarget.classList.toggle('d-none', isFirstStep)
   }
 }
