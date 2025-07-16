@@ -15,26 +15,28 @@
           </div>
 
           <div class="card-body">
-            <!-- Confirm Delivery Badge -->
-            <div class="mb-4">
-              <button type="button" class="badge rounded-pill bg-info text-dark px-3 py-2 fs-6 border-0" id="delivery_badge">
-                Click to Confirm
-              </button>
-            </div>
 
-            <!-- Confirm Delivery Banner Button -->
-            <div class="row mb-4 justify-content-center">
-              <div class="col-md-10">
-                <div class="d-flex justify-content-center gap-4 flex-wrap">
-                  <div class="flex-fill text-center">
-                    <%= form.radio_button :delivery_option, "confirm", id: "confirm_delivery", class: "btn-check", autocomplete: "off" %>
-                    <label class="btn btn-outline-success w-100 py-4 fs-5 fw-semibold" for="confirm_delivery">
-                      Confirm Delivery
-                    </label>
+            <!-- Confirm Delivery Button (only if allowed) -->
+            <% if @possible_actions&.include?("Confirm Delivery") %>
+              <div class="row mb-4 justify-content-center">
+                <div class="col-md-10">
+                  <div class="d-flex justify-content-center gap-4 flex-wrap">
+                    <div class="flex-fill text-center">
+                      <%= link_to "Confirm Delivery",
+                                  "/purchase_requests/#{@requisition.id}/confirm_delivery",
+                                  class: "btn btn-outline-success w-100 py-4 fs-5 fw-semibold",
+                                  method: :put,
+                                  data: {
+                                    turbo_method: :put,
+                                    turbo_confirm: "Are you sure you want to confirm delivery of this request?"
+                                  } %>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            <% end %>
+
+            <!-- Your other form content below this -->
 
           </div> <!-- /card-body -->
         </div> <!-- /card -->
