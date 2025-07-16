@@ -31,6 +31,9 @@ unhcr_donor = Stakeholder.find_by(stakeholder_name: 'UNHCR')
 unima_partner = Stakeholder.find_by(stakeholder_name: 'UNIMA')
 kch_partner = Stakeholder.find_by(stakeholder_name: 'KCH')
 
+delivered_purchase_request_workflow_state = WorkflowState.find_by(workflow_state_id: 45)
+comfirm_delivered_purchase_request_workflow_state_transition = WorkflowStateTransition.find_by(next_state: 45)
+
 
 ActiveRecord::Base.transaction do
   if initial_state_purchase_request.nil?
@@ -82,6 +85,15 @@ end
     )
   end
   # workflow_state_model
+  if delivered_purchase_request_workflow_state.nil?
+    WorkflowState.create(
+      workflow_state_id: 45,
+      workflow_process_id: 6,
+      state: 'Delivered',
+      description: 'Purchase request has been delivered',
+      voided: false
+    )
+  end
   if requested_purchase_request_workflow_state.nil?
     WorkflowState.create(
       workflow_state_id: 37,
@@ -192,6 +204,18 @@ end
     )
   end
   # workflow_state_transitions_model
+  if comfirm_delivered_purchase_request_workflow_state_transition.nil?
+    last_id = WorkflowStateTransition.maximum(:id) || 0
+    WorkflowStateTransition.create(
+      id: last_id + 1,
+      workflow_state_id: 41,
+      next_state: 45,
+      voided: false,
+      action: 'Confirm Delivery',
+      by_owner: false,
+      by_supervisor: false
+    )
+  end
   if approve_purchase_request_workflow_state_transition.nil?
     last_id = WorkflowStateTransition.maximum(:id) || 0
     WorkflowStateTransition.create(
