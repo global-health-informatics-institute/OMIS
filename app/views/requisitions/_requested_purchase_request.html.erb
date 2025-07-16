@@ -63,7 +63,7 @@
           <div class="row mt-3">
             <div class="col-md-4">
               <%= form.label :amount, "Total Amount", class: "form-label" %>
-              <% if ["Under Procurement", "Under LPC"].include?(@requisition.current_state) %>
+              <% if ["Under Procurement", "Under IPC"].include?(@requisition.current_state) %>
                 <% options = {
                   step: "0.01",
                   class: "form-control #{'is-invalid' if flash[:amount_error]}",
@@ -90,7 +90,7 @@
             <div class="col-md-4">
               <%= form.label :unit_price, "Unit Price", class: "form-label" %>
               <% unit_price = @requisition.quantity.to_f > 0 ? (@requisition.requisition_items.first&.value.to_f / @requisition.quantity.to_f) : 0 %>
-              <% if ["Under Procurement", "Under LPC"].include?(@requisition.current_state) %>
+              <% if ["Under Procurement", "Under IPC"].include?(@requisition.current_state) %>
                 <%= form.number_field :unit_price,
                           step: "0.01",
                           class: "form-control",
@@ -108,6 +108,8 @@
             <div class="col-2 fw-bold fst-italic">
               <%= @requisition.purchase_request_attachment&.stakeholder&.stakeholder_name %>
             </div>
+            <div class="col-2 fw-normal">Item Requested</div>
+              <div class="col-2 fw-bold fst-italic"><%= @requisition.purchase_request_attachment&.item_requested %></div>
           </div>
         </div>
       </div>

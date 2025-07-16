@@ -56,6 +56,10 @@
           <%= form.label :item_description, class: "form-label" %>
           <%= form.text_area :item_description, value: params[:item_description], class: 'form-control', rows: 2, required: true %>
         </div>
+         <div class="col-md-6">
+          <%= form.label :item_requested, class: "form-label" %>
+          <%= form.text_field :item_requested, class: 'form-control', required: true %>
+        </div>
         <div class="col-md-6">
           <%# Optional right column left blank intentionally %>
         </div>
