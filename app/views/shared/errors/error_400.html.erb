@@ -1,0 +1,62 @@
+  <style>
+    body{
+      background-color: #fff3cd;.
+      color: #856404;
+      margin: 0;
+    }
+    .parent-dev {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      background-color: #fff3cd; 
+      color: #856404;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+      margin: 0;
+    }
+    h1 {
+      font-size: 80px;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 20px;
+      margin: 5px 0;
+    }
+    .error-message {
+      font-size: 16px;
+      background: #fff;
+      color: #856404;
+      padding: 10px 15px;
+      border-radius: 5px;
+      margin-top: 20px;
+      max-width: 80%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      word-wrap: break-word;
+    }
+    .home-button {
+      margin-top: 30px;
+      padding: 10px 20px;
+      background-color: #ffeeba;
+      color: #856404;
+      border: 1px solid #ffeeba;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+    }
+    .home-button:hover {
+      background-color: #fff3cd;
+    }
+  </style>
+<div class="parent-dev">
+  <h1><%=status%></h1>
+  <p>Please contact tech support if the issue persists.</p>
+
+    <div class="error-message"><%= error %></div>
+
+  <a href="<%= Rails.application.config.omis_url %>" class="home-button">Go Back to Home</a>
+</div>
+
