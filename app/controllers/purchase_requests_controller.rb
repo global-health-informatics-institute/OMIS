@@ -153,6 +153,20 @@ class PurchaseRequestsController < ApplicationController
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
+  def toggle_ipc
+  @requisition = Requisition.find(params[:id])
+  attachment = @requisition.purchase_request_attachment
+
+  if attachment.present?
+    attachment.update(requires_ipc: ActiveModel::Type::Boolean.new.cast(params[:requires_ipc]))
+  end
+
+  respond_to do |format|
+    format.turbo_stream { flash.now[:notice] = "IPC selection updated." }
+    format.html { redirect_to requisition_path(@requisition), notice: "IPC selection updated." }
+  end
+end
+
 
   private
 

@@ -43,7 +43,7 @@ Rails.application.routes.draw do
   put 'purchase_requests/:id/approve_request', to: 'purchase_requests#approve_request'
   put 'purchase_requests/:id/reject_request', to: 'purchase_requests#reject_request'
   put 'purchase_requests/:id/source_quotations', to: 'purchase_requests#source_quotations'
-  #put 'purchase_requests/:id/request_payment', to: 'purchase_requests#request_payment'
+  patch 'purchase_requests/:id/toggle_ipc', to: 'purchase_requests#toggle_ipc', as: :toggle_ipc_purchase_request
   match 'purchase_requests/:id/request_payment', to: 'purchase_requests#request_payment', via: [:patch, :put], as: :complete_procurement_purchase_request
   put 'purchase_requests/:id/require_ipc', to: 'purchase_requests#require_ipc'
   put 'purchase_requests/:id/approve_funds', to: 'purchase_requests#approve_funds'
