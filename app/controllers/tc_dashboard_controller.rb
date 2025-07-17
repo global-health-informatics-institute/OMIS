@@ -29,7 +29,7 @@ class TcDashboardController < ApplicationController # rubocop:disable Metrics/Cl
 
     @gender_age = {
       title: 'WORKFORCE',
-      card_title_1: 'Workforce Distribution by Age', # rubocop:disable Naming/VariableNumber
+      card_title_1: 'Age Distribution', # rubocop:disable Naming/VariableNumber
       card_title_2: 'Gender Distribution', # rubocop:disable Naming/VariableNumber
 
       past_four_months:,
@@ -71,7 +71,7 @@ class TcDashboardController < ApplicationController # rubocop:disable Metrics/Cl
       card_title_2: 'Headcount for the Last 4 Months', # rubocop:disable Naming/VariableNumber
       headcount_by_quarter: headcount_by_quarter(past_four_year_quarters),
 
-      card_title_3: 'Workforce Distribution by Employment Type', # rubocop:disable Naming/VariableNumber
+      card_title_3: 'Workforce Distribution', # rubocop:disable Naming/VariableNumber
       workforce_types: workforce_types.keys,
       workforce_type_distribution: workforce_types.values
     }
