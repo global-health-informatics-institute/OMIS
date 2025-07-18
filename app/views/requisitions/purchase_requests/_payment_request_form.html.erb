@@ -77,39 +77,42 @@
                 </div>
               </div>
 
-              <div class="row mb-3">
-                <div class="col-4">
-  <%= form.label :amount, "Total Amount", class: "form-label" %>
-  <% if ["Under Procurement", "Under IPC"].include?(@requisition.current_state) %>
-    <% amount_value = @requisition.requisition_items.first&.value.to_f %>
-    <% options = {
-      step: "0.01",
-      class: "form-control #{'is-invalid' if flash[:amount_error]}",
-      min: 0,
-      required: true,
-      placeholder: "Enter total amount",
-      value: (amount_value > 0 ? amount_value : nil),
-      data: { limit: @purchase_request_threshold }
-    } %>
-    <% options[:max] = @purchase_request_threshold if @requisition.current_state == "Under Procurement" %>
-    <%= form.number_field :amount, options %>
-    <% if flash[:amount_error] %>
-      <div class="invalid-feedback d-block">
-        <%= flash[:amount_error] %>
+      <div class="row mb-3">
+  <div class="col-4">
+    <%= form.label :amount, "Total Amount", class: "form-label" %>
+    <% if ["Under Procurement", "Under IPC"].include?(@requisition.current_state) %>
+      <% amount_value = @requisition.requisition_items.first&.value.to_f %>
+      <% options = {
+        step: "0.01",
+        class: "form-control #{'is-invalid' if flash[:amount_error]}",
+        min: 0,
+        required: true,
+        placeholder: "Enter total amount",
+        value: (amount_value > 0 ? amount_value : nil),
+        data: {
+          limit: @purchase_request_threshold, # Existing data attribute
+          action: "input->purchase#checkAmountThreshold", # ADD THIS LINE
+          threshold: @purchase_request_threshold # ADD OR CONFIRM THIS LINE, using your threshold variable
+        }
+      } %>
+      <% options[:max] = @purchase_request_threshold if @requisition.current_state == "Under Procurement" %>
+      <%= form.number_field :amount, options %>
+      <% if flash[:amount_error] %>
+        <div class="invalid-feedback d-block">
+          <%= flash[:amount_error] %>
+        </div>
+      <% end %>
+    <% else %>
+      <%= form.hidden_field :amount, value: @requisition.requisition_items.first&.value %>
+      <div class="fw-bold fst-italic">
+        <%= number_with_precision(@requisition.requisition_items.first&.value || 0, precision: 2) %>
       </div>
     <% end %>
-  <% else %>
-    <%= form.hidden_field :amount, value: @requisition.requisition_items.first&.value %>
-    <div class="fw-bold fst-italic">
-      <%= number_with_precision(@requisition.requisition_items.first&.value || 0, precision: 2) %>
-    </div>
-  <% end %>
-</div>
+  </div>
 
-
-                <div class="col-4">
-                  <%= form.label :unit_price, "Unit Price", class: "form-label" %>
-                  <% unit_price = @requisition.quantity.to_f > 0 ? (@requisition.requisition_items.first&.value.to_f / @requisition.quantity.to_f) : 0 %>
+  <div class="col-4">
+    <%= form.label :unit_price, "Unit Price", class: "form-label" %>
+    <% unit_price = @requisition.quantity.to_f > 0 ? (@requisition.requisition_items.first&.value.to_f / @requisition.quantity.to_f) : 0 %>
                   <%= form.number_field :unit_price,
                             step: "0.01",
                             class: "form-control",
