@@ -12,6 +12,7 @@ class Requisition < ApplicationRecord
   belongs_to :workflow_state, foreign_key: :workflow_state_id, primary_key: :workflow_state_id, optional: true
   has_and_belongs_to_many :employees
   has_many_attached :attachments
+  has_many :assets, foreign_key: :requisition_id
   #belongs_to :stakeholder
 
   def assign_state
