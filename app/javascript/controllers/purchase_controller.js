@@ -5,7 +5,8 @@ export default class extends Controller {
   static values = {
     currentStep: { type: Number, default: 0 },
     requiresIpc: { type: Boolean, default: false },
-    threshold: Number
+    threshold: Number,
+    requisitionId: Number
   }
 
   initialize() {
@@ -13,19 +14,111 @@ export default class extends Controller {
     this.debounceTimer = null
     this.lastIpcState = null
     this.currentAmount = null
+    this.initialized = false
   }
 
-  connect() {
+  async connect() {
     console.log("Purchase controller connected")
+    
+    // Initialize panels
     this.allPanels = Array.from(document.getElementById('nav-tabContent').querySelectorAll('.tab-pane'))
     this.visiblePanels = [...this.allPanels]
-    this.updateStepVisibility()
+    
+    // Set up listeners
     this.setupIPCListeners()
     
+    // Process initial state with database fallback
+    await this.processInitialState()
+    
+    this.initialized = true
+    console.log("Controller fully initialized")
+  }
+
+  async processInitialState() {
+    console.log("Processing initial state")
+    
+    // First try to get amount from input field
     if (this.hasAmountFieldTarget) {
-      console.log("Amount field detected, initializing value tracking")
-      this.currentAmount = parseFloat(this.amountFieldTarget.value) || 0
-      this.checkAmountThreshold({ target: this.amountFieldTarget })
+      console.log("Amount field found - checking initial value")
+      const initialAmount = parseFloat(this.amountFieldTarget.value) || 0
+      console.log(`Initial amount value: ${initialAmount}`)
+      this.currentAmount = initialAmount
+    } 
+    // Fallback to database if no amount field
+    else if (this.requisitionIdValue) {
+      console.log("No amount field found - fetching from database")
+      try {
+        const response = await fetch(`/requisitions/${this.requisitionIdValue}/amount`)
+        if (!response.ok) throw new Error("Failed to fetch amount")
+        const data = await response.json()
+        this.currentAmount = parseFloat(data.amount) || 0
+        console.log(`Retrieved amount from DB: ${this.currentAmount}`)
+      } catch (error) {
+        console.error("Error fetching amount:", error)
+        this.currentAmount = 0
+      }
+    } else {
+      console.log("No amount field or requisition ID - using default")
+      this.currentAmount = 0
+    }
+    
+    this.processAmountChange(this.currentAmount)
+  }
+
+  checkAmountThreshold(event) {
+    console.log("Amount threshold check triggered")
+    
+    if (this.debounceTimer) {
+      console.log("Clearing existing debounce timer")
+      clearTimeout(this.debounceTimer)
+    }
+
+    const target = event.target
+    const cursorPosition = target.selectionStart
+    const newAmount = parseFloat(target.value) || 0
+
+    console.log(`New amount value: ${newAmount}, previous value: ${this.currentAmount}`)
+
+    this.currentAmount = newAmount
+
+    this.debounceTimer = setTimeout(() => {
+      console.log("Processing amount after debounce")
+      this.processAmountChange(target.value)
+      
+      // Restore focus and cursor position
+      if (document.activeElement === target) {
+        console.log("Restoring focus to amount field")
+        target.focus()
+        target.setSelectionRange(cursorPosition, cursorPosition)
+      }
+    }, 300)
+
+    console.log(`Debounce timer set for 300ms (timer ID: ${this.debounceTimer})`)
+  }
+
+  processAmountChange(amountValue) {
+    console.log("Processing amount change:", amountValue)
+    
+    const amount = parseFloat(amountValue) || 0
+    const threshold = this.thresholdValue || parseFloat(this.amountFieldTarget?.dataset.threshold) || 0
+    
+    console.log(`Current amount: ${amount}, Threshold: ${threshold}`)
+
+    if (isNaN(amount)) {
+      console.log("Invalid amount value")
+      return
+    }
+
+    const requiresIpc = amount > threshold
+    console.log(`IPC required? ${requiresIpc} (${amount} > ${threshold})`)
+
+    if (!this.initialized || this.lastIpcState !== requiresIpc) {
+      console.log(`IPC state changed from ${this.lastIpcState} to ${requiresIpc}`)
+      this.lastIpcState = requiresIpc
+      this.requiresIpcValue = requiresIpc
+      this.dispatchIpcChanged(requiresIpc)
+    } else {
+      console.log("IPC state unchanged")
     }
   }
 
@@ -59,57 +152,6 @@ export default class extends Controller {
       console.log("Received ipc:changed event with detail:", event.detail)
       this.handleIpcChange(event.detail.requiresIpc)
     })
-  }
-
-  checkAmountThreshold(event) {
-    console.log("checkAmountThreshold triggered")
-    
-    if (this.debounceTimer) {
-      console.log("Clearing existing debounce timer")
-      clearTimeout(this.debounceTimer)
-    }
-
-    const target = event.target
-    const cursorPosition = target.selectionStart
-    const newAmount = parseFloat(target.value) || 0
-
-    console.log(`New amount value: ${newAmount}, previous value: ${this.currentAmount}`)
-
-    if (newAmount === this.currentAmount) {
-      console.log("Amount unchanged, skipping processing")
-      return
-    }
-
-    this.currentAmount = newAmount
-
-    this.debounceTimer = setTimeout(() => {
-      console.log("Processing amount after debounce")
-      const threshold = this.thresholdValue || parseFloat(target.dataset.threshold)
-      console.log(`Current threshold: ${threshold}`)
-
-      if (isNaN(this.currentAmount) || isNaN(threshold)) {
-        console.log("Invalid amount or threshold values")
-        return
-      }
-
-      const requiresIpc = this.currentAmount > threshold
-      console.log(`IPC required? ${requiresIpc} (${this.currentAmount} > ${threshold})`)
-
-      if (this.lastIpcState !== requiresIpc) {
-        console.log(`IPC state changed from ${this.lastIpcState} to ${requiresIpc}`)
-        this.lastIpcState = requiresIpc
-        this.requiresIpcValue = requiresIpc
-        this.dispatchIpcChanged(requiresIpc)
-      } else {
-        console.log("IPC state unchanged")
-      }
-
-      console.log("Restoring focus to amount field")
-      target.focus()
-      target.setSelectionRange(cursorPosition, cursorPosition)
-    }, 300)
-
-    console.log(`Debounce timer set for 300ms (timer ID: ${this.debounceTimer})`)
   }
 
   dispatchIpcChanged(requiresIpc) {

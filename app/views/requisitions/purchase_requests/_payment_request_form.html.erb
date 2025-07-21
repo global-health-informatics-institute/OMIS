@@ -80,7 +80,7 @@
       <div class="row mb-3">
   <div class="col-4">
     <%= form.label :amount, "Total Amount", class: "form-label" %>
-    <% if ["Under Procurement", "Under IPC"].include?(@requisition.current_state) %>
+    <% if ["Under Procurement", "Under IPC", "Payment Requested"].include?(@requisition.current_state) %>
       <% amount_value = @requisition.requisition_items.first&.value.to_f %>
       <% options = {
         step: "0.01",
@@ -90,10 +90,11 @@
         placeholder: "Enter total amount",
         value: (amount_value > 0 ? amount_value : nil),
         data: {
+          purchase_target: "amountField",
           limit: @purchase_request_threshold, # Existing data attribute
           action: "input->purchase#checkAmountThreshold", # ADD THIS LINE
           threshold: @purchase_request_threshold # ADD OR CONFIRM THIS LINE, using your threshold variable
-        }
+        }, 
       } %>
       <% options[:max] = @purchase_request_threshold if @requisition.current_state == "Under Procurement" %>
       <%= form.number_field :amount, options %>

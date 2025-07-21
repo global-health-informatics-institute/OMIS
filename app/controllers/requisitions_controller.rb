@@ -561,6 +561,13 @@ rescue => e
   redirect_to "/requisitions/#{params[:id]}", alert: "Error: #{e.message}"
 end
 
+def amount
+  @requisition = Requisition.find(params[:id])
+  render json: { 
+    amount: @requisition.requisition_items.first&.value || 0 
+  }
+end
+
   private
 
   def task_params

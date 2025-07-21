@@ -62,30 +62,37 @@
 
           <div class="row mt-3">
             <div class="col-md-4">
-              <%= form.label :amount, "Total Amount", class: "form-label" %>
-              <% if ["Under Procurement"].include?(@requisition.current_state) %>
-                <% options = {
-                  step: "0.01",
-                  class: "form-control #{'is-invalid' if flash[:amount_error]}",
-                  min: 0,
-                  required: true,
-                  value: (@requisition.requisition_items.first&.value || 0).to_s == "0.0" ? 0 : @requisition.requisition_items.first&.value,
-                  data: { limit: @purchase_request_threshold }
-                } %>
-                <% options[:max] = @purchase_request_threshold if @requisition.current_state == "Under Procurement" %>
-                <%= form.number_field :amount, options %>
-                <% if flash[:amount_error] %>
-                  <div class="invalid-feedback d-block">
-                    <%= flash[:amount_error] %>
-                  </div>
-                <% end %>
-              <% else %>
-                <%= form.hidden_field :amount, value: @requisition.requisition_items.first&.value %>
-                <div class="fw-bold fst-italic">
-                  <%= number_with_precision(@requisition.requisition_items.first&.value || 0, precision: 2) %>
-                </div>
-              <% end %>
-            </div>
+  <%= form.label :amount, "Total Amount", class: "form-label" %>
+  <% if ["Under Procurement"].include?(@requisition.current_state) %>
+    <% options = {
+      step: "0.01",
+      class: "form-control #{'is-invalid' if flash[:amount_error]}",
+      min: 0,
+      required: true,
+      value: (@requisition.requisition_items.first&.value || 0).to_s == "0.0" ? 0 : @requisition.requisition_items.first&.value,
+      data: {
+          purchase_target: "amountField", # Existing data attribute
+          action: "input->purchase#checkAmountThreshold", # ADD THIS LINE
+          threshold: @purchase_request_threshold # ADD OR CONFIRM THIS LINE, using your threshold variable
+        },
+          "data-purchase-target": "amountField" 
+    } %>
+    <% options[:max] = @purchase_request_threshold if @requisition.current_state == "Under Procurement" %>
+    <%= form.number_field :amount, options %>
+    <% if flash[:amount_error] %>
+      <div class="invalid-feedback d-block">
+        <%= flash[:amount_error] %>
+      </div>
+    <% end %>
+    <div class="threshold-feedback mt-2"></div>
+  <% else %>
+    <%= form.hidden_field :amount, value: @requisition.requisition_items.first&.value, 
+    data: { threshold: @purchase_request_threshold } %>
+    <div class="fw-bold fst-italic">
+      <%= number_with_precision(@requisition.requisition_items.first&.value || 0, precision: 2) %>
+    </div>
+  <% end %>
+</div>
 
             <div class="col-md-4">
               <%= form.label :unit_price, "Unit Price", class: "form-label" %>
