@@ -1,10 +1,11 @@
 class PurchaseRequestsController < ApplicationController
+
+  before_action :set_categories, only: [:new, :register_asset, :show, :create]
   def new
     @requisition = Requisition.new(requisition_type: "Purchase Request")
     @requisition.requisition_items.build
     @department_options = Department.all.collect { |x| [x.department_name, x.id] }
     @selected_department = Department.find_by_department_name(params[:department_name]) if params[:department_name].present?
-
     # Load only stakeholders marked as donors
     @stakeholder_options = Stakeholder.where(is_donor: true).pluck(:stakeholder_name, :stakeholder_id)
 
@@ -64,6 +65,20 @@ class PurchaseRequestsController < ApplicationController
       end
     end
   end
+
+  def register_asset
+  @requisition = Requisition.find(params[:id])
+  @asset = @requisition.assets.build(asset_params)
+
+
+  if @asset.save
+    flash[:notice] = "Asset registered successfully."
+    redirect_to requisition_path(@requisition)
+  else
+    flash.now[:error] = "Failed to register asset. Please fix the errors below."
+    render :final_step_view # replace with the actual view name
+  end
+end
 
   def show
     @requisition = Requisition.find(params[:id])
@@ -191,6 +206,15 @@ end
     redirect_to "/requisitions/#{requisition.id}"
   end
 
+  def asset_params
+     params.require(:asset).permit(
+    :category, :description, :make, :model, :serial_number, :location
+     )
+  end
+
+   def set_categories
+    @categories = AssetCategory.pluck(:category, :id)
+  end
   def purchase_request_params
     params.require(:requisition).permit(
       :initiated_on,

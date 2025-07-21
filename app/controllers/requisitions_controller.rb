@@ -2,7 +2,7 @@ class RequisitionsController < ApplicationController
   # before_action :show
   skip_before_action :verify_authenticity_token, only: %i[approve_request reject_request approve_funds deny_funds]
   skip_before_action :logged_in?, only: %i[approve_request reject_request approve_funds deny_funds]
-
+  before_action :set_categories, only: [:show]
   def index
   end
 
@@ -576,5 +576,9 @@ end
   end
   def liquidate_params
      params.require(:requisition).permit(:used_amount, :workflow_state_id)
+  end
+
+  def set_categories
+    @categories = AssetCategory.all
   end
 end
