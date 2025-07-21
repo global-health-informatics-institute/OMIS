@@ -48,6 +48,8 @@ Rails.application.routes.draw do
   put 'purchase_requests/:id/require_ipc', to: 'purchase_requests#require_ipc'
   put 'purchase_requests/:id/approve_funds', to: 'purchase_requests#approve_funds'
   put 'purchase_requests/:id/deny_funds', to: 'purchase_requests#deny_funds'
+  patch 'register_asset/:id', to: 'purchase_requests#register_asset', as: 'register_asset'
+
 
   # Requisitions - Modified to include amount endpoint
   resources :requisitions, except: [:index, :new, :create, :show, :edit] do
