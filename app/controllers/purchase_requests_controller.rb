@@ -168,6 +168,14 @@ end
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
+
+  def confirm_delivery
+    new_state = WorkflowState.where(state: 'Delivery Confir',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+  end
+
   def toggle_ipc
   @requisition = Requisition.find(params[:id])
   attachment = @requisition.purchase_request_attachment
