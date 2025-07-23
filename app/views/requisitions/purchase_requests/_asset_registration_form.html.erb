@@ -1,17 +1,26 @@
 <%= form_with model: @requisition, url: register_asset_path(@requisition), multipart: true, method: :patch, local: true do |form| %>
   <div class="row">
-  <div class="col mb-3">
-    <%= form.label :category, style: "display: block", class: "form-label" %>
-    <%= form.select(:asset_category_id, @categories.map(&:category), { include_blank: "Select asset category" }, class: "form-select") %>
+    <div class="col mb-3">
+      <%= form.label :category, style: "display: block", class: "form-label" %>
+      <%= form.select :asset_category_id,
+      options_from_collection_for_select(@categories, :id, :category),
+      { include_blank: "Select asset category" },
+      class: "form-select" %>
+
+    </div>
   </div>
-</div>
 
   <div class="row">
     <div class="col mb-3">
       <%= form.label :description, style: "display: block", class: "form-label" %>
       <%= form.text_field :description, placeholder: 'Enter asset description', class: "form-control" %>
     </div>
+    <div class="col mb-3">
+      <%= form.label :status, style: "display: block", class: "form-label" %>
+      <%= form.text_field :status, placeholder: 'Enter asset status', class: "form-control" %>
+    </div>
   </div>
+
   <div class="row">
     <div class="col mb-3">
       <%= form.label :make, style: "display: block", class: "form-label" %>
@@ -23,6 +32,7 @@
       <%= form.text_field :model, placeholder: 'Enter asset model', class: "form-control" %>
     </div>
   </div>
+
   <div class="row">
     <div class="col mb-3">
       <%= form.label :serial_number, style: "display: block", class: "form-label" %>
@@ -34,7 +44,19 @@
       <%= form.text_field :location, placeholder: 'Enter asset location', class: "form-control" %>
     </div>
   </div>
-<div class="mb-3">
+   <%= form.hidden_field :requisition_id, value: @requisition.id %>
+  <div class="row">
+    <div class="col mb-3">
+      <%= form.label :value, "Value (MWK)", style: "display: block", class: "form-label" %>
+      <%= form.number_field :value, class: "form-control", step: "0.01", min: 0, placeholder: "Enter asset value" %>
+    </div>
+    <div class="col mb-3">
+      <%= form.label :tag_id, style: "display: block", class: "form-label" %>
+      <%= form.text_field :tag_id, class: "form-control", placeholder: 'Enter asset tag ID' %>
+    </div>
+  </div>
+
+  <div class="mb-3">
     <%= form.submit "Save", class: "btn btn-success btn-block" %>
-</div>
+  </div>
 <% end %>
