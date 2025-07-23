@@ -96,7 +96,7 @@
           threshold: @purchase_request_threshold # ADD OR CONFIRM THIS LINE, using your threshold variable
         }, 
       } %>
-      <% options[:max] = @purchase_request_threshold if @requisition.current_state == "Under Procurement" %>
+
       <%= form.number_field :amount, options %>
       <% if flash[:amount_error] %>
         <div class="invalid-feedback d-block">
