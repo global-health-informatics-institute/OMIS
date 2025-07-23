@@ -17,4 +17,16 @@ class LeaveRequest < ApplicationRecord
   def current_state
     return WorkflowState.find(self.workflow_state_id).state rescue ''
   end
+
+  def leave_stand_in
+    Employee.find(stand_in).person.full_name
+  rescue StandardError
+    ''
+  end
+
+  def leave_state
+    WorkflowState.find(status).state
+  rescue StandardError
+    ''
+  end
 end
