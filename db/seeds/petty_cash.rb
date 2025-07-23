@@ -82,47 +82,24 @@ puts "Workflow State Actors seeded successfully!"
 # === Workflow State Transitions ===
 puts "Seeding Workflow Transitions starts..."
 
-# Step 1: Mark all transitions as voided to prep for fresh data
+puts "Seeding Workflow Transitions starts..."
 WorkflowStateTransition.update_all(voided: true)
 
-# Step 2: Iterate over CSV rows and create or update transitions
-CSV.foreach(Rails.root.join('db/seeds/workflow_state_transitions.csv'), headers: true) do |row|
-  # Skip creation if the record already exists
-  next if WorkflowStateTransition.exists?(id: row['id'])
-
-  # Normalize boolean values
-  voided_value = row['voided']&.strip&.downcase == 'true'
-  by_owner = row['by_owner']&.strip&.downcase == 'true'
-  by_supervisor = row['by_supervisor']&.strip&.downcase == 'true'
-
-  existing = WorkflowStateTransition.find_by(id: row['id'])
-
-  if existing
-    # Update existing transition
-    existing.update!(
-      workflow_state_id: row['workflow_state_id'],
-      next_state: row['next_state'],
-      voided: voided_value,
-      created_at: row['created_at'],
-      updated_at: row['updated_at'],
-      action: row['action'],
-      by_owner: by_owner,
-      by_supervisor: by_supervisor
-    )
-  else
-    # Create new transition entry
-    WorkflowStateTransition.create!(
-      id: row['id'],
-      workflow_state_id: row['workflow_state_id'],
-      next_state: row['next_state'],
-      voided: voided_value,
-      created_at: row['created_at'],
-      updated_at: row['updated_at'],
-      action: row['action'],
-      by_owner: by_owner,
-      by_supervisor: by_supervisor
-    )
-  end
+transitions = CSV.foreach(Rails.root.join('db/seeds/workflow_state_transitions.csv'), headers: true).map do |row|
+  {
+    id: row['id'],
+    workflow_state_id: row['workflow_state_id'],
+    next_state: row['next_state'],
+    voided: row['voided']&.strip&.downcase == 'true',
+    created_at: row['created_at'],
+    updated_at: row['updated_at'],
+    action: row['action'],
+    by_owner: row['by_owner']&.strip&.downcase == 'true',
+    by_supervisor: row['by_supervisor']&.strip&.downcase == 'true'
+  }
 end
+
+WorkflowStateTransition.upsert_all(transitions, unique_by: :id)
+puts "Workflow State Transitions seeded successfully!"
 
 puts "Seeding has successfully completed!"
