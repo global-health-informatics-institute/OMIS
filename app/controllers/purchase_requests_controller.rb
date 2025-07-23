@@ -207,8 +207,8 @@ end
   end
 
   def asset_params
-     params.require(:asset).permit(
-    :category, :description, :make, :model, :serial_number, :location
+     params.require(:requisition).permit(
+    :asset_category_id, :description, :make, :model, :serial_number, :location, :value, :requisition_id, :tag_id, :status
      )
   end
 
