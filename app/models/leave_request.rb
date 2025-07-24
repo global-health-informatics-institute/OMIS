@@ -33,7 +33,7 @@ class LeaveRequest < ApplicationRecord
   def leave_balance
     employee = User.find_by(user_id: employee_id).employee
     (employee.leave_balance(leave_type:) - employee.used_leave_days(
-      Date.today.beginning_of_year, Date.today.end_of_year, leave_type:
+      Date.today.beginning_of_year, created_at.to_date, leave_type:
     ))
   rescue StandardError
     '-- --'
