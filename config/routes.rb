@@ -49,6 +49,7 @@ Rails.application.routes.draw do
   put 'purchase_requests/:id/approve_funds', to: 'purchase_requests#approve_funds'
   put 'purchase_requests/:id/deny_funds', to: 'purchase_requests#deny_funds'
   patch 'register_asset/:id', to: 'purchase_requests#register_asset', as: 'register_asset'
+  put 'purchase_requests/:id/confirm_delivery', to: 'purchase_requests#confirm_delivery'
 
 
   # Requisitions - Modified to include amount endpoint
