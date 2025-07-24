@@ -15,13 +15,31 @@
     <%= @leave_details[:leave_type] %> Request
   </div>
   <div style="padding: 30px; font-size: 1.2rem;">
-    <p>
-      Dear <%= @leave_details[:supervisor_full_name] %>,
-    </p>
-    <p>
-      Please review the <%= @leave_details[:leave_type] %> request from <%= @leave_details[:requester_full_name] %>.
-      Requesting leave <%= @leave_details[:duration] %>.
-    </p>
+  <p>
+    Dear <%= @leave_details[:supervisor_full_name] %>,
+  </p>
+
+  <p>Please review the following leave request</p>
+
+  <ul style="font-size: 1.2rem; line-height: 1.6;">
+    <li>
+      <strong>Requester:</strong> <%= @leave_details[:requester_full_name] %>
+    </li>
+    <li>
+      <strong>Leave Type:</strong> <%= @leave_details[:leave_type] %>
+    </li>
+    <li>
+      <strong>Period:</strong> <%= @leave_details[:duration] %>
+    </li>
+    <li>
+      <strong>Stand-in:</strong> <%= @leave_details[:leave_stand_in] %>
+    </li>
+    <li>
+      <strong>Leave Balance:</strong> <%= @leave_details[:leave_balance] %> days
+    </li>
+  </ul>
+
+
     <div style="display: flex; justify-content: space-around; margin-top: 20px;">
       <a href="<%= "#{Rails.application.config.omis_url}/leave_requests/#{@leave_details[:leave_id]}" %>"
          style="display: inline-block; padding: 10px 20px; background-color: #002130; color: #E3E4E7;
