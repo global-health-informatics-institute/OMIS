@@ -132,7 +132,7 @@ end
     end
 
     # Apply the threshold check only when the requisition is 'Under Procurement'
-    if current_state == 'Under Procurement'
+    if current_state == 'Under Procu'
       threshold = GlobalProperty.purchase_request_threshold
       if approved_amount <= threshold
         process_payment_request_and_update(@requisition, new_state, approved_amount, supplier)
