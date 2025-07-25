@@ -6,7 +6,9 @@ export default class extends Controller {
     currentStep: { type: Number, default: 0 },
     requiresIpc: { type: Boolean, default: false },
     threshold: Number,
-    requisitionId: Number
+    requisitionId: Number,
+    // Add a new value to store the current state from the backend
+    currentState: String
   }
 
   initialize() {
@@ -32,6 +34,9 @@ export default class extends Controller {
     
     this.initialized = true
     console.log("Controller fully initialized")
+    
+    // Initial update of button visibility based on the current state
+    this.updateButtonVisibility();
   }
 
   async processInitialState() {
@@ -229,6 +234,7 @@ export default class extends Controller {
 
     console.log(`Visible step: ${this.currentStepValue + 1}/${this.visiblePanels.length}`)
 
+    // The submit button logic remains the same
     if (this.submitButtonTarget) {
       const isLastStep = this.currentStepValue === this.visiblePanels.length - 1
       console.log(`Submit button - isLastStep: ${isLastStep}`)
@@ -246,16 +252,39 @@ export default class extends Controller {
       }
     }
 
+    // Call the new method to update next/previous button visibility
+    this.updateButtonVisibility();
+  }
+
+  // New method to control the visibility of next and previous buttons
+  updateButtonVisibility() {
+    console.log("Updating Next and Previous button visibility based on current state.");
+    const shouldShowButtons = this.currentStateValue === "pending payment request";
+
+    if (this.nextButtonTarget) {
+      if (shouldShowButtons && this.currentStepValue < this.visiblePanels.length - 1) {
+        this.nextButtonTarget.classList.remove('d-none');
+        this.nextButtonTarget.disabled = false; // Ensure it's not disabled if visible
+      } else {
+        this.nextButtonTarget.classList.add('d-none');
+      }
+    }
+
     if (this.previousButtonTarget) {
-      const isFirstStep = this.currentStepValue === 0
-      console.log(`Previous button - disabled: ${isFirstStep}`)
-      this.previousButtonTarget.disabled = isFirstStep
+      if (shouldShowButtons && this.currentStepValue > 0) {
+        this.previousButtonTarget.classList.remove('d-none');
+        this.previousButtonTarget.disabled = false; // Ensure it's not disabled if visible
+      } else {
+        this.previousButtonTarget.classList.add('d-none');
+      }
     }
     
-    if (this.nextButtonTarget) {
-      const isLastStep = this.currentStepValue === this.visiblePanels.length - 1
-      console.log(`Next button - disabled: ${isLastStep}`)
-      this.nextButtonTarget.disabled = isLastStep
+    // Disable next/previous buttons if they are shown but at the start/end
+    if (this.nextButtonTarget && shouldShowButtons) {
+      this.nextButtonTarget.disabled = this.currentStepValue === this.visiblePanels.length - 1;
+    }
+    if (this.previousButtonTarget && shouldShowButtons) {
+      this.previousButtonTarget.disabled = this.currentStepValue === 0;
     }
   }
 }
