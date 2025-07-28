@@ -101,8 +101,8 @@ end
     redirect_to "/requisitions/#{params[:id]}"
   end
 
-  def source_quotations
-    new_state = WorkflowState.where(state: 'Under Procurement',
+  def initiate_payment_request
+    new_state = WorkflowState.where(state: 'Pending Payment Request',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
@@ -173,6 +173,12 @@ end
     new_state = WorkflowState.where(state: 'Delivered',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+  end
+  def withdraw_request
+    new_state = WorkflowState.where(state: 'Withdrawn',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(approved_by: current_user.id, workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
 

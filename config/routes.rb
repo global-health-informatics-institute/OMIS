@@ -42,12 +42,13 @@ Rails.application.routes.draw do
   get 'purchase_request/show', to: 'purchase_request#show'
   put 'purchase_requests/:id/approve_request', to: 'purchase_requests#approve_request'
   put 'purchase_requests/:id/reject_request', to: 'purchase_requests#reject_request'
-  put 'purchase_requests/:id/source_quotations', to: 'purchase_requests#source_quotations'
+  put 'purchase_requests/:id/initiate_payment_request', to: 'purchase_requests#initiate_payment_request'
   patch 'purchase_requests/:id/toggle_ipc', to: 'purchase_requests#toggle_ipc', as: :toggle_ipc_purchase_request
   match 'purchase_requests/:id/request_payment', to: 'purchase_requests#request_payment', via: [:patch, :put], as: :complete_procurement_purchase_request
   put 'purchase_requests/:id/require_ipc', to: 'purchase_requests#require_ipc'
   put 'purchase_requests/:id/approve_funds', to: 'purchase_requests#approve_funds'
   put 'purchase_requests/:id/deny_funds', to: 'purchase_requests#deny_funds'
+  put 'purchase_requests/:id/withdraw_request', to: 'purchase_requests#withdraw_request'
   patch 'register_asset/:id', to: 'purchase_requests#register_asset', as: 'register_asset'
   put 'purchase_requests/:id/confirm_delivery', to: 'purchase_requests#confirm_delivery'
 
