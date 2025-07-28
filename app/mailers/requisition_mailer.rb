@@ -69,7 +69,7 @@ end
 
     mail(
       to: receiver_email,
-      subject: "Your Requisition ##{@requisition.id} Has Been rejected"
+      subject: 'Requisition Rejected'
     )
   end
 
@@ -87,11 +87,9 @@ end
                          supervisor.person.full_name
     }
 
-    Rails.logger.info "Sending email to: #{receiver_email} for requisition ##{@requisition.requisition_id}"
-
     mail(
       to: receiver_email,
-      subject: "Your Requisition ##{@requisition.id} Has Been Approved"
+      subject: 'Requisition Approved'
     )
   end
 
@@ -113,7 +111,7 @@ end
 
     mail(
       to: receiver_email,
-      subject: "Your Requisition Funds ##{@requisition.id} Has Been Denied"
+      subject: 'Requisition Denied'
     )
   end
 
@@ -131,7 +129,6 @@ end
                          supervisor.person.full_name
     }
 
-    Rails.logger.info "Sending email to: #{receiver_email} for requisition ##{@requisition.requisition_id}"
 
     mail(
       to: receiver_email,
