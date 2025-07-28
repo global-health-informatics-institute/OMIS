@@ -1,3 +1,4 @@
+
 <%= form_with model: @requisition, url: complete_procurement_purchase_request_path(@requisition), multipart: true, method: :patch do |form| %>
   <div class="row mt-3 p-2">
     <div class="col p-2">
@@ -130,6 +131,9 @@
 
       <%= form.hidden_field :requisition_type, value: "Purchase Request" %>
       <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
+      <%= hidden_field_tag :requisition_state, @requisition.current_state,
+      data: { purchase_target: "stateField" } %>
+
 
       <% (@possible_actions || []).reject { |a| a == "Confirm Delivery" || a == "Request Payment" }.each do |action| %>
         <% btn_class = case action

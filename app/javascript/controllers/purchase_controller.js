@@ -8,7 +8,7 @@ export default class extends Controller {
     threshold: Number,
     requisitionId: Number,
     // Add a new value to store the current state from the backend
-    purchaseCurrentState: String
+    currentState: String
   }
 
   initialize() {
@@ -193,7 +193,10 @@ export default class extends Controller {
     const panelsToReorder = [...this.allPanels]
 
     console.log("Removing all panels from DOM")
-    this.allPanels.forEach(panel => panel.remove())
+    while (stepContainer.firstChild) {
+    stepContainer.removeChild(stepContainer.firstChild)
+    }
+
 
     const firstStep = panelsToReorder.find(p => p.id === 'nav-step1')
     if (firstStep) {
