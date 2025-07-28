@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <style>
+    body {
+      font-family: 'Trebuchet MS', sans-serif;
+    }
+  </style>
+</head>
+<body style="background-color: #F3F4F6; padding: 20px;">
+
+  <div style="border: 1px solid #002130; width: 100%; margin: 0 auto;">
+    <div style="background-color: #002130; font-weight: bold; color: #E3E4E7; padding: 20px; text-align: center; font-size: 1.5rem;">
+      Petty Cash Request - Finance Review Required
+    </div>
+
+    <div style="padding: 30px; font-size: 1.2rem;">
+      <p>Dear <%= @requisition_details[:admin_full_name] %>,</p>
+
+      <p>
+        A petty cash request from <strong><%= @requisition_details[:requester_name]%></strong> has been review by their supervisor and now requires your financial review:
+      </p>
+
+      <ul style="list-style: none; padding: 0;">
+        <li><strong>Amount:</strong> <%= @requisition_details[:amount] %></li>
+        <li><strong>Purpose:</strong> <%= @requisition_details[:purpose] %></li>
+        <li><strong>Project:</strong> <%= @requisition_details[:project]%></li>
+        <% if @requisition_details[:supervisor_full_name].present? %>
+          <li><strong>Supervisor Approval:</strong> <%= @requisition_details[:supervisor_full_name] %></li>
+        <% else %>
+          <li><strong>Supervisor Approval:</strong> <em>Not available</em></li>
+        <% end %>
+        <li><strong>Submitted:</strong> <%= @requisition.created_at.strftime('%b %d, %Y at %I:%M %p') %></li>
+      </ul>
+
+
+      <div style="margin-top: 20px; text-align: center;">
+        <a href="<%= "#{Rails.application.config.omis_url}/requisitions/#{@requisition.id}" %>"
+           style="display: inline-block; padding: 12px 24px; background-color: #002130; color: #E3E4E7;
+                  text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 1rem;">
+          Review on OMIS
+        </a>
+      </div>
+
+      <p style="margin-top: 30px;">Please process this in time.</p>
+
+    </div>
+  </div>
+
+  <div style="margin-top: 30px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+    <p>Informatics Team. <%= Time.current.year %></p>
+  </div>
+
+</body>
+</html>

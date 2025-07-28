@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <style>
+    body {
+      font-family: 'Trebuchet MS', sans-serif;
+    }
+  </style>
+</head>
+<body style="background-color: #F3F4F6; padding: 20px;">
+
+  <div style="border: 1px solid #002130; width: 100%; margin: 0 auto;">
+    <div style="background-color: #002130; font-weight: bold; color: #E3E4E7; padding: 20px; text-align: center; font-size: 1.5rem;">
+      Requisition Funding Approved
+    </div>
+
+    <div style="padding: 30px; font-size: 1.2rem;">
+      <p>
+        Dear <%= @requisition_details[:requester_name]%>,
+      </p>
+
+      <p>
+        We are pleased to inform you that your requisition request for
+        "<em><%= @requisition.purpose %></em>" has been successfully approved and the required funds have been allocated.
+      </p>
+
+     <p>
+       Please visit the finance office to collect the allocated cash. After utilizing the funds, return to the finance team to liquidate the petty cash with the necessary documentation as part of the completion process.
+     </p>
+
+      <p>
+        If you have any questions, feel free to reach out to the finance department.
+      </p>
+
+    </div>
+  </div>
+
+  <div style="margin-top: 30px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+    <p>Informatics Team. <%= Time.current.year %></p>
+  </div>
+
+</body>
+</html>
