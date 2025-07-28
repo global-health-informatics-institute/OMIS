@@ -8,7 +8,7 @@ export default class extends Controller {
     threshold: Number,
     requisitionId: Number,
     // Add a new value to store the current state from the backend
-    currentState: String
+    purchaseCurrentState: String
   }
 
   initialize() {
@@ -21,7 +21,7 @@ export default class extends Controller {
 
   async connect() {
     console.log("Purchase controller connected")
-    
+    console.log("Initial currentState value:", this.currentStateValue) 
     // Initialize panels
     this.allPanels = Array.from(document.getElementById('nav-tabContent').querySelectorAll('.tab-pane'))
     this.visiblePanels = [...this.allPanels]
@@ -259,7 +259,9 @@ export default class extends Controller {
   // New method to control the visibility of next and previous buttons
   updateButtonVisibility() {
     console.log("Updating Next and Previous button visibility based on current state.");
-    const shouldShowButtons = this.currentStateValue === "pending payment request";
+    const shouldShowButtons = this.currentStateValue === "Pending Payment Request";
+    console.log("Current state value is:", this.currentStateValue, "Should show buttons?", this.currentStateValue === "Pending Payment Request")
+
 
     if (this.nextButtonTarget) {
       if (shouldShowButtons && this.currentStepValue < this.visiblePanels.length - 1) {
