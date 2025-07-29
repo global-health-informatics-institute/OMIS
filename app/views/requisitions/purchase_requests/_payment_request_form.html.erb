@@ -37,7 +37,7 @@
                 <div class="col-4 fw-normal">Quantity</div>
                 <div class="col-8 fw-bold fst-italic"><%= @requisition.quantity %></div>
               </div>
-              <% if ["Under Procurement", "Under IPC"].include?(@requisition.current_state) %>
+              <% if ["Under Procurement", "Pending Payment Request"].include?(@requisition.current_state) %>
                 <div class="row mb-3">
                   <div class="col-4">
                     <%= form.label :supplier, "Supplier", class: "form-label" %>
@@ -80,7 +80,7 @@
       <div class="row mb-3">
   <div class="col-4">
     <%= form.label :amount, "Total Amount", class: "form-label" %>
-    <% if ["Under Procurement", "Under IPC", "Approved"].include?(@requisition.current_state) %>
+    <% if ["Pending Payment Request"].include?(@requisition.current_state) %>
       <% amount_value = @requisition.requisition_items.first&.value.to_f %>
       <% options = {
         step: "0.01",
