@@ -1,67 +1,57 @@
 <h4 class="mb-4">Purchase Request</h4>
 
-<div class="mb-4">
-  <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fs-6">
-    Pending Submission
-  </span>
-</div>
+
 
 <%= form_with model: @requisition, url: create_purchase_request_path do |form| %>
   <div class="card shadow-sm mb-4">
     <div class="card-body">
-      
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <%= form.label :initiated_on, "Date", class: "form-label" %>
+      <div class="row mt-3">
+        <div class="col-2 fw-normal">Date</div>
+        <div class="col-4">
           <%= form.date_field :initiated_on, value: Date.today, class: 'form-control', required: true %>
         </div>
-        <div class="col-md-6">
-          <%= form.label :initiated_by, class: "form-label" %>
+        <div class="col-2 fw-normal">Initiated By</div>
+        <div class="col-4">
           <%= form.text_field :initiated_by, value: current_user.full_name, class: 'form-control', required: true %>
         </div>
       </div>
 
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <%= form.label :purpose, class: "form-label" %>
-          <%= form.text_field :purpose, class: 'form-control', required: true %>
+      <div class="row mt-4 mb-4">
+        <div class="col-2 fw-normal">Item Requested</div>
+        <div class="col-4">
+          <%= form.text_field :item_requested, class: 'form-control', required: true %>
         </div>
-
-        <div class="col-md-6">
-          <%= form.label :stakeholder_id, "Donor", class: "form-label" %>
-          <%= form.select :stakeholder_id,
-                options_for_select(@stakeholder_options, (@selected_stakeholder&.stakeholder_id rescue nil)),
-                { prompt: (@selected_stakeholder&.stakeholder_name rescue params[:stakeholder_id]) },
-                class: 'form-select', required: true %>
-        </div>
-      </div>
-
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <%= form.label :department_id, "Department", class: "form-label" %>
-          <%= form.select :department_id,
-               options_for_select(@department_options, (@selected_department&.id rescue nil)),
-               { prompt: (@selected_department&.department_name rescue params[:department_id]) },
-               class: "form-select", required: true %>
-        </div>
-
-        <div class="col-md-6">
-          <%= form.label :quantity, class: "form-label" %>
+        <div class="col-2 fw-normal">Quantity</div>
+        <div class="col-4">
           <%= form.number_field :quantity, step: 0.01, min: 1, max: 4.00, class: 'form-control', required: true %>
         </div>
       </div>
 
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <%= form.label :item_description, class: "form-label" %>
+      <div class="row mt-3 mb-3">
+        <div class="col-2 fw-normal">Item Description</div>
+        <div class="col-4">
           <%= form.text_area :item_description, value: params[:item_description], class: 'form-control', rows: 2, required: true %>
         </div>
-         <div class="col-md-6">
-          <%= form.label :item_requested, class: "form-label" %>
-          <%= form.text_field :item_requested, class: 'form-control', required: true %>
+        <div class="col-2 fw-normal">Purpose</div>
+        <div class="col-4">
+          <%= form.text_field :purpose, class: 'form-control', required: true %>
         </div>
-        <div class="col-md-6">
-          <%# Optional right column left blank intentionally %>
+      </div>
+
+      <div class="row mt-3 mb-3">
+        <div class="col-2 fw-normal">Department</div>
+        <div class="col-4">
+          <%= form.select :department_id,
+                options_for_select(@department_options, (@selected_department&.id rescue nil)),
+                { prompt: (@selected_department&.department_name rescue params[:department_id]) },
+                class: "form-select", required: true %>
+        </div>
+        <div class="col-2 fw-normal">Donor</div>
+        <div class="col-4">
+          <%= form.select :stakeholder_id,
+                options_for_select(@stakeholder_options, (@selected_stakeholder&.stakeholder_id rescue nil)),
+                { prompt: (@selected_stakeholder&.stakeholder_name rescue params[:stakeholder_id]) },
+                class: 'form-select', required: true %>
         </div>
       </div>
 
@@ -74,7 +64,6 @@
           <%= form.submit "Submit Request", class: "btn btn-success" %>
         </div>
       </div>
-
     </div>
   </div>
 <% end %>
