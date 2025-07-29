@@ -1,29 +1,43 @@
 class ApplicationController < ActionController::Base
   before_action :logged_in?
   helper_method :current_user
+
   def current_user
     # If session[:user_id] is nil, set it to nil, otherwise find the user by id.
     @current_user ||= session[:user_id] && User.find_by(user_id: session[:user_id])
   end
 
-  def possible_actions(current_state, is_owner, is_supervisor)
+  def possible_actions(current_state, is_owner, is_supervisor, requisition_type = nil)
     actions = []
     designation_ids = current_user.employee.current_designations.collect { |x| x.designation_id }
     allowed_transitions = WorkflowStateActor.where(employee_designation_id:
-                                                     current_user.employee.current_designations.collect { |x| x.id })
+                                                   current_user.employee.current_designations.collect { |x| x.id })
                                             .collect { |x| x.workflow_state_id }
 
-    # need to know possible actions, know things you are owner of, supervisor on, need your role
-
     (WorkflowStateTransition.where(workflow_state_id: current_state) || []).each do |transition|
-      if ['Recall Request', 'Collect Funds','Recall Timesheet','Rescind Request'].include?(transition.action) && !is_owner
+      # --- RESTRICTION FOR DESIGNATION_ID 12 AND STATE 42, WITH EXCEPTION ---
+      # If current_state is 42 and user has designation_id 12,
+      # but the action is *not* 'Confirm Delivery', then skip.
+      if current_state == 42 && designation_ids.include?(12) && transition.action != 'Confirm Delivery'
+        next # Skip all actions for designation_id 12 in state 42, except 'Confirm Delivery'
+      end
+      # ---------------------------------------------------------------------
+
+      if ['Recall Request', 'Collect Funds', 'Recall Timesheet', 'Rescind Request'].include?(transition.action) && !is_owner
         next
       end
-      if (is_owner && transition.by_owner) or (!is_owner && allowed_transitions.include?(transition.id))
+
+      # Check if this is a Purchase Request and user has designation_id 12
+      if designation_ids.include?(12) && requisition_type == 'Purchase Request' &&
+         ['Approve Funds', 'Deny Funds'].include?(transition.action)
+        next # Skip adding 'Approve Funds'/'Deny Funds' for Purchase Requests if user has designation_id 12
+      end
+
+      if (is_owner && transition.by_owner) || (!is_owner && allowed_transitions.include?(transition.id))
         actions.append(transition.action)
-      elsif is_supervisor && transition.by_supervisor and !is_owner
+      elsif is_supervisor && transition.by_supervisor && !is_owner
         actions.append(transition.action)
-      # Special case: allow only designation_id = 12 for workflow_state_id = 28
+      # Special case: allow only designation_id = 12 for workflow_state_id = 28 and 29
       elsif !is_owner && [28, 29].include?(current_state) && designation_ids.include?(12)
         actions.append(transition.action)
       elsif !is_owner && WorkflowStateActor.where(
@@ -33,9 +47,8 @@ class ApplicationController < ActionController::Base
         actions.append(transition.action)
       end
     end
-    # raise allowed_transitions.inspect
-    #Add this condition when one has recalled the requisition can rescind that also
-    if  current_state== 35
+
+    if current_state == 35
       actions.append('Rescind Request')
     end
 
