@@ -262,8 +262,8 @@ export default class extends Controller {
   // New method to control the visibility of next and previous buttons
   updateButtonVisibility() {
     console.log("Updating Next and Previous button visibility based on current state.");
-    const shouldShowButtons = this.currentStateValue === "Payment Requested";
-    console.log("Current state value is:", this.currentStateValue, "Should show buttons?", this.currentStateValue === "Payment Requested")
+    const shouldShowButtons = this.currentStateValue === "Pending Payment Request" || this.currentStateValue === "Payment Requested";
+    console.log("Current state value is:", this.currentStateValue, "Should show buttons?", shouldShowButtons);
     console.log("Step index:", this.currentStepValue, "Total:", this.visiblePanels.length);
 
 
