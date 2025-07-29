@@ -139,8 +139,11 @@
         <% btn_class = case action
                       when "Approve Request" then "btn btn-success"
                       when "Reject Request" then "btn btn-danger"
-                      when "Start Procurement" then "btn btn-warning"
+                      when "Deny Funds" then "btn btn-danger"
                       when "Recalled" then "btn btn-secondary"
+                      when "Approve Funds" then "btn btn-success"
+                      when "Withdraw Request" then "btn btn-danger"
+                      
                       else "btn btn-primary"
                       end %>
 
