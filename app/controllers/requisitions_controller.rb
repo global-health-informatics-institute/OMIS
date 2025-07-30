@@ -1,10 +1,7 @@
 class RequisitionsController < ApplicationController
-  # before_action :show
-  skip_before_action :verify_authenticity_token, only: %i[approve_request reject_request approve_funds deny_funds]
-  skip_before_action :logged_in?, only: %i[approve_request reject_request approve_funds deny_funds]
-
   def index
   end
+
   def show
     @requisition = Requisition.find(params[:id])
     @projects = Project.all
@@ -34,6 +31,7 @@ class RequisitionsController < ApplicationController
       render :edit
     end
   end
+
   def new
     @requisition = Requisition.new
     @selected_request = params['request_type']
@@ -105,7 +103,7 @@ class RequisitionsController < ApplicationController
       supervisor = current_user.employee.supervisor
 
       # Send email without error checking
-      RequisitionMailer.notify_supervisor(@requisition, supervisor).deliver_now
+      RequisitionMailer.request_petty_cash(@requisition, supervisor).deliver_now
 
       flash[:notice] = 'Request successful. An email has been sent to your supervisor.'
       redirect_to "/requisitions/#{@requisition.id}"
@@ -137,11 +135,12 @@ class RequisitionsController < ApplicationController
           if update_success
             RequisitionMailer.request_approved_email(@requisition).deliver_now
 
-            admin_users = User.joins(employee: :employee_designations)
-                              .where(employee_designations: { designation_id: 12 }).distinct
+            admin_users = User.joins(employee: { employee_designations: :designation })
+                              .where(designations: { designated_role: 'Administration Officer' })
+                              .distinct
 
             admin_users.each do |admin|
-              RequisitionMailer.notify_admin(@requisition, admin).deliver_now
+              RequisitionMailer.request_funds_petty_cash(@requisition, admin).deliver_now
             end
 
             flash[:notice] = 'Requisition approved successfully, the requester and admin notified.'
@@ -369,7 +368,7 @@ class RequisitionsController < ApplicationController
 
     if current_user
       # Denial from inside the app
-      if @requisition.update( workflow_state_id: denied_state.id)
+      if @requisition.update(workflow_state_id: denied_state.id)
         send_funds_denied_email(@requisition)
         flash[:notice] = 'Funds denied and email sent to the requester.'
       else
@@ -480,9 +479,10 @@ class RequisitionsController < ApplicationController
   def rescind_request
     new_state = WorkflowState.where(state: 'Rescinded',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
-    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    @requisition = Requisition.find(params[:id]).update(voided: true, workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
+
 
   # Corrected: Removed the duplicate recall_request method
   def recall_request
@@ -501,7 +501,7 @@ class RequisitionsController < ApplicationController
   def disburse_funds
     new_state = WorkflowState.where(state: 'Collected',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
-    @requisition = Requisition.find(params[:id]).update( workflow_state_id: new_state.first.id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
   def liquidate_funds
@@ -511,12 +511,14 @@ class RequisitionsController < ApplicationController
     state: 'Liquidated',
     workflow_process_id: WorkflowProcess.find_by(workflow: 'Petty Cash Request')&.id
   )
+
   # Make sure used_amount is permitted via strong parameters
-  liquidate_params = params.require(:requisition).permit(:used_amount, :workflow_state_id, :approved_by)
+  # You already have liquidate_params, let's use it!
+  liquidate_params = params.require(:requisition).permit(:used_amount, :workflow_state_id)
   submitted_used_amount = liquidate_params[:used_amount]
 
   # Find or create the PettyCashComment
-  # Ensure a comment record exists to update
+  # This is the crucial part: Ensure a comment record exists to update
   petty_cash_comment = @requisition.petty_cash_comments.first_or_create(
     comment: nil, # Provide a default comment if creating
     used_amount: 0.0 # Provide a default used_amount if creating
@@ -535,6 +537,7 @@ class RequisitionsController < ApplicationController
   end
 rescue => e
   # This catch-all rescue should ideally be more specific,
+  # but it's useful for debugging unexpected errors.
   redirect_to "/requisitions/#{params[:id]}", alert: "Error: #{e.message}"
 end
 
@@ -545,6 +548,6 @@ end
                                         :requisition_type, :workflow_state_id, :amount)
   end
   def liquidate_params
-     params.require(:requisition).permit(:used_amount, :workflow_state_id, :approved_by)
+     params.require(:requisition).permit(:used_amount, :workflow_state_id)
   end
 end
