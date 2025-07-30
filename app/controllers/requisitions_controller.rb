@@ -368,7 +368,7 @@ class RequisitionsController < ApplicationController
 
     if current_user
       # Denial from inside the app
-      if @requisition.update(approved_by: current_user.user_id, workflow_state_id: denied_state.id)
+      if @requisition.update(workflow_state_id: denied_state.id)
         send_funds_denied_email(@requisition)
         flash[:notice] = 'Funds denied and email sent to the requester.'
       else
@@ -439,7 +439,7 @@ class RequisitionsController < ApplicationController
 
     if current_user
       # Approval from inside the application
-      if @requisition.update(approved_by: current_user.user_id, workflow_state_id: approved_state.id)
+      if @requisition.update(workflow_state_id: approved_state.id)
         send_funds_approved_email(@requisition)
         flash[:notice] = 'Funds approved and requester notified.'
       else
@@ -528,7 +528,7 @@ class RequisitionsController < ApplicationController
     # Now, attempt to update the found or created comment
     if petty_cash_comment.update(used_amount: submitted_used_amount)
       # Only update the workflow state if the used_amount update was successful
-      @requisition.update!(workflow_state_id: new_state.id)
+      @requisition.update!(approved_by: current_user.user_id, workflow_state_id: new_state.id)
       redirect_to "/requisitions/#{params[:id]}", notice: "Funds liquidated successfully."
     else
       # If comment update failed (e.g., validations), provide a specific alert

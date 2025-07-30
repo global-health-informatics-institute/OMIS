@@ -9,7 +9,7 @@ require 'json'
 
 puts '[MISSION] Initiating WorkflowStateTransition seeding operation...'
 
-file_path = Rails.root.join('db/seeds/timesheet_workflow_state_transitions_seed.json')
+file_path = Rails.root.join('db/seeds/workflow_state_transitions_seed.json')
 
 ActiveRecord::Base.transaction do
   if WorkflowStateTransition.column_names.include?('voided')
