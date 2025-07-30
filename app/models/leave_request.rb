@@ -17,4 +17,25 @@ class LeaveRequest < ApplicationRecord
   def current_state
     return WorkflowState.find(self.workflow_state_id).state rescue ''
   end
+
+  def leave_stand_in
+    Employee.find(stand_in).person.full_name
+  rescue StandardError
+    ''
+  end
+
+  def leave_state
+    WorkflowState.find(status).state
+  rescue StandardError
+    ''
+  end
+
+  def leave_balance
+    employee = User.find_by(user_id: employee_id).employee
+    (employee.leave_balance(leave_type:) - employee.used_leave_days(
+      Date.today.beginning_of_year, created_at.to_date, leave_type:
+    ))
+  rescue StandardError
+    '-- --'
+  end
 end
