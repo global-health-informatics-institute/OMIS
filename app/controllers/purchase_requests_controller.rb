@@ -195,6 +195,24 @@ end
     format.html { redirect_to requisition_path(@requisition), notice: "IPC selection updated." }
   end
 end
+def accept_item
+  new_state = WorkflowState.where(state: 'Item Accepted',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(approved_by: current_user.id, workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}" 
+end
+def reject_item
+  new_state = WorkflowState.where(state: 'Item Rejected',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(approved_by: current_user.id, workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+end
+def finish
+  new_state = WorkflowState.where(state: 'Request Finished',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(approved_by: current_user.id, workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+end
 
 
   private
