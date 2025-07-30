@@ -211,9 +211,14 @@ export default class extends Controller {
 
   if (this.currentStateValue === "Pending Payment Request") {
     orderToUse = ['nav-step3'];
-  } else if (this.currentStateValue === "Payment Requested") {
+  } 
+  else if (this.currentStateValue === "Payment Requested") {
     orderToUse = ['nav-step5'];
-  } else if (this.requiresIpcValue) {
+  } 
+  else if (this.currentStateValue === "Funds Approved") {
+    orderToUse = ['nav-step5', 'nav-step4']
+  }
+  else if (this.requiresIpcValue) {
     orderToUse = ['nav-step3', 'nav-step5', 'nav-step4', 'nav-step6'];
   } else {
     orderToUse = ['nav-step3', 'nav-step4', 'nav-step5', 'nav-step6'];
@@ -273,7 +278,8 @@ export default class extends Controller {
   // New method to control the visibility of next and previous buttons
   updateButtonVisibility() {
     console.log("Updating Next and Previous button visibility based on current state.");
-    const shouldShowButtons = this.currentStateValue === "Pending Payment Request" || this.currentStateValue === "Payment Requested";
+    const shouldShowButtons = this.currentStateValue === "Pending Payment Request" || this.currentStateValue === "Payment Requested"
+    || this.currentStateValue === "Funds Approved";
     console.log("Current state value is:", this.currentStateValue, "Should show buttons?", shouldShowButtons);
     console.log("Step index:", this.currentStepValue, "Total:", this.visiblePanels.length);
 
