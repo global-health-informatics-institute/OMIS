@@ -1,0 +1,292 @@
+[
+  {
+    "workflow_state_id": 1,
+    "employee_designation_id": 40,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 1,
+    "employee_designation_id": 15,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 3,
+    "employee_designation_id": 15,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 3,
+    "employee_designation_id": 1,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 3,
+    "employee_designation_id": 3,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 3,
+    "employee_designation_id": 4,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 3,
+    "employee_designation_id": 2,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 4,
+    "employee_designation_id": 1,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 4,
+    "employee_designation_id": 24,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 4,
+    "employee_designation_id": 2,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 4,
+    "employee_designation_id": 4,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 4,
+    "employee_designation_id": 55,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 7,
+    "employee_designation_id": 15,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 7,
+    "employee_designation_id": 1,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 7,
+    "employee_designation_id": 3,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 7,
+    "employee_designation_id": 4,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 7,
+    "employee_designation_id": 2,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 7,
+    "employee_designation_id": 55,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 7,
+    "employee_designation_id": 24,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 9,
+    "employee_designation_id": 1,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 9,
+    "employee_designation_id": 24,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 9,
+    "employee_designation_id": 2,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 9,
+    "employee_designation_id": 4,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 9,
+    "employee_designation_id": 55,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 14,
+    "employee_designation_id": 12,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 14,
+    "employee_designation_id": 6,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 14,
+    "employee_designation_id": 4,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 14,
+    "employee_designation_id": 3,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 17,
+    "employee_designation_id": 12,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 17,
+    "employee_designation_id": 6,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 17,
+    "employee_designation_id": 4,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 17,
+    "employee_designation_id": 3,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 19,
+    "employee_designation_id": 1,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 19,
+    "employee_designation_id": 24,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 19,
+    "employee_designation_id": 2,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 19,
+    "employee_designation_id": 4,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 19,
+    "employee_designation_id": 55,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 20,
+    "employee_designation_id": 1,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 20,
+    "employee_designation_id": 24,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 20,
+    "employee_designation_id": 2,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 20,
+    "employee_designation_id": 4,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 20,
+    "employee_designation_id": 55,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 21,
+    "employee_designation_id": 2,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 21,
+    "employee_designation_id": 4,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 21,
+    "employee_designation_id": 9,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 21,
+    "employee_designation_id": 5,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 24,
+    "employee_designation_id": 12,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 28,
+    "employee_designation_id": 12,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 29,
+    "employee_designation_id": 12,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 30,
+    "employee_designation_id": 2,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 30,
+    "employee_designation_id": 4,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 30,
+    "employee_designation_id": 9,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 30,
+    "employee_designation_id": 5,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 31,
+    "employee_designation_id": 2,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 31,
+    "employee_designation_id": 4,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 32,
+    "employee_designation_id": 2,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 32,
+    "employee_designation_id": 4,
+    "voided": false
+  },
+  {
+    "workflow_state_id": 25,
+    "employee_designation_id": 5,
+    "voided": false
+  }
+]
