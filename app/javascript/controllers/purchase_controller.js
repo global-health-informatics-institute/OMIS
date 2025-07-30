@@ -187,43 +187,54 @@ export default class extends Controller {
   }
 
   reorderSteps() {
-    console.log("Reordering steps based on requiresIpc:", this.requiresIpcValue)
+  console.log("Reordering steps based on requiresIpc and currentStateValue");
 
-    const stepContainer = document.getElementById('nav-tabContent')
-    const panelsToReorder = [...this.allPanels]
+  const stepContainer = document.getElementById('nav-tabContent');
+  const panelsToReorder = [...this.allPanels];
 
-    console.log("Removing all panels from DOM")
-    while (stepContainer.firstChild) {
-    stepContainer.removeChild(stepContainer.firstChild)
-    }
-
-
-    const firstStep = panelsToReorder.find(p => p.id === 'nav-step1')
-    if (firstStep) {
-      console.log("Appending first step (nav-step1)")
-      stepContainer.appendChild(firstStep)
-      this.visiblePanels = [firstStep]
-    }
-
-    const ipcOrder = ['nav-step3', 'nav-step5', 'nav-step4', 'nav-step6']
-    const nonIpcOrder = ['nav-step3', 'nav-step4', 'nav-step5', 'nav-step6']
-
-    const orderToUse = this.requiresIpcValue ? ipcOrder : nonIpcOrder
-    console.log("Using step order:", orderToUse)
-
-    orderToUse.forEach(id => {
-      const panel = panelsToReorder.find(p => p.id === id)
-      if (panel) {
-        console.log("Appending panel:", id)
-        stepContainer.appendChild(panel)
-        this.visiblePanels.push(panel)
-      } else {
-        console.warn("Panel not found for id:", id)
-      }
-    })
-
-    console.log("Final visiblePanels order:", this.visiblePanels.map(p => p.id))
+  // Clear the container
+  while (stepContainer.firstChild) {
+    stepContainer.removeChild(stepContainer.firstChild);
   }
+
+  // Always include step 1
+  const firstStep = panelsToReorder.find(p => p.id === 'nav-step1');
+  if (firstStep) {
+    console.log("Appending step 1 (nav-step1)");
+    stepContainer.appendChild(firstStep);
+    this.visiblePanels = [firstStep];
+  } else {
+    this.visiblePanels = [];
+  }
+
+  let orderToUse;
+
+  if (this.currentStateValue === "Pending Payment Request") {
+    orderToUse = ['nav-step3'];
+  } else if (this.currentStateValue === "Payment Requested") {
+    orderToUse = ['nav-step5'];
+  } else if (this.requiresIpcValue) {
+    orderToUse = ['nav-step3', 'nav-step5', 'nav-step4', 'nav-step6'];
+  } else {
+    orderToUse = ['nav-step3', 'nav-step4', 'nav-step5', 'nav-step6'];
+  }
+
+  console.log("Using step order:", orderToUse);
+
+  orderToUse.forEach(id => {
+    const panel = panelsToReorder.find(p => p.id === id);
+    if (panel) {
+      console.log("Appending panel:", id);
+      stepContainer.appendChild(panel);
+      this.visiblePanels.push(panel);
+    } else {
+      console.warn("Panel not found for id:", id);
+    }
+  });
+
+  console.log("Final visiblePanels order:", this.visiblePanels.map(p => p.id));
+}
+
 
   updateStepVisibility() {
     console.log("Updating step visibility")
