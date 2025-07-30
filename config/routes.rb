@@ -51,6 +51,9 @@ Rails.application.routes.draw do
   put 'purchase_requests/:id/withdraw_request', to: 'purchase_requests#withdraw_request'
   patch 'register_asset/:id', to: 'purchase_requests#register_asset', as: 'register_asset'
   put 'purchase_requests/:id/confirm_delivery', to: 'purchase_requests#confirm_delivery'
+  put 'purchase_requests/:id/finish', to: 'purchase_requests#finish'
+  put 'purchase_requests/:id/accept_item', to: 'purchase_requests#accept_item'
+  put 'purchase_requests/:id/reject_item', to: 'purchase_requests#reject_item'
 
 
   # Requisitions - Modified to include amount endpoint
