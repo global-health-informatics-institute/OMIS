@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["submitButton", "nextButton", "previousButton", "amountField"]
+  static targets = ["submitButton", "nextButton", "previousButton", "amountField", "assetButton"]
   static values = {
     currentStep: { type: Number, default: 0 },
     requiresIpc: { type: Boolean, default: false },
@@ -10,6 +10,42 @@ export default class extends Controller {
     // Add a new value to store the current state from the backend
     currentState: String
   }
+  goToAssetRegistration() {
+  console.log("Navigating to Asset Registration step");
+
+  const assetPanel = this.visiblePanels.find(panel => panel.id === "nav-step6");
+  if (assetPanel) {
+    const index = this.visiblePanels.indexOf(assetPanel);
+    if (index !== -1) {
+      this.currentStepValue = index;
+      this.updateStepVisibility();
+    } else {
+      console.warn("Asset Registration panel not found in visiblePanels");
+    }
+  } else {
+    console.warn("nav-step6 not found in visiblePanels");
+  }
+}
+  // Add this method to your controller
+goToStep1() {
+  console.log("Going back to Step 1");
+  
+  // Find step 1 in visible panels
+  const step1Panel = this.visiblePanels.find(panel => panel.id === 'nav-step1');
+  
+  if (step1Panel) {
+    // Update current step to 0 (first step)
+    this.currentStepValue = 0;
+    
+    // Update UI
+    this.updateStepVisibility();
+    
+    // Scroll to top for better UX
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    console.warn("Step 1 panel not found in visible panels");
+  }
+}
 
   initialize() {
     console.log("Initializing Purchase controller")
@@ -17,6 +53,7 @@ export default class extends Controller {
     this.lastIpcState = null
     this.currentAmount = null
     this.initialized = false
+    this.modalConfirmed = false;
   }
 
   async connect() {
@@ -277,37 +314,43 @@ export default class extends Controller {
 
   // New method to control the visibility of next and previous buttons
   updateButtonVisibility() {
-    console.log("Updating Next and Previous button visibility based on current state.");
-    const shouldShowButtons = this.currentStateValue === "Pending Payment Request" || this.currentStateValue === "Payment Requested"
-    || this.currentStateValue === "Funds Approved";
-    console.log("Current state value is:", this.currentStateValue, "Should show buttons?", shouldShowButtons);
-    console.log("Step index:", this.currentStepValue, "Total:", this.visiblePanels.length);
+  console.log("Updating Next and Previous button visibility based on current state.");
+  const shouldShowButtons = ["Pending Payment Request","Payment Requested", "Funds Approved"].includes(this.currentStateValue);
 
-
-    if (this.nextButtonTarget) {
-      if (shouldShowButtons && this.currentStepValue < this.visiblePanels.length - 1) {
-        this.nextButtonTarget.classList.remove('d-none');
-        this.nextButtonTarget.disabled = false; // Ensure it's not disabled if visible
-      } else {
-        this.nextButtonTarget.classList.add('d-none');
-      }
-    }
-
-    if (this.previousButtonTarget) {
-      if (shouldShowButtons && this.currentStepValue > 0) {
-        this.previousButtonTarget.classList.remove('d-none');
-        this.previousButtonTarget.disabled = false; // Ensure it's not disabled if visible
-      } else {
-        this.previousButtonTarget.classList.add('d-none');
-      }
-    }
-    
-    // Disable next/previous buttons if they are shown but at the start/end
-    if (this.nextButtonTarget && shouldShowButtons) {
-      this.nextButtonTarget.disabled = this.currentStepValue === this.visiblePanels.length - 1;
-    }
-    if (this.previousButtonTarget && shouldShowButtons) {
-      this.previousButtonTarget.disabled = this.currentStepValue === 0;
+  if (this.nextButtonTarget) {
+    if (shouldShowButtons && this.currentStepValue < this.visiblePanels.length - 1) {
+      this.nextButtonTarget.classList.remove('d-none');
+      this.nextButtonTarget.disabled = false;
+    } else {
+      this.nextButtonTarget.classList.add('d-none');
     }
   }
+
+  if (this.previousButtonTarget) {
+    if (shouldShowButtons && this.currentStepValue > 0) {
+      this.previousButtonTarget.classList.remove('d-none');
+      this.previousButtonTarget.disabled = false;
+    } else {
+      this.previousButtonTarget.classList.add('d-none');
+    }
+  }
+
+  // 🔽 Show Asset Registration button only if current state is "Item accepted"
+  if (this.hasAssetButtonTarget) {
+    if (this.currentStateValue === "Item Accepted") {
+      this.assetButtonTarget.classList.remove("d-none");
+    } else {
+      this.assetButtonTarget.classList.add("d-none");
+    }
+  }
+
+  // 🔒 Optional: Disable next/prev if needed
+  if (this.nextButtonTarget && shouldShowButtons) {
+    this.nextButtonTarget.disabled = this.currentStepValue === this.visiblePanels.length - 1;
+  }
+  if (this.previousButtonTarget && shouldShowButtons) {
+    this.previousButtonTarget.disabled = this.currentStepValue === 0;
+  }
+}
+
 }
