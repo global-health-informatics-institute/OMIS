@@ -1,7 +1,7 @@
 class PurchaseRequestsController < ApplicationController
 
   before_action :set_categories, only: [:new, :register_asset, :show, :create]
-  before_action :set_employees, only: [:new, :show, :edit, :update]
+  before_action :set_employees, only: [:new, :show, :create, :edit, :update]
   def new
     @requisition = Requisition.new(requisition_type: "Purchase Request")
     @requisition.requisition_items.build
@@ -9,8 +9,6 @@ class PurchaseRequestsController < ApplicationController
     @selected_department = Department.find_by_department_name(params[:department_name]) if params[:department_name].present?
     # Load only stakeholders marked as donors
     @stakeholder_options = Stakeholder.where(is_donor: true).pluck(:stakeholder_name, :stakeholder_id)
-    @employees = Employee.all.order(:full_name)
-
     # Pre-select stakeholder if coming from params
     @selected_stakeholder = Stakeholder.find_by(stakeholder_id: params[:stakeholder_id]) if params[:stakeholder_id].present?
   end
@@ -87,7 +85,6 @@ end
     @project_options = Project.all.collect { |x| [x.project_name, x.id] }
     @selected_project = @requisition.project
     @projects = Project.all
-    @employees = Employee.all.order(:full_name) 
   end
 
   def approve_request
@@ -217,7 +214,7 @@ def finish_process
     redirect_to "/requisitions/#{params[:id]}"
 end
 def set_employees
-  @employees = Employee.order(:full_name)
+  @employees = Employee.includes(:person).all.sort_by { |e| e.person.full_name }
 end
 
   private
