@@ -152,12 +152,54 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="ipcConfirmationModalLabel">Internal Procurement Committee Required</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <%# <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> %>
       </div>
       <div class="modal-body">
-        This request requires Internal Procurement Committee approval because the amount exceeds the threshold.<br>
-        Do you want to send emails to the committee for further procurement?
-      </div>
+
+  <div class="mb-3">
+    <%= form.label :traveller_ids, "Select IPC member" %>
+    <input
+      type="text"
+      class="form-control mb-2"
+      placeholder="Search employees..."
+      data-action="input->purchase#filterEmployees"
+      data-purchase-target="employeeSearch"
+    />
+    <div
+      class="form-control"
+      style="height: auto; max-height: 100px; overflow-y: auto;"
+      data-purchase-target="employeeCheckboxList"
+    >
+      <% (@employees || []).sort.each do |employee| %>
+
+        <div class="form-check">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            id="employee_<%= employee.id %>"
+            value="<%= employee.id %>"
+            name="ipc_employee_ids[]"
+            <%= 'checked' if @requisition.ipc_employee_ids&.include?(employee.id) %>
+          />
+          <label for="employee_<%= employee.id %>" class="form-check-label">
+            <%= employee.full_name %>
+          </label>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label for="ipc_meeting_date" class="form-label">Meeting Date</label>
+    <input
+      type="date"
+      id="ipc_meeting_date"
+      class="form-control"
+      data-purchase-target="ipcMeetingDate"
+    />
+  </div>
+</div>
+
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-action="purchase#notNow">Not Now</button>
         <button type="button" class="btn btn-primary" data-action="purchase#continueWithIpc">Continue</button>

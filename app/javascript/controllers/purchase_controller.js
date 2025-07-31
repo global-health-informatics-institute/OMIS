@@ -1,15 +1,73 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["submitButton", "nextButton", "previousButton", "amountField", "assetButton", "ipcConfirmationModal"]
+  static targets = ["submitButton", "nextButton", "previousButton", "amountField", "assetButton", "ipcConfirmationModal","employeeSearch",
+  "employeeCheckboxList",
+  "ipcMeetingDate"]
   static values = {
     currentStep: { type: Number, default: 0 },
     requiresIpc: { type: Boolean, default: false },
     threshold: Number,
     requisitionId: Number,
-    // Add a new value to store the current state from the backend
     currentState: String
   }
+  filterEmployees(event) {
+  const searchTerm = event.target.value.toLowerCase();
+  const checkboxes = this.employeeCheckboxListTarget.querySelectorAll('.form-check');
+
+  checkboxes.forEach(div => {
+    const label = div.querySelector('label').textContent.toLowerCase();
+    if (label.includes(searchTerm)) {
+      div.style.display = "";
+    } else {
+      div.style.display = "none";
+    }
+  });
+}
+continueWithIpc() {
+  console.log("Continue with IPC clicked");
+
+  // 1. Get selected employee IDs
+  const selectedIds = Array.from(this.employeeCheckboxListTarget.querySelectorAll("input[type='checkbox']:checked"))
+    .map(cb => cb.value);
+  console.log("Selected Employee IDs:", selectedIds);
+
+  // 2. Get meeting date
+  const date = this.ipcMeetingDateTarget.value;
+  console.log("Meeting Date:", date);
+
+  if (selectedIds.length === 0 || !date) {
+    alert("Please select at least one committee member and choose a meeting date.");
+    return;
+  }
+
+  // 3. Send data to the server
+  fetch(`/requisitions/${this.requisitionIdValue}/schedule_ipc_meeting`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
+    },
+    body: JSON.stringify({
+      employee_ids: selectedIds,
+      meeting_date: date
+    })
+  })
+  .then(response => {
+    if (!response.ok) throw new Error("Failed to send IPC notification.");
+    return response.json();
+  })
+  .then(data => {
+    console.log("Server response:", data);
+    this.dispatchIpcChanged(true); // proceed with IPC steps
+    this.ipcModalInstance.hide();  // close modal
+  })
+  .catch(error => {
+    console.error("IPC submission error:", error);
+    alert("An error occurred while sending IPC details.");
+  });
+}
+
   goToAssetRegistration() {
   console.log("Navigating to Asset Registration step");
 
