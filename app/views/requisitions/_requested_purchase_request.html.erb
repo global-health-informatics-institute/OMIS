@@ -100,7 +100,7 @@
   <% end %>
 </div>
 
-            <div class="col-md-4">
+        <div class="col-md-4">
               <%= form.label :unit_price, "Unit Price", class: "form-label" %>
               <% unit_price = @requisition.quantity.to_f > 0 ? (@requisition.requisition_items.first&.value.to_f / @requisition.quantity.to_f) : 0 %>
               <% if ["Under Procurement1"].include?(@requisition.current_state) %>
@@ -145,6 +145,7 @@
                       when "Withdraw Request" then "btn btn-danger"
                       when "Reject Item" then "btn btn-danger"
                       when "Accept Item" then "btn btn-success"
+                      when "Finish Process" then "btn btn-success"
                       else "btn btn-primary"
                       end %>
 
@@ -156,6 +157,11 @@
                     data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action.split(' ').first.downcase} this request?" } %>
         <% end %>
       <% end %>
+      <%= button_tag "Proceed to Asset Registration", type: "button", class: "btn btn-primary d-none", 
+          data: { 
+          purchase_target: "assetButton", 
+          action: "click->purchase#goToAssetRegistration" 
+          } %>
     </div>
   </div>
 <% end %>
