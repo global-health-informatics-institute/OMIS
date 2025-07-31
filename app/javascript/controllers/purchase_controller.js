@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["submitButton", "nextButton", "previousButton", "amountField", "assetButton"]
+  static targets = ["submitButton", "nextButton", "previousButton", "amountField", "assetButton", "ipcConfirmationModal"]
   static values = {
     currentStep: { type: Number, default: 0 },
     requiresIpc: { type: Boolean, default: false },
@@ -53,25 +53,30 @@ goToStep1() {
     this.lastIpcState = null
     this.currentAmount = null
     this.initialized = false
-    this.modalConfirmed = false;
+    this.ipcModalInstance = null
   }
 
   async connect() {
     console.log("Purchase controller connected")
-    console.log("Initial currentState value:", this.currentStateValue) 
+    console.log("Initial currentState value:", this.currentStateValue)
+    console.log("Has IPC modal target?", this.hasIpcConfirmationModalTarget);
+    console.log("IPC modal target:", this.ipcConfirmationModalTarget);
+ 
     // Initialize panels
     this.allPanels = Array.from(document.getElementById('nav-tabContent').querySelectorAll('.tab-pane'))
     this.visiblePanels = [...this.allPanels]
     
     // Set up listeners
     this.setupIPCListeners()
-    
     // Process initial state with database fallback
     await this.processInitialState()
     
     this.initialized = true
     console.log("Controller fully initialized")
-    
+    if (this.hasIpcConfirmationModalTarget) {
+      this.ipcModalInstance = new bootstrap.Modal(this.ipcConfirmationModalTarget);
+      console.log("IPC Confirmation Modal initialized.");
+    }
     // Initial update of button visibility based on the current state
     this.updateButtonVisibility();
   }
@@ -137,13 +142,21 @@ goToStep1() {
 
     console.log(`Debounce timer set for 300ms (timer ID: ${this.debounceTimer})`)
   }
+  showIpcConfirmationModal() {
+  console.log("Showing IPC confirmation modal.");
+  if (this.ipcModalInstance) {
+    this.ipcModalInstance.show();
+  } else {
+    console.warn("IPC modal instance not initialized.");
+  }
+}
 
   processAmountChange(amountValue) {
     console.log("Processing amount change:", amountValue)
-    
+
     const amount = parseFloat(amountValue) || 0
     const threshold = this.thresholdValue || parseFloat(this.amountFieldTarget?.dataset.threshold) || 0
-    
+
     console.log(`Current amount: ${amount}, Threshold: ${threshold}`)
 
     if (isNaN(amount)) {
@@ -154,16 +167,27 @@ goToStep1() {
     const requiresIpc = amount > threshold
     console.log(`IPC required? ${requiresIpc} (${amount} > ${threshold})`)
 
-    if (!this.initialized || this.lastIpcState !== requiresIpc) {
-      console.log(`IPC state changed from ${this.lastIpcState} to ${requiresIpc}`)
-      this.lastIpcState = requiresIpc
-      this.requiresIpcValue = requiresIpc
-      this.dispatchIpcChanged(requiresIpc)
+    // Only dispatch the event if the IPC requirement has actually changed
+    if (this.lastIpcState !== requiresIpc) { // Check for state change
+      this.lastIpcState = requiresIpc; // Update last known state
+
+      // Modal should only show if IPC is now required AND the controller is fully initialized
+      // (meaning this isn't the initial load processing).
+      if (requiresIpc && this.initialized) {
+        console.log("Amount exceeds threshold, showing IPC confirmation modal.");
+        this.showIpcConfirmationModal();
+        // Do NOT dispatch ipc:changed yet, the user will confirm via modal
+      } else {
+        // If IPC is no longer required, or if it's the initial load (this.initialized is false)
+        // and requiresIpc is already set, or if requiresIpc becomes false.
+        console.log("Dispatching IPC change directly.");
+        this.requiresIpcValue = requiresIpc; // Update value for controller
+        this.dispatchIpcChanged(requiresIpc);
+      }
     } else {
-      console.log("IPC state unchanged")
+      console.log("IPC state unchanged.");
     }
   }
-
   nextStep(event) {
     console.log("Next step triggered")
     event.preventDefault()
