@@ -15,7 +15,6 @@
 
         <div class="card-body">
           <div class="row">
-            <!-- Left Column -->
             <div class="col-md-6">
               <div class="row mb-3">
                 <div class="col-4 fw-normal">Initiated On</div>
@@ -56,7 +55,6 @@
               <% end %>
             </div>
 
-            <!-- Right Column -->
             <div class="col-md-6">
               <div class="row mb-3">
                 <div class="col-4 fw-normal">Reviewed By</div>
@@ -77,49 +75,49 @@
                 </div>
               </div>
 
-      <div class="row mb-3">
-  <div class="col-4">
-    <%= form.label :amount, "Total Amount", class: "form-label" %>
-    <% if ["Pending Payment Request"].include?(@requisition.current_state) %>
-      <% amount_value = @requisition.requisition_items.first&.value.to_f %>
-      <% options = {
-        step: "0.01",
-        class: "form-control #{'is-invalid' if flash[:amount_error]}",
-        min: 0,
-        required: true,
-        placeholder: "Enter total amount",
-        value: (amount_value > 0 ? amount_value : nil),
-        data: {
-          purchase_target: "amountField",
-          limit: @purchase_request_threshold, # Existing data attribute
-          action: "input->purchase#checkAmountThreshold", # ADD THIS LINE
-          threshold: @purchase_request_threshold # ADD OR CONFIRM THIS LINE, using your threshold variable
-        }, 
-      } %>
-
-      <%= form.number_field :amount, options %>
-      <% if flash[:amount_error] %>
-        <div class="invalid-feedback d-block">
-          <%= flash[:amount_error] %>
-        </div>
-      <% end %>
-    <% else %>
-      <%= form.hidden_field :amount, value: @requisition.requisition_items.first&.value %>
-      <div class="fw-bold fst-italic">
-        <%= number_with_precision(@requisition.requisition_items.first&.value || 0, precision: 2) %>
-      </div>
-    <% end %>
-  </div>
-
-  <div class="col-4">
-    <%= form.label :unit_price, "Unit Price", class: "form-label" %>
-    <% unit_price = @requisition.quantity.to_f > 0 ? (@requisition.requisition_items.first&.value.to_f / @requisition.quantity.to_f) : 0 %>
+              <div class="row mb-3">
+                <div class="col-4">
+                  <%= form.label :unit_price, "Unit Price", class: "form-label" %>
+                  <% unit_price = @requisition.quantity.to_f > 0 ? (@requisition.requisition_items.first&.value.to_f / @requisition.quantity.to_f) : 0 %>
                   <%= form.number_field :unit_price,
                             step: "0.01",
                             class: "form-control",
                             value: number_with_precision(unit_price, precision: 2),
                             readonly: true,
                             disabled: true %>
+                </div>
+
+                <div class="col-4">
+                  <%= form.label :amount, "Total Amount", class: "form-label" %>
+                  <% if ["Pending Payment Request"].include?(@requisition.current_state) %>
+                    <% amount_value = @requisition.requisition_items.first&.value.to_f %>
+                    <% options = {
+                      step: "0.01",
+                      class: "form-control #{'is-invalid' if flash[:amount_error]}",
+                      min: 0,
+                      required: true,
+                      placeholder: "Enter total amount",
+                      value: (amount_value > 0 ? amount_value : nil),
+                      data: {
+                        purchase_target: "amountField",
+                        limit: @purchase_request_threshold,
+                        action: "input->purchase#checkAmountThreshold",
+                        threshold: @purchase_request_threshold
+                      },
+                    } %>
+
+                    <%= form.number_field :amount, options %>
+                    <% if flash[:amount_error] %>
+                      <div class="invalid-feedback d-block">
+                        <%= flash[:amount_error] %>
+                      </div>
+                    <% end %>
+                  <% else %>
+                    <%= form.hidden_field :amount, value: @requisition.requisition_items.first&.value %>
+                    <div class="fw-bold fst-italic">
+                      <%= number_with_precision(@requisition.requisition_items.first&.value || 0, precision: 2) %>
+                    </div>
+                  <% end %>
                 </div>
               </div>
             </div>
@@ -157,11 +155,11 @@
       <div class="modal-body">
 
   <div class="mb-3">
-    <%= form.label :traveller_ids, "Select IPC member" %>
+    <%= form.label :traveller_ids, "Inform IPC member" %>
     <input
       type="text"
       class="form-control mb-2"
-      placeholder="Search employees..."
+      placeholder="Select IPC members"
       data-action="input->purchase#filterEmployees"
       data-purchase-target="employeeSearch"
     />
@@ -170,7 +168,7 @@
       style="height: auto; max-height: 100px; overflow-y: auto;"
       data-purchase-target="employeeCheckboxList"
     >
-      <% @employees.sort.each do |employee| %>
+      <% (@employees || []).sort.each do |employee| %>
         <div class="form-check">
           <input
             type="checkbox"

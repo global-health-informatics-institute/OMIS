@@ -1,4 +1,3 @@
-
 <%= form_with model: @requisition, url: complete_procurement_purchase_request_path(@requisition), multipart: true, method: :patch do |form| %>
   <div class="row mt-3 p-2">
     <div class="col p-2">
@@ -65,42 +64,6 @@
 
           <div class="row mt-3">
             <div class="col-md-4">
-  <%= form.label :amount, "Total Amount", class: "form-label" %>
-  <% if ["Under Procurement1"].include?(@requisition.current_state) %>
-    <% options = {
-      step: "0.01",
-      class: "form-control #{'is-invalid' if flash[:amount_error]}",
-      min: 0,
-      required: true,
-      value: (@requisition.requisition_items.first&.value || 0).to_s == "0.0" ? 0 : @requisition.requisition_items.first&.value,
-        data: {
-          purchase_target: "amountField",
-          limit: @purchase_request_threshold, # Existing data attribute
-          action: "input->purchase#checkAmountThreshold", # ADD THIS LINE
-          threshold: @purchase_request_threshold # ADD OR CONFIRM THIS LINE, using your threshold variable
-        }, 
-    } %>
-    <%= form.number_field :amount, options %>
-    <% if flash[:amount_error] %>
-      <div class="invalid-feedback d-block">
-        <%= flash[:amount_error] %>
-      </div>
-    <% end %>
-    <div class="threshold-feedback mt-2"></div>
-  <% else %>
-    <%= form.hidden_field :amount, value: @requisition.requisition_items.first&.value,
-  data: {
-    purchase_target: "amountField",
-    threshold: @purchase_request_threshold
-  } %>
-
-    <div class="fw-bold fst-italic">
-      <%= number_with_precision(@requisition.requisition_items.first&.value || 0, precision: 2) %>
-    </div>
-  <% end %>
-</div>
-
-        <div class="col-md-4">
               <%= form.label :unit_price, "Unit Price", class: "form-label" %>
               <% unit_price = @requisition.quantity.to_f > 0 ? (@requisition.requisition_items.first&.value.to_f / @requisition.quantity.to_f) : 0 %>
               <% if ["Under Procurement1"].include?(@requisition.current_state) %>
@@ -116,14 +79,49 @@
                 </div>
               <% end %>
             </div>
-       <div class="row mt-4 mb-4">
-            
+
+            <div class="col-md-4">
+              <%= form.label :amount, "Total Amount", class: "form-label" %>
+              <% if ["Under Procurement1"].include?(@requisition.current_state) %>
+                <% options = {
+                  step: "0.01",
+                  class: "form-control #{'is-invalid' if flash[:amount_error]}",
+                  min: 0,
+                  required: true,
+                  value: (@requisition.requisition_items.first&.value || 0).to_s == "0.0" ? 0 : @requisition.requisition_items.first&.value,
+                    data: {
+                      purchase_target: "amountField",
+                      limit: @purchase_request_threshold, # Existing data attribute
+                      action: "input->purchase#checkAmountThreshold", # ADD THIS LINE
+                      threshold: @purchase_request_threshold # ADD OR CONFIRM THIS LINE, using your threshold variable
+                    },
+                } %>
+                <%= form.number_field :amount, options %>
+                <% if flash[:amount_error] %>
+                  <div class="invalid-feedback d-block">
+                    <%= flash[:amount_error] %>
+                  </div>
+                <% end %>
+                <div class="threshold-feedback mt-2"></div>
+              <% else %>
+                <%= form.hidden_field :amount, value: @requisition.requisition_items.first&.value,
+              data: {
+                purchase_target: "amountField",
+                threshold: @purchase_request_threshold
+              } %>
+
+                <div class="fw-bold fst-italic">
+                  <%= number_with_precision(@requisition.requisition_items.first&.value || 0, precision: 2) %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          <div class="row mt-4 mb-4">
             <div class="col-2 fw-normal">Reviewed By</div>
             <div class="col-2 fw-bold fst-italic"><%= @requisition.reviewer rescue nil %></div>
             <div class="col-2 fw-normal">Processed By</div>
             <div class="col-2 fw-bold fst-italic"><%= @requisition.approver rescue nil %></div>
           </div>
-       </div>
         </div>
       </div>
 
@@ -157,10 +155,10 @@
                     data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{action.split(' ').first.downcase} this request?" } %>
         <% end %>
       <% end %>
-      <%= button_tag "Proceed to Asset Registration", type: "button", class: "btn btn-primary d-none", 
-          data: { 
-          purchase_target: "assetButton", 
-          action: "click->purchase#goToAssetRegistration" 
+      <%= button_tag "Proceed to Asset Registration", type: "button", class: "btn btn-primary d-none",
+          data: {
+          purchase_target: "assetButton",
+          action: "click->purchase#goToAssetRegistration"
           } %>
     </div>
   </div>

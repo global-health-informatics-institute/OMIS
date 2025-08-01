@@ -38,6 +38,7 @@
                   <%= form.collection_select :project_id, @projects, :id, :short_name, { prompt: "Select Project" }, class: "form-select" %>
                 <% else %>
                   <%= form.hidden_field :project_id, value: @requisition.project_id %>
+                   <%= form.hidden_field :employee_id, value: current_user.employee_id if current_user.employee_id.present? %>
                   <div class="fw-bold fst-italic"><%= @requisition.project.short_name %></div>
                 <% end %>
               </div>
