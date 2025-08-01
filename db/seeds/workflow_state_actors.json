@@ -288,5 +288,20 @@
     "workflow_state_id": 25,
     "employee_designation_id": 5,
     "voided": false
+  },
+   {
+    "workflow_state_id": 43,
+    "employee_designation_id": 12,
+    "voided": false
+  },
+   {
+    "workflow_state_id": 47,
+    "employee_designation_id": 12,
+    "voided": false
+  },
+   {
+    "workflow_state_id": 42,
+    "employee_designation_id": 12,
+    "voided": false
   }
 ]
