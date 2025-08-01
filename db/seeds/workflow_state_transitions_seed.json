@@ -358,5 +358,133 @@
     "action": "Recall Timesheet",
     "by_owner": true,
     "by_supervisor": false
+  },
+  {
+    "workflow_state_id": 37,
+    "next_state": 38,
+    "voided": false,
+    "action": "Approve Request",
+    "by_owner": false,
+    "by_supervisor": true
+  },
+  {
+    "workflow_state_id": 37,
+    "next_state": 39,
+    "voided": false,
+    "action": "Reject Request",
+    "by_owner": false,
+    "by_supervisor": true
+  },
+  {
+    "workflow_state_id": 38,
+    "next_state": 41,
+    "voided": false,
+    "action": "Initiate Payment Request",
+    "by_owner": false,
+    "by_supervisor": false
+  },
+  {
+    "workflow_state_id": 41,
+    "next_state": 42,
+    "voided": false,
+    "action": "Request Payment",
+    "by_owner": false,
+    "by_supervisor": false
+  },
+  {
+    "workflow_state_id": 42,
+    "next_state": 43,
+    "voided": false,
+    "action": "Approve Funds",
+    "by_owner": false,
+    "by_supervisor": false
+  },
+  {
+    "workflow_state_id": 42,
+    "next_state": 44,
+    "voided": false,
+    "action": "Deny Funds",
+    "by_owner": false,
+    "by_supervisor": false
+  },
+  {
+    "workflow_state_id": 42,
+    "next_state": 45,
+    "voided": false,
+    "action": "Confirm Delivery",
+    "by_owner": false,
+    "by_supervisor": false
+  },
+  {
+    "workflow_state_id": 38,
+    "next_state": 46,
+    "voided": false,
+    "action": "Withdraw Request",
+    "by_owner": false,
+    "by_supervisor": false
+  },
+  {
+    "workflow_state_id": 45,
+    "next_state": 47,
+    "voided": false,
+    "action": "Accept Item",
+    "by_owner": true,
+    "by_supervisor": true
+  },
+   {
+    "workflow_state_id": 45,
+    "next_state": 48,
+    "voided": false,
+    "action": "Reject Item",
+    "by_owner": true,
+    "by_supervisor": true
+  },
+   {
+    "workflow_state_id": 47,
+    "next_state": 49,
+    "voided": false,
+    "action": "Finish Process",
+    "by_owner": false,
+    "by_supervisor": false
+  },
+   {
+    "workflow_state_id": 43,
+    "next_state": 45,
+    "voided": false,
+    "action": "Confirm Delivery",
+    "by_owner": false,
+    "by_supervisor": false
+  },
+   {
+    "workflow_state_id": 37,
+    "next_state": 50,
+    "voided": false,
+    "action": "Rescind Request",
+    "by_owner": true,
+    "by_supervisor": false
+  },
+   {
+    "workflow_state_id": 39,
+    "next_state": 50,
+    "voided": false,
+    "action": "Rescind Request",
+    "by_owner": true,
+    "by_supervisor": false
+  },
+   {
+    "workflow_state_id": 44,
+    "next_state": 50,
+    "voided": false,
+    "action": "Rescind Request",
+    "by_owner": true,
+    "by_supervisor": false
+  },
+   {
+    "workflow_state_id": 46,
+    "next_state": 50,
+    "voided": false,
+    "action": "Rescind Request",
+    "by_owner": true,
+    "by_supervisor": false
   }
 ]
