@@ -209,12 +209,17 @@ def reject_item
     redirect_to "/requisitions/#{params[:id]}"
 end
 def finish_process
-  new_state = WorkflowState.where(state: 'Request Finished',
+  new_state = WorkflowState.where(state: 'Process Completed',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
 end
-
+def rescind_request
+  new_state = WorkflowState.where(state: 'Rescinded',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+end
   private
   def set_employees
       @employees = Employee.includes(:person).all.sort_by { |e| e.person.full_name }
