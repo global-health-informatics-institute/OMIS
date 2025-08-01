@@ -1,7 +1,7 @@
 class PurchaseRequestsController < ApplicationController
 
   before_action :set_categories, only: [:new, :register_asset, :show, :create]
-  before_action :set_employees, only: [:new, :show, :create, :edit, :update]
+  before_action :set_employees, only: [:new, :show, :create, :edit, :update, :request_payment]
   def new
     @requisition = Requisition.new(requisition_type: "Purchase Request")
     @requisition.requisition_items.build
@@ -70,13 +70,14 @@ class PurchaseRequestsController < ApplicationController
   @requisition = Requisition.find(params[:id])
   @asset = @requisition.assets.build(asset_params)
 
-
-  if @asset.save
-    flash[:notice] = "Asset registered successfully."
-    redirect_to requisition_path(@requisition)
-  else
-    flash.now[:error] = "Failed to register asset. Please fix the errors below."
-    render :final_step_view # replace with the actual view name
+  respond_to do |format|
+    if @asset.save
+      format.html { redirect_to requisition_path(@requisition), notice: "Asset registered successfully." }
+      format.js   # Will render register_asset.js.erb
+    else
+      format.html { render :final_step_view, status: :unprocessable_entity }
+      format.js   # Will render register_asset.js.erb with errors
+    end
   end
 end
 
@@ -213,12 +214,11 @@ def finish_process
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
 end
-def set_employees
-  @employees = Employee.includes(:person).all.sort_by { |e| e.person.full_name }
-end
 
   private
-
+  def set_employees
+      @employees = Employee.includes(:person).all.sort_by { |e| e.person.full_name }
+  end
   # This helper method encapsulates the common logic for processing payment requests
   def process_payment_request_and_update(requisition, new_state, approved_amount, supplier)
     ActiveRecord::Base.transaction do

@@ -58,7 +58,7 @@
       <%= form.hidden_field :requisition_type, value: "Purchase Request" %>
       <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
       <%= hidden_field_tag :donor_name, Stakeholder.find_by(stakeholder_id: params[:stakeholder_id])&.stakeholder_name %>
-
+       <%= form.hidden_field :employee_id, value: current_user.employee_id if current_user.employee_id.present? %>
       <div class="row mt-4">
         <div class="col-md-3">
           <%= form.submit "Submit Request", class: "btn btn-success" %>
