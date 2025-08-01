@@ -1,4 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
+import * as bootstrap from "bootstrap"
+
+
 
 export default class extends Controller {
   static targets = ["submitButton", "nextButton", "previousButton", "amountField", "assetButton", "ipcConfirmationModal","employeeSearch",
