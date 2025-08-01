@@ -222,6 +222,16 @@ class Employee < ApplicationRecord
     # self requisitions
     owner_actionable_states = WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id)
     owner_actionable_states << 24 # Explicitly include the "Approved" state (ID 24)
+    # Exclude both 'Process Completed' and 'Rescinded' workflow states
+excluded_states = WorkflowState.where(state: ['Process Completed', 'Rescinded']).pluck(:workflow_state_id)
+
+actions += Requisition.where(requisition_type: 'Purchase Request')
+                      .where.not(workflow_state_id: excluded_states)
+                      .where(initiated_by: id)
+                      .collect do |x|
+  ["Check Your #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type}"} requisition for #{x.purpose}", "/requisitions/#{x.id}"]
+end
+
 
     actions += Requisition.where('workflow_state_id in (?) and initiated_by = ?', owner_actionable_states.uniq, id) # Use .uniq to avoid duplicates
                           .collect do |x|
@@ -229,19 +239,20 @@ class Employee < ApplicationRecord
         ["Collect Funds for #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type} request"}: #{x.purpose}", "/requisitions/#{x.id}"]
 
       else
-        ["Check #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type} request"}: #{x.purpose}", "/requisitions/#{x.id}"]
+        ["Check #{x.user.person.first_name}'s #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type}"} requisition for #{x.purpose}", "/requisitions/#{x.id}"]
 
       end
     end
 
- actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
-                      .where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
+  # Exclude 'Process Completed' and 'Rescinded' states for supervisor view
+  excluded_states = WorkflowState.where(state: ['Process Completed', 'Rescinded']).pluck(:workflow_state_id)
+  actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', 
+                             WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id), 
+                             jnrs)
+                      .where.not(workflow_state_id: excluded_states)
                       .collect do |x|
   ["Review #{x.user.person.first_name}'s #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type}"} request for #{x.purpose}", "/requisitions/#{x.id}"]
-
-end
-
-
+ end
 
     actions += LeaveRequest.where('status in (?) and employee_id in (?)', WorkflowStateTransition
                            .where(by_owner: true).collect { |x| x.workflow_state_id }, id)
