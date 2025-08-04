@@ -1,7 +1,6 @@
 [
     {
         "workflow_process_id": 6,
-        "workflow_state_id": 37,
-        "voided": false
+        "workflow_state_id": 37
     }
 ]
