@@ -6,7 +6,7 @@
 require 'json'
 puts '[MISSION] Initiating Stakeholder seeding operation...'
 
-file_path = Rails.root.join('db/seeds/stakeholders.json')
+file_path = Rails.root.join('db/seeds/stakeholder.json')
 
 ActiveRecord::Base.transaction do
   if Stakeholder.column_names.include?('voided')
