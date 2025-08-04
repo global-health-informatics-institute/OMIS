@@ -287,13 +287,6 @@
     "voided": false
   },
   {
-    "workflow_state_id": 42,
-    "workflow_process_id": 6,
-    "state": "Payment Requested",
-    "description": "State where purchase request has been sent for payment",
-    "voided": false
-  },
-  {
     "workflow_state_id": 43,
     "workflow_process_id": 6,
     "state": "Funds Approved",
