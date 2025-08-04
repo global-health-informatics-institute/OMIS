@@ -1,5 +1,25 @@
 [
     {
+        "workflow": "Asset Request",
+        "active":true
+    },
+    {
+        "workflow": "Timesheet",
+        "active":true
+    },
+    {
+        "workflow": "Transport Request",
+        "active":true
+    },
+    {
+        "workflow": "Petty Cash Request",
+        "active":true
+    },
+    {
+        "workflow": "Leave Request",
+        "active":true
+    },
+    {
         "workflow": "Purchase Request",
         "active":true
     }
