@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_06_10_143533) do
+ActiveRecord::Schema[7.0].define(version: 2025_08_04_085317) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -192,6 +192,21 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_10_143533) do
     t.integer "financial_year", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "logs", force: :cascade do |t|
+    t.string "loggable_type", null: false
+    t.bigint "loggable_id", null: false
+    t.integer "prev_state"
+    t.integer "next_state"
+    t.integer "transition"
+    t.integer "transition_by"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["loggable_type", "loggable_id"], name: "index_logs_on_loggable"
+    t.index ["transition"], name: "index_logs_on_transition"
+    t.index ["transition_by"], name: "index_logs_on_transition_by"
   end
 
   create_table "people", primary_key: "person_id", force: :cascade do |t|
