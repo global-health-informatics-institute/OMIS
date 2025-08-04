@@ -245,14 +245,15 @@ end
     end
 
   # Exclude 'Process Completed' and 'Rescinded' states for supervisor view
-  excluded_states = WorkflowState.where(state: ['Process Completed', 'Rescinded']).pluck(:workflow_state_id)
-  actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', 
-                             WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id), 
-                             jnrs)
+excluded_states = WorkflowState.where(state: ['Process Completed', 'Rescinded']).pluck(:workflow_state_id)
+# Show all active supervisee Purchase Requests (not just ones where supervisor is expected to act)
+actions += Requisition.where(requisition_type: 'Purchase Request')
+                      .where(initiated_by: jnrs)
                       .where.not(workflow_state_id: excluded_states)
                       .collect do |x|
-  ["Review #{x.user.person.first_name}'s #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type}"} request for #{x.purpose}", "/requisitions/#{x.id}"]
- end
+  ["Review #{x.user.person.first_name}'s Purchase request for #{x.purpose}", "/requisitions/#{x.id}"]
+end
+
 
     actions += LeaveRequest.where('status in (?) and employee_id in (?)', WorkflowStateTransition
                            .where(by_owner: true).collect { |x| x.workflow_state_id }, id)
