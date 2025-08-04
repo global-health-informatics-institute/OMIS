@@ -4,7 +4,7 @@
     "contact_email": "usaid@gmail.com",
     "is_partner": false,
     "is_donor": true,
-    "donation_frequesncy": "annually",
+    "donation_frequency": "annually",
     "partnership_tier": null,
     "voided": false
   },
@@ -13,7 +13,7 @@
     "contact_email": "unhcr@gmail.com",
     "is_partner": false,
     "is_donor": true,
-    "donation_frequesncy": "annually",
+    "donation_frequency": "annually",
     "partnership_tier": null,
     "voided": false
   },
@@ -22,7 +22,7 @@
     "contact_email": "unima@gmail.com",
     "is_partner": true,
     "is_donor": false,
-    "donation_frequesncy": null,
+    "donation_frequency": null,
     "partnership_tier": "silver",
     "voided": false
   },
@@ -31,7 +31,7 @@
     "contact_email": "kch@gmail.com",
     "is_partner": true,
     "is_donor": false,
-    "donation_frequesncy": null,
+    "donation_frequency": null,
     "partnership_tier": "gold",
     "voided": false
   }
