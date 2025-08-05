@@ -109,12 +109,23 @@ end
     redirect_to "/requisitions/#{params[:id]}"
   end
 
-  def require_ipc
-    new_state = WorkflowState.where(state: 'Under IPC',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
-    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
-    redirect_to "/requisitions/#{params[:id]}"
+  def schedule_ipc_meeting
+  requisition = Requisition.find(params[:id])
+    employee_ids = params[:employee_ids]
+    meeting_date = Date.parse(params[:meeting_date])
+     raise "Missing meeting date" unless meeting_date.present?
+    employees = Employee.where(id: employee_ids)
+    raise "No employees selected" if employees.empty?
+    employees.each do |employee|
+    RequisitionMailer.notify_ipc_members(requisition, employee, meeting_date).deliver_later
   end
+
+  render json: { message: "Emails sent successfully" }, status: :ok
+    rescue => e
+    logger.error "Failed to schedule IPC meeting: #{e.message}"
+    render json: { error: "Failed to send invitations" }, status: :internal_server_error
+ end
+
 
   def request_payment
     @requisition = Requisition.find(params[:id])

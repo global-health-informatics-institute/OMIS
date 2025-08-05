@@ -13,7 +13,7 @@ class RequisitionsController < ApplicationController
       @selected_project = @requisition.project
       @purchase_request_threshold = GlobalProperty.purchase_request_threshold
       @stakeholder_options = Stakeholder.where(is_donor: true).pluck(:stakeholder_name, :stakeholder_id)
-
+      @employees = Employee.where(still_employed: true).includes(:person)
   # Pre-select stakeholder if coming from params
     @selected_stakeholder = Stakeholder.find_by(stakeholder_id: params[:stakeholder_id]) if params[:stakeholder_id].present?
     else
@@ -66,7 +66,8 @@ class RequisitionsController < ApplicationController
     when 'Asset Request'
       @asset_types = AssetCategory.all.collect { |x| x.category }
     when 'Purchase Request'
-
+      @employees = Employee.where(still_employed: true).includes(:person).order('people.first_name')
+        Rails.logger.info ">>>> Employees loaded: #{@employees&.count}"
     when 'Travel Request'
       @employees = Employee.where(still_employed: true).collect { |x| x.person.full_name }
     when 'Personnel Requests'
@@ -133,6 +134,24 @@ class RequisitionsController < ApplicationController
       render :new
     end
   end
+  #sending email to ipc members when purchase request is above threshold
+  def schedule_ipc_meeting
+  requisition = Requisition.find(params[:id])
+  employee_ids = params[:employee_ids]
+  meeting_date = Date.parse(params[:meeting_date])
+  meeting_time = Time.zone.parse("#{params[:meeting_date]} #{params[:meeting_time]}")
+  employees = Employee.where(employee_id: employee_ids)
+
+  employees.each do |employee|
+    RequisitionMailer.notify_ipc_members(requisition, employee, meeting_date, meeting_time).deliver_later
+  end
+
+  render json: { message: "Emails sent successfully" }, status: :ok
+rescue => e
+  logger.error "Failed to schedule IPC meeting: #{e.message}"
+  render json: { error: "Failed to send invitations" }, status: :internal_server_error
+end
+
 
   def approve_request
     @requisition = Requisition.find_by(requisition_id: params[:id])
