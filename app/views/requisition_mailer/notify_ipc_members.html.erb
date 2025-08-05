@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <style>
+    body {
+      font-family: 'Trebuchet MS', sans-serif;
+    }
+  </style>
+</head>
+<body style="background-color: #F3F4F6; padding: 20px;">
+
+  <div style="border: 1px solid #002130; width: 100%; margin: 0 auto;">
+    <div style="background-color: #002130; font-weight: bold; color: #E3E4E7; padding: 20px; text-align: center; font-size: 1.5rem;">
+      IPC Meeting Invitation
+    </div>
+
+    <div style="padding: 30px; font-size: 1.2rem;">
+      <p>
+        Dear <%= @employee.person.full_name %>,
+      </p>
+
+      <p>
+        You are kindly invited to attend the Internal Procurement Committee meeting.
+      </p>
+
+      <p>
+        <strong>Requisition:</strong> <em><%= @requisition.purpose %></em><br>
+        <strong>Date:</strong> <%= @meeting_date.strftime("%A, %B %d, %Y") %><br>
+        <strong>Time:</strong> <%= @meeting_time.strftime("%I:%M %p") %><br>
+        <strong>Venue:</strong> Conference Room<br>
+        
+      </p>
+
+      <p>
+        Your participation and expertise are highly valued for this important procurement review.
+      </p>
+
+      <p>
+        Kindly confirm your attendance by replying to this email.
+      </p>
+    </div>
+  </div>
+
+  <div style="margin-top: 30px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+    <p>This is an automated notification. <%= Time.current.year %></p>
+  </div>
+
+</body>
+</html>
+

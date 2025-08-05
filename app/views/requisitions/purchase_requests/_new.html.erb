@@ -1,3 +1,5 @@
+
+<% @employees = local_assigns[:employees] || [] %>
 <%= form_with model: @requisition, 
               url: create_purchase_request_path, 
               method: :post, 
@@ -23,7 +25,7 @@
         </div>
 
         <div class="tab-pane fade" id="nav-step3" role="tabpanel">
-          <%= render 'requisitions/purchase_requests/payment_request_form', form: form %>
+          <%= render 'requisitions/purchase_requests/payment_request_form', form: form, employees: @employees  %>
         </div>
          
         <div class="tab-pane fade" id="nav-step4" role="tabpanel">

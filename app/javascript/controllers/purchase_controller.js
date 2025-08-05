@@ -5,7 +5,7 @@ import * as bootstrap from "bootstrap"
 
 export default class extends Controller {
   static targets = ["submitButton", "nextButton", "previousButton", "amountField", "assetButton", "ipcConfirmationModal","employeeSearch",
-  "employeeCheckboxList",
+  "employeeCheckboxList","ipcMeetingTime",
   "ipcMeetingDate"]
   static values = {
     currentStep: { type: Number, default: 0 },
@@ -39,9 +39,10 @@ continueWithIpc() {
   // 2. Get meeting date
   const date = this.ipcMeetingDateTarget.value;
   console.log("Meeting Date:", date);
+  const time = this.ipcMeetingTimeTarget.value;
 
-  if (selectedIds.length === 0 || !date) {
-    alert("Please select at least one committee member and choose a meeting date.");
+  if (selectedIds.length === 0 || !date || !time) {
+    alert("Please select at least one committee member and choose a meeting date and time.");
     return;
   }
 
@@ -54,7 +55,8 @@ continueWithIpc() {
     },
     body: JSON.stringify({
       employee_ids: selectedIds,
-      meeting_date: date
+      meeting_date: date,
+      meeting_time: time
     })
   })
   .then(response => {
