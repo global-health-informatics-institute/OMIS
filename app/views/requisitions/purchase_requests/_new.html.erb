@@ -8,7 +8,9 @@
                   controller: "purchase",
                   purchase_current_state_value: @requisition.current_state,
                   purchase_threshold_value: @purchase_request_threshold,
-                  purchase_requisition_id_value: @requisition.id
+                  purchase_requisition_id_value: @requisition.id,
+                  purchase_designation_id_value: current_user.employee.current_designations.first&.designation_id
+
                 } 
               } do |form| %>
   <div class="container-fluid mt-4 ml-4 mr-4">
