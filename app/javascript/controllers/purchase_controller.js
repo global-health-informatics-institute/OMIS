@@ -12,7 +12,8 @@ export default class extends Controller {
     requiresIpc: { type: Boolean, default: false },
     threshold: Number,
     requisitionId: Number,
-    currentState: String
+    currentState: String,
+    designationId: Number
   }
   filterEmployees(event) {
   const searchTerm = event.target.value.toLowerCase();
@@ -122,7 +123,7 @@ goToStep1() {
     console.log("Initial currentState value:", this.currentStateValue)
     console.log("Has IPC modal target?", this.hasIpcConfirmationModalTarget);
     console.log("IPC modal target:", this.ipcConfirmationModalTarget);
- 
+     console.log("Designation ID value:", this.designationIdValue); 
     // Initialize panels
     this.allPanels = Array.from(document.getElementById('nav-tabContent').querySelectorAll('.tab-pane'))
     this.visiblePanels = [...this.allPanels]
@@ -401,9 +402,10 @@ goToStep1() {
   updateButtonVisibility() {
   console.log("Updating Next and Previous button visibility based on current state.");
   const shouldShowButtons = ["Pending Payment Request","Payment Requested", "Funds Approved"].includes(this.currentStateValue);
+  const isAuthorized = this.designationIdValue === 12;
 
   if (this.nextButtonTarget) {
-    if (shouldShowButtons && this.currentStepValue < this.visiblePanels.length - 1) {
+    if (shouldShowButtons && isAuthorized && this.currentStepValue < this.visiblePanels.length - 1) {
       this.nextButtonTarget.classList.remove('d-none');
       this.nextButtonTarget.disabled = false;
     } else {
@@ -420,9 +422,10 @@ goToStep1() {
     }
   }
 
-  // 🔽 Show Asset Registration button only if current state is "Item accepted"
+  //  Show Asset Registration button only if current state is "Item accepted"
   if (this.hasAssetButtonTarget) {
-    if (this.currentStateValue === "Item Accepted") {
+	  const isAuthorized = this.designationIdValue === 12;
+    if (this.currentStateValue === "Item Accepted" && isAuthorized) {
       this.assetButtonTarget.classList.remove("d-none");
     } else {
       this.assetButtonTarget.classList.add("d-none");
