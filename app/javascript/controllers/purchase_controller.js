@@ -5,7 +5,7 @@ import * as bootstrap from "bootstrap"
 
 export default class extends Controller {
   static targets = ["submitButton", "nextButton", "previousButton", "amountField", "assetButton", "ipcConfirmationModal","employeeSearch",
-  "employeeCheckboxList","ipcMeetingTime",
+  "employeeCheckboxList","ipcMeetingTime","selectedEmployeesDisplay",
   "ipcMeetingDate"]
   static values = {
     currentStep: { type: Number, default: 0 },
@@ -28,9 +28,24 @@ export default class extends Controller {
     }
   });
 }
+//populate the selected employees
+updateSelectedEmployees() {
+  if (!this.hasSelectedEmployeesDisplayTarget) {
+    console.warn("selectedEmployeesDisplayTarget not found.");
+    return;
+  }
+
+  const checkboxes = this.employeeCheckboxListTarget.querySelectorAll("input[type='checkbox']:checked");
+  const names = Array.from(checkboxes).map(cb => cb.dataset.employeeName).filter(Boolean);
+
+  this.selectedEmployeesDisplayTarget.value = names.join(", ");
+}
+
+
+//Initiate email sending when continue button is triggered
 continueWithIpc() {
   console.log("Continue with IPC clicked");
-
+    event.preventDefault();  
   // 1. Get selected employee IDs
   const selectedIds = Array.from(this.employeeCheckboxListTarget.querySelectorAll("input[type='checkbox']:checked"))
     .map(cb => cb.value);
@@ -67,12 +82,45 @@ continueWithIpc() {
     console.log("Server response:", data);
     this.dispatchIpcChanged(true); // proceed with IPC steps
     this.ipcModalInstance.hide();  // close modal
+    this.showStyledAlert(data.message || "Emails sent successfully. All selected IPC members have been notified.", "success");
   })
   .catch(error => {
     console.error("IPC submission error:", error);
     alert("An error occurred while sending IPC details.");
   });
 }
+
+showStyledAlert(message, type = 'success') {
+  const container = document.getElementById('custom-alert-container');
+  if (!container) return;
+
+  const alertDiv = document.createElement('div');
+  alertDiv.textContent = message;
+
+  alertDiv.style.backgroundColor = type === 'success' ? '#4CAF50' : '#f44336'; // green or red
+  alertDiv.style.color = 'white';
+  alertDiv.style.padding = '15px 25px';
+  alertDiv.style.marginBottom = '10px';
+  alertDiv.style.borderRadius = '5px';
+  alertDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+  alertDiv.style.fontSize = '16px';
+  alertDiv.style.fontWeight = 'bold';
+  alertDiv.style.cursor = 'pointer';
+  alertDiv.style.opacity = '1';
+  alertDiv.style.transition = 'opacity 0.5s ease';
+
+  alertDiv.onclick = () => container.removeChild(alertDiv);
+
+  container.appendChild(alertDiv);
+
+  setTimeout(() => {
+    alertDiv.style.opacity = '0';
+    setTimeout(() => {
+      if (alertDiv.parentNode === container) container.removeChild(alertDiv);
+    }, 500);
+  }, 4000);
+}
+
 
   goToAssetRegistration() {
   console.log("Navigating to Asset Registration step");
@@ -382,7 +430,9 @@ goToStep1() {
     if (this.submitButtonTarget) {
       const isLastStep = this.currentStepValue === this.visiblePanels.length - 1
       console.log(`Submit button - isLastStep: ${isLastStep}`)
-      
+       //  Always keep submit button hidden
+       this.submitButtonTarget.classList.add('d-none');
+ 
       if (isLastStep) {
         this.submitButtonTarget.classList.remove('d-none')
         if (this.nextButtonTarget) {
@@ -434,7 +484,7 @@ goToStep1() {
     }
   }
 
-  // 🔒 Optional: Disable next/prev if needed
+  //  Optional: Disable next/prev if needed
   if (this.nextButtonTarget && shouldShowButtons) {
     this.nextButtonTarget.disabled = this.currentStepValue === this.visiblePanels.length - 1;
   }
