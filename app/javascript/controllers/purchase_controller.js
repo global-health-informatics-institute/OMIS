@@ -81,8 +81,11 @@ continueWithIpc() {
   .then(data => {
     console.log("Server response:", data);
     this.dispatchIpcChanged(true); // proceed with IPC steps
-    this.ipcModalInstance.hide();  // close modal
     this.showStyledAlert(data.message || "Emails sent successfully. All selected IPC members have been notified.", "success");
+    this.ipcModalInstance.hide();
+    setTimeout(() => {
+    window.location.href = data.redirect_url;
+  }, 1000);
   })
   .catch(error => {
     console.error("IPC submission error:", error);
@@ -263,43 +266,62 @@ goToStep1() {
   }
 }
 
-  processAmountChange(amountValue) {
-    console.log("Processing amount change:", amountValue)
+processAmountChange(amountValue) {
+  console.log("Processing amount change:", amountValue)
 
-    const amount = parseFloat(amountValue) || 0
-    const threshold = this.thresholdValue || parseFloat(this.amountFieldTarget?.dataset.threshold) || 0
-
-    console.log(`Current amount: ${amount}, Threshold: ${threshold}`)
-
-    if (isNaN(amount)) {
-      console.log("Invalid amount value")
-      return
-    }
-
-    const requiresIpc = amount > threshold
-    console.log(`IPC required? ${requiresIpc} (${amount} > ${threshold})`)
-
-    // Only dispatch the event if the IPC requirement has actually changed
-    if (this.lastIpcState !== requiresIpc) { // Check for state change
-      this.lastIpcState = requiresIpc; // Update last known state
-
-      // Modal should only show if IPC is now required AND the controller is fully initialized
-      // (meaning this isn't the initial load processing).
-      if (requiresIpc && this.initialized) {
-        console.log("Amount exceeds threshold, showing IPC confirmation modal.");
-        this.showIpcConfirmationModal();
-        // Do NOT dispatch ipc:changed yet, the user will confirm via modal
-      } else {
-        // If IPC is no longer required, or if it's the initial load (this.initialized is false)
-        // and requiresIpc is already set, or if requiresIpc becomes false.
-        console.log("Dispatching IPC change directly.");
-        this.requiresIpcValue = requiresIpc; // Update value for controller
-        this.dispatchIpcChanged(requiresIpc);
-      }
-    } else {
-      console.log("IPC state unchanged.");
-    }
+  //  ONLY proceed if current state is Pending Payment Request
+  if (this.currentStateValue !== "Pending Payment Request") {
+    console.log("Skipping check — current state is not 'Pending Payment Request'")
+    return
   }
+
+  const amount = parseFloat(amountValue) || 0
+  const threshold = this.thresholdValue || parseFloat(this.amountFieldTarget?.dataset.threshold) || 0
+
+  console.log(`Current amount: ${amount}, Threshold: ${threshold}`)
+
+  if (isNaN(amount)) {
+    console.log("Invalid amount value")
+    return
+  }
+
+  const requiresIpc = amount > threshold
+  console.log(`IPC required? ${requiresIpc}`)
+
+  // --- UI feedback ---
+  const parent = this.amountFieldTarget.parentElement
+  const existingError = parent.querySelector(".invalid-feedback.dynamic")
+  if (existingError) existingError.remove()
+
+  if (requiresIpc) {
+    this.amountFieldTarget.classList.add("is-invalid")
+
+    const errorMessage = document.createElement("div")
+    errorMessage.className = "invalid-feedback d-block dynamic"
+    errorMessage.innerText = `Amount exceeds the threshold (MWK${threshold.toFixed(2)}). Please Request IPC to proceed with the procurement.`
+
+    parent.appendChild(errorMessage)
+  } else {
+    this.amountFieldTarget.classList.remove("is-invalid")
+  }
+
+  // --- Step reordering logic ---
+  if (this.lastIpcState !== requiresIpc) {
+    this.lastIpcState = requiresIpc
+
+    if (requiresIpc && this.initialized) {
+      console.log("Amount exceeds threshold, showing IPC modal or altering steps.")
+      this.requiresIpcValue = true
+      this.dispatchIpcChanged(true)
+    } else {
+      console.log("Amount within threshold, proceeding without IPC.")
+      this.requiresIpcValue = false
+      this.dispatchIpcChanged(false)
+    }
+  } else {
+    console.log("No change in IPC state — not dispatching.")
+  }
+}
   nextStep(event) {
     console.log("Next step triggered")
     event.preventDefault()
@@ -369,8 +391,10 @@ goToStep1() {
   while (stepContainer.firstChild) {
     stepContainer.removeChild(stepContainer.firstChild);
   }
+	this.visiblePanels = [];
 
-  // Always include step 1
+  // Conditionally include step 1
+if (this.currentStateValue !== "Pending Payment Request" && this.currentStateValue !== "LPO Accepted") {
   const firstStep = panelsToReorder.find(p => p.id === 'nav-step1');
   if (firstStep) {
     console.log("Appending step 1 (nav-step1)");
@@ -379,10 +403,14 @@ goToStep1() {
   } else {
     this.visiblePanels = [];
   }
+} else {
+  this.visiblePanels = [];
+}
+
 
   let orderToUse;
 
-  if (this.currentStateValue === "Pending Payment Request") {
+  if (this.currentStateValue === "Pending Payment Request" || this.currentStateValue === "LPO Accepted") {
     orderToUse = ['nav-step3'];
   } 
   else if (this.currentStateValue === "Payment Requested") {
@@ -413,7 +441,9 @@ goToStep1() {
   console.log("Final visiblePanels order:", this.visiblePanels.map(p => p.id));
 }
 
-
+shouldShowStep1() {
+  return this.currentStateValue !== "Pending Payment Request" && this.currentStateValue !== "LPO Accepted";
+}
   updateStepVisibility() {
     console.log("Updating step visibility")
     
@@ -453,7 +483,7 @@ goToStep1() {
   // New method to control the visibility of next and previous buttons
   updateButtonVisibility() {
   console.log("Updating Next and Previous button visibility based on current state.");
-  const shouldShowButtons = ["Pending Payment Request","Payment Requested", "Funds Approved"].includes(this.currentStateValue);
+  const shouldShowButtons = ["Pending Payment Request","Payment Requested", "Funds Approved","LPO Accepted"].includes(this.currentStateValue);
   const isAuthorized = this.designationIdValue === 12;
 
   if (this.nextButtonTarget) {
