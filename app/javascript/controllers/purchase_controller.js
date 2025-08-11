@@ -185,7 +185,7 @@ goToStep1() {
     this.setupIPCListeners()
     // Process initial state with database fallback
     await this.processInitialState()
-    
+     this.reorderSteps();    
     this.initialized = true
     console.log("Controller fully initialized")
     if (this.hasIpcConfirmationModalTarget) {
@@ -386,6 +386,8 @@ processAmountChange(amountValue) {
 
   const stepContainer = document.getElementById('nav-tabContent');
   const panelsToReorder = [...this.allPanels];
+console.log("currentStepValue:", this.currentStepValue)
+console.log("visiblePanels:", this.visiblePanels.map(p => p.id))
 
   // Clear the container
   while (stepContainer.firstChild) {
@@ -394,7 +396,7 @@ processAmountChange(amountValue) {
 	this.visiblePanels = [];
 
   // Conditionally include step 1
-if (this.currentStateValue !== "Pending Payment Request" && this.currentStateValue !== "LPO Accepted") {
+if ( this.shouldShowStep1()) {
   const firstStep = panelsToReorder.find(p => p.id === 'nav-step1');
   if (firstStep) {
     console.log("Appending step 1 (nav-step1)");
@@ -413,6 +415,10 @@ if (this.currentStateValue !== "Pending Payment Request" && this.currentStateVal
   if (this.currentStateValue === "Pending Payment Request" || this.currentStateValue === "LPO Accepted") {
     orderToUse = ['nav-step3'];
   } 
+  else if (this.currentStateValue === "LPO Accepted") {
+    orderToUse = ['nav-step3'];
+  }
+
   else if (this.currentStateValue === "Payment Requested") {
     orderToUse = ['nav-step5'];
   } 
@@ -442,41 +448,39 @@ if (this.currentStateValue !== "Pending Payment Request" && this.currentStateVal
 }
 
 shouldShowStep1() {
-  return this.currentStateValue !== "Pending Payment Request" && this.currentStateValue !== "LPO Accepted";
+  return this.currentStateValue !== "Pending Payment Request";
 }
-  updateStepVisibility() {
-    console.log("Updating step visibility")
-    
+  
+updateStepVisibility() {
+    console.log("Updating step visibility");
+
     this.visiblePanels.forEach((panel, index) => {
-      const isActive = index === this.currentStepValue
-      console.log(`Panel ${panel.id} - show: ${isActive}, active: ${isActive}`)
-      panel.classList.toggle("show", isActive)
-      panel.classList.toggle("active", isActive)
-    })
+      const isActive = index === this.currentStepValue;
+      panel.classList.toggle("show", isActive);
+      panel.classList.toggle("active", isActive);
+    });
 
-    console.log(`Visible step: ${this.currentStepValue + 1}/${this.visiblePanels.length}`)
+    console.log(`Visible step: ${this.currentStepValue + 1}/${this.visiblePanels.length}`);
 
-    // The submit button logic remains the same
     if (this.submitButtonTarget) {
-      const isLastStep = this.currentStepValue === this.visiblePanels.length - 1
-      console.log(`Submit button - isLastStep: ${isLastStep}`)
-       //  Always keep submit button hidden
-       this.submitButtonTarget.classList.add('d-none');
- 
+      const isLastStep = this.currentStepValue === this.visiblePanels.length - 1;
+
+      // Always hide the submit button
+      this.submitButtonTarget.classList.add('d-none');
+    }
+
+    // Now handle the next button visibility
+    if (this.nextButtonTarget) {
+      const isLastStep = this.currentStepValue === this.visiblePanels.length - 1;
       if (isLastStep) {
-        this.submitButtonTarget.classList.remove('d-none')
-        if (this.nextButtonTarget) {
-          this.nextButtonTarget.classList.add('d-none')
-        }
+        // Hide the next button on the last step
+        this.nextButtonTarget.classList.add('d-none');
       } else {
-        this.submitButtonTarget.classList.add('d-none')
-        if (this.nextButtonTarget) {
-          this.nextButtonTarget.classList.remove('d-none')
-        }
+        // Show the next button on all other steps
+        this.nextButtonTarget.classList.remove('d-none');
       }
     }
 
-    // Call the new method to update next/previous button visibility
     this.updateButtonVisibility();
   }
 
