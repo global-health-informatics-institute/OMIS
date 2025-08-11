@@ -486,5 +486,28 @@
     "action": "Rescind Request",
     "by_owner": true,
     "by_supervisor": false
+  },
+  {
+  "workflow_state_id":41,
+  "next_state":51,
+  "voided": false,
+  "action":"Request IPC",
+  "by_owner":false,
+  "by_supervisor": false
+  },
+  {"workflow_state_id":51,
+   "next_state":52,
+   "voided":false,
+   "action": "Confirm LPO Acceptance",
+   "by_owner":false,
+   "by_supervisor":false
+  },
+  {
+  "workflow_state_id":52,
+  "next_state":42,
+  "voided": false,
+  "action": "Request Payment",
+  "by_owner": false,
+  "by_supervisor": false
   }
 ]

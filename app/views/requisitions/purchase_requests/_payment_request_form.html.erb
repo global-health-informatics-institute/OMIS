@@ -147,7 +147,7 @@
       <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
 
       <div class="d-flex gap-2">
-        <button type="button" data-action="purchase#showIpcConfirmationModal" class="btn btn-warning"> Request IPC </button>
+        <button type="button" data-purchase-target="requestIpcButton"  data-action="purchase#showIpcConfirmationModal" class="btn btn-warning d-none"> Request IPC </button>
 
        <% if (@possible_actions || []).include?("Request Payment") %>
          <%= form.submit "Request Payment", class: "btn btn-info", data: { disable_with: "Processing..." } %>
@@ -182,8 +182,16 @@
       style="height: auto; max-height: 100px; overflow-y: auto;"
       data-purchase-target="employeeCheckboxList"
       >
-
-      <% (employees || []).sort_by { |e| e.person.first_name }.each do |employee| %>
+    
+      <%# (employees || []).sort_by { |e| e.person.first_name }.each do |employee| %>
+      <% (employees || [])
+    .reject do |employee|
+      employee.employee_designations.any? do |emp_desig|
+        emp_desig.designation&.designated_role&.downcase&.end_with?("intern")
+      end
+    end
+    .sort_by { |e| e.person.first_name }
+    .each do |employee| %>
         <div class="form-check">
           <input
             type="checkbox"

@@ -142,11 +142,18 @@ class RequisitionsController < ApplicationController
   meeting_time = Time.zone.parse("#{params[:meeting_date]} #{params[:meeting_time]}")
   employees = Employee.where(employee_id: employee_ids)
 
+   # Transition state
+   new_state = WorkflowState.where(state: 'Pending IPC',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
   employees.each do |employee|
     RequisitionMailer.notify_ipc_members(requisition, employee, meeting_date, meeting_time).deliver_later
   end
-
-  render json: { message: "Emails sent successfully" }, status: :ok
+    render json: {
+    message: 'All IPC members you selected have been notified.',
+    redirect_url: requisition_path(requisition) 
+  }, status: :ok
+ # render json: { message: 'All IPC members you selected have been notified for the scheduled meeting.' }, status: :ok
 rescue => e
   logger.error "Failed to schedule IPC meeting: #{e.message}"
   render json: { error: "Failed to send invitations" }, status: :internal_server_error
