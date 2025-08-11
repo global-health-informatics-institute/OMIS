@@ -5,14 +5,15 @@ import * as bootstrap from "bootstrap"
 
 export default class extends Controller {
   static targets = ["submitButton", "nextButton", "previousButton", "amountField", "assetButton", "ipcConfirmationModal","employeeSearch",
-  "employeeCheckboxList",
+  "employeeCheckboxList","ipcMeetingTime","selectedEmployeesDisplay",
   "ipcMeetingDate"]
   static values = {
     currentStep: { type: Number, default: 0 },
     requiresIpc: { type: Boolean, default: false },
     threshold: Number,
     requisitionId: Number,
-    currentState: String
+    currentState: String,
+    designationId: Number
   }
   filterEmployees(event) {
   const searchTerm = event.target.value.toLowerCase();
@@ -27,9 +28,24 @@ export default class extends Controller {
     }
   });
 }
+//populate the selected employees
+updateSelectedEmployees() {
+  if (!this.hasSelectedEmployeesDisplayTarget) {
+    console.warn("selectedEmployeesDisplayTarget not found.");
+    return;
+  }
+
+  const checkboxes = this.employeeCheckboxListTarget.querySelectorAll("input[type='checkbox']:checked");
+  const names = Array.from(checkboxes).map(cb => cb.dataset.employeeName).filter(Boolean);
+
+  this.selectedEmployeesDisplayTarget.value = names.join(", ");
+}
+
+
+//Initiate email sending when continue button is triggered
 continueWithIpc() {
   console.log("Continue with IPC clicked");
-
+    event.preventDefault();  
   // 1. Get selected employee IDs
   const selectedIds = Array.from(this.employeeCheckboxListTarget.querySelectorAll("input[type='checkbox']:checked"))
     .map(cb => cb.value);
@@ -38,9 +54,10 @@ continueWithIpc() {
   // 2. Get meeting date
   const date = this.ipcMeetingDateTarget.value;
   console.log("Meeting Date:", date);
+  const time = this.ipcMeetingTimeTarget.value;
 
-  if (selectedIds.length === 0 || !date) {
-    alert("Please select at least one committee member and choose a meeting date.");
+  if (selectedIds.length === 0 || !date || !time) {
+    alert("Please select at least one committee member and choose a meeting date and time.");
     return;
   }
 
@@ -53,7 +70,8 @@ continueWithIpc() {
     },
     body: JSON.stringify({
       employee_ids: selectedIds,
-      meeting_date: date
+      meeting_date: date,
+      meeting_time: time
     })
   })
   .then(response => {
@@ -64,12 +82,45 @@ continueWithIpc() {
     console.log("Server response:", data);
     this.dispatchIpcChanged(true); // proceed with IPC steps
     this.ipcModalInstance.hide();  // close modal
+    this.showStyledAlert(data.message || "Emails sent successfully. All selected IPC members have been notified.", "success");
   })
   .catch(error => {
     console.error("IPC submission error:", error);
     alert("An error occurred while sending IPC details.");
   });
 }
+
+showStyledAlert(message, type = 'success') {
+  const container = document.getElementById('custom-alert-container');
+  if (!container) return;
+
+  const alertDiv = document.createElement('div');
+  alertDiv.textContent = message;
+
+  alertDiv.style.backgroundColor = type === 'success' ? '#4CAF50' : '#f44336'; // green or red
+  alertDiv.style.color = 'white';
+  alertDiv.style.padding = '15px 25px';
+  alertDiv.style.marginBottom = '10px';
+  alertDiv.style.borderRadius = '5px';
+  alertDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+  alertDiv.style.fontSize = '16px';
+  alertDiv.style.fontWeight = 'bold';
+  alertDiv.style.cursor = 'pointer';
+  alertDiv.style.opacity = '1';
+  alertDiv.style.transition = 'opacity 0.5s ease';
+
+  alertDiv.onclick = () => container.removeChild(alertDiv);
+
+  container.appendChild(alertDiv);
+
+  setTimeout(() => {
+    alertDiv.style.opacity = '0';
+    setTimeout(() => {
+      if (alertDiv.parentNode === container) container.removeChild(alertDiv);
+    }, 500);
+  }, 4000);
+}
+
 
   goToAssetRegistration() {
   console.log("Navigating to Asset Registration step");
@@ -122,7 +173,7 @@ goToStep1() {
     console.log("Initial currentState value:", this.currentStateValue)
     console.log("Has IPC modal target?", this.hasIpcConfirmationModalTarget);
     console.log("IPC modal target:", this.ipcConfirmationModalTarget);
- 
+     console.log("Designation ID value:", this.designationIdValue); 
     // Initialize panels
     this.allPanels = Array.from(document.getElementById('nav-tabContent').querySelectorAll('.tab-pane'))
     this.visiblePanels = [...this.allPanels]
@@ -379,7 +430,9 @@ goToStep1() {
     if (this.submitButtonTarget) {
       const isLastStep = this.currentStepValue === this.visiblePanels.length - 1
       console.log(`Submit button - isLastStep: ${isLastStep}`)
-      
+       //  Always keep submit button hidden
+       this.submitButtonTarget.classList.add('d-none');
+ 
       if (isLastStep) {
         this.submitButtonTarget.classList.remove('d-none')
         if (this.nextButtonTarget) {
@@ -401,9 +454,10 @@ goToStep1() {
   updateButtonVisibility() {
   console.log("Updating Next and Previous button visibility based on current state.");
   const shouldShowButtons = ["Pending Payment Request","Payment Requested", "Funds Approved"].includes(this.currentStateValue);
+  const isAuthorized = this.designationIdValue === 12;
 
   if (this.nextButtonTarget) {
-    if (shouldShowButtons && this.currentStepValue < this.visiblePanels.length - 1) {
+    if (shouldShowButtons && isAuthorized && this.currentStepValue < this.visiblePanels.length - 1) {
       this.nextButtonTarget.classList.remove('d-none');
       this.nextButtonTarget.disabled = false;
     } else {
@@ -420,16 +474,17 @@ goToStep1() {
     }
   }
 
-  // 🔽 Show Asset Registration button only if current state is "Item accepted"
+  //  Show Asset Registration button only if current state is "Item accepted"
   if (this.hasAssetButtonTarget) {
-    if (this.currentStateValue === "Item Accepted") {
+	  const isAuthorized = this.designationIdValue === 12;
+    if (this.currentStateValue === "Item Accepted" && isAuthorized) {
       this.assetButtonTarget.classList.remove("d-none");
     } else {
       this.assetButtonTarget.classList.add("d-none");
     }
   }
 
-  // 🔒 Optional: Disable next/prev if needed
+  //  Optional: Disable next/prev if needed
   if (this.nextButtonTarget && shouldShowButtons) {
     this.nextButtonTarget.disabled = this.currentStepValue === this.visiblePanels.length - 1;
   }

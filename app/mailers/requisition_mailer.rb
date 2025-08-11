@@ -114,4 +114,18 @@ class RequisitionMailer < ApplicationMailer
       subject: "Your Requisition Funds ##{@requisition.id} Has Been Approved"
     )
   end
+  def notify_ipc_members(requisition, employee, meeting_date, meeting_time)
+  @requisition = requisition
+  @employee = employee
+  @meeting_date = meeting_date
+  @meeting_time = meeting_time
+  @requester = Employee.find_by(employee_id: requisition.initiated_by)
+
+  recipient_email = @employee.person.official_email || @employee.person.email_address
+
+  mail(
+    to: recipient_email,
+    subject: "IPC Meeting Invitation for Requisition ##{requisition.id}"
+  )
+ end
 end

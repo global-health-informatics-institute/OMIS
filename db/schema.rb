@@ -400,20 +400,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_21_074333) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "travel_requests", force: :cascade do |t|
-    t.bigint "requisition_id", null: false
-    t.integer "distance"
-    t.boolean "voided", default: false
-    t.text "traveler_names"
-    t.datetime "departure_date", precision: nil
-    t.datetime "return_date", precision: nil
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "destination"
-    t.integer "asset_id"
-    t.index ["asset_id"], name: "index_travel_requests_on_asset_id"
-  end
-
   create_table "users", primary_key: "user_id", force: :cascade do |t|
     t.integer "employee_id", null: false
     t.string "username", null: false
@@ -430,9 +416,10 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_21_074333) do
 
   create_table "workflow_processes", primary_key: "workflow_process_id", force: :cascade do |t|
     t.string "workflow", null: false
+    t.boolean "active", default: true
+    t.integer "start_state"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "active", default: true
   end
 
   create_table "workflow_state_actions", force: :cascade do |t|
@@ -489,6 +476,4 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_21_074333) do
   add_foreign_key "purchase_request_attachments", "requisitions", primary_key: "requisition_id"
   add_foreign_key "purchase_request_attachments", "stakeholders", primary_key: "stakeholder_id"
   add_foreign_key "requisitions", "departments", primary_key: "department_id"
-  add_foreign_key "travel_requests", "assets", primary_key: "asset_id"
-  add_foreign_key "travel_requests", "requisitions", primary_key: "requisition_id"
 end

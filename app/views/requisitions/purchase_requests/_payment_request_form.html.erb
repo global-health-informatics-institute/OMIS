@@ -159,16 +159,17 @@
     <input
       type="text"
       class="form-control mb-2"
-      placeholder="Select IPC members"
+      placeholder="search IPC members"
       data-action="input->purchase#filterEmployees"
       data-purchase-target="employeeSearch"
-    />
+      />
     <div
       class="form-control"
       style="height: auto; max-height: 100px; overflow-y: auto;"
       data-purchase-target="employeeCheckboxList"
-    >
-      <% (@employees || []).sort.each do |employee| %>
+      >
+
+      <% (employees || []).sort_by { |e| e.person.first_name }.each do |employee| %>
         <div class="form-check">
           <input
             type="checkbox"
@@ -176,10 +177,11 @@
             id="employee_<%= employee.id %>"
             value="<%= employee.id %>"
             name="ipc_employee_ids[]"
-            <%= 'checked' if @requisition.ipc_employee_ids&.include?(employee.id) %>
+           <%= 'checked' if (@requisition.try(:ipc_employee_ids) || [])&.include?(employee.id) %>
           />
           <label for="employee_<%= employee.id %>" class="form-check-label">
-            <%= employee.full_name %>
+            <%= employee.person&.full_name || "Unknown Employee" %>
+
           </label>
         </div>
       <% end %>
@@ -193,6 +195,15 @@
       id="ipc_meeting_date"
       class="form-control"
       data-purchase-target="ipcMeetingDate"
+    />
+  </div>
+  <div class="col-md-6 mb-3">
+    <label for="ipc_meeting_time" class="form-label">Meeting Time</label>
+    <input
+      type="time"
+      id="ipc_meeting_time"
+      class="form-control"
+      data-purchase-target="ipcMeetingTime"
     />
   </div>
 </div>

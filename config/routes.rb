@@ -37,6 +37,7 @@ Rails.application.routes.draw do
   get 'settings/edit'
 
   # Purchase Requests
+  post 'requisitions/:id/schedule_ipc_meeting', to: 'requisitions#schedule_ipc_meeting'
   post 'purchase_requests/create', to: 'purchase_requests#create', as: :create_purchase_request
   get 'purchase_requests/new', to: 'purchase_requests#new', as: :new_purchase_request
   get 'purchase_request/show', to: 'purchase_request#show'

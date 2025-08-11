@@ -272,6 +272,12 @@
     "description": "State where purchase request has been rejected",
     "voided": false
   },
+  {"workflow_state_id":40,
+	  "workflow_process_id":6,
+	  "state": "Under Procurement",
+	  "description": "State where purchase request is under procurement",
+	  "voided": false
+   },
     {
     "workflow_state_id": 41,
     "workflow_process_id": 6,
