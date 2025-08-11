@@ -210,11 +210,17 @@ class Employee < ApplicationRecord
     # requisition finance reviews
     actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
                           .collect do |x|
+    description = if x.requisition_type == 'Purchase Request'
+                  x.purchase_request_attachment&.item_requested || x.purpose
+                else
+                  x.purpose
+                end
+
       if x.workflow_state_id == 29
         ["Liquidate Funds for #{x.requisition_type} request: #{x.purpose}",
          "/requisitions/#{x.id}"]
       else
-        ["Review #{x.user.person.first_name}'s #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type}"} requisition for #{x.purpose}", "/requisitions/#{x.id}"]
+        ["Review #{x.user.person.first_name}'s #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type}"} requisition for #{description}", "/requisitions/#{x.id}"]
 
       end
     end
@@ -235,18 +241,29 @@ end
 
     actions += Requisition.where('workflow_state_id in (?) and initiated_by = ?', owner_actionable_states.uniq, id) # Use .uniq to avoid duplicates
                           .collect do |x|
+    description = if x.requisition_type == 'Purchase Request'
+                  item = x.purchase_request_attachment&.item_requested
+                  item || x.purpose # fallback if no attachment
+                else
+                  x.purpose
+                end
       if x.workflow_state_id == 28
-        ["Collect Funds for #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type} request"}: #{x.purpose}", "/requisitions/#{x.id}"]
+        ["Collect Funds for #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type} request"}: #{description}", "/requisitions/#{x.id}"]
 
       else
-        ["Check your #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type}"} requisition for #{x.purpose}", "/requisitions/#{x.id}"]
+        ["Check your #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type}"} requisition for #{description}", "/requisitions/#{x.id}"]
 
       end
     end
 actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)',
                              WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
                       .collect do |x|
-  ["Review #{x.user.person.first_name}'s #{x.requisition_type} for #{x.purpose}", "/requisitions/#{x.id}"]
+  description = if x.requisition_type == 'Purchase Request'
+                  x.purchase_request_attachment&.item_requested || x.purpose
+                else
+                  x.purpose
+                end
+  ["Review #{x.user.person.first_name}'s #{x.requisition_type} for #{description}", "/requisitions/#{x.id}"]
 end
 
   # Exclude 'Process Completed' and 'Rescinded' states for supervisor view
@@ -256,7 +273,12 @@ actions += Requisition.where(requisition_type: 'Purchase Request')
                       .where(initiated_by: jnrs)
                       .where.not(workflow_state_id: excluded_states)
                       .collect do |x|
-  ["Review #{x.user.person.first_name}'s Purchase request for #{x.purpose}", "/requisitions/#{x.id}"]
+description = if x.requisition_type == 'Purchase Request'
+                  x.purchase_request_attachment&.item_requested || x.purpose
+                else
+                  x.purpose
+                end
+  ["Review #{x.user.person.first_name}'s Purchase request for #{description}", "/requisitions/#{x.id}"]
 end
 
 

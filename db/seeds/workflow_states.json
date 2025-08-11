@@ -285,7 +285,7 @@
     "description": "State where purchase request is pending payment request",
     "voided": false
   },
-    {
+  {
     "workflow_state_id": 42,
     "workflow_process_id": 6,
     "state": "Payment Requested",
@@ -347,5 +347,18 @@
     "state": "Rescinded",
     "description": "State where purchase request process has been rescinded",
     "voided": false
-  }
+  },
+ {
+ "workflow_state_id":51,
+ "workflow_process_id": 6,
+ "state" : "Pending IPC",
+ "description":"State where purchase request process has been submitted to the internal procurement committe",
+ "voided": false
+ },
+ {"workflow_state_id":52,
+  "workflow_process_id":6,
+  "state": "LPO Accepted",
+  "description": "state where Local Purchase Order has accepted by the supplier",
+  "voided":false
+ }
 ]

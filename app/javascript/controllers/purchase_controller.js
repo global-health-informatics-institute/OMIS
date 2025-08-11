@@ -5,7 +5,7 @@ import * as bootstrap from "bootstrap"
 
 export default class extends Controller {
   static targets = ["submitButton", "nextButton", "previousButton", "amountField", "assetButton", "ipcConfirmationModal","employeeSearch",
-  "employeeCheckboxList","ipcMeetingTime","selectedEmployeesDisplay",
+  "employeeCheckboxList","ipcMeetingTime","selectedEmployeesDisplay","requestIpcButton",
   "ipcMeetingDate"]
   static values = {
     currentStep: { type: Number, default: 0 },
@@ -381,51 +381,43 @@ processAmountChange(amountValue) {
     this.updateStepVisibility()
   }
 
-  reorderSteps() {
+reorderSteps() {
   console.log("Reordering steps based on requiresIpc and currentStateValue");
 
   const stepContainer = document.getElementById('nav-tabContent');
   const panelsToReorder = [...this.allPanels];
-console.log("currentStepValue:", this.currentStepValue)
-console.log("visiblePanels:", this.visiblePanels.map(p => p.id))
+  console.log("currentStepValue:", this.currentStepValue);
+  console.log("visiblePanels:", this.visiblePanels.map(p => p.id));
 
   // Clear the container
   while (stepContainer.firstChild) {
     stepContainer.removeChild(stepContainer.firstChild);
   }
-	this.visiblePanels = [];
+  this.visiblePanels = [];
 
-  // Conditionally include step 1
-if ( this.shouldShowStep1()) {
-  const firstStep = panelsToReorder.find(p => p.id === 'nav-step1');
-  if (firstStep) {
-    console.log("Appending step 1 (nav-step1)");
-    stepContainer.appendChild(firstStep);
-    this.visiblePanels = [firstStep];
+  // Conditionally include step 1 based on the updated shouldShowStep1()
+  if (this.shouldShowStep1()) {
+    const firstStep = panelsToReorder.find(p => p.id === 'nav-step1');
+    if (firstStep) {
+      console.log("Appending step 1 (nav-step1)");
+      stepContainer.appendChild(firstStep);
+      this.visiblePanels = [firstStep];
+    } else {
+      this.visiblePanels = [];
+    }
   } else {
     this.visiblePanels = [];
   }
-} else {
-  this.visiblePanels = [];
-}
-
 
   let orderToUse;
 
-  if (this.currentStateValue === "Pending Payment Request" || this.currentStateValue === "LPO Accepted") {
+  if (["Pending Payment Request", "LPO Accepted"].includes(this.currentStateValue)) {
     orderToUse = ['nav-step3'];
-  } 
-  else if (this.currentStateValue === "LPO Accepted") {
-    orderToUse = ['nav-step3'];
-  }
-
-  else if (this.currentStateValue === "Payment Requested") {
+  } else if (this.currentStateValue === "Payment Requested") {
     orderToUse = ['nav-step5'];
-  } 
-  else if (this.currentStateValue === "Funds Approved") {
-    orderToUse = ['nav-step5', 'nav-step4']
-  }
-  else if (this.requiresIpcValue) {
+  } else if (this.currentStateValue === "Funds Approved") {
+    orderToUse = ['nav-step5', 'nav-step4'];
+  } else if (this.requiresIpcValue) {
     orderToUse = ['nav-step3', 'nav-step5', 'nav-step4', 'nav-step6'];
   } else {
     orderToUse = ['nav-step3', 'nav-step4', 'nav-step5', 'nav-step6'];
@@ -445,10 +437,18 @@ if ( this.shouldShowStep1()) {
   });
 
   console.log("Final visiblePanels order:", this.visiblePanels.map(p => p.id));
-}
 
+  // After reordering, if the current step is now out of bounds, reset it to 0
+  if (this.currentStepValue >= this.visiblePanels.length) {
+    this.currentStepValue = 0;
+  }
+  this.updateStepVisibility(); // Ensure UI updates after reordering
+}
+shouldShowStep51() {
+  return this.currentStateValue !== "Pending Payment Request" && this.currentStateValue !== "LPO Accepted";
+}
 shouldShowStep1() {
-  return this.currentStateValue !== "Pending Payment Request";
+  return !["Pending Payment Request", "LPO Accepted", "Payment Requested"].includes(this.currentStateValue);
 }
   
 updateStepVisibility() {
@@ -485,7 +485,7 @@ updateStepVisibility() {
   }
 
   // New method to control the visibility of next and previous buttons
-  updateButtonVisibility() {
+ updateButtonVisibility() {
   console.log("Updating Next and Previous button visibility based on current state.");
   const shouldShowButtons = ["Pending Payment Request","Payment Requested", "Funds Approved","LPO Accepted"].includes(this.currentStateValue);
   const isAuthorized = this.designationIdValue === 12;
@@ -517,7 +517,14 @@ updateStepVisibility() {
       this.assetButtonTarget.classList.add("d-none");
     }
   }
-
+   // Request IPC button visibility — only for designation 12
+  if (this.hasRequestIpcButtonTarget) {
+    if (isAuthorized && this.currentStateValue ==="Pending Payment Request") {
+      this.requestIpcButtonTarget.classList.remove('d-none');
+    } else {
+      this.requestIpcButtonTarget.classList.add('d-none');
+    }
+  }
   //  Optional: Disable next/prev if needed
   if (this.nextButtonTarget && shouldShowButtons) {
     this.nextButtonTarget.disabled = this.currentStepValue === this.visiblePanels.length - 1;

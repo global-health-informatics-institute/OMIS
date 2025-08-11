@@ -144,12 +144,12 @@ end
     end
 
     # Apply the threshold check only when the requisition is 'Under Procurement'
-    if current_state == 'Under Procu'
+    if current_state == 'Pending Payment Request'
       threshold = GlobalProperty.purchase_request_threshold
       if approved_amount <= threshold
         process_payment_request_and_update(@requisition, new_state, approved_amount, supplier)
       else
-        flash[:alert] = "The approved amount (£#{'%.2f' % approved_amount}) exceeds the purchase request threshold (£#{'%.2f' % threshold}). Cannot proceed with payment."
+        flash[:alert] = "The approved amount (£#{'%.2f' % approved_amount}) exceeds the purchase request threshold (£#{'%.2f' % threshold}).Please Request IPC."
         redirect_to "/requisitions/#{@requisition.id}" and return
       end
     else
@@ -194,19 +194,12 @@ end
     redirect_to "/requisitions/#{params[:id]}"
   end
 
-  def toggle_ipc
-  @requisition = Requisition.find(params[:id])
-  attachment = @requisition.purchase_request_attachment
-
-  if attachment.present?
-    attachment.update(requires_ipc: ActiveModel::Type::Boolean.new.cast(params[:requires_ipc]))
+  def confirm_lpo_acceptance
+     new_state=WorkflowState.where(state:'LPO Accepted',
+                                   workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+     redirect_to "/requisitions/#{params[:id]}"
   end
-
-  respond_to do |format|
-    format.turbo_stream { flash.now[:notice] = "IPC selection updated." }
-    format.html { redirect_to requisition_path(@requisition), notice: "IPC selection updated." }
-  end
-end
 def accept_item
   new_state = WorkflowState.where(state: 'Item Accepted',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
