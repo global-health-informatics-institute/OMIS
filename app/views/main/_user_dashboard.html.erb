@@ -77,23 +77,37 @@
 <div class="row mt-4">
   <div class="col-sm-4">
     <div class="card h-100">
-      <div class="card-header">
-        <h5 class="card-title text-dark">
-          Pending Actions
-          <span class="badge rounded-pill bg-danger">
-            <%= (@pending_actions || []).length %>
-            <span class="visually-hidden">actions to perform</span>
-          </span>
-        </h5>
+      <div class="card-header d-flex justify-content-between align-items-center">
+  <h5 class="card-title text-dark mb-0">
+    Pending Actions
+    <span id="pending-actions-count" class="badge rounded-pill bg-danger">
+     <%= (@pending_actions || []).length %>
+     <span class="visually-hidden">actions to perform</span>
+   </span>
+
+  </h5>
+
+  <select id="pending-action-filter" class="form-select form-select-sm" style="width: 160px;">
+    <option value="">All Categories</option>
+    <% @pending_actions.map { |a| a[:category] }.uniq.sort.each do |category| %>
+    <option value="<%= category %>"><%= category %></option>
+     <% end %>
+    </select>
       </div>
+
       <div class="card-body p-2 overflow-y-scroll" style="height:25vh;">
         <% if (@pending_actions || []).empty? %>
           <span class="fw-normal">No tasks assigned</span>
         <% else%>
-          <ul class="list-group list-group-flush">
+          <ul class="list-group list-group-flush" id="pending-actions-list">
             <% (@pending_actions || []).each do |action| %>
-              <a href="<%= action[1] %>" class="list-group-item list-group-item-action"><%= action[0] %></a>
-            <% end %>
+           <a href="<%= action[:url] %>" 
+           class="list-group-item list-group-item-action" 
+           data-category="<%= action[:category] %>">
+            <%= action[:text] %>
+            </a>
+          <% end %>
+
           </ul>
         <% end %>
       </div>
@@ -243,4 +257,30 @@
           }
       }
   });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+  const filterSelect = document.getElementById("pending-action-filter");
+  const actionList = document.getElementById("pending-actions-list");
+  const badgeCount = document.getElementById("pending-actions-count");
+
+  filterSelect.addEventListener("change", () => {
+    const selectedCategory = filterSelect.value.toLowerCase();
+
+    let visibleCount = 0;
+
+    [...actionList.children].forEach(actionItem => {
+      const category = actionItem.dataset.category.toLowerCase();
+
+      if (selectedCategory === "" || category === selectedCategory) {
+        actionItem.style.display = "";
+        visibleCount++;
+      } else {
+        actionItem.style.display = "none";
+      }
+    });
+
+    badgeCount.textContent = visibleCount;
+  });
+});
 </script>

@@ -171,131 +171,151 @@ class Employee < ApplicationRecord
   end
 
   def pending_actions
-    # this function is for getting things that a person should act on
-    actions = []
+  actions = []
 
-    # Get things that I need to do routinely as an employee
-
-    # Get things that need my approval or review as a supervisor
-    supervisor_transitions = WorkflowStateActor.where(by_supervisor: true)
-    # Get things that need my approval or review based on my role
-
-    # outstanding timesheets
-    actions += Timesheet.select('timesheet_id, employee_id, timesheet_week')
-                        .where('employee_id in (?) and submitted_on is NULL', id)
-                        .collect do |x|
-      ["Submit #{x.timesheet_week.strftime('%d %b, %Y')} timesheet",
-       "/timesheets/#{x.id}"]
-    end
-    # timesheet reviews
-
-    jnrs = current_supervisees.collect { |x| x.supervisee }
-
-    actions += Timesheet.select('timesheet_id, employee_id, submitted_on, timesheet_week')
-                        .where('employee_id in (?) and submitted_on is not NULL and approved_on is NULL', jnrs)
-                        .collect do |x|
-      ["Review #{x.employee.person.first_name}\'s #{x.timesheet_week.strftime('%d %b, %Y')} timesheet",
-       "/timesheets/#{x.id}"]
-    end
-    designation_ids = current_designations.collect(&:designation_id)
-
-    allowed_transitions = WorkflowStateActor.where(
-      employee_designation_id: current_designations.collect { |x| x.designation_id }
-    ).where.not(workflow_state_id: [22, 27, 28, 29]).pluck(:workflow_state_id)
-    # Add exception: allow workflow_state_ids 28 and 29 for designation_id 12
-      [28, 29].each do |workflow_state_id|
-      allowed_transitions << workflow_state_id if designation_ids.include?(12) && !allowed_transitions.include?(workflow_state_id)
-
-      end
-    # requisition finance reviews
-    actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
-                          .collect do |x|
-    description = if x.requisition_type == 'Purchase Request'
-                  x.purchase_request_attachment&.item_requested || x.purpose
-                else
-                  x.purpose
-                end
-
-      if x.workflow_state_id == 29
-        ["Liquidate Funds for #{x.requisition_type} request: #{x.purpose}",
-         "/requisitions/#{x.id}"]
-      else
-        ["Review #{x.user.person.first_name}'s #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type}"} requisition for #{description}", "/requisitions/#{x.id}"]
-
-      end
-    end
-
-    # self requisitions
-    owner_actionable_states = WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id)
-    owner_actionable_states << 24 # Explicitly include the "Approved" state (ID 24)
-    # Exclude both 'Process Completed' and 'Rescinded' workflow states
-excluded_states = WorkflowState.where(state: ['Process Completed', 'Rescinded']).pluck(:workflow_state_id)
-
-actions += Requisition.where(requisition_type: 'Purchase Request')
-                      .where.not(workflow_state_id: excluded_states)
-                      .where(initiated_by: id)
+  # Timesheets to submit
+  actions += Timesheet.select('timesheet_id, employee_id, timesheet_week')
+                      .where('employee_id in (?) and submitted_on is NULL', id)
                       .collect do |x|
-  ["Check Your #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type}"} requisition for #{x.purpose}", "/requisitions/#{x.id}"]
-end
-
-
-    actions += Requisition.where('workflow_state_id in (?) and initiated_by = ?', owner_actionable_states.uniq, id) # Use .uniq to avoid duplicates
-                          .collect do |x|
-    description = if x.requisition_type == 'Purchase Request'
-                  item = x.purchase_request_attachment&.item_requested
-                  item || x.purpose # fallback if no attachment
-                else
-                  x.purpose
-                end
-      if x.workflow_state_id == 28
-        ["Collect Funds for #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type} request"}: #{description}", "/requisitions/#{x.id}"]
-
-      else
-        ["Check your #{x.requisition_type == 'Purchase Request' ? 'Purchase' : "#{x.requisition_type}"} requisition for #{description}", "/requisitions/#{x.id}"]
-
-      end
-    end
-actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)',
-                             WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
-                      .collect do |x|
-  description = if x.requisition_type == 'Purchase Request'
-                  x.purchase_request_attachment&.item_requested || x.purpose
-                else
-                  x.purpose
-                end
-  ["Review #{x.user.person.first_name}'s #{x.requisition_type} for #{description}", "/requisitions/#{x.id}"]
-end
-
-  # Exclude 'Process Completed' and 'Rescinded' states for supervisor view
-  excluded_states = WorkflowState.where(state: ['Process Completed', 'Rescinded']).pluck(:workflow_state_id)
- # Show all active supervisee Purchase Requests (not just ones where supervisor is expected to act)
-actions += Requisition.where(requisition_type: 'Purchase Request')
-                      .where(initiated_by: jnrs)
-                      .where.not(workflow_state_id: excluded_states)
-                      .collect do |x|
-description = if x.requisition_type == 'Purchase Request'
-                  x.purchase_request_attachment&.item_requested || x.purpose
-                else
-                  x.purpose
-                end
-  ["Review #{x.user.person.first_name}'s Purchase request for #{description}", "/requisitions/#{x.id}"]
-end
-
-
-    actions += LeaveRequest.where('status in (?) and employee_id in (?)', WorkflowStateTransition
-                           .where(by_owner: true).collect { |x| x.workflow_state_id }, id)
-                           .collect { |x| ['Review leave request', "/leave_requests/#{x.id}"] }
-
-    actions += LeaveRequest.where('status in (?) and employee_id in (?) and approved_on is NULL', WorkflowStateTransition
-                           .where(by_supervisor: true).collect do |x|
-      x.workflow_state_id
-    end, jnrs)
-                           .collect do |x|
-      ["Review #{x.employee.user.person.first_name}'s' #{x.leave_type} request",
-       "/leave_requests/#{x.id}"]
-    end
-    
-    # raise actions.inspect
-    actions
+    {
+      text: "Submit #{x.timesheet_week.strftime('%d %b, %Y')} timesheet",
+      url: "/timesheets/#{x.id}",
+      category: "Timesheet"
+    }
   end
+
+  # Timesheet reviews by supervisees
+  jnrs = current_supervisees.collect { |x| x.supervisee }
+  actions += Timesheet.select('timesheet_id, employee_id, submitted_on, timesheet_week')
+                      .where('employee_id in (?) and submitted_on is not NULL and approved_on is NULL', jnrs)
+                      .collect do |x|
+    {
+      text: "Review #{x.employee.person.first_name}'s #{x.timesheet_week.strftime('%d %b, %Y')} timesheet",
+      url: "/timesheets/#{x.id}",
+      category: "Timesheet"
+    }
+  end
+
+  # Requisition finance reviews (Purchase Request, Petty Cash, Travel Request etc)
+  designation_ids = current_designations.collect(&:designation_id)
+  allowed_transitions = WorkflowStateActor.where(
+    employee_designation_id: current_designations.collect { |x| x.designation_id }
+  ).where.not(workflow_state_id: [22, 27, 28, 29]).pluck(:workflow_state_id)
+
+  [28, 29].each do |workflow_state_id|
+    allowed_transitions << workflow_state_id if designation_ids.include?(12) && !allowed_transitions.include?(workflow_state_id)
+  end
+
+  actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
+                        .collect do |x|
+    description = if x.requisition_type == 'Purchase Request'
+                    x.purchase_request_attachment&.item_requested || x.purpose
+                  else
+                    x.purpose
+                  end
+
+    label = if x.workflow_state_id == 29
+              "Liquidate Funds for #{x.requisition_type} request: #{x.purpose}"
+            else
+              "Review #{x.user.person.first_name}'s #{x.requisition_type} requisition for #{description}"
+            end
+
+    {
+      text: label,
+      url: "/requisitions/#{x.id}",
+      category: x.requisition_type # This will be "Purchase Request", "Petty Cash", "Travel Request", etc.
+    }
+  end
+
+  # Self requisitions that need checking
+  owner_actionable_states = WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id)
+  owner_actionable_states << 24 # Include "Approved"
+  excluded_states = WorkflowState.where(state: ['Process Completed', 'Rescinded']).pluck(:workflow_state_id)
+
+  actions += Requisition.where(requisition_type: 'Purchase Request')
+                        .where.not(workflow_state_id: excluded_states)
+                        .where(initiated_by: id)
+                        .collect do |x|
+    {
+      text: "Check Your #{x.requisition_type} requisition for #{x.purpose}",
+      url: "/requisitions/#{x.id}",
+      category: x.requisition_type
+    }
+  end
+
+  actions += Requisition.where('workflow_state_id in (?) and initiated_by = ?', owner_actionable_states.uniq, id)
+                        .collect do |x|
+    description = if x.requisition_type == 'Purchase Request'
+                    x.purchase_request_attachment&.item_requested || x.purpose
+                  else
+                    x.purpose
+                  end
+
+    label = if x.workflow_state_id == 28
+              "Collect Funds for #{x.requisition_type} request: #{description}"
+            else
+              "Check your #{x.requisition_type} requisition for #{description}"
+            end
+
+    {
+      text: label,
+      url: "/requisitions/#{x.id}",
+      category: x.requisition_type
+    }
+  end
+
+  # Supervisor's pending requisitions for supervisees
+  actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)',
+                               WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
+                        .collect do |x|
+    description = if x.requisition_type == 'Purchase Request'
+                    x.purchase_request_attachment&.item_requested || x.purpose
+                  else
+                    x.purpose
+                  end
+
+    {
+      text: "Review #{x.user.person.first_name}'s #{x.requisition_type} for #{description}",
+      url: "/requisitions/#{x.id}",
+      category: x.requisition_type
+    }
+  end
+
+  # Show all active supervisee Purchase Requests (not only pending actions)
+  actions += Requisition.where(requisition_type: 'Purchase Request')
+                        .where(initiated_by: jnrs)
+                        .where.not(workflow_state_id: excluded_states)
+                        .collect do |x|
+    description = x.purchase_request_attachment&.item_requested || x.purpose
+
+    {
+      text: "Review #{x.user.person.first_name}'s Purchase request for #{description}",
+      url: "/requisitions/#{x.id}",
+      category: "Purchase Request"
+    }
+  end
+
+  # Leave Requests for owner
+  actions += LeaveRequest.where('status in (?) and employee_id = ?', WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id), id)
+                         .collect do |x|
+    {
+      text: 'Review leave request',
+      url: "/leave_requests/#{x.id}",
+      category: "Leave Request"
+    }
+  end
+
+  # Leave Requests for supervisees
+  actions += LeaveRequest.where('status in (?) and employee_id in (?) and approved_on is NULL', WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
+                         .collect do |x|
+    {
+      text: "Review #{x.employee.user.person.first_name}'s #{x.leave_type} request",
+      url: "/leave_requests/#{x.id}",
+      category: "Leave Request"
+    }
+  end
+
+  actions
+end
+
 end
