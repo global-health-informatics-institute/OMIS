@@ -234,7 +234,9 @@ class Employee < ApplicationRecord
                     else "requested #{days_ago} days ago"
                     end
 
-    time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em;'> -#{time_ago_text}</span>"
+    color_style = days_ago > 14 ? "color: red; font-weight: bold;" : "color: inherit;"
+time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_style}'> -#{time_ago_text}</span>"
+
 
     {
       text: (label + time_ago_html).html_safe,
@@ -261,7 +263,9 @@ class Employee < ApplicationRecord
                     else "requested #{days_ago} days ago"
                     end
 
-    time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em;'> -#{time_ago_text}</span>"
+    color_style = days_ago > 14 ? "color: red; font-weight: bold;" : "color: inherit;"
+time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_style}'> -#{time_ago_text}</span>"
+
 
     {
       text: ("Review #{x.user.person.first_name}'s #{x.requisition_type} for #{description}" + time_ago_html).html_safe,
@@ -287,13 +291,15 @@ class Employee < ApplicationRecord
                     else "requested #{days_ago} days ago"
                     end
 
-    time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em;'> -#{time_ago_text}</span>"
+    color_style = days_ago > 14 ? "color: red; font-weight: bold;" : "color: inherit;"
+time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_style}'> -#{time_ago_text}</span>"
 
     {
       text: ("Review #{x.user.person.first_name}'s Purchase request for #{description}" + time_ago_html).html_safe,
       url: "/requisitions/#{x.id}",
       category: "Purchase Request",
-      initiated_date: initiated_date.to_date
+      initiated_date: initiated_date.to_date,
+      overdue: days_ago > 14
     }
   end.sort_by { |a| a[:initiated_date] }
 
@@ -328,7 +334,9 @@ class Employee < ApplicationRecord
                     else "requested #{days_ago} days ago"
                     end
 
-    time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em;'> -#{time_ago_text}</span>"
+    color_style = days_ago > 14 ? "color: red; font-weight: bold;" : "color: inherit;"
+time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_style}'> -#{time_ago_text}</span>"
+
 
     label = if x.workflow_state_id == 28
               "Collect Funds for #{x.requisition_type} request: #{description}"
@@ -340,7 +348,8 @@ class Employee < ApplicationRecord
       text: (label + time_ago_html).html_safe,
       url: "/requisitions/#{x.id}",
       category: x.requisition_type,
-      initiated_date: initiated_date.to_date
+      initiated_date: initiated_date.to_date,
+      overdue: days_ago > 14
     }
   end.sort_by { |a| a[:initiated_date] }
 
