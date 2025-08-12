@@ -172,6 +172,12 @@ class Employee < ApplicationRecord
 
   def pending_actions
   actions = []
+  
+  # Define common variables at the top
+  owner_actionable_states = WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id)
+  owner_actionable_states << 24 # Include "Approved"
+  excluded_states = WorkflowState.where(state: ['Process Completed', 'Rescinded']).pluck(:workflow_state_id)
+  jnrs = current_supervisees.collect { |x| x.supervisee }
 
   # Timesheets to submit
   actions += Timesheet.select('timesheet_id, employee_id, timesheet_week')
@@ -185,7 +191,6 @@ class Employee < ApplicationRecord
   end
 
   # Timesheet reviews by supervisees
-  jnrs = current_supervisees.collect { |x| x.supervisee }
   actions += Timesheet.select('timesheet_id, employee_id, submitted_on, timesheet_week')
                       .where('employee_id in (?) and submitted_on is not NULL and approved_on is NULL', jnrs)
                       .collect do |x|
@@ -196,156 +201,106 @@ class Employee < ApplicationRecord
     }
   end
 
- # Requisition finance reviews (Purchase Request, Petty Cash, Travel Request etc)
-designation_ids = current_designations.collect(&:designation_id)
-allowed_transitions = WorkflowStateActor.where(
-  employee_designation_id: current_designations.collect { |x| x.designation_id }
-).where.not(workflow_state_id: [22, 27, 28, 29]).pluck(:workflow_state_id)
+  # Requisition finance reviews
+  designation_ids = current_designations.collect(&:designation_id)
+  allowed_transitions = WorkflowStateActor.where(
+    employee_designation_id: current_designations.collect { |x| x.designation_id }
+  ).where.not(workflow_state_id: [22, 27, 28, 29]).pluck(:workflow_state_id)
 
-[28, 29].each do |workflow_state_id|
-  allowed_transitions << workflow_state_id if designation_ids.include?(12) && !allowed_transitions.include?(workflow_state_id)
-end
-
-actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
-                      .map do |x|
-  description = if x.requisition_type == 'Purchase Request'
-                  x.purchase_request_attachment&.item_requested || x.purpose
-                else
-                  x.purpose
-                end
-
-  label = if x.workflow_state_id == 29
-            "Liquidate Funds for #{x.requisition_type} request: #{x.purpose}"
-          else
-            "Review #{x.user.person.first_name}'s #{x.requisition_type} requisition for #{description}"
-          end
-
-  initiated_date = x.initiated_on.presence || x.created_at.to_date
-  days_ago = (Date.today - initiated_date.to_date).to_i
-
-  time_ago_text = case days_ago
-                  when 0
-                    "requested today"
-                  when 1
-                    "requested 1 day ago"
-                  else
-                    "requested #{days_ago} days ago"
-                  end
-
-  time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em;'> -#{time_ago_text}</span>"
-
-  {
-    text: (label + time_ago_html).html_safe,
-    url: "/requisitions/#{x.id}",
-    category: x.requisition_type, # e.g. "Purchase Request", "Petty Cash", "Travel Request"
-    initiated_date: initiated_date.to_date
-  }
-end.sort_by { |a| a[:initiated_date] }
-
-
-  # Self requisitions that need checking
-  owner_actionable_states = WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id)
-  owner_actionable_states << 24 # Include "Approved"
-  excluded_states = WorkflowState.where(state: ['Process Completed', 'Rescinded']).pluck(:workflow_state_id)
-
-  actions += Requisition.where(requisition_type: 'Purchase Request')
-                        .where.not(workflow_state_id: excluded_states)
-                        .where(initiated_by: id)
-                        .collect do |x|
-    {
-      text: "Check Your #{x.requisition_type} requisition for #{x.purpose}",
-      url: "/requisitions/#{x.id}",
-      category: x.requisition_type
-    }
+  [28, 29].each do |workflow_state_id|
+    allowed_transitions << workflow_state_id if designation_ids.include?(12) && !allowed_transitions.include?(workflow_state_id)
   end
 
-  actions += Requisition.where('workflow_state_id in (?) and initiated_by = ?', owner_actionable_states.uniq, id)
-                        .collect do |x|
+  actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
+                        .map do |x|
     description = if x.requisition_type == 'Purchase Request'
                     x.purchase_request_attachment&.item_requested || x.purpose
                   else
                     x.purpose
                   end
 
-    label = if x.workflow_state_id == 28
-              "Collect Funds for #{x.requisition_type} request: #{description}"
+    label = if x.workflow_state_id == 29
+              "Liquidate Funds for #{x.requisition_type} request: #{x.purpose}"
             else
-              "Check your #{x.requisition_type} requisition for #{description}"
+              "Review #{x.user.person.first_name}'s #{x.requisition_type} requisition for #{description}"
             end
 
+    initiated_date = x.initiated_on.presence || x.created_at.to_date
+    days_ago = (Date.today - initiated_date.to_date).to_i
+
+    time_ago_text = case days_ago
+                    when 0 then "requested today"
+                    when 1 then "requested 1 day ago"
+                    else "requested #{days_ago} days ago"
+                    end
+
+    time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em;'> -#{time_ago_text}</span>"
+
     {
-      text: label,
+      text: (label + time_ago_html).html_safe,
       url: "/requisitions/#{x.id}",
-      category: x.requisition_type
+      category: x.requisition_type,
+      initiated_date: initiated_date.to_date
+    }
+  end.sort_by { |a| a[:initiated_date] }
+
+  # Supervisor's pending requisitions for supervisees (EXCLUDING Purchase Requests)
+  actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?) and requisition_type != ?',
+                              WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id),
+                              jnrs,
+                              'Purchase Request')
+                       .map do |x|
+    description = x.purpose # Simplified since we know it's not a Purchase Request
+
+    initiated_date = x.initiated_on.presence || x.created_at.to_date
+    days_ago = (Date.today - initiated_date.to_date).to_i
+
+    time_ago_text = case days_ago
+                    when 0 then "requested today"
+                    when 1 then "requested 1 day ago"
+                    else "requested #{days_ago} days ago"
+                    end
+
+    time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em;'> -#{time_ago_text}</span>"
+
+    {
+      text: ("Review #{x.user.person.first_name}'s #{x.requisition_type} for #{description}" + time_ago_html).html_safe,
+      url: "/requisitions/#{x.id}",
+      category: x.requisition_type,
+      initiated_date: initiated_date.to_date
     }
   end
 
-# Supervisor's pending requisitions for supervisees (EXCLUDING Purchase Requests)
-actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?) and requisition_type != ?',
-                            WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id),
-                            jnrs,
-                            'Purchase Request')
-                     .map do |x|
-  description = if x.requisition_type == 'Purchase Request'
-                  x.purchase_request_attachment&.item_requested || x.purpose
-                else
-                  x.purpose
-                end
-
-  initiated_date = x.initiated_on.presence || x.created_at.to_date
-  days_ago = (Date.today - initiated_date.to_date).to_i
-
-  time_ago_text = case days_ago
-                  when 0
-                    "requested today"
-                  when 1
-                    "requested 1 day ago"
-                  else
-                    "requested #{days_ago} days ago"
-                  end
-
-  time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em;'> -#{time_ago_text}</span>"
-
-  {
-    text: ("Review #{x.user.person.first_name}'s #{x.requisition_type} for #{description}" + time_ago_html).html_safe,
-    url: "/requisitions/#{x.id}",
-    category: x.requisition_type,
-    initiated_date: initiated_date.to_date
-  }
-end
-
-
   # Show all active supervisee Purchase Requests (not only pending actions)
- actions += Requisition.where(requisition_type: 'Purchase Request')
-                      .where(initiated_by: jnrs)
-                      .where.not(workflow_state_id: excluded_states)
-                      .map do |x|
-  description = x.purchase_request_attachment&.item_requested || x.purpose
+  actions += Requisition.where(requisition_type: 'Purchase Request')
+                        .where(initiated_by: jnrs)
+                        .where.not(workflow_state_id: excluded_states)
+                        .map do |x|
+    description = x.purchase_request_attachment&.item_requested || x.purpose
 
-  initiated_date = x.initiated_on.presence || x.created_at.to_date
-  days_ago = (Date.today - initiated_date.to_date).to_i
+    initiated_date = x.initiated_on.presence || x.created_at.to_date
+    days_ago = (Date.today - initiated_date.to_date).to_i
 
-  time_ago_text = case days_ago
-                  when 0
-                    "requested today"
-                  when 1
-                    "requested 1 day ago"
-                  else
-                    "requested #{days_ago} days ago"
-                  end
+    time_ago_text = case days_ago
+                    when 0 then "requested today"
+                    when 1 then "requested 1 day ago"
+                    else "requested #{days_ago} days ago"
+                    end
 
-  time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em;'> -#{time_ago_text}</span>"
+    time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em;'> -#{time_ago_text}</span>"
 
-  {
-    text: ("Review #{x.user.person.first_name}'s Purchase request for #{description}" + time_ago_html).html_safe,
-    url: "/requisitions/#{x.id}",
-    category: "Purchase Request",
-    initiated_date: initiated_date.to_date
-  }
-end.sort_by { |a| a[:initiated_date] }
+    {
+      text: ("Review #{x.user.person.first_name}'s Purchase request for #{description}" + time_ago_html).html_safe,
+      url: "/requisitions/#{x.id}",
+      category: "Purchase Request",
+      initiated_date: initiated_date.to_date
+    }
+  end.sort_by { |a| a[:initiated_date] }
 
   # Leave Requests for owner
-  actions += LeaveRequest.where('status in (?) and employee_id = ?', WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id), id)
+  actions += LeaveRequest.where('status in (?) and employee_id = ?', 
+                               WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id), 
+                               id)
                          .collect do |x|
     {
       text: 'Review leave request',
@@ -354,8 +309,45 @@ end.sort_by { |a| a[:initiated_date] }
     }
   end
 
+  # Self check requisitions (combined all types including Purchase Requests)
+  actions += Requisition.where.not(workflow_state_id: excluded_states)
+                        .where(initiated_by: id)
+                        .map do |x|
+    description = if x.requisition_type == 'Purchase Request'
+                    x.purchase_request_attachment&.item_requested || x.purpose
+                  else
+                    x.purpose
+                  end
+
+    initiated_date = x.initiated_on.presence || x.created_at.to_date
+    days_ago = (Date.today - initiated_date.to_date).to_i
+
+    time_ago_text = case days_ago
+                    when 0 then "requested today"
+                    when 1 then "requested 1 day ago"
+                    else "requested #{days_ago} days ago"
+                    end
+
+    time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em;'> -#{time_ago_text}</span>"
+
+    label = if x.workflow_state_id == 28
+              "Collect Funds for #{x.requisition_type} request: #{description}"
+            else
+              "Check your #{x.requisition_type} for #{description}"
+            end
+
+    {
+      text: (label + time_ago_html).html_safe,
+      url: "/requisitions/#{x.id}",
+      category: x.requisition_type,
+      initiated_date: initiated_date.to_date
+    }
+  end.sort_by { |a| a[:initiated_date] }
+
   # Leave Requests for supervisees
-  actions += LeaveRequest.where('status in (?) and employee_id in (?) and approved_on is NULL', WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
+  actions += LeaveRequest.where('status in (?) and employee_id in (?) and approved_on is NULL', 
+                               WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id), 
+                               jnrs)
                          .collect do |x|
     {
       text: "Review #{x.employee.user.person.first_name}'s #{x.leave_type} request",
@@ -365,6 +357,6 @@ end.sort_by { |a| a[:initiated_date] }
   end
 
   actions
-end
+ end
 
 end
