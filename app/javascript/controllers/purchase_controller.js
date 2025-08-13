@@ -228,35 +228,38 @@ goToStep1() {
   }
 
   checkAmountThreshold(event) {
-    console.log("Amount threshold check triggered")
-    
-    if (this.debounceTimer) {
-      console.log("Clearing existing debounce timer")
-      clearTimeout(this.debounceTimer)
-    }
-
-    const target = event.target
-    const cursorPosition = target.selectionStart
-    const newAmount = parseFloat(target.value) || 0
-
-    console.log(`New amount value: ${newAmount}, previous value: ${this.currentAmount}`)
-
-    this.currentAmount = newAmount
-
-    this.debounceTimer = setTimeout(() => {
-      console.log("Processing amount after debounce")
-      this.processAmountChange(target.value)
-      
-      // Restore focus and cursor position
-      if (document.activeElement === target) {
-        console.log("Restoring focus to amount field")
-        target.focus()
-        target.setSelectionRange(cursorPosition, cursorPosition)
-      }
-    }, 300)
-
-    console.log(`Debounce timer set for 300ms (timer ID: ${this.debounceTimer})`)
+  console.log("Amount threshold check triggered")
+  
+  if (this.debounceTimer) {
+    console.log("Clearing existing debounce timer")
+    clearTimeout(this.debounceTimer)
   }
+
+  const target = event.target
+  const cursorPosition = target.selectionStart
+  
+  // Remove commas before parsing
+  const numericValue = target.value.replace(/[^\d]/g, '')
+  const newAmount = parseFloat(numericValue) || 0
+
+  console.log(`New amount value: ${newAmount}, previous value: ${this.currentAmount}`)
+
+  this.currentAmount = newAmount
+
+  this.debounceTimer = setTimeout(() => {
+    console.log("Processing amount after debounce")
+    this.processAmountChange(newAmount)
+    
+    // Restore focus and cursor position
+    if (document.activeElement === target) {
+      console.log("Restoring focus to amount field")
+      target.focus()
+      target.setSelectionRange(cursorPosition, cursorPosition)
+    }
+  }, 300)
+
+  console.log(`Debounce timer set for 300ms (timer ID: ${this.debounceTimer})`)
+}
   showIpcConfirmationModal() {
   console.log("Showing IPC confirmation modal.");
   if (this.ipcModalInstance) {
@@ -533,5 +536,56 @@ updateStepVisibility() {
     this.previousButtonTarget.disabled = this.currentStepValue === 0;
   }
 }
+// format the amount
 
+formatNumber(event) {
+  const input = event.target;
+  // Get cursor position before any changes
+  const cursorPosition = input.selectionStart;
+  
+  // Remove all non-digit characters
+  let value = input.value.replace(/[^\d]/g, '');
+  
+  // Convert to number
+  const numberValue = parseInt(value, 10);
+  
+  if (!isNaN(numberValue)) {
+    // Format with commas
+    const formattedValue = numberValue.toLocaleString();
+    
+    // Update the input value
+    input.value = formattedValue;
+    
+    // Calculate new cursor position
+    const commaCountBefore = input.value.substring(0, cursorPosition).match(/,/g)?.length || 0;
+    const newCursorPosition = cursorPosition + (input.value.substring(0, cursorPosition).match(/,/g)?.length || 0) - commaCountBefore;
+    
+    // Restore cursor position
+    input.setSelectionRange(newCursorPosition, newCursorPosition);
+  } else {
+    input.value = '';
+  }
+  
+  // Trigger the amount threshold check
+  this.checkAmountThreshold(event);
+  }
+  prepareFormSubmission(event) {
+  // Prevent immediate submission so we can clean the amount first
+  event.preventDefault();
+  
+  // Only process if we have an amount field
+  if (this.hasAmountFieldTarget) {
+    // Remove all non-digit characters (including commas)
+    const numericValue = this.amountFieldTarget.value.replace(/[^\d]/g, '');
+    
+    // Update the field value (now without commas)
+    this.amountFieldTarget.value = numericValue;
+  }
+  
+  // Programmatically submit the form after cleaning the value
+  this.element.submit();
+  
+  // Re-enable the button if the submission fails
+  event.target.disabled = false;
+}
 }

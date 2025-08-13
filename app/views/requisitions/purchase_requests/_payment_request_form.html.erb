@@ -108,12 +108,12 @@
                       data: {
                         purchase_target: "amountField",
                         limit: @purchase_request_threshold,
-                        action: "input->purchase#checkAmountThreshold",
+                        action: "input->purchase#formatNumber input->purchase#checkAmountThreshold",
                         threshold: @purchase_request_threshold
                       },
                     } %>
 
-                    <%= form.number_field :amount, options %>
+                    <%= form.text_field :amount, options %>
                     <% if flash[:amount_error] %>
                       <div class="invalid-feedback d-block">
                         <%= flash[:amount_error] %>
@@ -150,7 +150,7 @@
         <button type="button" data-purchase-target="requestIpcButton"  data-action="purchase#showIpcConfirmationModal" class="btn btn-warning d-none"> Request IPC </button>
 
        <% if (@possible_actions || []).include?("Request Payment") %>
-         <%= form.submit "Request Payment", class: "btn btn-info", data: { disable_with: "Processing..." } %>
+         <%= form.submit "Request Payment", class: "btn btn-info", data: { disable_with: "Processing...", action: "click->purchase#prepareFormSubmission" } %>
        <% end %>
       </div>
 
