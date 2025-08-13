@@ -169,8 +169,7 @@ class Employee < ApplicationRecord
 
     results
   end
-
-  def pending_actions
+def pending_actions
   actions = []
   
   # Define common variables at the top
@@ -225,24 +224,24 @@ class Employee < ApplicationRecord
               "Review #{x.user.person.first_name}'s #{x.requisition_type} requisition for #{description}"
             end
 
-    initiated_date = x.initiated_on.presence || x.created_at.to_date
-    days_ago = (Date.today - initiated_date.to_date).to_i
-
-    time_ago_text = case days_ago
-                    when 0 then "requested today"
-                    when 1 then "requested 1 day ago"
-                    else "requested #{days_ago} days ago"
-                    end
-
-    color_style = days_ago > 14 ? "color: red; font-weight: bold;" : "color: inherit;"
-time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_style}'> -#{time_ago_text}</span>"
-
+    if x.requisition_type == 'Purchase Request'
+      initiated_date = x.initiated_on.presence || x.created_at.to_date
+      days_ago = (Date.today - initiated_date.to_date).to_i
+      time_ago_text = case days_ago
+                      when 0 then "requested today"
+                      when 1 then "requested 1 day ago"
+                      else "requested #{days_ago} days ago"
+                      end
+      color_style = days_ago > 14 ? "color: red; font-weight: bold;" : "color: inherit;"
+      time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_style}'> -#{time_ago_text}</span>"
+      label += time_ago_html
+    end
 
     {
-      text: (label + time_ago_html).html_safe,
+      text: label.html_safe,
       url: "/requisitions/#{x.id}",
       category: x.requisition_type,
-      initiated_date: initiated_date.to_date
+      initiated_date: (x.initiated_on.presence || x.created_at.to_date).to_date
     }
   end.sort_by { |a| a[:initiated_date] }
 
@@ -252,26 +251,11 @@ time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_st
                               jnrs,
                               'Purchase Request')
                        .map do |x|
-    description = x.purpose # Simplified since we know it's not a Purchase Request
-
-    initiated_date = x.initiated_on.presence || x.created_at.to_date
-    days_ago = (Date.today - initiated_date.to_date).to_i
-
-    time_ago_text = case days_ago
-                    when 0 then "requested today"
-                    when 1 then "requested 1 day ago"
-                    else "requested #{days_ago} days ago"
-                    end
-
-    color_style = days_ago > 14 ? "color: red; font-weight: bold;" : "color: inherit;"
-time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_style}'> -#{time_ago_text}</span>"
-
-
     {
-      text: ("Review #{x.user.person.first_name}'s #{x.requisition_type} for #{description}" + time_ago_html).html_safe,
+      text: "Review #{x.user.person.first_name}'s #{x.requisition_type} for #{x.purpose}",
       url: "/requisitions/#{x.id}",
       category: x.requisition_type,
-      initiated_date: initiated_date.to_date
+      initiated_date: (x.initiated_on.presence || x.created_at.to_date).to_date
     }
   end
 
@@ -292,7 +276,7 @@ time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_st
                     end
 
     color_style = days_ago > 14 ? "color: red; font-weight: bold;" : "color: inherit;"
-time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_style}'> -#{time_ago_text}</span>"
+    time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_style}'> -#{time_ago_text}</span>"
 
     {
       text: ("Review #{x.user.person.first_name}'s Purchase request for #{description}" + time_ago_html).html_safe,
@@ -315,7 +299,7 @@ time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_st
     }
   end
 
-  # Self check requisitions (combined all types including Purchase Requests)
+  # Self check requisitions
   actions += Requisition.where.not(workflow_state_id: excluded_states)
                         .where(initiated_by: id)
                         .map do |x|
@@ -325,31 +309,32 @@ time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_st
                     x.purpose
                   end
 
-    initiated_date = x.initiated_on.presence || x.created_at.to_date
-    days_ago = (Date.today - initiated_date.to_date).to_i
-
-    time_ago_text = case days_ago
-                    when 0 then "requested today"
-                    when 1 then "requested 1 day ago"
-                    else "requested #{days_ago} days ago"
-                    end
-
-    color_style = days_ago > 14 ? "color: red; font-weight: bold;" : "color: inherit;"
-time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_style}'> -#{time_ago_text}</span>"
-
-
     label = if x.workflow_state_id == 28
               "Collect Funds for #{x.requisition_type} request: #{description}"
             else
               "Check your #{x.requisition_type} for #{description}"
             end
 
+    initiated_date = x.initiated_on.presence || x.created_at.to_date
+    days_ago = (Date.today - initiated_date.to_date).to_i if x.requisition_type == 'Purchase Request'
+
+    if x.requisition_type == 'Purchase Request'
+      time_ago_text = case days_ago
+                      when 0 then "requested today"
+                      when 1 then "requested 1 day ago"
+                      else "requested #{days_ago} days ago"
+                      end
+      color_style = days_ago > 14 ? "color: red; font-weight: bold;" : "color: inherit;"
+      time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_style}'> -#{time_ago_text}</span>"
+      label += time_ago_html
+    end
+
     {
-      text: (label + time_ago_html).html_safe,
+      text: label.html_safe,
       url: "/requisitions/#{x.id}",
       category: x.requisition_type,
       initiated_date: initiated_date.to_date,
-      overdue: days_ago > 14
+      overdue: x.requisition_type == 'Purchase Request' ? days_ago > 14 : false
     }
   end.sort_by { |a| a[:initiated_date] }
 
@@ -367,5 +352,4 @@ time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_st
 
   actions
  end
-
 end
