@@ -18,6 +18,7 @@ gem 'turbo-rails'
 gem 'turbolinks'
 
 gem 'holidays'
+gem 'dotenv-rails', groups: [:development, :test]
 
 gem 'flatpickr_rails'
 
