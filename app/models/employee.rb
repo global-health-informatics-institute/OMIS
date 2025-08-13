@@ -173,6 +173,7 @@ def pending_actions
   actions = []
   
   # Define common variables at the top
+  overdue_threshold = Rails.configuration.x.requisition.overdue_days_threshold
   owner_actionable_states = WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id)
   owner_actionable_states << 24 # Include "Approved"
   excluded_states = WorkflowState.where(state: ['Process Completed', 'Rescinded']).pluck(:workflow_state_id)
@@ -232,7 +233,7 @@ def pending_actions
                       when 1 then "requested 1 day ago"
                       else "requested #{days_ago} days ago"
                       end
-      color_style = days_ago > 14 ? "color: red; font-weight: bold;" : "color: inherit;"
+      color_style = days_ago > overdue_threshold ? "color: red; font-weight: bold;" : "color: inherit;"
       time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_style}'> -#{time_ago_text}</span>"
       label += time_ago_html
     end
@@ -275,7 +276,7 @@ def pending_actions
                     else "requested #{days_ago} days ago"
                     end
 
-    color_style = days_ago > 14 ? "color: red; font-weight: bold;" : "color: inherit;"
+    color_style = days_ago > overdue_threshold ? "color: red; font-weight: bold;" : "color: inherit;"
     time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_style}'> -#{time_ago_text}</span>"
 
     {
@@ -283,7 +284,6 @@ def pending_actions
       url: "/requisitions/#{x.id}",
       category: "Purchase Request",
       initiated_date: initiated_date.to_date,
-      overdue: days_ago > 14
     }
   end.sort_by { |a| a[:initiated_date] }
 
@@ -324,7 +324,7 @@ def pending_actions
                       when 1 then "requested 1 day ago"
                       else "requested #{days_ago} days ago"
                       end
-      color_style = days_ago > 14 ? "color: red; font-weight: bold;" : "color: inherit;"
+      color_style = days_ago > overdue_threshold ? "color: red; font-weight: bold;" : "color: inherit;"
       time_ago_html = "<span class='time-ago-text' style='font-size: 0.8em; #{color_style}'> -#{time_ago_text}</span>"
       label += time_ago_html
     end
@@ -334,7 +334,7 @@ def pending_actions
       url: "/requisitions/#{x.id}",
       category: x.requisition_type,
       initiated_date: initiated_date.to_date,
-      overdue: x.requisition_type == 'Purchase Request' ? days_ago > 14 : false
+      overdue: x.requisition_type == 'Purchase Request' ? days_ago > overdue_threshold : false
     }
   end.sort_by { |a| a[:initiated_date] }
 
