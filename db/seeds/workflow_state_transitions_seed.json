@@ -509,5 +509,12 @@
   "action": "Request Payment",
   "by_owner": false,
   "by_supervisor": false
+  },
+  {"workflow_state_id":41,
+   "next_state":52,
+   "voided": false,
+   "action": "Confirm LPO Acceptance",
+   "by_owner": false,
+   "by_supervisor": false
   }
 ]

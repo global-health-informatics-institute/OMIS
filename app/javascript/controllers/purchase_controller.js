@@ -416,7 +416,11 @@ reorderSteps() {
 
   if (["Pending Payment Request", "LPO Accepted"].includes(this.currentStateValue)) {
     orderToUse = ['nav-step3'];
-  } else if (this.currentStateValue === "Payment Requested") {
+
+  }else if (this.currentStateValue === "Payment Requested" && this.designationIdValue === 5) {
+  orderToUse = ['nav-step1'];
+  }
+	else if (this.currentStateValue === "Payment Requested") {
     orderToUse = ['nav-step5'];
   } else if (this.currentStateValue === "Funds Approved") {
     orderToUse = ['nav-step5', 'nav-step4'];
