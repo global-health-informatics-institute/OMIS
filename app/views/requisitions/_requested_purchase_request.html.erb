@@ -75,7 +75,7 @@
                           value: number_with_precision(unit_price, precision: 2) %>
               <% else %>
                 <div class="fw-bold fst-italic">
-                  <%= number_with_precision(unit_price, precision: 2) %>
+                  <%= number_with_precision(unit_price, precision: 2, delimiter:',') %>
                 </div>
               <% end %>
             </div>
@@ -111,7 +111,7 @@
               } %>
 
                 <div class="fw-bold fst-italic">
-                  <%= number_with_precision(@requisition.requisition_items.first&.value || 0, precision: 2) %>
+                  <%= number_with_precision(@requisition.requisition_items.first&.value || 0, precision: 2, delimiter: ',') %>
                 </div>
               <% end %>
             </div>

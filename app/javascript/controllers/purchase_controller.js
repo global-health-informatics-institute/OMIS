@@ -301,7 +301,8 @@ processAmountChange(amountValue) {
 
     const errorMessage = document.createElement("div")
     errorMessage.className = "invalid-feedback d-block dynamic"
-    errorMessage.innerText = `Amount exceeds the threshold (MWK${threshold.toFixed(2)}). Please Request IPC to proceed with the procurement.`
+    errorMessage.innerText = `Amount exceeds the threshold (MWK${threshold.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}). Please Request IPC to proceed with the procurement.`
 
     parent.appendChild(errorMessage)
   } else {
