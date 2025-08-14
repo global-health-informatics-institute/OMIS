@@ -64,19 +64,19 @@
                         max: @petty_cash_limit,
                         required: true,
                         data: { limit: @petty_cash_limit },
-                        placeholder: "Max allowed: MWK#{number_with_precision(@petty_cash_limit, precision: 2)}" %>
+                        placeholder: "Max allowed: MWK#{number_with_precision(@petty_cash_limit, precision: 2, delimiter:',')}" %>
                   <% if flash[:amount_error] %>
                     <div class="invalid-feedback d-block">
                       <%= flash[:amount_error] %>
                     </div>
                   <% else %>
                     <small class="form-text text-muted">
-                      Maximum: MWK<%= number_with_precision(@petty_cash_limit, precision: 2) %>
+                      Maximum: MWK<%= number_with_precision(@petty_cash_limit, precision: 2, delimiter:',') %>
                     </small>
                   <% end %>
                 <% else %>
                   <%= form.hidden_field :amount, value: @requisition.amount %>
-                  <div class="fw-bold fst-italic"><%= number_with_precision(@requisition.amount.to_i, precision: 2) %></div>
+                  <div class="fw-bold fst-italic"><%= number_with_precision(@requisition.amount.to_i, precision: 2, delimiter:',') %></div>
                 <% end %>
               </div>
 
@@ -89,7 +89,7 @@
                      min: 0,
                      required: true,
                      class: "form-control #{'is-invalid' if flash[:amount_error]}",
-                      placeholder: "Max: MWK#{number_with_precision(@requisition.amount, precision: 2)}" %>
+                      placeholder: "Max: MWK#{number_with_precision(@requisition.amount, precision: 2, delimiter:',')}" %>
 
                   <% if flash[:amount_error] %>
                     <div class="invalid-feedback d-block">
@@ -98,7 +98,7 @@
                   <% end %>
                 <% else %>
                   <%= form.hidden_field :used_amount, value: @requisition.used_amount %>
-                  <div class="fw-bold fst-italic"><%= number_with_precision(@requisition.used_amount.to_i, precision: 2) %></div>
+                  <div class="fw-bold fst-italic"><%= number_with_precision(@requisition.used_amount.to_i, precision: 2, delimiter:',') %></div>
                 <% end %>
               </div>
             </div>
