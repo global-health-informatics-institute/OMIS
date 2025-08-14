@@ -46,33 +46,73 @@
       </div>
     </div>
   </div>
+
+
+  <%# RECOGNITION PANE %>
+
   <div class="col-sm-4">
-    <div class="card h-100" style="max-height: 280px; overflow-y: auto;">
-      <div class="card-body p-2">
-        <h6 class="card-title" style= "font-size: 18px">Upcoming Deadlines & Activities</h6>
-          <table class="table m-0">
-            <thead style= "font-size: 14px">
+    <div class="card h-100 border-0 shadow-sm">
+      
+      <!-- Header -->
+      <div class="card-header bg-light">
+        <span class="fs-7 fw-semibold">Recognition Rewards</span>
+      </div>
+
+      <!-- Card Body -->
+      <div class="card-body" style="max-height: 280px; overflow-y: auto;">
+
+          <table class="table table-borderless text-center mx-auto" style="width:auto;">
+            <tbody style="line-height: 1; font-size: 0.9rem;">
               <tr>
-                <th style="width:20%">Date</th>
-                <th>Task</th>
+                <td class="px-5" style="padding: 0.25rem;">Contests</td>
+                <td class="px-5" style="padding: 0.25rem;">Votings</td>
               </tr>
-            </thead>
-            <tbody class="fs-6">
-            <% (@upcoming_deadlines.keys.sort || []).each do |key| %>
-              <tr>
-                <td rowspan="<%= @upcoming_deadlines[key].length %>">
-                  <%= Time.at(key).strftime('%d %b,%Y')%>
+              <tr class="text-center bg-light">
+                <td class="px-5" style="padding: 0.25rem;">
+                  <span class="fs-4 fw-bold">
+                    <%= @recognition_reward_data[:contest_count] %>
+                  </span>
                 </td>
-                <% (@upcoming_deadlines[key] || []).each do |activity| %>
-                  <td><%= activity %></td></tr><tr>
-                <% end %>
+                <td class="px-5" style="padding: 0.25rem;">
+                  <span class="fs-4 fw-bold"><%= @recognition_reward_data[:election_count] %></span>
+                </td>
               </tr>
-            <% end %>
             </tbody>
-        </table>
+          </table>
+
+
+  
+        <% @recognition_reward_data[:active_contest_data].group_by { |c| c[:competition_id] }.each do |competition_id, entries| %>
+          <h5 class="custom-badge d-flex justify-content-between align-items-center mb-3">
+            <span><%= entries.first[:competition_name] %></span>
+            <span>
+              <a href="<%= @recognition_reward_data[:RECOGNITION_URL] %>" target="_blank" class="text-decoration-none bg-light"> 
+                <button class="btn btn-light">Participate</button>
+              </a>
+            </span>
+          </h5>
+
+          <div class="card border mb-1 bg-light">
+            <div class="card-body p-0">
+              <div class="row g-0 text-center align-items-center">
+                <% entries.each do |entry| %>
+                  <div class="col border-end p-1">
+                    <h1 class="display-6 fw-bold">
+                      <%= entry[:vote_count] %>
+                      <span class="text-muted fs-6">pts</span>
+                    </h1>
+                    <p class="text-muted mb-0"><%= entry[:receiver_name] %></p>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>     
       </div>
     </div>
   </div>
+
+<%# END OF PANE %>
 </div>
 <div class="row mt-4">
   <div class="col-sm-4">
@@ -244,3 +284,15 @@
       }
   });
 </script>
+
+<style>
+  .custom-badge {
+  background-color: rgb(118, 159, 202);
+  color: black;
+  font-weight: semi-bold;
+  padding: 6px 10px;
+  border-radius: 4px;
+  display: inline-block;
+  text-align: center;
+  }
+</style>

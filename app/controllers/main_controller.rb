@@ -80,6 +80,7 @@ class MainController < ApplicationController
 
       @my_requisitions = Requisition.select("requisition_id, purpose, requisition_type, reviewed_by, approved_by").where("initiated_by = ?", current_user.employee_id)
 
+      @recognition_reward_data = RecognitionRewardService.call
     else
       @page_title = "Application Dashboard"
       people = Employee.select(:employee_id, :person_id).where(still_employed: true)
