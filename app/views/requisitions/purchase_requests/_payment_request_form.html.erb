@@ -84,7 +84,7 @@
 
               <div class="row mb-3">
                 <div class="col-4">
-                  <%= form.label :unit_price, "Unit Price", class: "form-label" %>
+                  <%= form.label :unit_price, "Unit Price (MWK)", class: "form-label" %>
                   <% unit_price = @requisition.quantity.to_f > 0 ? (@requisition.requisition_items.first&.value.to_f / @requisition.quantity.to_f) : 0 %>
                   <%= form.number_field :unit_price,
                             step: "0.01",
@@ -95,7 +95,7 @@
                 </div>
 
                 <div class="col-4">
-                  <%= form.label :amount, "Total Amount", class: "form-label" %>
+                  <%= form.label :amount, "Total Amount (MWK)", class: "form-label" %>
                   <% if ["Pending Payment Request", "LPO Accepted"].include?(@requisition.current_state) %>
                     <% amount_value = @requisition.requisition_items.first&.value.to_f %>
                     <% options = {
