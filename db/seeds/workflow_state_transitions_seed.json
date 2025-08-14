@@ -516,5 +516,12 @@
    "action": "Confirm LPO Acceptance",
    "by_owner": false,
    "by_supervisor": false
+  },
+  {"workflow_state_id":43,
+   "next_state":45,
+   "voided": false,
+   "action": "Confirm Delivery",
+   "by_owner": false,
+   "by_supervisor": false
   }
 ]

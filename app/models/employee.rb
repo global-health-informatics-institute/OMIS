@@ -176,7 +176,7 @@ def pending_actions
   overdue_threshold = Rails.configuration.x.requisition.overdue_days_threshold
   owner_actionable_states = WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id)
   owner_actionable_states << 24 # Include "Approved"
-  excluded_states = WorkflowState.where(state: ['Process Completed', 'Rescinded']).pluck(:workflow_state_id)
+  excluded_states = WorkflowState.where(state: ['Process Completed', 'Rescinded','Item Rejected']).pluck(:workflow_state_id)
   jnrs = current_supervisees.collect { |x| x.supervisee }
 
   # Timesheets to submit
