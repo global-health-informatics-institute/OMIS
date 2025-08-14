@@ -360,5 +360,17 @@
   "state": "LPO Accepted",
   "description": "state where Local Purchase Order has accepted by the supplier",
   "voided":false
+ },
+ {"workflow_state_id": 53,
+  "workflow_process_id":6,
+  "state": "Item Delivered",
+  "description": "state where an item has been delivered after the LPO has accepted",
+  "voided": false
+ },
+ {"workflow_state_id":54,
+  "workflow_process_id":6,
+  "state": "Payments Requested",
+  "description": "state where the payments has been requested after the item has delivered",
+  "voided":false
  }
 ]

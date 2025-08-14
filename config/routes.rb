@@ -57,6 +57,8 @@ Rails.application.routes.draw do
   put 'purchase_requests/:id/reject_item', to: 'purchase_requests#reject_item'
   put 'purchase_requests/:id/rescind_request', to: 'purchase_requests#rescind_request'
   put 'purchase_requests/:id/confirm_lpo_acceptance', to: 'purchase_requests#confirm_lpo_acceptance'
+  put 'purchase_requests/:id/confirm_item_delivery', to: 'purchase_requests#confirm_item_delivery'
+  patch 'purchase_requests/:id/request_payments', to: 'purchase_requests#request_payments'
 
   # Requisitions - Modified to include amount endpoint
   resources :requisitions, except: [:index, :new, :create, :show, :edit] do

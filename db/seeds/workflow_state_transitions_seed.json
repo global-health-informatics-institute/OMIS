@@ -517,11 +517,46 @@
    "by_owner": false,
    "by_supervisor": false
   },
-  {"workflow_state_id":43,
-   "next_state":45,
+  {"workflow_state_id":52,
+   "next_state":53,
    "voided": false,
-   "action": "Confirm Delivery",
+   "action": "Confirm Item Delivery",
    "by_owner": false,
    "by_supervisor": false
-  }
+  },
+  {"workflow_state_id":53,
+   "next_state": 54,
+   "voided":false,
+   "action": "Request Payments",
+   "by_owner":false,
+   "by_supervisor":false
+  },
+  {"workflow_state_id":54,
+	  "next_state":43,
+	  "voided":false,
+	  "action": "Approve Funds",
+	  "by_owner": false,
+	  "by_supervisor":false
+},
+{"workflow_state_id":54,
+	"next_state":44,
+	"voided":false,
+	"action": "Reject Funds",
+	"by_owner": false,
+	"by_supervisor":false
+},
+{"workflow_state_id":53,
+	"next_state":47,
+	"voided": false,
+	"action":"Accept Item",
+	"by_owner":true,
+	"by_supervisor":true
+},
+{"workflow_state_id":53,
+	"next_state":48,
+	"voided":false,
+	"action":"Reject Item",
+	"by_owner":true,
+	"by_supervisor":true
+}
 ]

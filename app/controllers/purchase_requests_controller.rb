@@ -127,6 +127,45 @@ end
  end
 
 
+  def request_payments
+    @requisition = Requisition.find(params[:id])
+    current_state = @requisition.workflow_state&.state # Get the current state
+    approved_amount = params[:requisition][:amount].to_f # Ensure it's a float for comparison
+    supplier = params[:requisition][:supplier]
+
+    new_state = WorkflowState.find_by(
+      state: 'Payments Requested',
+      workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request')&.id
+    )
+
+    unless new_state
+      flash[:error] = "Error: 'Payment Requested' workflow state not found."
+      redirect_to "/requisitions/#{params[:id]}" and return
+    end
+
+    # Apply the threshold check only when the requisition is 'Under Procurement'
+    if current_state == 'Pending Payment Request'
+      threshold = GlobalProperty.purchase_request_threshold
+      if approved_amount <= threshold
+        process_payment_request_and_update(@requisition, new_state, approved_amount, supplier)
+      else
+        flash[:alert] = "The approved amount (£#{'%.2f' % approved_amount}) exceeds the purchase request threshold (£#{'%.2f' % threshold}).Please Request IPC."
+        redirect_to "/requisitions/#{@requisition.id}" and return
+      end
+    else
+      # For any other state, proceed with the payment request without a threshold check.
+      process_payment_request_and_update(@requisition, new_state, approved_amount, supplier)
+    end
+  rescue ActiveRecord::RecordNotFound
+    flash[:error] = "Purchase Request not found."
+    redirect_to "/requisitions/#{params[:id]}"
+  rescue ActiveRecord::RecordInvalid => e
+    flash[:error] = "Failed to complete procurement: #{e.message}"
+    redirect_to "/requisitions/#{params[:id]}"
+  rescue StandardError => e
+    flash[:error] = "An unexpected error occurred: #{e.message}"
+    redirect_to "/requisitions/#{params[:id]}"
+  end
   def request_payment
     @requisition = Requisition.find(params[:id])
     current_state = @requisition.workflow_state&.state # Get the current state
@@ -224,6 +263,12 @@ def rescind_request
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
 end
+def confirm_item_delivery
+  new_state = WorkflowState.where(state: 'Item Delivered',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+end 
   private
   def set_employees
       @employees = Employee.includes(:person).all.sort_by { |e| e.person.full_name }
