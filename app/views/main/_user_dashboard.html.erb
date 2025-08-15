@@ -55,7 +55,7 @@
       
       <!-- Header -->
       <div class="card-header bg-light">
-        <span class="fs-7 fw-semibold">Recognition Rewards</span>
+        <span class="fs-7 ">Recognition Rewards</span>
       </div>
 
       <!-- Card Body -->
@@ -98,8 +98,11 @@
                 <% entries.each do |entry| %>
                   <div class="col border-end p-1">
                     <span ><%= entry[:vote_count] %></span>
-                    <span class="text-muted fs-6">pts</span>
-                    <p class="text-muted mb-0"><%= entry[:receiver_name] %></p>
+                    <span class="text-muted">pts</span>
+                    <p class="text-muted mb-0">
+                      <span class="receiver-name-full"><%= entry[:receiver_name] %></span>
+                      <span class="receiver-name-short"><%= "#{entry[:receiver_name].split.first[0]}. #{entry[:receiver_name].split.last}" %></span>
+                    </p>
                   </div>
                 <% end %>
               </div>
@@ -293,4 +296,21 @@
   display: inline-block;
   text-align: center;
   }
+ 
+  .receiver-name-full {
+    display: inline;
+  }
+
+  .receiver-name-short {
+    display: none;
+  }
+  @media (max-width: 1600px) {
+    .receiver-name-full {
+      display: none;
+    }
+    .receiver-name-short {
+      display: inline;
+    }
+  }
+
 </style>
