@@ -86,7 +86,7 @@
           <h5 class="custom-badge d-flex justify-content-between align-items-center mb-3">
             <span><%= entries.first[:competition_name] %></span>
             <span>
-              <a href="<%= @recognition_reward_data[:RECOGNITION_URL] %>" target="_blank" class="text-decoration-none bg-light"> 
+              <a href='<%= "#{@recognition_reward_data[:RECOGNITION_URL]}/competitions/#{competition_id}" %>' target="_blank" class="text-decoration-none bg-light">
                 <button class="btn btn-light">Participate</button>
               </a>
             </span>
