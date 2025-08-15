@@ -97,10 +97,8 @@
               <div class="row g-0 text-center align-items-center">
                 <% entries.each do |entry| %>
                   <div class="col border-end p-1">
-                    <h1 class="display-6 fw-bold">
-                      <%= entry[:vote_count] %>
-                      <span class="text-muted fs-6">pts</span>
-                    </h1>
+                    <span ><%= entry[:vote_count] %></span>
+                    <span class="text-muted fs-6">pts</span>
                     <p class="text-muted mb-0"><%= entry[:receiver_name] %></p>
                   </div>
                 <% end %>
