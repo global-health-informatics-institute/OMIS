@@ -4,7 +4,7 @@ import * as bootstrap from "bootstrap"
 
 
 export default class extends Controller {
-  static targets = ["submitButton", "nextButton", "previousButton", "amountField", "assetButton", "ipcConfirmationModal","employeeSearch",
+  static targets = ["amountField", "assetButton", "ipcConfirmationModal","employeeSearch",
   "employeeCheckboxList","ipcMeetingTime","selectedEmployeesDisplay","requestIpcButton",
   "ipcMeetingDate"]
   static values = {
@@ -429,7 +429,7 @@ reorderSteps() {
     orderToUse = ['nav-step5'];
   }
   else if (this.currentStateValue === "Item Delivered") {
-    orderToUse = ['nav-step3'];
+    orderToUse = ['nav-step7'];
   }
 	else if (this.requiresIpcValue) {
     orderToUse = ['nav-step3', 'nav-step5', 'nav-step4', 'nav-step6'];
@@ -529,13 +529,28 @@ updateStepVisibility() {
     }
   }
    // Request IPC button visibility — only for designation 12
-  if (this.hasRequestIpcButtonTarget) {
-    if (isAuthorized && this.currentStateValue ==="Pending Payment Request") {
-      this.requestIpcButtonTarget.classList.remove('d-none');
+ // if (this.hasRequestIpcButtonTarget) {
+   // if (isAuthorized && this.currentStateValue==="Pending Payment Request") {
+     // this.requestIpcButtonTarget.classList.remove('d-none');
+   // } else {
+     // this.requestIpcButtonTarget.classList.add('d-none');
+   // }
+  //}
+   if (this.hasRequestIpcButtonTarget) {
+    console.log("Request IPC button target exists");
+    console.log("CurrentState:", this.currentStateValue, "Designation ID:", this.designationIdValue);
+    
+    if (isAuthorized && this.currentStateValue === "Pending Payment Request") {
+        console.log("Showing Request IPC button");
+        this.requestIpcButtonTarget.classList.remove('d-none');
     } else {
-      this.requestIpcButtonTarget.classList.add('d-none');
+        console.log("Hiding Request IPC button");
+        this.requestIpcButtonTarget.classList.add('d-none');
     }
-  }
+} else {
+    console.warn("Request IPC button target NOT found!");
+}
+
   //  Optional: Disable next/prev if needed
   if (this.nextButtonTarget && shouldShowButtons) {
     this.nextButtonTarget.disabled = this.currentStepValue === this.visiblePanels.length - 1;
@@ -595,5 +610,5 @@ formatNumber(event) {
   
   // Re-enable the button if the submission fails
   event.target.disabled = false;
-}
+ }
 }

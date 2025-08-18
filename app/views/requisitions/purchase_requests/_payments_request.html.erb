@@ -5,7 +5,7 @@
   <% end %>
 </div>
 
-<%= form_with model: @requisition, url: complete_procurement_purchase_request_path(@requisition), multipart: true, method: :patch do |form| %>
+<%= form_with model: @requisition, url: request_payments_purchase_request_path(@requisition), multipart: true, method: :patch do |form| %>
   <div class="row mt-3 p-2">
     <div class="col p-2">
       <div class="card">
@@ -43,7 +43,7 @@
                 <div class="col-4 fw-normal">Quantity</div>
                 <div class="col-8 fw-bold fst-italic"><%= @requisition.quantity %></div>
               </div>
-              <% if ["LPO Accepted", "Pending Payment Request"].include?(@requisition.current_state) %>
+              <% if ["Item Delivered", "Pending Payment Request"].include?(@requisition.current_state) %>
                 <div class="row mb-3">
                   <div class="col-4">
                     <%= form.label :supplier, "Supplier", class: "form-label" %>
@@ -147,121 +147,13 @@
       <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
 
       <div class="d-flex gap-2">
-        <button type="button" data-purchase-target="requestIpcButton"  data-action="purchase#showIpcConfirmationModal" class="btn btn-warning d-none"> Request IPC </button>
-       <% if (@possible_actions || []).include?("Confirm LPO Acceptance") %>
-       <%= link_to "Confirm LPO Acceptance",
-              "/purchase_requests/#{@requisition.id}/confirm_lpo_acceptance",
-              class: "btn btn-primary",
-              method: :put,
-              data: { turbo_method: :put,
-                      turbo_confirm: "Are you sure you want to confirm LPO Acceptance?" } %>
-    <% end %>
+      <% if (@possible_actions || []).include?("Request Payments") %>
+         <%= form.submit "Request Payments", class: "btn btn-info", data: { disable_with: "Processing..." } %>
+       <% end %>
 
-    <% if (@possible_actions || []).include?("Request Payment") %>
-      <%= form.submit "Request Payment", 
-            class: "btn btn-info", 
-            data: { 
-              action: "click->purchase-form#setPaymentUrl",
-              disable_with: "Processing..." 
-            } %>
-        <% end %>
       </div>
 
 <!-- Alert style -->
 <div id="custom-alert-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
-
-
- <div class="modal fade" id="ipcConfirmationModal" tabindex="-1" aria-labelledby="ipcConfirmationModalLabel" aria-hidden="true"  data-purchase-target="ipcConfirmationModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="ipcConfirmationModalLabel">Internal Procurement Committee Required</h5>
-        <%# <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> %>
-      </div>
-      <div class="modal-body">
-    <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
-
-  <div class="mb-3">
-    <%= form.label :traveller_ids, "Inform IPC member" %>
-    <input
-      type="text"
-      class="form-control mb-2"
-      placeholder="search IPC members"
-      data-action="input->purchase#filterEmployees"
-      data-purchase-target="employeeSearch"
-      />
-    <div
-      class="form-control"
-      style="height: auto; max-height: 100px; overflow-y: auto;"
-      data-purchase-target="employeeCheckboxList"
-      >
-    
-      <%# (employees || []).sort_by { |e| e.person.first_name }.each do |employee| %>
-      <% (employees || [])
-    .reject do |employee|
-      employee.employee_designations.any? do |emp_desig|
-        emp_desig.designation&.designated_role&.downcase&.end_with?("intern")
-      end
-    end
-    .sort_by { |e| e.person.first_name }
-    .each do |employee| %>
-        <div class="form-check">
-          <input
-            type="checkbox"
-            class="form-check-input"
-            id="employee_<%= employee.id %>"
-            value="<%= employee.id %>"
-            name="ipc_employee_ids[]"
-            data-action="change->purchase#updateSelectedEmployees"
-            data-employee-name="<%= employee.person&.full_name || 'Unknown Employee' %>"
-           <%= 'checked' if (@requisition.try(:ipc_employee_ids) || [])&.include?(employee.id) %>
-          />
-          <label for="employee_<%= employee.id %>" class="form-check-label">
-            <%= employee.person&.full_name || "Unknown Employee" %>
-
-          </label>
-        </div>
-      <% end %>
-    </div>
-  </div>
-  <div class="mb-3">
-  <label class="form-label">Selected IPC Members</label>
-   <input
-       type="text"
-       class="form-control" readonly
-       data-purchase-target="selectedEmployeesDisplay"
-         />
-  </div>
-
-
-  <div class="mb-3">
-    <label for="ipc_meeting_date" class="form-label">Meeting Date</label>
-    <input
-      type="date"
-      id="ipc_meeting_date"
-      class="form-control"
-      data-purchase-target="ipcMeetingDate"
-    />
-  </div>
-  <div class="col-md-6 mb-3">
-    <label for="ipc_meeting_time" class="form-label">Meeting Time</label>
-    <input
-      type="time"
-      id="ipc_meeting_time"
-      class="form-control"
-      data-purchase-target="ipcMeetingTime"
-    />
-  </div>
-</div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-action="purchase#notNow">Not Now</button>
-        <button type="button" class="btn btn-primary" data-action="purchase#continueWithIpc">Send Email</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-    </div>
-  </div>
 <% end %>
+
