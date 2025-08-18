@@ -32,16 +32,16 @@
           </div>
         </div>
         <table class="table table-bordered p-0 m-0 h-75">
-         <tr>
-          <td>
-            Target
-            <canvas id="loeTargetPie" style="height: 20vh !important; width: 10vw;margin-left: auto; margin-right: auto;"></canvas>
-          </td>
-          <td>
-            Current
-            <canvas id="loeActualPie" style="height: 20vh !important; width: 10vw;margin-left: auto; margin-right: auto;"></canvas>
-          </td>
-        </tr>
+          <tr>
+            <td>
+              Target
+              <canvas id="loeTargetPie" style="height: 20vh !important; width: 10vw;margin-left: auto; margin-right: auto;"></canvas>
+            </td>
+            <td>
+              Current
+              <canvas id="loeActualPie" style="height: 20vh !important; width: 10vw;margin-left: auto; margin-right: auto;"></canvas>
+            </td>
+          </tr>
         </table>
       </div>
     </div>
@@ -49,31 +49,34 @@
   <div class="col-sm-4">
     <div class="card h-100" style="max-height: 280px; overflow-y: auto;">
       <div class="card-body p-2">
-        <h6 class="card-title" style= "font-size: 18px">Upcoming Deadlines & Activities</h6>
-          <table class="table m-0">
-            <thead style= "font-size: 14px">
-              <tr>
-                <th style="width:20%">Date</th>
-                <th>Task</th>
-              </tr>
-            </thead>
-            <tbody class="fs-6">
+        <h6 class="card-title" style="font-size: 18px">Upcoming Deadlines & Activities</h6>
+        <table class="table m-0">
+          <thead style="font-size: 14px">
+            <tr>
+              <th style="width:20%">Date</th>
+              <th>Task</th>
+            </tr>
+          </thead>
+          <tbody class="fs-6">
             <% (@upcoming_deadlines.keys.sort || []).each do |key| %>
               <tr>
                 <td rowspan="<%= @upcoming_deadlines[key].length %>">
-                  <%= Time.at(key).strftime('%d %b,%Y')%>
+                  <%= Time.at(key).strftime('%d %b,%Y') %>
                 </td>
                 <% (@upcoming_deadlines[key] || []).each do |activity| %>
-                  <td><%= activity %></td></tr><tr>
+                  <td><%= activity %></td>
+                </tr>
+                <tr>
                 <% end %>
               </tr>
             <% end %>
-            </tbody>
+          </tbody>
         </table>
       </div>
     </div>
   </div>
 </div>
+
 <div class="row mt-4">
   <div class="col-sm-4">
     <div class="card h-100">
@@ -85,6 +88,7 @@
             <span class="visually-hidden">actions to perform</span>
           </span>
         </h5>
+
         <select id="pending-action-filter" class="form-select form-select-sm" style="width: 160px;">
           <option value="">All Categories</option>
           <% @pending_actions.map { |a| a[:category] }.uniq.sort.each do |category| %>
@@ -92,10 +96,11 @@
           <% end %>
         </select>
       </div>
+
       <div class="card-body p-2 overflow-y-scroll" style="height:25vh;">
         <% if (@pending_actions || []).empty? %>
           <span class="fw-normal">No tasks assigned</span>
-        <% else%>
+        <% else %>
           <ul class="list-group list-group-flush" id="pending-actions-list">
             <% (@pending_actions || []).each do |action| %>
               <a href="<%= action[:url] %>" 
@@ -109,7 +114,6 @@
       </div>
     </div>
   </div>
-</div>
 
   <div class="col-sm-3">
     <div class="card h-100">
@@ -117,7 +121,7 @@
         <h5 class="card-title text-dark">Personal Statistics</h5>
       </div>
       <div class="card-body p-2">
-        <ul class="list-group ">
+        <ul class="list-group">
           <li class="list-group-item d-flex justify-content-between align-items-start list-group-item-action" onmousedown="window.location='/leave_requests'">
             <div class="ms-2 me-auto">
               <div class="fw-bold">Unused Leave</div>
@@ -152,6 +156,7 @@
       </div>
     </div>
   </div>
+
   <div class="col-sm-3">
     <div class="card h-100">
       <div class="card-header">
@@ -165,11 +170,12 @@
       <div class="card-body p-2">
         <% if (@approvals || []).empty? %>
           <span class="fw-normal">No tasks assigned</span>
-        <% else%>
+        <% else %>
         <% end %>
       </div>
     </div>
   </div>
+
   <div class="col-sm-2">
     <div class="card h-100">
       <div class="card-header">
@@ -184,14 +190,11 @@
               <li class="list-group-item"><%= project.short_name %></li>
             <% end %>
           </ul>
-        <%end%>
+        <% end %>
       </div>
     </div>
   </div>
 </div>
-
-
-
 
 <style>
   .tableContainer {
@@ -207,7 +210,6 @@
 </style>
 
 <script>
-
   var labels = "<%= ((@project_names.collect { |x| x.short_name }) + ['Unallocated']).join(",") %>"
   new Chart(document.getElementById("loeTargetPie"), {
       type : 'doughnut',
@@ -225,12 +227,10 @@
               },
               tooltip: {
                   callbacks: {
-                      // Custom label for tooltip
                       label: function (tooltipItem) {
                           let label = tooltipItem.label;
-                          let value = tooltipItem.
-                              formattedValue;
-                          return `${value} %`
+                          let value = tooltipItem.formattedValue;
+                          return ${value} %
                       }
                   }
               }
