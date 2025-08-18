@@ -74,43 +74,42 @@
     </div>
   </div>
 </div>
-<div class="col-sm-4">
-  <div class="card h-100" data-controller="pending-actions">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h5 class="card-title text-dark mb-0">
-        Pending Actions
-        <span id="pending-actions-count" data-pending-actions-target="count" class="badge rounded-pill bg-danger">
-          <%= (@pending_actions || []).length %>
-          <span class="visually-hidden">actions to perform</span>
-        </span>
-      </h5>
-
-      <select id="pending-action-filter" data-pending-actions-target="filter" class="form-select form-select-sm" style="width: 160px;">
-        <option value="">All Categories</option>
-        <% @pending_actions.map { |a| a[:category] }.uniq.sort.each do |category| %>
-          <option value="<%= category %>"><%= category %></option>
-        <% end %>
-      </select>
-    </div>
-
-    <div class="card-body p-2 overflow-y-scroll" style="height:25vh;">
-      <% if (@pending_actions || []).empty? %>
-        <span class="fw-normal">No tasks assigned</span>
-      <% else %>
-        <ul id="pending-actions-list" data-pending-actions-target="list" class="list-group list-group-flush">
-          <% (@pending_actions || []).each do |action| %>
-            <a href="<%= action[:url] %>" 
-               class="list-group-item list-group-item-action" 
-               data-category="<%= action[:category] %>">
-              <%= action[:text] %>
-            </a>
+<div class="row mt-4">
+  <div class="col-sm-4">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title text-dark mb-0">
+          Pending Actions
+          <span id="pending-actions-count" class="badge rounded-pill bg-danger">
+            <%= (@pending_actions || []).length %>
+            <span class="visually-hidden">actions to perform</span>
+          </span>
+        </h5>
+        <select id="pending-action-filter" class="form-select form-select-sm" style="width: 160px;">
+          <option value="">All Categories</option>
+          <% @pending_actions.map { |a| a[:category] }.uniq.sort.each do |category| %>
+            <option value="<%= category %>"><%= category %></option>
           <% end %>
-        </ul>
-      <% end %>
+        </select>
+      </div>
+      <div class="card-body p-2 overflow-y-scroll" style="height:25vh;">
+        <% if (@pending_actions || []).empty? %>
+          <span class="fw-normal">No tasks assigned</span>
+        <% else%>
+          <ul class="list-group list-group-flush" id="pending-actions-list">
+            <% (@pending_actions || []).each do |action| %>
+              <a href="<%= action[:url] %>" 
+                 class="list-group-item list-group-item-action" 
+                 data-category="<%= action[:category] %>">
+                <%= action[:text] %>
+              </a>
+            <% end %>
+          </ul>
+        <% end %>
+      </div>
     </div>
   </div>
 </div>
-
 
   <div class="col-sm-3">
     <div class="card h-100">
