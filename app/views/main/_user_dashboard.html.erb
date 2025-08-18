@@ -1,3 +1,4 @@
+
 <div class="row">
   <div class="col">
     <p class="h4">Personal Dashboard</p>
@@ -89,7 +90,7 @@
           </span>
         </h5>
 
-              <select data-pending-actions-target="filter" class="form-select form-select-sm" style="width: 160px;">
+              <select id="pending-actions-filter"  data-pending-actions-target="filter" class="form-select form-select-sm" style="width: 160px;">
           <option value="">All Categories</option>
           <% @pending_actions.map { |a| a[:category] }.uniq.sort.each do |category| %>
             <option value="<%= category %>"><%= category %></option>
@@ -254,5 +255,31 @@
               }
           }
       }
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const filterEl = document.getElementById("pending-actions-filter");
+    const listEl = document.getElementById("pending-actions-list");
+    const countEl = document.getElementById("pending-actions-count");
+
+    function filterActions() {
+      const selectedCategory = filterEl.value.toLowerCase();
+      let visibleCount = 0;
+
+      [...listEl.children].forEach(actionItem => {
+        const category = (actionItem.dataset.category || "").toLowerCase();
+        if (!selectedCategory || category === selectedCategory) {
+          actionItem.style.display = "";
+          visibleCount++;
+        } else {
+          actionItem.style.display = "none";
+        }
+      });
+
+      countEl.textContent = visibleCount;
+    }
+
+    filterEl.addEventListener("change", filterActions);
   });
 </script>
