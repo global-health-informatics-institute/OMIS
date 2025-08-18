@@ -79,7 +79,7 @@
 
 <div class="row mt-4">
   <div class="col-sm-4">
-    <div class="card h-100">
+     <div class="card h-100" data-controller="pending-actions">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="card-title text-dark mb-0">
           Pending Actions
@@ -89,7 +89,7 @@
           </span>
         </h5>
 
-        <select id="pending-action-filter" class="form-select form-select-sm" style="width: 160px;">
+              <select data-pending-actions-target="filter" class="form-select form-select-sm" style="width: 160px;">
           <option value="">All Categories</option>
           <% @pending_actions.map { |a| a[:category] }.uniq.sort.each do |category| %>
             <option value="<%= category %>"><%= category %></option>
