@@ -231,7 +231,7 @@
                       label: function (tooltipItem) {
                           let label = tooltipItem.label;
                           let value = tooltipItem.formattedValue;
-                          return ${value} %
+                          return '${value} %'
                       }
                   }
               }
@@ -258,7 +258,9 @@
   });
 </script>
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("turbo:load", function () {
+      console.log("FilterEl:", document.getElementById("pending-actions-filter"));
+       console.log("Pending actions filter script initialized");
     const filterEl = document.getElementById("pending-actions-filter");
     const listEl = document.getElementById("pending-actions-list");
     const countEl = document.getElementById("pending-actions-count");

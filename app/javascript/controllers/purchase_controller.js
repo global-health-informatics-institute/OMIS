@@ -421,20 +421,35 @@ reorderSteps() {
   }else if (this.currentStateValue === "Payment Requested" && this.designationIdValue === 5) {
   orderToUse = ['nav-step1'];
   }
-	else if (this.currentStateValue === "Payment Requested") {
+	else if (this.currentStateValue === "Payment Requested" && this.designationIdValue === 12) {
     orderToUse = ['nav-step5'];
-  } else if (this.currentStateValue === "Funds Approved") {
+  } else if (this.currentStateValue === "Funds Approved" && this.designationIdValue ===12) {
     orderToUse = ['nav-step5'];
-  }else if (this.currentStateValue === "LPO Accepted") {
+  }else if (this.currentStateValue === "LPO Accepted" && this.designationIdValue === 12) {
     orderToUse = ['nav-step5'];
   }
-  else if (this.currentStateValue === "Item Delivered") {
+  else if (this.currentStateValue === "Item Delivered" && this.designationIdValue === 12) {
     orderToUse = ['nav-step7'];
   }
-	else if (this.requiresIpcValue) {
-    orderToUse = ['nav-step3', 'nav-step5', 'nav-step4', 'nav-step6'];
-  } else {
-    orderToUse = ['nav-step3', 'nav-step4', 'nav-step5', 'nav-step6'];
+	else if (this.currentStateValue === "Payments Requested") {
+    orderToUse = ['nav-step1'];
+  } else if (this.currentStateValue === "Delivered") {
+    orderToUse = ['nav-step1'];
+  }
+	else if (this.currentStateValue === "Requested") {
+    orderToUse = ['nav-step1'];
+  }
+  else if (this.currentStateValue === "Under Procurement") {
+    orderToUse = ['nav-step1'];
+  }
+  else if (this.currentStateValue === "Item Accepted") {
+    orderToUse = ['nav-step1'];
+  }
+   else if (this.currentStateValue === "Item Accepted" && this.designationIdValue === 12) {
+    orderToUse = ['nav-step1', 'nav-step6'];
+  }
+	else {
+    orderToUse = ['nav-step1'];
   }
 
   console.log("Using step order:", orderToUse);
@@ -459,7 +474,7 @@ reorderSteps() {
   this.updateStepVisibility(); // Ensure UI updates after reordering
 }
 shouldShowStep1() {
-  return !["Pending Payment Request","Funds Approved", "LPO Accepted","Item Delivered", "Payment Requested"].includes(this.currentStateValue);
+  return !["Pending Payment Request","Item Accepted","Requested","Under Procurement","Rejected","Payments Requested","Delivered","Funds Approved", "LPO Accepted","Item Delivered", "Payment Requested"].includes(this.currentStateValue);
 }
   
 updateStepVisibility() {
@@ -529,13 +544,6 @@ updateStepVisibility() {
     }
   }
    // Request IPC button visibility — only for designation 12
- // if (this.hasRequestIpcButtonTarget) {
-   // if (isAuthorized && this.currentStateValue==="Pending Payment Request") {
-     // this.requestIpcButtonTarget.classList.remove('d-none');
-   // } else {
-     // this.requestIpcButtonTarget.classList.add('d-none');
-   // }
-  //}
    if (this.hasRequestIpcButtonTarget) {
     console.log("Request IPC button target exists");
     console.log("CurrentState:", this.currentStateValue, "Designation ID:", this.designationIdValue);
@@ -592,23 +600,23 @@ formatNumber(event) {
   // Trigger the amount threshold check
   this.checkAmountThreshold(event);
   }
-  prepareFormSubmission(event) {
+ // prepareFormSubmission(event) {
   // Prevent immediate submission so we can clean the amount first
-  event.preventDefault();
+ // event.preventDefault();
   
   // Only process if we have an amount field
-  if (this.hasAmountFieldTarget) {
+ // if (this.hasAmountFieldTarget) {
     // Remove all non-digit characters (including commas)
-    const numericValue = this.amountFieldTarget.value.replace(/[^\d]/g, '');
+   // const numericValue = this.amountFieldTarget.value.replace(/[^\d]/g, '');
     
     // Update the field value (now without commas)
-    this.amountFieldTarget.value = numericValue;
-  }
+   // this.amountFieldTarget.value = numericValue;
+  //}
   
   // Programmatically submit the form after cleaning the value
-  this.element.submit();
+  //this.element.submit();
   
   // Re-enable the button if the submission fails
-  event.target.disabled = false;
- }
+ // event.target.disabled = false;
+// }
 }

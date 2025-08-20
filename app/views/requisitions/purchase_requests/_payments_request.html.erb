@@ -50,6 +50,7 @@
                     <%= form.text_field :supplier,
                           value: @requisition.purchase_request_attachment&.supplier,
                           class: "form-control",
+                          required: true,
                           name: "requisition[supplier]",
                           placeholder: "Enter supplier name" %>
                   </div>
@@ -89,7 +90,7 @@
                   <%= form.number_field :unit_price,
                             step: "0.01",
                             class: "form-control",
-                            value: number_with_precision(unit_price, precision: 2),
+                            value: number_with_precision(unit_price, precision: 2, delimiter: ','),
                             readonly: true,
                             disabled: true %>
                 </div>

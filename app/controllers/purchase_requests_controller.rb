@@ -130,7 +130,8 @@ end
   def request_payments
     @requisition = Requisition.find(params[:id])
     current_state = @requisition.workflow_state&.state # Get the current state
-    approved_amount = params[:requisition][:amount].to_f # Ensure it's a float for comparison
+     cleaned_amount_string = params[:requisition][:amount].gsub(',', '')
+  approved_amount = cleaned_amount_string.to_f # Ensure it's a float for comparison
     supplier = params[:requisition][:supplier]
 
     new_state = WorkflowState.find_by(
@@ -169,7 +170,9 @@ end
   def request_payment
     @requisition = Requisition.find(params[:id])
     current_state = @requisition.workflow_state&.state # Get the current state
-    approved_amount = params[:requisition][:amount].to_f # Ensure it's a float for comparison
+      cleaned_amount_string = params[:requisition][:amount].gsub(',', '')
+  approved_amount = cleaned_amount_string.to_f
+
     supplier = params[:requisition][:supplier]
 
     new_state = WorkflowState.find_by(
