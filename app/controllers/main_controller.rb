@@ -51,6 +51,10 @@ class MainController < ApplicationController
       @unallocated_loe = 100 - @loe_targets.collect { |x| (x.allocated_effort)}.sum
       @project_names = Project.select(:short_name).where(project_id: @loe_targets.collect { |x| x.project_id })
       @loe_current = @employee.loe()
+      @projects_with_effort = Project
+        .select("projects.project_id, projects.short_name, project_teams.allocated_effort")
+        .joins("INNER JOIN project_teams ON project_teams.project_id = projects.project_id")
+        .where(project_teams: { employee_id: current_user.employee_id, end_date: nil })
 
       @total_hrs = 0.0
       (@loe_current || []).each_value do |v|

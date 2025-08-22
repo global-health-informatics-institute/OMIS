@@ -237,35 +237,36 @@
 
 <script>
 
-  var labels = "<%= ((@project_names.collect { |x| x.short_name }) + ['Unallocated']).join(",") %>"
-  new Chart(document.getElementById("loeTargetPie"), {
-      type : 'doughnut',
-      data : {
-          labels : labels.split(','),
-          datasets : [ {
-              data : <%= (@loe_targets.collect { |x| (x.allocated_effort)} + [@unallocated_loe ]).to_s  %>
-          } ]
-      },
-      options : {
-          responsive: false,
-          plugins: {
-              legend: {
-                  display: false
-              },
-              tooltip: {
-                  callbacks: {
-                      // Custom label for tooltip
-                      label: function (tooltipItem) {
-                          let label = tooltipItem.label;
-                          let value = tooltipItem.
-                              formattedValue;
-                          return `${value} %`
-                      }
-                  }
-              }
-          }
-      }
-  });
+var labels = <%= raw((@projects_with_effort.map(&:short_name) + ['Unallocated']).to_json) %>;
+var data   = <%= raw((@projects_with_effort.map(&:allocated_effort) + [@unallocated_loe]).to_json) %>;
+
+
+new Chart(document.getElementById("loeTargetPie"), {
+    type : 'doughnut',
+    data : {
+        labels : labels,
+        datasets : [ {
+            data : data
+        } ]
+    },
+    options : {
+        responsive: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function (tooltipItem) {
+                        let value = tooltipItem.formattedValue;
+                        return `${value} %`;
+                    }
+                }
+            }
+        }
+    }
+});
+
   var currLabels = "<%= @loe_current.keys.join(",") %>"
   new Chart(document.getElementById("loeActualPie"), {
       type : 'doughnut',
