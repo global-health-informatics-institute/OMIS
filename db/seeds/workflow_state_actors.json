@@ -299,11 +299,6 @@
     "employee_designation_id": 12,
     "voided": false
   },
-   {
-    "workflow_state_id": 42,
-    "employee_designation_id": 12,
-    "voided": false
-  },
   {
   "workflow_state_id":38,
   "employee_designation_id":12,
@@ -333,5 +328,13 @@
   {"workflow_state_id":54,
 	  "employee_designation_id":5,
 	  "voided":false
+  },
+    {"workflow_state_id":55,
+          "employee_designation_id":12,
+          "voided":false
+  },
+  {"workflow_state_id":56,
+          "employee_designation_id":12,
+          "voided":false
   }
 ]

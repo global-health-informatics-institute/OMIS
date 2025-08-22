@@ -370,6 +370,18 @@
  {"workflow_state_id":54,
   "workflow_process_id":6,
   "state": "Payments Requested",
+  "description": "state where the payments has been requested after the item has delivered through the LPO",
+  "voided":false
+ },
+  {"workflow_state_id":55,
+  "workflow_process_id":6,
+  "state": "Item Approved",
+  "description": "state where the requisition has not gone through the LPO and the delivered item has been approved by the requester",
+  "voided":false
+ },
+  {"workflow_state_id":56,
+  "workflow_process_id":6,
+  "state": "Payments Approved",
   "description": "state where the payments has been requested after the item has delivered",
   "voided":false
  }

@@ -50,18 +50,6 @@
       <!-- Navigation buttons -->
       <div class="d-flex justify-content-between align-items-center mt-3 p-3 bg-light">
         <div>
-          <button type="button" class="btn btn-secondary" 
-                  data-purchase-target="previousButton" 
-                  data-action="click->purchase#previousStep">
-            <i class="fas fa-arrow-left me-2"></i>Previous
-          </button>
-        </div>
-        <div>
-          <button type="button" class="btn btn-primary me-2" 
-                  data-purchase-target="nextButton" 
-                  data-action="click->purchase#nextStep">
-            Next <i class="fas fa-arrow-right ms-2"></i>
-          </button>
               <%= form.submit "Submit Request", 
                 class: "btn btn-success d-none", 
                 data: { purchase_target: "submitButton" } %>

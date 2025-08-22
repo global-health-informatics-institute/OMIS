@@ -48,7 +48,7 @@ Rails.application.routes.draw do
   match 'purchase_requests/:id/request_payment', to: 'purchase_requests#request_payment', via: [:patch, :put], as: :complete_procurement_purchase_request
   put 'purchase_requests/:id/require_ipc', to: 'purchase_requests#require_ipc'
   put 'purchase_requests/:id/approve_funds', to: 'purchase_requests#approve_funds'
-  put 'purchase_requests/:id/deny_funds', to: 'purchase_requests#deny_funds'
+  put 'purchase_requests/:id/reject_funds', to: 'purchase_requests#reject_funds'
   put 'purchase_requests/:id/withdraw_request', to: 'purchase_requests#withdraw_request'
   patch 'register_asset/:id', to: 'purchase_requests#register_asset', as: 'register_asset'
   put 'purchase_requests/:id/confirm_delivery', to: 'purchase_requests#confirm_delivery'
@@ -59,6 +59,8 @@ Rails.application.routes.draw do
   put 'purchase_requests/:id/confirm_lpo_acceptance', to: 'purchase_requests#confirm_lpo_acceptance'
   put 'purchase_requests/:id/confirm_item_delivery', to: 'purchase_requests#confirm_item_delivery'
   patch 'purchase_requests/:id/request_payments', to: 'purchase_requests#request_payments', as: :request_payments_purchase_request
+  put 'purchase_requests/:id/approve_payments', to: 'purchase_requests#approve_payments'
+  put 'purchase_requests/:id/approve_item', to: 'purchase_requests#approve_item'
 
   # Requisitions - Modified to include amount endpoint
   resources :requisitions, except: [:index, :new, :create, :show, :edit] do

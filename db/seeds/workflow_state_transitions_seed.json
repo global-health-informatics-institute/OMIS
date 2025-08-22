@@ -393,9 +393,9 @@
   },
   {
     "workflow_state_id": 42,
-    "next_state": 43,
+    "next_state": 56,
     "voided": false,
-    "action": "Approve Funds",
+    "action": "Approve Payments",
     "by_owner": false,
     "by_supervisor": false
   },
@@ -408,28 +408,12 @@
     "by_supervisor": false
   },
   {
-    "workflow_state_id": 42,
-    "next_state": 45,
-    "voided": false,
-    "action": "Confirm Delivery",
-    "by_owner": false,
-    "by_supervisor": false
-  },
-  {
     "workflow_state_id": 38,
     "next_state": 46,
     "voided": false,
     "action": "Withdraw Request",
     "by_owner": false,
     "by_supervisor": false
-  },
-  {
-    "workflow_state_id": 45,
-    "next_state": 47,
-    "voided": false,
-    "action": "Accept Item",
-    "by_owner": true,
-    "by_supervisor": true
   },
    {
     "workflow_state_id": 45,
@@ -439,8 +423,15 @@
     "by_owner": true,
     "by_supervisor": true
   },
+  {"workflow_state_id":45,
+	  "next_state":55,
+	  "voided": false,
+	  "action": "Approve Item",
+	  "by_owner": true,
+	  "by_supervisor": true
+  },
    {
-    "workflow_state_id": 47,
+    "workflow_state_id": 43,
     "next_state": 49,
     "voided": false,
     "action": "Finish Process",
@@ -448,7 +439,16 @@
     "by_supervisor": false
   },
    {
-    "workflow_state_id": 43,
+    "workflow_state_id": 55,
+    "next_state": 49,
+    "voided": false,
+    "action": "Finish Process",
+    "by_owner": false,
+    "by_supervisor": false
+  },
+
+   {
+    "workflow_state_id":56,
     "next_state": 45,
     "voided": false,
     "action": "Confirm Delivery",
@@ -503,7 +503,7 @@
    "by_supervisor":false
   },
   {
-  "workflow_state_id":52,
+  "workflow_state_id":47,
   "next_state":42,
   "voided": false,
   "action": "Request Payment",
@@ -524,7 +524,7 @@
    "by_owner": false,
    "by_supervisor": false
   },
-  {"workflow_state_id":53,
+  {"workflow_state_id":47,
    "next_state": 54,
    "voided":false,
    "action": "Request Payments",

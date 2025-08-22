@@ -38,6 +38,8 @@
               <div class="row mb-3">
                 <div class="col-4 fw-normal">Purpose</div>
                 <div class="col-8 fw-bold fst-italic"><%= @requisition.purpose %></div>
+                <div class="col-2 fw-normal">Item Requested</div>
+            <div class="col-2 fw-bold fst-italic"><%= @requisition.purchase_request_attachment&.item_requested %></div>
               </div>
               <div class="row mb-3">
                 <div class="col-4 fw-normal">Quantity</div>

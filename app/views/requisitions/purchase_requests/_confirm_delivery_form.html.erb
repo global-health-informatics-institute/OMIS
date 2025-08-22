@@ -15,6 +15,29 @@
           </div>
 
           <div class="card-body">
+            <div class="row mt-3 mb-4">
+  <div class="col-md-4">
+    <div class="fw-normal">Item Requested</div>
+    <div class="fw-bold fst-italic">
+      <%= @requisition.purchase_request_attachment&.item_requested %>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="fw-normal">Quantity</div>
+    <div class="fw-bold fst-italic">
+      <%= @requisition.quantity %>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="fw-normal">Item Description</div>
+    <div class="fw-bold fst-italic">
+      <%= @requisition.item_description %>
+    </div>
+  </div>
+</div>
+
 
             <!-- Confirm Delivery Button (only if allowed) -->
             <% if @possible_actions&.include?("Confirm Delivery") %>

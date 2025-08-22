@@ -216,7 +216,7 @@ end
     redirect_to "/requisitions/#{params[:id]}"
   end
 
-  def deny_funds
+  def reject_funds
     new_state = WorkflowState.where(state: 'Funds Rejected',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
@@ -268,6 +268,18 @@ def rescind_request
 end
 def confirm_item_delivery
   new_state = WorkflowState.where(state: 'Item Delivered',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+end
+def approve_payments
+  new_state = WorkflowState.where(state: 'Payments Approved',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+end
+def approve_item
+   new_state = WorkflowState.where(state: 'Item Approved',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"

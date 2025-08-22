@@ -422,14 +422,19 @@ reorderSteps() {
   orderToUse = ['nav-step1'];
   }
 	else if (this.currentStateValue === "Payment Requested" && this.designationIdValue === 12) {
-    orderToUse = ['nav-step5'];
+    orderToUse = ['nav-step1'];
   } else if (this.currentStateValue === "Funds Approved" && this.designationIdValue ===12) {
-    orderToUse = ['nav-step5'];
+    orderToUse = ['nav-step1','nav-step6'];
   }else if (this.currentStateValue === "LPO Accepted" && this.designationIdValue === 12) {
     orderToUse = ['nav-step5'];
   }
+	else if (this.currentStateValue === "Process Completed" && this.designationIdValue === 12) {
+    orderToUse = ['nav-step1'];
+  }
+
   else if (this.currentStateValue === "Item Delivered" && this.designationIdValue === 12) {
     orderToUse = ['nav-step7'];
+	  alert("Please wait. The requester must confirm acceptance of the delivered item before you can proceed with requesting payment.");
   }
 	else if (this.currentStateValue === "Payments Requested") {
     orderToUse = ['nav-step1'];
@@ -442,12 +447,24 @@ reorderSteps() {
   else if (this.currentStateValue === "Under Procurement") {
     orderToUse = ['nav-step1'];
   }
-  else if (this.currentStateValue === "Item Accepted") {
+   else if (this.currentStateValue === "Item Accepted" && this.designationIdValue === 12) {
+    orderToUse = ['nav-step7'];
+  }
+	 else if (this.currentStateValue === "Item Approved" && this.designationIdValue === 12) {
     orderToUse = ['nav-step1'];
   }
-   else if (this.currentStateValue === "Item Accepted" && this.designationIdValue === 12) {
-    orderToUse = ['nav-step1', 'nav-step6'];
+
+	 else if (this.currentStateValue === "Item Accepted") {
+    orderToUse = ['nav-step1'];
   }
+	        else if (this.currentStateValue === "Payments Approved" && this.designationIdValue ===12) {
+    orderToUse = ['nav-step5'];
+  }
+
+	        else if (this.currentStateValue === "Payments Approved") {
+    orderToUse = ['nav-step1'];
+  }
+
 	else {
     orderToUse = ['nav-step1'];
   }
@@ -474,7 +491,7 @@ reorderSteps() {
   this.updateStepVisibility(); // Ensure UI updates after reordering
 }
 shouldShowStep1() {
-  return !["Pending Payment Request","Item Accepted","Requested","Under Procurement","Rejected","Payments Requested","Delivered","Funds Approved", "LPO Accepted","Item Delivered", "Payment Requested"].includes(this.currentStateValue);
+  return !["Pending Payment Request","Funds Rejected","Pending IPC","Item Rejected","Withdrawn","Rescinded","Item Approved","Process Completed","Item Accepted","Payments Approved","Requested","Under Procurement","Rejected","Payments Requested","Delivered","Funds Approved", "LPO Accepted","Item Delivered", "Payment Requested"].includes(this.currentStateValue);
 }
   
 updateStepVisibility() {
@@ -511,24 +528,25 @@ updateStepVisibility() {
   }
 
   // New method to control the visibility of next and previous buttons
- updateButtonVisibility() {
-  console.log("Updating Next and Previous button visibility based on current state.");
-  const shouldShowButtons = ["Pending Payment Request","Payment Requested", "Funds Approved","LPO Accepted"].includes(this.currentStateValue);
+updateButtonVisibility() {
+  console.log("Updating Next and Previous button visibility.");
+
+  const shouldShowButtons = ["Pending Payment Request","Item Approved","Payments Approved", "Payment Requested", "Funds Approved", "LPO Accepted"].includes(this.currentStateValue);
   const isAuthorized = this.designationIdValue === 12;
 
+  // Hide or show NEXT button
   if (this.nextButtonTarget) {
     if (shouldShowButtons && isAuthorized && this.currentStepValue < this.visiblePanels.length - 1) {
       this.nextButtonTarget.classList.remove('d-none');
-      this.nextButtonTarget.disabled = false;
     } else {
       this.nextButtonTarget.classList.add('d-none');
     }
   }
 
+  // Hide or show PREVIOUS button
   if (this.previousButtonTarget) {
     if (shouldShowButtons && this.currentStepValue > 0) {
       this.previousButtonTarget.classList.remove('d-none');
-      this.previousButtonTarget.disabled = false;
     } else {
       this.previousButtonTarget.classList.add('d-none');
     }
@@ -537,7 +555,7 @@ updateStepVisibility() {
   //  Show Asset Registration button only if current state is "Item accepted"
   if (this.hasAssetButtonTarget) {
 	  const isAuthorized = this.designationIdValue === 12;
-    if (this.currentStateValue === "Item Accepted" && isAuthorized) {
+    if ((this.currentStateValue === "Funds Approved" || this.currentStateValue === "Item Approved") && isAuthorized) {
       this.assetButtonTarget.classList.remove("d-none");
     } else {
       this.assetButtonTarget.classList.add("d-none");
@@ -568,55 +586,44 @@ updateStepVisibility() {
   }
 }
 // format the amount
-
 formatNumber(event) {
   const input = event.target;
-  // Get cursor position before any changes
-  const cursorPosition = input.selectionStart;
-  
+
   // Remove all non-digit characters
   let value = input.value.replace(/[^\d]/g, '');
-  
-  // Convert to number
   const numberValue = parseInt(value, 10);
-  
+
   if (!isNaN(numberValue)) {
     // Format with commas
-    const formattedValue = numberValue.toLocaleString();
-    
-    // Update the input value
-    input.value = formattedValue;
-    
-    // Calculate new cursor position
-    const commaCountBefore = input.value.substring(0, cursorPosition).match(/,/g)?.length || 0;
-    const newCursorPosition = cursorPosition + (input.value.substring(0, cursorPosition).match(/,/g)?.length || 0) - commaCountBefore;
-    
-    // Restore cursor position
-    input.setSelectionRange(newCursorPosition, newCursorPosition);
+    input.value = numberValue.toLocaleString();
+
+    // Force cursor to the end
+    const end = input.value.length;
+    input.setSelectionRange(end, end);
   } else {
     input.value = '';
   }
-  
+
   // Trigger the amount threshold check
   this.checkAmountThreshold(event);
-  }
- // prepareFormSubmission(event) {
+}
+  prepareFormSubmission(event) {
   // Prevent immediate submission so we can clean the amount first
- // event.preventDefault();
+  event.preventDefault();
   
   // Only process if we have an amount field
- // if (this.hasAmountFieldTarget) {
+  if (this.hasAmountFieldTarget) {
     // Remove all non-digit characters (including commas)
-   // const numericValue = this.amountFieldTarget.value.replace(/[^\d]/g, '');
+    const numericValue = this.amountFieldTarget.value.replace(/[^\d]/g, '');
     
     // Update the field value (now without commas)
-   // this.amountFieldTarget.value = numericValue;
-  //}
+    this.amountFieldTarget.value = numericValue;
+  }
   
   // Programmatically submit the form after cleaning the value
-  //this.element.submit();
+  this.element.submit();
   
   // Re-enable the button if the submission fails
- // event.target.disabled = false;
-// }
+  event.target.disabled = false;
+ }
 }
