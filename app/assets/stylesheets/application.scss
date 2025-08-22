@@ -1,2 +1,30 @@
 @import "bootstrap";
 @import "components/snackbar";
+/* Progress bar animations */
+.progress-bar-animated {
+  animation: progress-bar-stripes 1s linear infinite;
+}
+
+@keyframes progress-bar-stripes {
+  0% { background-position: 1rem 0; }
+  100% { background-position: 0 0; }
+}
+
+/* Step indicators */
+.step-indicator {
+  transition: all 0.3s ease;
+}
+
+.step-indicator.completed {
+  color: #28a745;
+}
+
+.step-indicator.current {
+  color: #007bff;
+  font-weight: bold;
+}
+
+.step-indicator.pending {
+  color: #6c757d;
+  opacity: 0.7;
+}

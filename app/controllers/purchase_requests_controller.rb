@@ -38,6 +38,8 @@ class PurchaseRequestsController < ApplicationController
           item_description: params[:requisition][:item_description],
           value: params[:requisition][:amount] || 0
         )
+       # Store the total expected assets (from quantity)
+      @requisition.update(expected_assets_count: item.quantity)
 
         # Create attachment
         PurchaseRequestAttachment.create(
@@ -69,14 +71,26 @@ class PurchaseRequestsController < ApplicationController
   def register_asset
   @requisition = Requisition.find(params[:id])
   @asset = @requisition.assets.build(asset_params)
-
+  @assets_count = @requisition.assets.count
+  # Get total expected from requisition items quantity
+  @total_expected = @requisition.requisition_items.sum(:quantity) || 1
   respond_to do |format|
     if @asset.save
-      format.html { redirect_to requisition_path(@requisition), notice: "Asset registered successfully." }
-      format.js   # Will render register_asset.js.erb
+      @assets_count += 1
+      @completed = @assets_count >= @total_expected
+       format.html do
+        if @completed
+          flash[:notice] = "All #{@total_expected} assets registered successfully!"
+          redirect_to requisition_path(@requisition)
+        else
+          flash.now[:notice] = "Asset registered successfully. (#{@assets_count}/#{@total_expected})"
+          format.html { redirect_to requisition_path(@requisition), notice: "Asset registered successfully." }
+        end
+      end
+      format.js
     else
-      format.html { render :final_step_view, status: :unprocessable_entity }
-      format.js   # Will render register_asset.js.erb with errors
+      format.html { render :show, status: :unprocessable_entity }
+      format.js
     end
   end
 end
@@ -86,6 +100,8 @@ end
     @project_options = Project.all.collect { |x| [x.project_name, x.id] }
     @selected_project = @requisition.project
     @projects = Project.all
+    @assets_count = @requisition.assets.count
+    @total_expected = @requisition.expected_assets_count || 1 # Default to 1 if not set
   end
 
   def approve_request

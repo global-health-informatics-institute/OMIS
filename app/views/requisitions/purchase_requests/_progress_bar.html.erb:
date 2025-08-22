@@ -1,0 +1,93 @@
+<div class="card-body bg-light">
+  <div class="row">
+    <div class="col-12">
+      <h6 class="text-center mb-2">Asset Registration Progress</h6>
+      
+      <!-- Progress percentage -->
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <small class="text-muted">0%</small>
+        <small class="text-muted">100%</small>
+      </div>
+      
+      <!-- Progress bar -->
+      <div class="progress" style="height: 20px;">
+        <div class="progress-bar <%= @completed ? 'bg-success' : 'progress-bar-striped progress-bar-animated bg-primary' %>" 
+             role="progressbar" 
+             style="width: <%= progress_percentage = (@assets_count.to_f / @total_expected) * 100 %>%;"
+             aria-valuenow="<%= progress_percentage %>" 
+             aria-valuemin="0" 
+             aria-valuemax="100">
+          <span class="fw-bold"><%= progress_percentage.round %>%</span>
+        </div>
+      </div>
+      
+      <!-- Progress text -->
+      <div class="text-center mt-2">
+        <% if @completed %>
+          <small class="text-success">
+            <i class="fas fa-check-circle"></i> Completed! All <%= @total_expected %> assets registered
+          </small>
+        <% else %>
+          <small class="text-muted">
+            Step <%= @assets_count + 1 %> of <%= @total_expected %>: 
+            Register asset <%= @assets_count + 1 %>
+            <% if @assets_count > 0 %>
+              (<%= @total_expected - @assets_count %> remaining)
+            <% end %>
+          </small>
+        <% end %>
+      </div>
+      
+      <!-- Step indicators -->
+      <div class="row mt-3">
+        <% @total_expected.times do |step| %>
+          <div class="col text-center">
+            <div class="step-indicator <%= step < @assets_count ? 'completed' : (step == @assets_count ? 'current' : 'pending') %>">
+              <span class="step-number"><%= step + 1 %></span>
+              <small class="step-label">Asset <%= step + 1 %></small>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.step-indicator {
+  display: inline-block;
+  text-align: center;
+  margin: 0 5px;
+}
+
+.step-number {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  border-radius: 50%;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.step-indicator.completed .step-number {
+  background-color: #28a745;
+  color: white;
+}
+
+.step-indicator.current .step-number {
+  background-color: #007bff;
+  color: white;
+  border: 2px solid #0056b3;
+}
+
+.step-indicator.pending .step-number {
+  background-color: #6c757d;
+  color: white;
+}
+
+.step-label {
+  display: block;
+  font-size: 0.8rem;
+}
+</style>

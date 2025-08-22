@@ -433,7 +433,7 @@ reorderSteps() {
   }
 
   else if (this.currentStateValue === "Item Delivered" && this.designationIdValue === 12) {
-    orderToUse = ['nav-step7'];
+    orderToUse = ['nav-step1'];
 	  alert("Please wait. The requester must confirm acceptance of the delivered item before you can proceed with requesting payment.");
   }
 	else if (this.currentStateValue === "Payments Requested") {
@@ -451,7 +451,7 @@ reorderSteps() {
     orderToUse = ['nav-step7'];
   }
 	 else if (this.currentStateValue === "Item Approved" && this.designationIdValue === 12) {
-    orderToUse = ['nav-step1'];
+    orderToUse = ['nav-step1','nav-step6'];
   }
 
 	 else if (this.currentStateValue === "Item Accepted") {

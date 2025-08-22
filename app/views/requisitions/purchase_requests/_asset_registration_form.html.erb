@@ -5,13 +5,15 @@
         <div class="card-header card-header-dark">
           <div class="row">
             <div class="col col-md-10">
-              <h5>Asset Registration Form</h5>
+              <h5>Asset Registration Form - Step <%= @assets_count + 1 %> of <%= @total_expected %></h5>
             </div>
             <div class="col col-md-2">
               <span class="fw-bold fst-italic">Status: <%= @requisition.current_state %></span>
             </div>
           </div>
         </div>
+        <!-- Include progress bar partial -->
+        <%= render 'requisitions/purchase_requests/progress_bar' %>
 
         <div class="card-body">
           <!-- Asset Details -->

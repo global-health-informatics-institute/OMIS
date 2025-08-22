@@ -33,13 +33,20 @@ class ApplicationController < ActionController::Base
               .first
               &.workflow
 
-  if process == 'Petty Cash Request'
+   if ['Petty Cash Request', 'Purchase Request'].include?(process)
     initial_state_id = InitialState.find_by(
       workflow_process_id: WorkflowProcess.find_by(workflow: 'Petty Cash Request')&.id
     )&.workflow_state_id
 
-    actions.append(transition.action) unless current_state == initial_state_id
+     unless current_state == initial_state_id
+      # For Purchase Request, exclude certain actions
+      if process == 'Purchase Request' && ['Approve Payments','Reject Funds', 'Deny Funds', 'Approve Funds'].include?(transition.action)
+        # Skip these actions
+      else
+        actions.append(transition.action)
       end
+    end
+  end
       elsif !is_owner && WorkflowStateActor.where(
         workflow_state_id: current_state,
         employee_designation_id: designation_ids

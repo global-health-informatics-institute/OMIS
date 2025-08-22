@@ -1,0 +1,6 @@
+<script src="/assets/chart.umd.min.js"></script>
+
+<% if @requisition.requisition_type == 'Purchase Request' %>
+  <%= render partial: 'requisitions/purchase_requests/asset_registration_form'
+<% end %>
+

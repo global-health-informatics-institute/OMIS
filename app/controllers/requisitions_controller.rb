@@ -14,6 +14,8 @@ class RequisitionsController < ApplicationController
       @purchase_request_threshold = GlobalProperty.purchase_request_threshold
       @stakeholder_options = Stakeholder.where(is_donor: true).pluck(:stakeholder_name, :stakeholder_id)
       @employees = Employee.where(still_employed: true).includes(:person)
+      @assets_count = @requisition.assets.count
+      @total_expected = @requisition.requisition_items.sum(:quantity) || 1
   # Pre-select stakeholder if coming from params
     @selected_stakeholder = Stakeholder.find_by(stakeholder_id: params[:stakeholder_id]) if params[:stakeholder_id].present?
     else
