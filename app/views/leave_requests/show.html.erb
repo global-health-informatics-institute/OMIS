@@ -45,7 +45,7 @@
             </div>
             <div class="col-md-6">
                 <div class="fw-normal fs-5">Leave Balance at Time of Request:</div>
-              <div class="fw-bold fst-italic fs-5"><%= @leave_request.leave_balance %> days</div>
+              <div class="fw-bold fst-italic fs-5"><%= format('%.2f', @leave_request.leave_balance) %> days</div>
             </div>
           </div>
 

@@ -35,7 +35,7 @@
       <strong>Stand-in:</strong> <%= @leave_details[:leave_stand_in] %>
     </li>
     <li>
-      <strong>Leave Balance:</strong> <%= @leave_details[:leave_balance] %> days
+      <strong>Leave Balance:</strong> <%= format('%.2f', @leave_details[:leave_balance]) %> days
     </li>
   </ul>
 
