@@ -28,7 +28,7 @@ def add_leave_days
       summary.leave_days_balance += (ft_rate.property_value.to_f)
     else
       summary.leave_days_total += (pt_rate.property_value.to_f)
-      summary.leave_days_balance += (ft_rate.property_value.to_f)
+      summary.leave_days_balance += (pt_rate.property_value.to_f)
     end
 
     summary.save
