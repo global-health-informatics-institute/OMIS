@@ -51,64 +51,29 @@
   <%# RECOGNITION PANE %>
 
   <div class="col-sm-4">
-    <div class="card h-100 border-0 shadow-sm">
-      
-      <!-- Header -->
-      <div class="card-header bg-light">
-        <span class="fs-7 ">Recognition Rewards</span>
-      </div>
-
-      <!-- Card Body -->
-      <div class="card-body" style="max-height: 280px; overflow-y: auto;">
-
-          <table class="table table-borderless text-center mx-auto larger-res" style="width:auto;">
-            <tbody style="line-height: 1; font-size: 0.9rem;">
+    <div class="card h-100" style="max-height: 280px; overflow-y: auto;">
+      <div class="card-body p-2">
+        <h6 class="card-title" style= "font-size: 18px">Upcoming Deadlines & Activities</h6>
+          <table class="table m-0">
+            <thead style= "font-size: 14px">
               <tr>
-                <td class="px-5" style="padding: 0.25rem;">Contests</td>
-                <td class="px-5" style="padding: 0.25rem;">Elections</td>
+                <th style="width:20%">Date</th>
+                <th>Task</th>
               </tr>
-              <tr class="text-center bg-light">
-                <td class="px-5" style="padding: 0.25rem;">
-                  <span class="fs-4 fw-bold">
-                    <%= @recognition_reward_data[:contest_count] %>
-                  </span>
+            </thead>
+            <tbody class="fs-6">
+            <% (@upcoming_deadlines.keys.sort || []).each do |key| %>
+              <tr>
+                <td rowspan="<%= @upcoming_deadlines[key].length %>">
+                  <%= Time.at(key).strftime('%d %b,%Y')%>
                 </td>
-                <td class="px-5" style="padding: 0.25rem;">
-                  <span class="fs-4 fw-bold"><%= @recognition_reward_data[:election_count] %></span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-
-  
-        <% @recognition_reward_data[:active_contest_data].group_by { |c| c[:competition_id] }.each do |competition_id, entries| %>
-          <h5 class="custom-badge d-flex justify-content-between align-items-center mb-3">
-            <span><%= entries.first[:competition_name] %></span>
-            <span>
-              <a href='<%= "#{@recognition_reward_data[:RECOGNITION_URL]}/competitions/#{competition_id}" %>' target="_blank" class="text-decoration-none bg-light">
-                <button class="btn btn-light">Participate</button>
-              </a>
-            </span>
-          </h5>
-
-          <div class="card border mb-1 bg-light">
-            <div class="card-body p-0">
-              <div class="row g-0 text-center align-items-center">
-                <% entries.each do |entry| %>
-                  <div class="col border-end p-1">
-                    <span ><%= entry[:vote_count] %></span>
-                    <span class="text-muted">pts</span>
-                    <p class="text-muted mb-0">
-                      <span class="receiver-name-full"><%= entry[:receiver_name] %></span>
-                      <span class="receiver-name-short"><%= "#{entry[:receiver_name].split.first[0]}. #{entry[:receiver_name].split.last}" %></span>
-                    </p>
-                  </div>
+                <% (@upcoming_deadlines[key] || []).each do |activity| %>
+                  <td><%= activity %></td></tr><tr>
                 <% end %>
-              </div>
-            </div>
-          </div>
-        <% end %>     
+              </tr>
+            <% end %>
+            </tbody>
+        </table>
       </div>
     </div>
   </div>
