@@ -421,27 +421,27 @@ reorderSteps() {
   }else if (this.currentStateValue === "Payment Requested" && this.designationIdValue === 5) {
   orderToUse = ['nav-step1'];
   }
-	else if (this.currentStateValue === "Payment Requested" && this.designationIdValue === 12) {
+    else if (this.currentStateValue === "Payment Requested" && this.designationIdValue === 12) {
     orderToUse = ['nav-step1'];
   } else if (this.currentStateValue === "Funds Approved" && this.designationIdValue ===12) {
     orderToUse = ['nav-step1','nav-step6'];
   }else if (this.currentStateValue === "LPO Accepted" && this.designationIdValue === 12) {
     orderToUse = ['nav-step5'];
   }
-	else if (this.currentStateValue === "Process Completed" && this.designationIdValue === 12) {
+    else if (this.currentStateValue === "Process Completed" && this.designationIdValue === 12) {
     orderToUse = ['nav-step1'];
   }
 
   else if (this.currentStateValue === "Item Delivered" && this.designationIdValue === 12) {
     orderToUse = ['nav-step7'];
-	  alert("Please wait. The requester must confirm acceptance of the delivered item before you can proceed with requesting payment.");
+      alert("Please wait. The requester must confirm acceptance of the delivered item before you can proceed with requesting payment.");
   }
-	else if (this.currentStateValue === "Payments Requested") {
+    else if (this.currentStateValue === "Payments Requested") {
     orderToUse = ['nav-step1'];
   } else if (this.currentStateValue === "Delivered") {
     orderToUse = ['nav-step1'];
   }
-	else if (this.currentStateValue === "Requested") {
+    else if (this.currentStateValue === "Requested") {
     orderToUse = ['nav-step1'];
   }
   else if (this.currentStateValue === "Under Procurement") {
@@ -450,22 +450,25 @@ reorderSteps() {
    else if (this.currentStateValue === "Item Accepted" && this.designationIdValue === 12) {
     orderToUse = ['nav-step7'];
   }
-	 else if (this.currentStateValue === "Item Approved" && this.designationIdValue === 12) {
+     else if (this.currentStateValue === "Item Approved" && this.designationIdValue === 12) {
     orderToUse = ['nav-step1'];
   }
 
-	 else if (this.currentStateValue === "Item Accepted") {
+     else if (this.currentStateValue === "Item Accepted") {
     orderToUse = ['nav-step1'];
   }
-	        else if (this.currentStateValue === "Payments Approved" && this.designationIdValue ===12) {
+            else if (this.currentStateValue === "Payments Approved" && this.designationIdValue ===12) {
     orderToUse = ['nav-step5'];
   }
 
-	        else if (this.currentStateValue === "Payments Approved") {
+            else if (this.currentStateValue === "Payments Approved") {
     orderToUse = ['nav-step1'];
   }
+  else if (this.currentStateValue === "Pending IPC" && this.designationIdValue === 12) {
+    orderToUse = ['nav-step3'];
+  }
 
-	else {
+    else {
     orderToUse = ['nav-step1'];
   }
 
@@ -531,7 +534,7 @@ updateStepVisibility() {
 updateButtonVisibility() {
   console.log("Updating Next and Previous button visibility.");
 
-  const shouldShowButtons = ["Pending Payment Request","Item Approved","Payments Approved", "Payment Requested", "Funds Approved", "LPO Accepted"].includes(this.currentStateValue);
+  const shouldShowButtons = ["Pending Payment Request","Item Approved","Payments Approved", "Payment Requested", "Funds Approved", "LPO Accepted", "Pending IPC"].includes(this.currentStateValue);
   const isAuthorized = this.designationIdValue === 12;
 
   // Hide or show NEXT button
@@ -554,7 +557,7 @@ updateButtonVisibility() {
 
   //  Show Asset Registration button only if current state is "Item accepted"
   if (this.hasAssetButtonTarget) {
-	  const isAuthorized = this.designationIdValue === 12;
+      const isAuthorized = this.designationIdValue === 12;
     if ((this.currentStateValue === "Funds Approved" || this.currentStateValue === "Item Approved") && isAuthorized) {
       this.assetButtonTarget.classList.remove("d-none");
     } else {

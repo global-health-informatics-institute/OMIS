@@ -1,4 +1,3 @@
-
 <div id="flash">
   <% if flash[:notice] %>
     <div class="alert alert-success"><%= flash[:notice] %></div>
@@ -45,7 +44,7 @@
                 <div class="col-4 fw-normal">Quantity</div>
                 <div class="col-8 fw-bold fst-italic"><%= @requisition.quantity %></div>
               </div>
-              <% if ["LPO Accepted", "Pending Payment Request"].include?(@requisition.current_state) %>
+              <% if ["LPO Accepted", "Pending Payment Request", "Pending IPC"].include?(@requisition.current_state) %>
                 <div class="row mb-3">
                   <div class="col-4">
                     <%= form.label :supplier, "Supplier", class: "form-label" %>
@@ -99,7 +98,7 @@
 
                 <div class="col-4">
                   <%= form.label :amount, "Total Amount (MWK)", class: "form-label" %>
-                  <% if ["Pending Payment Request", "Item Delivered"].include?(@requisition.current_state) %>
+                  <% if ["Pending Payment Request", "Item Delivered", "Pending IPC"].include?(@requisition.current_state) %>
                     <% amount_value = @requisition.requisition_items.first&.value.to_f %>
                     <% options = {
                       step: "0.01",
@@ -160,7 +159,7 @@
                       turbo_confirm: "Are you sure you want to confirm LPO Acceptance?" } %>
     <% end %>
 
-    <% if (@possible_actions || []).include?("Request Payment") %>
+    <% if (@possible_actions || []).include?("Request Payment") || @requisition.current_state == "Pending IPC" %>
       <%= form.submit "Request Payment", 
             class: "btn btn-info", 
             data: { 
@@ -168,6 +167,22 @@
               disable_with: "Processing..." 
             } %>
         <% end %>
+    <% if @requisition.current_state == "Pending IPC" %>
+      <%= link_to "Withdraw Request",
+            "/purchase_requests/#{@requisition.id}/withdraw_request",
+            class: "btn btn-danger",
+            method: :put,
+            data: { turbo_method: :put,
+                    turbo_confirm: "Are you sure you want to withdraw the payment request?" } %>
+    <% end %>
+    <% if @requisition.current_state == "Payment Requested" && @requisition.user_id == current_user.id %>
+      <%= link_to "Confirm Delivery",
+            "/purchase_requests/#{@requisition.id}/confirm_delivery",
+            class: "btn btn-success",
+            method: :put,
+            data: { turbo_method: :put,
+                    turbo_confirm: "Are you sure you want to confirm delivery?" } %>
+    <% end %>
       </div>
 
 <!-- Alert style -->
