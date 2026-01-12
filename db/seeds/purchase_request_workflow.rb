@@ -21,10 +21,18 @@ payment_requested_workflow_state = WorkflowState.find_by(workflow_state_id: 42)
 finance_designation_workflow_state_actor = WorkflowStateActor.find_by(workflow_state_id: 42)
 payment_request_on_appealed_request_workflow_state_transition = WorkflowStateTransition.find_by(workflow_state_id: 41)
 under_lpc_admin_designation_workflow_state_actor = WorkflowStateActor.find_by(workflow_state_id: 41)
-approve_funds_workflow_state_transition = WorkflowStateTransition.find_by(next_state: 43)
-deny_funds_workflow_state_transition = WorkflowStateTransition.find_by(next_state: 44)
+approve_funds_workflow_state_transition = WorkflowStateTransition.find_by(workflow_state_id: 56, action: 'Approve Funds')
+deny_funds_workflow_state_transition = WorkflowStateTransition.find_by(workflow_state_id: 56, action: 'Deny Funds')
 funds_approved_workflow_state = WorkflowState.find_by(workflow_state_id: 43)
 funds_rejected_workflow_state = WorkflowState.find_by(workflow_state_id: 44)
+item_delivered_purchase_request_workflow_state = WorkflowState.find_by(workflow_state_id: 53)
+item_accepted_purchase_request_workflow_state = WorkflowState.find_by(workflow_state_id: 56)
+confirm_item_delivery_purchase_request_workflow_state_transition = WorkflowStateTransition.find_by(workflow_state_id: 42, next_state: 53)
+accept_item_purchase_request_workflow_state_transition = WorkflowStateTransition.find_by(workflow_state_id: 53, action: 'Accept Item')
+finish_process_from_item_accepted_workflow_state_transition = WorkflowStateTransition.find_by(workflow_state_id: 56, action: 'Finish Process')
+admin_designation_payment_requested_workflow_state_actor = WorkflowStateActor.find_by(workflow_state_id: 42, employee_designation_id: 12)
+admin_designation_item_delivered_workflow_state_actor = WorkflowStateActor.find_by(workflow_state_id: 53, employee_designation_id: 12)
+admin_designation_item_accepted_workflow_state_actor = WorkflowStateActor.find_by(workflow_state_id: 56, employee_designation_id: 12)
 #for stakeholders
 usaid_donor = Stakeholder.find_by(stakeholder_name: 'USAID')
 unhcr_donor = Stakeholder.find_by(stakeholder_name: 'UNHCR')
@@ -166,6 +174,24 @@ end
       voided: false
     )
   end
+  if item_delivered_purchase_request_workflow_state.nil?
+    WorkflowState.create(
+      workflow_state_id: 53,
+      workflow_process_id: 6,
+      state: 'Item Delivered',
+      description: 'Purchase request item has been delivered',
+      voided: false
+    )
+  end
+  if item_accepted_purchase_request_workflow_state.nil?
+    WorkflowState.create(
+      workflow_state_id: 56,
+      workflow_process_id: 6,
+      state: 'Item Accepted',
+      description: 'Purchase request item has been accepted',
+      voided: false
+    )
+  end
   # workflow_state_actors_model
   if admin_designation_workflow_state_actor.nil?
     WorkflowStateActor.create(
@@ -185,6 +211,34 @@ end
     WorkflowStateActor.create(
       workflow_state_id: 42,
       employee_designation_id: 5,
+      voided: false
+    )
+  end
+  if WorkflowStateActor.where(workflow_state_id: 56, employee_designation_id: 5).blank?
+    WorkflowStateActor.create(
+      workflow_state_id: 56,
+      employee_designation_id: 5,
+      voided: false
+    )
+  end
+  if admin_designation_payment_requested_workflow_state_actor.nil?
+    WorkflowStateActor.create(
+      workflow_state_id: 42,
+      employee_designation_id: 12,
+      voided: false
+    )
+  end
+  if admin_designation_item_delivered_workflow_state_actor.nil?
+    WorkflowStateActor.create(
+      workflow_state_id: 53,
+      employee_designation_id: 12,
+      voided: false
+    )
+  end
+  if admin_designation_item_accepted_workflow_state_actor.nil?
+    WorkflowStateActor.create(
+      workflow_state_id: 56,
+      employee_designation_id: 12,
       voided: false
     )
   end
@@ -292,7 +346,7 @@ end
     last_id = WorkflowStateTransition.maximum(:id) || 0
     WorkflowStateTransition.create(
       id: last_id + 1,
-      workflow_state_id: 42,
+      workflow_state_id: 56,
       next_state: 43,
       voided: false,
       action: 'Approve Funds',
@@ -304,10 +358,51 @@ end
     last_id = WorkflowStateTransition.maximum(:id) || 0
     WorkflowStateTransition.create(
       id: last_id + 1,
-      workflow_state_id: 42,
+      workflow_state_id: 56,
       next_state: 44,
       voided: false,
       action: 'Deny Funds',
+      by_owner: false,
+      by_supervisor: false
+    )
+  end
+
+  WorkflowStateTransition.where(workflow_state_id: [42, 47, 54], action: ['Approve Funds', 'Deny Funds', 'Reject Funds'])
+                         .update_all(voided: true)
+  if confirm_item_delivery_purchase_request_workflow_state_transition.nil?
+    last_id = WorkflowStateTransition.maximum(:id) || 0
+    WorkflowStateTransition.create(
+      id: last_id + 1,
+      workflow_state_id: 42,
+      next_state: 53,
+      voided: false,
+      action: 'Confirm Item Delivery',
+      by_owner: false,
+      by_supervisor: false
+    )
+  end
+  if accept_item_purchase_request_workflow_state_transition.nil?
+    last_id = WorkflowStateTransition.maximum(:id) || 0
+    WorkflowStateTransition.create(
+      id: last_id + 1,
+      workflow_state_id: 53,
+      next_state: 56,
+      voided: false,
+      action: 'Accept Item',
+      by_owner: false,
+      by_supervisor: false
+    )
+  elsif accept_item_purchase_request_workflow_state_transition.next_state != 56
+    accept_item_purchase_request_workflow_state_transition.update(next_state: 56)
+  end
+  if finish_process_from_item_accepted_workflow_state_transition.nil?
+    last_id = WorkflowStateTransition.maximum(:id) || 0
+    WorkflowStateTransition.create(
+      id: last_id + 1,
+      workflow_state_id: 56,
+      next_state: 49,
+      voided: false,
+      action: 'Finish Process',
       by_owner: false,
       by_supervisor: false
     )

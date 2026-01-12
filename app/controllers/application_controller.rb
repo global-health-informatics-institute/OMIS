@@ -9,6 +9,12 @@ class ApplicationController < ActionController::Base
   def possible_actions(current_state, is_owner, is_supervisor, requisition=nil)
     actions = []
     designation_ids = current_user.employee.current_designations.collect { |x| x.designation_id }
+    process = WorkflowState
+             .joins(:workflow_process)
+             .where(workflow_state_id: current_state)
+             .select('workflow_processes.workflow')
+             .first
+             &.workflow
     allowed_transitions = WorkflowStateActor.where(employee_designation_id:
                                                      current_user.employee.current_designations.collect { |x| x.id })
                                             .collect { |x| x.workflow_state_id }
@@ -25,21 +31,13 @@ class ApplicationController < ActionController::Base
         actions.append(transition.action)
       # Special case: allow only designation_id = 12 for workflow_state_id = 28
      elsif is_owner && designation_ids.include?(12)
-  # Get the workflow process name for the current state
-     process = WorkflowState
-              .joins(:workflow_process)
-              .where(workflow_state_id: current_state)
-              .select('workflow_processes.workflow')
-              .first
-              &.workflow
+       if process == 'Petty Cash Request'
+         initial_state_id = InitialState.find_by(
+           workflow_process_id: WorkflowProcess.find_by(workflow: 'Petty Cash Request')&.id
+         )&.workflow_state_id
 
-  if process == 'Petty Cash Request'
-    initial_state_id = InitialState.find_by(
-      workflow_process_id: WorkflowProcess.find_by(workflow: 'Petty Cash Request')&.id
-    )&.workflow_state_id
-
-    actions.append(transition.action) unless current_state == initial_state_id
-      end
+         actions.append(transition.action) unless current_state == initial_state_id
+       end
       elsif !is_owner && WorkflowStateActor.where(
         workflow_state_id: current_state,
         employee_designation_id: designation_ids
@@ -51,6 +49,10 @@ class ApplicationController < ActionController::Base
     #Add this condition when one has recalled the requisition can rescind that also
     if  current_state== 35
       actions.append('Rescind Request')
+    end
+
+    if is_supervisor && !is_owner && process == 'Purchase Request'
+      actions = actions - ['Accept Item', 'Reject Item']
     end
 
     actions

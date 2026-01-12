@@ -242,18 +242,24 @@ end
      @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
      redirect_to "/requisitions/#{params[:id]}"
   end
-def accept_item
-  new_state = WorkflowState.where(state: 'Item Accepted',
+ def accept_item
+   requisition = Requisition.find(params[:id])
+   transition = WorkflowStateTransition.find_by(workflow_state_id: requisition.workflow_state_id, action: 'Accept Item')
+ 
+   if transition.nil?
+     flash[:error] = 'Accept Item workflow transition is not configured for the current state.'
+     return redirect_to "/requisitions/#{params[:id]}"
+   end
+ 
+   requisition.update(workflow_state_id: transition.next_state)
+   redirect_to "/requisitions/#{params[:id]}" 
+ end
+ def reject_item
+   new_state = WorkflowState.where(state: 'Item Rejected',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
-    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
-    redirect_to "/requisitions/#{params[:id]}" 
-end
-def reject_item
-  new_state = WorkflowState.where(state: 'Item Rejected',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
-    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
-    redirect_to "/requisitions/#{params[:id]}"
-end
+     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+     redirect_to "/requisitions/#{params[:id]}"
+ end
 def finish_process
   new_state = WorkflowState.where(state: 'Process Completed',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
@@ -273,7 +279,7 @@ def confirm_item_delivery
     redirect_to "/requisitions/#{params[:id]}"
 end
 def approve_payments
-  new_state = WorkflowState.where(state: 'Payments Approved',
+  new_state = WorkflowState.where(state: 'Funds Approved',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"

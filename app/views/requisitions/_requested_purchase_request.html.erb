@@ -132,8 +132,30 @@
       <%= hidden_field_tag :requisition_state, @requisition.current_state,
       data: { purchase_target: "stateField" } %>
 
+      <% actions = (@possible_actions || []).reject { |a| a == "Confirm Delivery" || a == "Request Payment" } %>
+      <% accept_item_action = actions.delete('Accept Item') %>
+      <% reject_item_action = actions.delete('Reject Item') %>
 
-      <% (@possible_actions || []).reject { |a| a == "Confirm Delivery" || a == "Request Payment" }.each do |action| %>
+      <% if accept_item_action || reject_item_action %>
+        <div class="mb-2 d-flex gap-2">
+          <% if accept_item_action %>
+            <%= link_to accept_item_action,
+                        "/purchase_requests/#{@requisition.id}/#{accept_item_action.parameterize(separator: '_')}",
+                        class: "btn btn-success",
+                        method: :put,
+                        data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{accept_item_action.split(' ').first.downcase} this request?" } %>
+          <% end %>
+          <% if reject_item_action %>
+            <%= link_to reject_item_action,
+                        "/purchase_requests/#{@requisition.id}/#{reject_item_action.parameterize(separator: '_')}",
+                        class: "btn btn-danger",
+                        method: :put,
+                        data: { turbo_method: :put, turbo_confirm: "Are you sure you want to #{reject_item_action.split(' ').first.downcase} this request?" } %>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% actions.each do |action| %>
         <% btn_class = case action
                       when "Approve Request" then "btn btn-success"
                       when "Reject Request" then "btn btn-danger"
@@ -141,8 +163,6 @@
                       when "Recalled" then "btn btn-secondary"
                       when "Approve Funds" then "btn btn-success"
                       when "Withdraw Request" then "btn btn-danger"
-                      when "Reject Item" then "btn btn-danger"
-                      when "Accept Item" then "btn btn-success"
                       when "Finish Process" then "btn btn-success"
                       else "btn btn-primary"
                       end %>

@@ -129,6 +129,24 @@
       <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
 
       <div class="d-flex gap-2">
+        <% if (@possible_actions || []).include?("Approve Funds") %>
+          <%= link_to "Approve Funds",
+                "/purchase_requests/#{@requisition.id}/approve_funds",
+                class: "btn btn-success",
+                method: :put,
+                data: { turbo_method: :put,
+                        turbo_confirm: "Are you sure you want to approve these funds?" } %>
+        <% end %>
+        
+        <% if (@possible_actions || []).include?("Deny Funds") %>
+          <%= link_to "Reject Funds",
+                "/purchase_requests/#{@requisition.id}/reject_funds", 
+                class: "btn btn-danger",
+                method: :put,
+                data: { turbo_method: :put,
+                        turbo_confirm: "Are you sure you want to reject these funds?" } %>
+        <% end %>
+
         <% if (@possible_actions || []).include?("Request Payments") %>
           <%= form.submit "Request Payments", class: "btn btn-info", data: { disable_with: "Processing..." } %>
         <% end %>
