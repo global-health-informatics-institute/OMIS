@@ -25,7 +25,8 @@ class PurchaseRequestsController < ApplicationController
       purpose: params[:requisition][:purpose],
       requisition_type: "Purchase Request",
       workflow_state_id: initial_state&.workflow_state_id,
-      department_id: params[:requisition][:department_id]
+      department_id: params[:requisition][:department_id],
+      delivery_confirmation_required: params[:requisition][:delivery_confirmation_required]
     )
 
     # 3. Save all records in transaction
@@ -339,7 +340,8 @@ end
       :comments,
       :supplier,
       :item_requested,
-      :stakeholder_id
+      :stakeholder_id,
+      :delivery_confirmation_required
     )
   end
 end

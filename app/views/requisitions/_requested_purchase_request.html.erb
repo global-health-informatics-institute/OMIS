@@ -132,7 +132,7 @@
       <%= hidden_field_tag :requisition_state, @requisition.current_state,
       data: { purchase_target: "stateField" } %>
 
-      <% actions = (@possible_actions || []).reject { |a| a == "Confirm Delivery" || a == "Request Payment" } %>
+      <% actions = (@possible_actions || []).reject { |a| a == "Confirm Delivery" || a == "Request Payment" || (a == "Confirm Item Delivery" && !@requisition.delivery_confirmation_required?) } %>
       <% accept_item_action = actions.delete('Accept Item') %>
       <% reject_item_action = actions.delete('Reject Item') %>
 

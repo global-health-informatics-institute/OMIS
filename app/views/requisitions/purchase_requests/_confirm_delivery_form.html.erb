@@ -58,8 +58,8 @@
                 </div>
               </div>
             <% end %>
-         <!-- Confirm Delivery Button (only if allowed) -->
-            <% if @possible_actions&.include?("Confirm Item Delivery") %>
+         <!-- Confirm Delivery Button (only if allowed and flag set) -->
+            <% if @possible_actions&.include?("Confirm Item Delivery") && @requisition.delivery_confirmation_required? %>
               <div class="row mb-4 justify-content-center">
                 <div class="col-md-10">
                   <div class="d-flex justify-content-center gap-4 flex-wrap">

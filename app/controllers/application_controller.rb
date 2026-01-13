@@ -25,6 +25,9 @@ class ApplicationController < ActionController::Base
       if ['Recall Request', 'Collect Funds','Recall Timesheet','Rescind Request'].include?(transition.action) && !is_owner
         next
       end
+      if transition.action == 'Confirm Item Delivery' && requisition && !requisition.delivery_confirmation_required?
+        next
+      end
       if (is_owner && transition.by_owner) or (!is_owner && allowed_transitions.include?(transition.id))
         actions.append(transition.action)
       elsif is_supervisor && transition.by_supervisor and !is_owner

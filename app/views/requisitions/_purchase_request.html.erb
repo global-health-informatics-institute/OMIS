@@ -55,6 +55,13 @@
         </div>
       </div>
 
+      <div class="row mt-2 mb-3">
+        <div class="col-12">
+          <%= form.check_box :delivery_confirmation_required, class: "form-check-input me-2" %>
+          <%= form.label :delivery_confirmation_required, "Delivery confirmation required", class: "form-check-label" %>
+        </div>
+      </div>
+
       <%= form.hidden_field :requisition_type, value: "Purchase Request" %>
       <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
       <%= hidden_field_tag :donor_name, Stakeholder.find_by(stakeholder_id: params[:stakeholder_id])&.stakeholder_name %>

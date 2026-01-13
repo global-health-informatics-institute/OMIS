@@ -14,13 +14,21 @@
         </div>
 
         <div class="card-body">
-          <div class="row mt-3">
+          <div class="row mt-4 mb-4">
             <div class="col-2 fw-normal">Initiated On</div>
             <div class="col-2 fw-bold fst-italic"><%= @requisition.initiated_on.strftime("%m/%d/%Y") %></div>
             <div class="col-2 fw-normal">Initiated By</div>
             <div class="col-2 fw-bold fst-italic"><%= @requisition.user.full_name %></div>
             <div class="col-2 fw-normal">Department</div>
             <div class="col-2 fw-bold fst-italic"><%= @requisition&.department&.department_name %></div>
+          </div>
+
+          <div class="row mt-2 mb-3">
+            <div class="col-12">
+              <strong>DEBUG:</strong>
+              <%= form.check_box :delivery_confirmation_required, class: "form-check-input me-2" %>
+              <%= form.label :delivery_confirmation_required, "Delivery confirmation required", class: "form-check-label" %>
+            </div>
           </div>
 
           <div class="row mt-4 mb-4">
