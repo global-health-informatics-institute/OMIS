@@ -24,7 +24,12 @@ class ApplicationController < ActionController::Base
       elsif is_supervisor && transition.by_supervisor and !is_owner
         actions.append(transition.action)
       # Special case: allow only designation_id = 12 for workflow_state_id = 28
-      elsif !is_owner && [28, 29].include?(current_state) && designation_ids.include?(12)
+      elsif !is_owner && [28, 29].include?(current_state) && designation_ids.any?(
+        Designation.where(
+          department_id: Department.find_by_department_name('Finance and Administration').department_id,
+          designated_role: ['Human Resource Volunteer', 'Administraton Officer']
+        ).pluck(:designation_id)
+      )
         actions.append(transition.action)
       elsif !is_owner && WorkflowStateActor.where(
         workflow_state_id: current_state,

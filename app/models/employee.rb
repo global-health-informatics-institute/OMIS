@@ -204,7 +204,9 @@ class Employee < ApplicationRecord
     ).where.not(workflow_state_id: [22, 27, 28, 29]).pluck(:workflow_state_id)
     # Add exception: allow workflow_state_ids 28 and 29 for designation_id 12
       [28, 29].each do |workflow_state_id|
-      allowed_transitions << workflow_state_id if designation_ids.include?(12) && !allowed_transitions.include?(workflow_state_id)
+      allowed_transitions << workflow_state_id if designation_ids.include?(
+        Designation.find_by_designated_role('Human Resources Volunteer').designation_id
+      ) && !allowed_transitions.include?(workflow_state_id)
 
       end
     # requisition finance reviews
