@@ -237,7 +237,7 @@ end
   end
 
   def confirm_lpo_acceptance
-     new_state=WorkflowState.where(state:'LPO Accepted',
+     new_state=WorkflowState.where(state:'LPO Issued',
                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
      @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
      redirect_to "/requisitions/#{params[:id]}"

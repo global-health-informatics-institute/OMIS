@@ -427,6 +427,8 @@ reorderSteps() {
     orderToUse = ['nav-step1','nav-step6'];
   }else if (this.currentStateValue === "LPO Accepted" && this.designationIdValue === 12) {
     orderToUse = ['nav-step5'];
+  } else if (this.currentStateValue === "LPO Issued" && this.designationIdValue === 12) {
+    orderToUse = ['nav-step5'];
   }
     else if (this.currentStateValue === "Process Completed" && this.designationIdValue === 12) {
     orderToUse = ['nav-step1'];
@@ -494,7 +496,7 @@ reorderSteps() {
   this.updateStepVisibility(); // Ensure UI updates after reordering
 }
 shouldShowStep1() {
-  return !["Pending Payment Request","Funds Rejected","Pending IPC","Item Rejected","Withdrawn","Rescinded","Item Approved","Process Completed","Item Accepted","Payments Approved","Requested","Under Procurement","Rejected","Payments Requested","Delivered","Funds Approved", "LPO Accepted","Item Delivered", "Payment Requested"].includes(this.currentStateValue);
+  return !["Pending Payment Request","Funds Rejected","Pending IPC","Item Rejected","Withdrawn","Rescinded","Item Approved","Process Completed","Item Accepted","Payments Approved","Requested","Under Procurement","Rejected","Payments Requested","Delivered","Funds Approved", "LPO Accepted","LPO Issued","Item Delivered", "Payment Requested"].includes(this.currentStateValue);
 }
   
 updateStepVisibility() {
