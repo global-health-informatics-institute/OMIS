@@ -83,14 +83,26 @@
 <div class="row mt-4">
   <div class="col-sm-4">
     <div class="card h-100">
-      <div class="card-header">
-        <h5 class="card-title text-dark">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title text-dark d-flex align-items-center m-0">
           Pending Actions
-          <span class="badge rounded-pill bg-danger">
+          <span class="badge rounded-pill bg-danger ms-2">
             <%= (@pending_actions || []).length %>
             <span class="visually-hidden">actions to perform</span>
           </span>
         </h5>
+
+        <%# filter option %>
+        <div>
+          <select class="form-select form-select-sm" id="actionFilter">
+            <option data-options="all">All Actions</option>
+            <% (@pending_actions || []).map { |action| action[1].split('/')[1] }.uniq.each do |type| %>
+              <option data-options="<%= type %>">
+                <%= type.gsub(/[_-]/, ' ').titleize %>
+              </option>
+            <% end %>
+          </select>
+        </div>
       </div>
       <div class="card-body p-2 overflow-y-scroll" style="height:25vh;">
         <% if (@pending_actions || []).empty? %>
@@ -98,7 +110,13 @@
         <% else%>
           <ul class="list-group list-group-flush">
             <% (@pending_actions || []).each do |action| %>
-              <a href="<%= action[1] %>" class="list-group-item list-group-item-action"><%= action[0] %></a>
+              <a
+              href="<%= action[1] %>"
+              class="list-group-item list-group-item-action"
+              data-item="<%=action[1].split('/')[1]%>"
+              >
+                <%= action[0] %>
+              </a>
             <% end %>
           </ul>
         <% end %>
@@ -185,21 +203,6 @@
 </div>
 
 
-
-
-<style>
-  .tableContainer {
-      height: 50vh;
-      overflow: auto;
-      text-align: left !important;
-  }
-  .welcome {
-      float: right;
-      font-family: "Arial", sans-serif;
-      font-size: medium;
-  }
-</style>
-
 <script>
 
 var labels = <%= raw((@projects_with_effort.map(&:short_name) + ['Unallocated']).to_json) %>;
@@ -250,36 +253,28 @@ new Chart(document.getElementById("loeTargetPie"), {
           }
       }
   });
+
+// Filter Pending actions
+// Use Turbo's event to ensure the script runs after every page load/navigation
+document.addEventListener('turbo:load', function() {
+  const actionFilter = document.getElementById('actionFilter');
+  const listItems = document.querySelectorAll('.list-group-item');
+
+  function filterItems(selectedOption) {
+    listItems.forEach(item => {
+      const itemType = item.dataset.item;
+      item.style.display = (selectedOption === 'all' || itemType === selectedOption) ? 'block' : 'none';
+    });
+  }
+
+  if (actionFilter) {
+    actionFilter.addEventListener('change', function() {
+      const selectedOption = this.options[this.selectedIndex].dataset.options;
+      filterItems(selectedOption);
+    });
+
+    filterItems('all');
+  }
+});
+
 </script>
-
-<style>
-  .custom-badge {
-  background-color: #36a2eb;
-  color: white;
-  font-weight: semi-bold;
-  padding: 4px 8px;
-  border-radius: 4px;
-  display: inline-block;
-  text-align: center;
-  }
- 
-  .receiver-name-full {
-    display: inline;
-  }
-
-  .receiver-name-short {
-    display: none;
-  }
-  @media (max-width: 1600px) {
-    .receiver-name-full {
-      display: none;
-    }
-    .receiver-name-short {
-      display: inline;
-    }
-    .larger-res{
-      display: none;
-    }
-  }
-
-</style>
