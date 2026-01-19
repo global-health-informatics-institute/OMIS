@@ -175,14 +175,55 @@ end
 
     supplier = params[:requisition][:supplier]
 
+    # Check if this is an LPO issuance
+    if params[:commit] == "Issue LPO"
+      lpo_new_state = WorkflowState.find_by(
+        state: 'LPO Issued',
+        workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request')&.id
+      )
+
+      unless lpo_new_state
+        flash[:error] = "Error: 'LPO Issued' workflow state not found."
+        redirect_to "/requisitions/#{@requisition.id}" and return
+      end
+
+      # Validate supplier presence
+      if supplier.blank?
+        flash[:error] = "Supplier name is required before issuing LPO."
+        redirect_to "/requisitions/#{@requisition.id}" and return
+      end
+
+      # Validate amount presence
+      if approved_amount <= 0
+        flash[:error] = "Total amount must be greater than 0 before issuing LPO."
+        redirect_to "/requisitions/#{@requisition.id}" and return
+      end
+
+      # Apply threshold check when requisition is in appropriate state
+      if current_state == 'Pending Payment Request'
+        threshold = GlobalProperty.purchase_request_threshold
+        if approved_amount <= threshold
+          process_lpo_issuance_and_update(@requisition, lpo_new_state, approved_amount, supplier)
+        else
+          flash[:alert] = "The approved amount (£#{'%.2f' % approved_amount}) exceeds the purchase request threshold (£#{'%.2f' % threshold}). Please Request IPC."
+          redirect_to "/requisitions/#{@requisition.id}" and return
+        end
+      else
+        # For any other state, proceed with LPO issuance without threshold check
+        process_lpo_issuance_and_update(@requisition, lpo_new_state, approved_amount, supplier)
+      end
+      return
+    end
+
+    # Original payment request logic
     new_state = WorkflowState.find_by(
       state: 'Payment Requested',
       workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request')&.id
     )
 
     unless new_state
-      flash[:error] = "Error: 'Payment Requested' workflow state not found."
-      redirect_to "/requisitions/#{params[:id]}" and return
+      flash[:error] = "Error: 'Payment Requested' workflow state not found."    
+      redirect_to "/requisitions/#{@requisition.id}" and return
     end
 
     # Apply the threshold check only when the requisition is 'Under Procurement'
@@ -200,13 +241,13 @@ end
     end
   rescue ActiveRecord::RecordNotFound
     flash[:error] = "Purchase Request not found."
-    redirect_to "/requisitions/#{params[:id]}"
+    redirect_to "/requisitions/#{@requisition.id}"
   rescue ActiveRecord::RecordInvalid => e
     flash[:error] = "Failed to complete procurement: #{e.message}"
-    redirect_to "/requisitions/#{params[:id]}"
+    redirect_to "/requisitions/#{@requisition.id}"
   rescue StandardError => e
     flash[:error] = "An unexpected error occurred: #{e.message}"
-    redirect_to "/requisitions/#{params[:id]}"
+    redirect_to "/requisitions/#{@requisition.id}"
   end
 
   def approve_funds
@@ -237,10 +278,63 @@ end
   end
 
   def confirm_lpo_acceptance
-     new_state=WorkflowState.where(state:'LPO Issued',
-                                   workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
-     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
-     redirect_to "/requisitions/#{params[:id]}"
+    @requisition = Requisition.find(params[:id])
+    current_state = @requisition.workflow_state&.state
+    
+    # Get and validate parameters
+    cleaned_amount_string = params[:requisition][:amount].gsub(',', '')
+    approved_amount = cleaned_amount_string.to_f
+    supplier = params[:requisition][:supplier]
+
+    new_state = WorkflowState.find_by(
+      state: 'LPO Issued',
+      workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request')&.id
+    )
+
+    unless new_state
+      flash[:error] = "Error: 'LPO Issued' workflow state not found."
+      redirect_to "/requisitions/#{@requisition.id}" and return
+    end
+
+    # Validate supplier presence
+    if supplier.blank?
+      flash[:error] = "Supplier name is required before issuing LPO."
+      redirect_to "/requisitions/#{@requisition.id}" and return
+    end
+
+    # Validate amount presence
+    if approved_amount <= 0
+      flash[:error] = "Total amount must be greater than 0 before issuing LPO."
+      redirect_to "/requisitions/#{@requisition.id}" and return
+    end
+
+    # Apply threshold check when requisition is in appropriate state
+    if current_state == 'Pending Payment Request'
+      threshold = GlobalProperty.purchase_request_threshold
+      if approved_amount <= threshold
+        process_lpo_issuance_and_update(@requisition, new_state, approved_amount, supplier)
+      else
+        flash[:alert] = "The approved amount (£#{'%.2f' % approved_amount}) exceeds the purchase request threshold (£#{'%.2f' % threshold}). Please Request IPC."
+        redirect_to "/requisitions/#{@requisition.id}" and return
+      end
+    else
+      # For any other state, proceed with LPO issuance without threshold check
+      process_lpo_issuance_and_update(@requisition, new_state, approved_amount, supplier)
+    end
+  rescue ActiveRecord::RecordNotFound
+    flash[:error] = "Purchase Request not found."
+    redirect_to "/requisitions/#{@requisition.id}"
+  rescue ActiveRecord::RecordInvalid => e
+    flash[:error] = "Failed to issue LPO: #{e.message}"
+    redirect_to "/requisitions/#{@requisition.id}"
+  rescue StandardError => e
+    flash[:error] = "An unexpected error occurred: #{e.message}"
+    redirect_to "/requisitions/#{@requisition.id}"
+  end
+
+  # Handle form submission for LPO issuance (PATCH method)
+  def confirm_lpo_acceptance_form
+    confirm_lpo_acceptance
   end
  def accept_item
    requisition = Requisition.find(params[:id])
@@ -312,6 +406,27 @@ end
       end
     end
     flash[:notice] = "Payment request processed successfully."
+    redirect_to "/requisitions/#{requisition.id}"
+  end
+
+  # This helper method encapsulates the common logic for processing LPO issuance
+  def process_lpo_issuance_and_update(requisition, new_state, approved_amount, supplier)
+    ActiveRecord::Base.transaction do
+      # Update the Requisition's state and approved_by
+      requisition.update!(approved_by: current_user.id, workflow_state_id: new_state.id)
+
+      if requisition.requisition_items.any?
+        requisition.requisition_items.first.update!(value: approved_amount)
+      end
+
+      # Update supplier in PurchaseRequestAttachment
+      if supplier.present?
+        attachment = requisition.purchase_request_attachment || requisition.build_purchase_request_attachment
+        attachment.supplier = supplier
+        attachment.save!
+      end
+    end
+    flash[:notice] = "LPO issued successfully."
     redirect_to "/requisitions/#{requisition.id}"
   end
 

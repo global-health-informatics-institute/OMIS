@@ -151,12 +151,14 @@
       <div class="d-flex gap-2">
         <button type="button" data-purchase-target="requestIpcButton"  data-action="purchase#showIpcConfirmationModal" class="btn btn-warning d-none"> Request IPC </button>
        <% if (@possible_actions || []).include?("Issue LPO") %>
-       <%= link_to "Issue LPO",
-              "/purchase_requests/#{@requisition.id}/confirm_lpo_acceptance",
+       <%= form.submit "Issue LPO",
               class: "btn btn-primary",
-              method: :put,
-              data: { turbo_method: :put,
-                      turbo_confirm: "Are you sure you want to issue the LPO?" } %>
+              name: "commit",
+              value: "Issue LPO",
+              data: { 
+                turbo_method: :put,
+                turbo_confirm: "Are you sure you want to issue the LPO?" 
+              } %>
     <% end %>
 
     <% if (@possible_actions || []).include?("Approve Funds") %>
