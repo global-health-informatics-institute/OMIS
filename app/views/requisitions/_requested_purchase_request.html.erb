@@ -132,7 +132,7 @@
       <%= hidden_field_tag :requisition_state, @requisition.current_state,
       data: { purchase_target: "stateField" } %>
 
-      <% actions = (@possible_actions || []).reject { |a| a == "Confirm Delivery" || a == "Request Payment" } %>
+      <% actions = (@possible_actions || []).reject { |a| a == "Confirm Delivery" || a == "Request Payment" || a == "Source Quotations" } %>
       <% accept_item_action = actions.delete('Accept Item') %>
       <% reject_item_action = actions.delete('Reject Item') %>
 
@@ -159,6 +159,7 @@
         <% btn_class = case action
                       when "Approve Request" then "btn btn-success"
                       when "Reject Request" then "btn btn-danger"
+                      when "Reject Funds" then "btn btn-danger"
                       when "Deny Funds" then "btn btn-danger"
                       when "Recalled" then "btn btn-secondary"
                       when "Approve Funds" then "btn btn-success"
