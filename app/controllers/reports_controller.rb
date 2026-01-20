@@ -51,7 +51,6 @@ class ReportsController < ApplicationController
                       .includes(:user, :project, :workflow_state)
                       .where(requisition_type: 'Petty Cash')
                       .where(initiated_on: start_date..end_date)
-                      .where(workflow_states: { state: 'Liquidated' })
                       .references(:workflow_states)
  respond_to do |format|
   format.turbo_stream
