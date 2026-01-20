@@ -268,12 +268,30 @@ document.addEventListener('turbo:load', function() {
   }
 
   if (actionFilter) {
+    // Load saved selection from sessionStorage
+    const savedOption = sessionStorage.getItem('actionFilterSelection');
+
+    if (savedOption) {
+      // Set the value of the select element
+      actionFilter.value = savedOption;
+      // Find the correct option and set its 'selected' attribute
+      const optionToSelect = actionFilter.querySelector(`option[data-options="${savedOption}"]`);
+      if (optionToSelect) {
+        optionToSelect.selected = true;
+      }
+      filterItems(savedOption);
+    }
+
     actionFilter.addEventListener('change', function() {
       const selectedOption = this.options[this.selectedIndex].dataset.options;
+      sessionStorage.setItem('actionFilterSelection', selectedOption);
       filterItems(selectedOption);
     });
 
-    filterItems('all');
+    // Default to 'all' if nothing is saved
+    if (!savedOption) {
+      filterItems('all');
+    }
   }
 });
 
