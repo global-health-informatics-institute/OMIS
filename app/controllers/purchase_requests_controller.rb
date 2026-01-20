@@ -215,29 +215,47 @@ end
       return
     end
 
-    # Original payment request logic
-    new_state = WorkflowState.find_by(
-      state: 'Payment Requested',
-      workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request')&.id
-    )
-
-    unless new_state
-      flash[:error] = "Error: 'Payment Requested' workflow state not found."    
-      redirect_to "/requisitions/#{@requisition.id}" and return
-    end
-
-    # Apply the threshold check only when the requisition is 'Under Procurement'
-    if current_state == 'Pending Payment Request'
-      threshold = GlobalProperty.purchase_request_threshold
-      if approved_amount <= threshold
-        process_payment_request_and_update(@requisition, new_state, approved_amount, supplier)
-      else
-        flash[:alert] = "The approved amount (£#{'%.2f' % approved_amount}) exceeds the purchase request threshold (£#{'%.2f' % threshold}).Please Request IPC."
+    # Handle different payment request flows based on IPC status
+    if @requisition.went_through_ipc?
+      # IPC flow: Request Payment -> Payment Requested -> Confirm Item Delivery (skip approve/reject funds)
+      new_state = WorkflowState.find_by(
+        state: 'Payment Requested',
+        workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request')&.id
+      )
+      
+      unless new_state
+        flash[:error] = "Error: 'Payment Requested' workflow state not found."
         redirect_to "/requisitions/#{@requisition.id}" and return
       end
+
+      # Mark as went through IPC and update state
+      @requisition.update!(went_through_ipc: true)
+      process_ipc_payment_request_and_update(@requisition, new_state, approved_amount, supplier)
     else
-      # For any other state, proceed with the payment request without a threshold check.
-      process_payment_request_and_update(@requisition, new_state, approved_amount, supplier)
+      # Non-IPC flow: Request Payment -> Approve/Reject Funds -> Confirm Item Delivery
+      new_state = WorkflowState.find_by(
+        state: 'Payment Requested',
+        workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request')&.id
+      )
+
+      unless new_state
+        flash[:error] = "Error: 'Payment Requested' workflow state not found."    
+        redirect_to "/requisitions/#{@requisition.id}" and return
+      end
+
+      # Apply the threshold check only when the requisition is 'Under Procurement'
+      if current_state == 'Pending Payment Request'
+        threshold = GlobalProperty.purchase_request_threshold
+        if approved_amount <= threshold
+          process_payment_request_and_update(@requisition, new_state, approved_amount, supplier)
+        else
+          flash[:alert] = "The approved amount (£#{'%.2f' % approved_amount}) exceeds the purchase request threshold (£#{'%.2f' % threshold}).Please Request IPC."
+          redirect_to "/requisitions/#{@requisition.id}" and return
+        end
+      else
+        # For any other state, proceed with the payment request without a threshold check.
+        process_payment_request_and_update(@requisition, new_state, approved_amount, supplier)
+      end
     end
   rescue ActiveRecord::RecordNotFound
     flash[:error] = "Purchase Request not found."
@@ -427,6 +445,27 @@ end
       end
     end
     flash[:notice] = "LPO issued successfully."
+    redirect_to "/requisitions/#{requisition.id}"
+  end
+
+  # This helper method encapsulates the common logic for processing IPC payment requests
+  def process_ipc_payment_request_and_update(requisition, new_state, approved_amount, supplier)
+    ActiveRecord::Base.transaction do
+      # Update the Requisition's state and approved_by
+      requisition.update!(approved_by: current_user.id, workflow_state_id: new_state.id)
+
+      if requisition.requisition_items.any?
+        requisition.requisition_items.first.update!(value: approved_amount)
+      end
+
+      # Update supplier in PurchaseRequestAttachment
+      if supplier.present?
+        attachment = requisition.purchase_request_attachment || requisition.build_purchase_request_attachment
+        attachment.supplier = supplier
+        attachment.save!
+      end
+    end
+    flash[:notice] = "Payment request processed successfully (IPC flow). You can now confirm item delivery."
     redirect_to "/requisitions/#{requisition.id}"
   end
 

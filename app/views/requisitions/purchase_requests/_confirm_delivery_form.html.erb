@@ -40,7 +40,7 @@
 
 
             <!-- Confirm Delivery Button (only if allowed) -->
-            <% if @possible_actions&.include?("Confirm Delivery") %>
+            <% if @possible_actions&.include?("Confirm Delivery") && !@requisition.went_through_ipc? %>
               <div class="row mb-4 justify-content-center">
                 <div class="col-md-10">
                   <div class="d-flex justify-content-center gap-4 flex-wrap">
@@ -58,8 +58,8 @@
                 </div>
               </div>
             <% end %>
-         <!-- Confirm Delivery Button (only if allowed) -->
-            <% if @possible_actions&.include?("Confirm Item Delivery") %>
+         <!-- Confirm Item Delivery Button (for IPC flow) -->
+            <% if @possible_actions&.include?("Confirm Item Delivery") && @requisition.went_through_ipc? %>
               <div class="row mb-4 justify-content-center">
                 <div class="col-md-10">
                   <div class="d-flex justify-content-center gap-4 flex-wrap">

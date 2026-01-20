@@ -91,8 +91,23 @@ class Requisition < ApplicationRecord
 
     # Special case for "Pending IPC" state
     actions << 'Request Payment' if current_state == 'Pending IPC' && [12, 28, 78].include?(designation_id)
+    
+    # Filter actions based on IPC status
+    if went_through_ipc?
+      # IPC flow: remove "Confirm Delivery" action, keep "Confirm Item Delivery"
+      actions = actions.reject { |action| action == 'Confirm Delivery' }
+    else
+      # Non-IPC flow: remove "Confirm Item Delivery" action, keep "Confirm Delivery"
+      actions = actions.reject { |action| action == 'Confirm Item Delivery' }
+    end
 
     actions.uniq
+  end
+
+  # Check if requisition went through IPC process
+  def went_through_ipc?
+    # Use the database field to track IPC status
+    went_through_ipc || current_state == 'Pending IPC' || workflow_state&.state == 'Funds Approved'
   end
 
   private

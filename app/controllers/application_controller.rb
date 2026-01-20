@@ -55,6 +55,17 @@ class ApplicationController < ActionController::Base
       actions = actions - ['Accept Item', 'Reject Item']
     end
 
+    # Filter actions based on IPC status for Purchase Requests
+    if process == 'Purchase Request' && requisition.present?
+      if requisition.went_through_ipc?
+        # IPC flow: remove "Confirm Delivery" and "Approve/Reject Funds" actions, keep "Confirm Item Delivery"
+        actions = actions - ['Confirm Delivery', 'Approve Funds', 'Reject Funds']
+      else
+        # Non-IPC flow: remove "Confirm Item Delivery" action, keep "Confirm Delivery" and "Approve/Reject Funds"
+        actions = actions - ['Confirm Item Delivery']
+      end
+    end
+
     actions
   end
 

@@ -25,7 +25,7 @@ class RequisitionsController < ApplicationController
     is_supervisor = current_user.employee.current_supervisees.collect do |x|
       x.supervisee
     end.include?(@requisition.initiated_by)
-    @possible_actions = possible_actions(@requisition.workflow_state_id, is_owner, is_supervisor)
+    @possible_actions = possible_actions(@requisition.workflow_state_id, is_owner, is_supervisor, @requisition)
     # raise @possible_actions.inspect
   end
 
