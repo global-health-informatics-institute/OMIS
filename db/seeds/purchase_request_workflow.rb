@@ -257,19 +257,6 @@ end
       active: true
     )
   end
-  # workflow_state_transitions_model
-  if comfirm_delivered_purchase_request_workflow_state_transition.nil?
-    last_id = WorkflowStateTransition.maximum(:id) || 0
-    WorkflowStateTransition.create(
-      id: last_id + 1,
-      workflow_state_id: 41,
-      next_state: 45,
-      voided: false,
-      action: 'Confirm Delivery',
-      by_owner: false,
-      by_supervisor: false
-    )
-  end
   if approve_purchase_request_workflow_state_transition.nil?
     last_id = WorkflowStateTransition.maximum(:id) || 0
     WorkflowStateTransition.create(
@@ -292,18 +279,6 @@ end
       action: 'Reject Request',
       by_owner: false,
       by_supervisor: true
-    )
-  end
-  if start_procurement_workflow_state_transition.nil?
-    last_id = WorkflowStateTransition.maximum(:id) || 0
-    WorkflowStateTransition.create(
-      id: last_id + 1,
-      workflow_state_id: 38,
-      next_state: 40,
-      voided: false,
-      action: 'Source Quotations',
-      by_owner: false,
-      by_supervisor: false
     )
   end
   if complete_procurement_workflow_state_transition.nil?
@@ -367,8 +342,41 @@ end
     )
   end
 
-  WorkflowStateTransition.where(workflow_state_id: [42, 47, 54], action: ['Approve Funds', 'Deny Funds', 'Reject Funds'])
+  # Don't remove Approve/Deny Funds from Payment Requested (42) for non-IPC flow
+  WorkflowStateTransition.where(workflow_state_id: [47, 54], action: ['Approve Funds', 'Reject Funds'])
                          .update_all(voided: true)
+  
+  # Create Approve Funds transition for Payment Requested (42) - non-IPC flow
+  approve_funds_from_payment_requested = WorkflowStateTransition.find_by(workflow_state_id: 42, action: 'Approve Funds')
+  if approve_funds_from_payment_requested.nil?
+    last_id = WorkflowStateTransition.maximum(:id) || 0
+    WorkflowStateTransition.create(
+      id: last_id + 1,
+      workflow_state_id: 42,
+      next_state: 43,
+      voided: false,
+      action: 'Approve Funds',
+      by_owner: false,
+      by_supervisor: false
+    )
+  end
+  
+  # Create Reject Funds transition for Payment Requested (42) - non-IPC flow
+  reject_funds_from_payment_requested = WorkflowStateTransition.find_by(workflow_state_id: 42, action: 'Reject Funds')
+  if reject_funds_from_payment_requested.nil?
+    last_id = WorkflowStateTransition.maximum(:id) || 0
+    WorkflowStateTransition.create(
+      id: last_id + 1,
+      workflow_state_id: 42,
+      next_state: 44,
+      voided: false,
+      action: 'Reject Funds',
+      by_owner: false,
+      by_supervisor: false
+    )
+  end
+  
+  # Create "Confirm Item Delivery" transition for IPC flow only (handled in model logic)
   if confirm_item_delivery_purchase_request_workflow_state_transition.nil?
     last_id = WorkflowStateTransition.maximum(:id) || 0
     WorkflowStateTransition.create(

@@ -58,8 +58,8 @@
                 </div>
               </div>
             <% end %>
-         <!-- Confirm Item Delivery Button (for IPC flow) -->
-            <% if @possible_actions&.include?("Confirm Item Delivery") && @requisition.went_through_ipc? %>
+         <!-- Confirm Item Delivery Button (for IPC flow and non-IPC LPO Issued) -->
+            <% if @possible_actions&.include?("Confirm Item Delivery") && (@requisition.went_through_ipc? || @requisition.current_state == 'LPO Issued') %>
               <div class="row mb-4 justify-content-center">
                 <div class="col-md-10">
                   <div class="d-flex justify-content-center gap-4 flex-wrap">

@@ -138,7 +138,7 @@
                         turbo_confirm: "Are you sure you want to approve these funds?" } %>
         <% end %>
         
-        <% if (@possible_actions || []).include?("Deny Funds") %>
+        <% if (@possible_actions || []).include?("Reject Funds") %>
           <%= link_to "Reject Funds",
                 "/purchase_requests/#{@requisition.id}/reject_funds", 
                 class: "btn btn-danger",

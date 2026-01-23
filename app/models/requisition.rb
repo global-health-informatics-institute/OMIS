@@ -10,6 +10,7 @@ class Requisition < ApplicationRecord
   has_many :requisition_notes, foreign_key: :requisition_id
   has_many :petty_cash_comments, foreign_key: :requisition_id
   belongs_to :workflow_state, foreign_key: :workflow_state_id, primary_key: :workflow_state_id, optional: true
+  has_many :workflow_state_transitions, foreign_key: :workflow_state_id, primary_key: :workflow_state_id
   has_and_belongs_to_many :employees
   has_many_attached :attachments
   has_many :assets, foreign_key: :requisition_id
@@ -75,22 +76,22 @@ class Requisition < ApplicationRecord
   end
 
   def possible_actions
-    designation_id = begin
-      current_user.employee.employee_designations.first.designation_id
+    employee_designation_id = begin
+      current_user.employee.employee_designations.first.employee_designation_id
     rescue StandardError
       nil
     end
-    return [] unless designation_id
+    return [] unless employee_designation_id
 
     actions = []
     workflow_state_transitions.each do |transition|
-      if transition.workflow_state_actors.any? { |actor| actor.employee_designation.designation_id == designation_id }
+      if transition.workflow_state_actors.any? { |actor| actor.employee_designation_id == employee_designation_id }
         actions << transition.action
       end
     end
 
     # Special case for "Pending IPC" state
-    actions << 'Request Payment' if current_state == 'Pending IPC' && [12, 28, 78].include?(designation_id)
+    actions << 'Request Payment' if current_state == 'Pending IPC' && [12, 28, 78].include?(employee_designation_id)
     
     # Filter actions based on IPC status
     if went_through_ipc?

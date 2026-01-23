@@ -3,6 +3,7 @@ class WorkflowStateTransition < ApplicationRecord
   has_one :workflow_state, :foreign_key => :next_state
   has_one :workflow_state, :foreign_key => :workflow_state_id
   has_one :workflow_process, through: :workflow_state
+  has_many :workflow_state_actors, foreign_key: :workflow_state_id, primary_key: :workflow_state_id
   default_scope { where(voided: false) }
   def self.possible_actions(state, user, is_owner= false)
     actions = []

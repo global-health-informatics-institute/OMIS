@@ -16,7 +16,7 @@ class ApplicationController < ActionController::Base
              .first
              &.workflow
     allowed_transitions = WorkflowStateActor.where(employee_designation_id:
-                                                     current_user.employee.current_designations.collect { |x| x.id })
+                                                     current_user.employee.current_designations.collect { |x| x.employee_designation_id })
                                             .collect { |x| x.workflow_state_id }
 
     # need to know possible actions, know things you are owner of, supervisor on, need your role
@@ -25,7 +25,7 @@ class ApplicationController < ActionController::Base
       if ['Recall Request', 'Collect Funds','Recall Timesheet','Rescind Request'].include?(transition.action) && !is_owner
         next
       end
-      if (is_owner && transition.by_owner) or (!is_owner && allowed_transitions.include?(transition.id))
+      if (is_owner && transition.by_owner) or (!is_owner && allowed_transitions.include?(current_state))
         actions.append(transition.action)
       elsif is_supervisor && transition.by_supervisor and !is_owner
         actions.append(transition.action)
@@ -61,8 +61,16 @@ class ApplicationController < ActionController::Base
         # IPC flow: remove "Confirm Delivery" and "Approve/Reject Funds" actions, keep "Confirm Item Delivery"
         actions = actions - ['Confirm Delivery', 'Approve Funds', 'Reject Funds']
       else
-        # Non-IPC flow: remove "Confirm Item Delivery" action, keep "Confirm Delivery" and "Approve/Reject Funds"
-        actions = actions - ['Confirm Item Delivery']
+        # Non-IPC flow:
+        # - Always remove "Confirm Delivery"
+        # - In Payment Requested state: keep "Approve Funds" and "Reject Funds", remove "Confirm Item Delivery"
+        # - In LPO Issued state: keep "Confirm Item Delivery", remove "Approve Funds" and "Reject Funds"
+        actions = actions - ['Confirm Delivery']
+        if current_state == 42  # Payment Requested
+          actions = actions - ['Confirm Item Delivery']
+        elsif current_state == 57  # LPO Issued
+          actions = actions - ['Approve Funds', 'Reject Funds']
+        end
       end
     end
 
