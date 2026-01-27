@@ -1,18 +1,12 @@
-
 <%= turbo_stream.update "request_content" do %>
-  <% if @selected_request == "Petty Cash" %>
-    <%= render partial: "petty_cash", locals: {selected_report: @selected_request} %>
-  <% elsif @selected_request == "Asset Request" %>
-    <%= render partial: "asset_request", locals: {selected_report: @selected_request} %>
-  <% elsif @selected_request == 'Purchase Request' %>
-    <%= render partial: "purchase_request", locals: {selected_report: @selected_request} %>
-  <% elsif @selected_request == 'Travel Request' %>
-    <%= render partial: "travel_request", locals: {selected_report: @selected_request} %>
-  <% elsif @selected_request == 'Personnel Request' %>
-    <%= render partial: "personnel", locals: {selected_report: @selected_request} %>
-  <% elsif @selected_request == 'Leave Request' %>
-    <%= render partial: "leave_request", locals: {selected_report: @selected_request} %>
-  <% elsif @selected_request == 'Token Request' %>
-    <%= render partial: "token_request", locals: {selected_report: @selected_request} %>
-  <% end %>
+  <% partials = {
+    "Petty Cash" => "petty_cash",
+    "Asset Request" => "asset_request",
+    "Purchase Request" => "purchase_requests/new",
+    "Travel Request" => "travel_request",
+    "Personnel Request" => "personnel",
+    "Leave Request" => "leave_request",
+    "Token Request" => "token_request"
+  } %>
+  <%= render partial: partials[@selected_request], locals: { selected_report: @selected_request } %>
 <% end %>
