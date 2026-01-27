@@ -57,6 +57,14 @@ Rails.application.routes.draw do
   put 'requisitions/:id/disburse_funds', to: 'requisitions#disburse_funds'
   patch 'requisitions/:id/liquidate_funds', to: 'requisitions#liquidate_funds', as: :liquidate_funds_requisition
 
+  namespace :requisitions do
+    resources :purchase_requests do
+      member do
+        # Define custom routes for purchase_requests here
+      end
+    end
+  end
+
   put 'leave_requests/:id/approve_leave', to: 'leave_requests#approve_leave'
   put 'leave_requests/:id/cancel_leave', to: 'leave_requests#cancel_leave'
   put 'leave_requests/:id/deny_leave', to: 'leave_requests#deny_leave'
