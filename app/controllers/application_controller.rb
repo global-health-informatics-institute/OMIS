@@ -58,18 +58,29 @@ class ApplicationController < ActionController::Base
     # Filter actions based on IPC status for Purchase Requests
     if process == 'Purchase Request' && requisition.present?
       if requisition.went_through_ipc?
-        # IPC flow: remove "Confirm Delivery" and "Approve/Reject Funds" actions, keep "Confirm Item Delivery"
-        actions = actions - ['Confirm Delivery', 'Approve Funds', 'Reject Funds']
+        # IPC flow: remove "Confirm Delivery", but keep "Approve/Reject Funds" for Item Accepted state
+        actions = actions - ['Confirm Delivery']
+        if current_state == 47  # Item Accepted
+          # Keep "Approve Funds" and "Reject Funds" for Item Accepted state in IPC flow
+          # No removal needed for these actions
+        else
+          # For other IPC states, remove "Approve Funds" and "Reject Funds"
+          actions = actions - ['Approve Funds', 'Reject Funds']
+        end
       else
         # Non-IPC flow:
         # - Always remove "Confirm Delivery"
         # - In Payment Requested state: keep "Approve Funds" and "Reject Funds", remove "Confirm Item Delivery"
         # - In LPO Issued state: keep "Confirm Item Delivery", remove "Approve Funds" and "Reject Funds"
+        # - In Item Accepted state: keep "Approve Funds" and "Reject Funds"
         actions = actions - ['Confirm Delivery']
         if current_state == 42  # Payment Requested
           actions = actions - ['Confirm Item Delivery']
         elsif current_state == 57  # LPO Issued
           actions = actions - ['Approve Funds', 'Reject Funds']
+        elsif current_state == 47  # Item Accepted
+          # Keep "Approve Funds" and "Reject Funds" for Item Accepted state
+          # No removal needed for these actions
         end
       end
     end

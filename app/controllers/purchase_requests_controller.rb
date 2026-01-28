@@ -1,5 +1,4 @@
 class PurchaseRequestsController < ApplicationController
-
   before_action :set_categories, only: [:new, :register_asset, :show, :create]
   before_action :set_employees, only: [:new, :show, :create, :edit, :update, :request_payment]
   def new
@@ -67,19 +66,33 @@ class PurchaseRequestsController < ApplicationController
   end
 
   def register_asset
-  @requisition = Requisition.find(params[:id])
-  @asset = @requisition.assets.build(asset_params)
+    @requisition = Requisition.find(params[:id])
+    @asset = @requisition.assets.build(asset_params)
 
-  respond_to do |format|
-    if @asset.save
-      format.html { redirect_to requisition_path(@requisition), notice: "Asset registered successfully." }
-      format.js   # Will render register_asset.js.erb
-    else
-      format.html { render :final_step_view, status: :unprocessable_entity }
-      format.js   # Will render register_asset.js.erb with errors
+    respond_to do |format|
+      if @asset.save
+        format.html { redirect_to requisition_path(@requisition), notice: "Asset registered successfully." }
+        format.js   # Will render register_asset.js.erb
+      else
+        format.html { 
+          flash.now[:alert] = "Asset registration failed. Please fix the errors below."
+          # Set up variables needed for the show view
+          @project_options = Project.all.collect { |x| [x.project_name, x.id] }
+          @selected_project = @requisition.project
+          @projects = Project.all
+          @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f if @requisition.requisition_type == 'Petty Cash'
+          is_owner = (@requisition.initiated_by == current_user.employee_id)
+          is_supervisor = current_user.employee.current_supervisees.collect do |x|
+            x.supervisee
+          end.include?(@requisition.initiated_by)
+          @possible_actions = possible_actions(@requisition.workflow_state_id, is_owner, is_supervisor, @requisition)
+          
+          render :show, status: :unprocessable_entity 
+        }
+        format.js   # Will render register_asset.js.erb with errors
+      end
     end
   end
-end
 
   def show
     @requisition = Requisition.find(params[:id])

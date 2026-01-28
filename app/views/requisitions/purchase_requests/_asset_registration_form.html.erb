@@ -14,6 +14,17 @@
         </div>
 
         <div class="card-body">
+          <% if @asset&.errors&.any? %>
+            <div class="alert alert-danger">
+              <h5>Please fix the following errors:</h5>
+              <ul>
+                <% @asset.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+          
           <!-- Asset Details -->
           <div class="row mb-3">
             <div class="col-md-6">
@@ -21,55 +32,55 @@
               <%= form.select :asset_category_id,
                 options_from_collection_for_select(@categories, :id, :category),
                 { include_blank: "Select asset category" },
-                class: "form-select" %>
+                { class: "form-select", required: true } %>
             </div>
 
             <div class="col-md-6">
-              <%= form.label :description, class: "form-label" %>
-              <%= form.text_field :description, placeholder: 'Enter asset description', class: "form-control" %>
-            </div>
-          </div>
-
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <%= form.label :status, class: "form-label" %>
-              <%= form.text_field :status, placeholder: 'Enter asset status', class: "form-control" %>
-            </div>
-
-            <div class="col-md-6">
-              <%= form.label :make, class: "form-label" %>
-              <%= form.text_field :make, placeholder: 'Enter asset make', class: "form-control" %>
+              <%= form.label :description, "Description", class: "form-label" %>
+              <%= form.text_field :description, placeholder: 'Enter asset description', class: "form-control", required: true %>
             </div>
           </div>
 
           <div class="row mb-3">
             <div class="col-md-6">
-              <%= form.label :model, class: "form-label" %>
-              <%= form.text_field :model, placeholder: 'Enter asset model', class: "form-control" %>
+              <%= form.label :status, "Status", class: "form-label" %>
+              <%= form.text_field :status, placeholder: 'Enter asset status', class: "form-control", required: true %>
             </div>
 
             <div class="col-md-6">
-              <%= form.label :serial_number, class: "form-label" %>
-              <%= form.text_field :serial_number, placeholder: 'Enter asset serial number', class: "form-control" %>
+              <%= form.label :make, "Make", class: "form-label" %>
+              <%= form.text_field :make, placeholder: 'Enter asset make', class: "form-control", required: true %>
             </div>
           </div>
 
           <div class="row mb-3">
             <div class="col-md-6">
-              <%= form.label :location, class: "form-label" %>
-              <%= form.text_field :location, placeholder: 'Enter asset location', class: "form-control" %>
+              <%= form.label :model, "Model", class: "form-label" %>
+              <%= form.text_field :model, placeholder: 'Enter asset model', class: "form-control", required: true %>
+            </div>
+
+            <div class="col-md-6">
+              <%= form.label :serial_number, "Serial Number", class: "form-label" %>
+              <%= form.text_field :serial_number, placeholder: 'Enter asset serial number', class: "form-control", required: true %>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <%= form.label :location, "Location", class: "form-label" %>
+              <%= form.text_field :location, placeholder: 'Enter asset location', class: "form-control", required: true %>
             </div>
 
             <div class="col-md-6">
               <%= form.label :value, "Value (MWK)", class: "form-label" %>
-              <%= form.number_field :value, class: "form-control", step: "0.01", min: 0, placeholder: "Enter asset value" %>
+              <%= form.number_field :value, class: "form-control", step: "0.01", min: "0.01", placeholder: "Enter asset value", required: true %>
             </div>
           </div>
 
           <div class="row mb-3">
             <div class="col-md-6">
               <%= form.label :tag_id, "Asset Tag ID", class: "form-label" %>
-              <%= form.text_field :tag_id, placeholder: 'Enter asset tag ID', class: "form-control" %>
+              <%= form.text_field :tag_id, placeholder: 'Enter asset tag ID', class: "form-control", required: true %>
             </div>
           </div>
 

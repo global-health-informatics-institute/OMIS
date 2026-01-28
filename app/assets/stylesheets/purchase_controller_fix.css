@@ -1,0 +1,9 @@
+/* Prevent flash of incorrect content on page load */
+#nav-tabContent {
+  opacity: 0;
+  transition: opacity 0.1s ease-in-out;
+}
+
+#nav-tabContent.loaded {
+  opacity: 1;
+}

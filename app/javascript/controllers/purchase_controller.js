@@ -177,16 +177,27 @@ goToStep1() {
     console.log("Has IPC modal target?", this.hasIpcConfirmationModalTarget);
     console.log("IPC modal target:", this.ipcConfirmationModalTarget);
      console.log("Designation ID value:", this.designationIdValue); 
-    // Initialize panels
+    
+    // Initialize panels - hide all initially to prevent flash
     this.allPanels = Array.from(document.getElementById('nav-tabContent').querySelectorAll('.tab-pane'))
-    this.visiblePanels = [...this.allPanels]
+    this.visiblePanels = []
+    
+    // Hide all panels initially
+    this.allPanels.forEach(panel => {
+      panel.classList.remove('show', 'active')
+    })
     
     // Set up listeners
     this.setupIPCListeners()
     // Process initial state with database fallback
     await this.processInitialState()
+    // Reorder steps to show correct panels immediately
      this.reorderSteps();    
     this.initialized = true
+    
+    // Show the content now that it's properly arranged
+    document.getElementById('nav-tabContent').classList.add('loaded')
+    
     console.log("Controller fully initialized")
     if (this.hasIpcConfirmationModalTarget) {
       this.ipcModalInstance = new bootstrap.Modal(this.ipcConfirmationModalTarget);
@@ -436,7 +447,8 @@ reorderSteps() {
 
   else if (this.currentStateValue === "Item Delivered" && this.designationIdValue === 12) {
     orderToUse = ['nav-step7'];
-      alert("Please wait. The requester must confirm acceptance of the delivered item before you can proceed with requesting payment.");
+    // Commented out alert to prevent disruptive pop-up
+    // alert("Please wait. The requester must confirm acceptance of the delivered item before you can proceed with requesting payment.");
   }
     else if (this.currentStateValue === "Payments Requested") {
     orderToUse = ['nav-step1'];
@@ -449,21 +461,16 @@ reorderSteps() {
   else if (this.currentStateValue === "Under Procurement") {
     orderToUse = ['nav-step1'];
   }
-   else if (this.currentStateValue === "Item Accepted" && this.designationIdValue === 12) {
+   else if (this.currentStateValue === "Item Accepted" && (this.designationIdValue === 12 || this.designationIdValue === 5 || this.designationIdValue === 1)) {
     orderToUse = ['nav-step7'];
   }
      else if (this.currentStateValue === "Item Approved" && this.designationIdValue === 12) {
     orderToUse = ['nav-step1'];
   }
-
-     else if (this.currentStateValue === "Item Accepted") {
-    orderToUse = ['nav-step1'];
-  }
             else if (this.currentStateValue === "Payments Approved" && this.designationIdValue ===12) {
     orderToUse = ['nav-step5'];
   }
-
-            else if (this.currentStateValue === "Payments Approved") {
+  else if (this.currentStateValue === "Payments Approved") {
     orderToUse = ['nav-step1'];
   }
   else if (this.currentStateValue === "Pending IPC" && this.designationIdValue === 12) {
@@ -488,6 +495,17 @@ reorderSteps() {
   });
 
   console.log("Final visiblePanels order:", this.visiblePanels.map(p => p.id));
+
+  // Show the first visible panel and hide others
+  this.visiblePanels.forEach((panel, index) => {
+    if (index === 0) {
+      // Show first panel
+      panel.classList.add('show', 'active');
+    } else {
+      // Hide other panels
+      panel.classList.remove('show', 'active');
+    }
+  });
 
   // After reordering, if the current step is now out of bounds, reset it to 0
   if (this.currentStepValue >= this.visiblePanels.length) {
