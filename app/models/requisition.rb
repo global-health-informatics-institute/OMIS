@@ -6,6 +6,11 @@ class Requisition < ApplicationRecord
   has_many :petty_cash_comments, foreign_key: :requisition_id
   belongs_to :workflow_state, foreign_key: :workflow_state_id, primary_key: :workflow_state_id, optional: true
   has_and_belongs_to_many :employees
+
+  has_one :purchase_request_detail, foreign_key: :requisition_id
+  accepts_nested_attributes_for :purchase_request_detail
+  accepts_nested_attributes_for :requisition_items
+
   def assign_state
     self.workflow_state_id = InitialState.find_by_workflow_process_id(WorkflowProcess.find_by_workflow('Petty Cash Request')).workflow_state_id
   end
