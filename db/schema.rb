@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_01_30_115656) do
+ActiveRecord::Schema[7.0].define(version: 2026_02_03_134712) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -55,6 +55,14 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_30_115656) do
     t.integer "created_by"
     t.integer "closed_by"
     t.boolean "is_open", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "budget_lines", force: :cascade do |t|
+    t.integer "requisition_id", null: false
+    t.string "budget_line", null: false
+    t.boolean "voided", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -456,6 +464,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_30_115656) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "budget_lines", "requisitions", primary_key: "requisition_id"
   add_foreign_key "departments", "branches", primary_key: "branch_id"
   add_foreign_key "donor_projects", "donors"
   add_foreign_key "donor_projects", "projects", primary_key: "project_id"
