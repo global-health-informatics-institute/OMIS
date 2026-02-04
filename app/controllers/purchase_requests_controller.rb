@@ -1,15 +1,21 @@
 class PurchaseRequestsController < ApplicationController
-  before_action :set_categories, only: [:new, :register_asset, :show, :create]
-  before_action :set_employees, only: [:new, :show, :create, :edit, :update, :request_payment]
+  before_action :set_categories, only: %i[new register_asset show create]
+  before_action :set_employees, only: %i[new show create edit update request_payment]
+  skip_before_action :verify_authenticity_token, only: [:approve_request, :reject_request]
+  skip_before_action :logged_in?, only: [:approve_request, :reject_request]
   def new
-    @requisition = Requisition.new(requisition_type: "Purchase Request")
+    @requisition = Requisition.new(requisition_type: 'Purchase Request')
     @requisition.requisition_items.build
     @department_options = Department.all.collect { |x| [x.department_name, x.id] }
-    @selected_department = Department.find_by_department_name(params[:department_name]) if params[:department_name].present?
+    if params[:department_name].present?
+      @selected_department = Department.find_by_department_name(params[:department_name])
+    end
     # Load only stakeholders marked as donors
     @stakeholder_options = Stakeholder.where(is_donor: true).pluck(:stakeholder_name, :stakeholder_id)
     # Pre-select stakeholder if coming from params
-    @selected_stakeholder = Stakeholder.find_by(stakeholder_id: params[:stakeholder_id]) if params[:stakeholder_id].present?
+    return unless params[:stakeholder_id].present?
+
+    @selected_stakeholder = Stakeholder.find_by(stakeholder_id: params[:stakeholder_id])
   end
 
   def create
@@ -18,13 +24,16 @@ class PurchaseRequestsController < ApplicationController
     initial_state = InitialState.find_by(workflow_process_id: workflow_process.id) if workflow_process
 
     # 2. Initialize requisition with params
+    budget_ref = params[:requisition][:budget_line_reference] || ''
+    
     @requisition = Requisition.new(
       initiated_by: current_user.id,
       initiated_on: params[:requisition][:initiated_on] || Date.today,
       purpose: params[:requisition][:purpose],
-      requisition_type: "Purchase Request",
+      requisition_type: 'Purchase Request',
       workflow_state_id: initial_state&.workflow_state_id,
-      department_id: params[:requisition][:department_id]
+      department_id: params[:requisition][:department_id],
+      budget_line_reference: budget_ref
     )
 
     # 3. Save all records in transaction
@@ -50,9 +59,13 @@ class PurchaseRequestsController < ApplicationController
 
         # Success response
         if @requisition.errors.empty?
-          # supervisor = current_user.employee.supervisor
-          # RequisitionMailer.notify_supervisor(@requisition, supervisor).deliver_now
-          flash[:notice] = 'Purchase Request successful sent to your supervisor.'
+          supervisor = current_user.employee.supervisor
+          if supervisor
+            RequisitionMailer.notify_supervisor_purchase_request(@requisition, supervisor).deliver_now
+            flash[:notice] = 'Purchase Request successful sent to your supervisor.'
+          else
+            flash[:notice] = 'Purchase Request created successfully.'
+          end
           redirect_to "/requisitions/#{@requisition.id}"
         else
           flash[:error] = 'Request failed'
@@ -71,11 +84,11 @@ class PurchaseRequestsController < ApplicationController
 
     respond_to do |format|
       if @asset.save
-        format.html { redirect_to requisition_path(@requisition), notice: "Asset registered successfully." }
-        format.js   # Will render register_asset.js.erb
+        format.html { redirect_to requisition_path(@requisition), notice: 'Asset registered successfully.' }
+        format.js # Will render register_asset.js.erb
       else
-        format.html { 
-          flash.now[:alert] = "Asset registration failed. Please fix the errors below."
+        format.html do
+          flash.now[:alert] = 'Asset registration failed. Please fix the errors below.'
           # Set up variables needed for the show view
           @project_options = Project.all.collect { |x| [x.project_name, x.id] }
           @selected_project = @requisition.project
@@ -86,10 +99,10 @@ class PurchaseRequestsController < ApplicationController
             x.supervisee
           end.include?(@requisition.initiated_by)
           @possible_actions = possible_actions(@requisition.workflow_state_id, is_owner, is_supervisor, @requisition)
-          
-          render :show, status: :unprocessable_entity 
-        }
-        format.js   # Will render register_asset.js.erb with errors
+
+          render :show, status: :unprocessable_entity
+        end
+        format.js # Will render register_asset.js.erb with errors
       end
     end
   end
@@ -102,16 +115,69 @@ class PurchaseRequestsController < ApplicationController
   end
 
   def approve_request
+    @requisition = Requisition.find(params[:id])
     new_state = WorkflowState.where(state: 'Under Procurement',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
-    @requisition = Requisition.find(params[:id]).update(reviewed_by: current_user.id, workflow_state_id: new_state.first.id)
+
+    if current_user
+      # In-app approval
+      update_success = @requisition.update(
+        reviewed_by: current_user.id,
+        workflow_state_id: new_state.first.id
+      )
+    else
+      # Approval via email link (no current_user)
+      update_success = @requisition.update(
+        reviewed_by: params[:reviewer_first_name], # From the email link
+        workflow_state_id: new_state.first.id
+      )
+    end
+
+    if update_success
+      # Send email to requester
+      RequisitionMailer.purchase_request_approved_email(@requisition).deliver_now
+
+      # Send email to admin users
+      admin_users = User.joins(employee: :employee_designations)
+                        .where(employee_designations: { designation_id: 12 }).distinct
+
+      admin_users.each do |admin|
+        RequisitionMailer.notify_admin_purchase_request(@requisition, admin).deliver_now
+      end
+
+      flash[:notice] = 'Purchase Request approved successfully, the requester and admin notified.'
+    else
+      flash[:alert] = 'Error approving purchase request.'
+    end
+
     redirect_to "/requisitions/#{params[:id]}"
   end
 
   def reject_request
+    @requisition = Requisition.find(params[:id])
     new_state = WorkflowState.where(state: 'Rejected',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
-    @requisition = Requisition.find(params[:id]).update(reviewed_by: current_user.id, workflow_state_id: new_state.first.id)
+
+    if current_user
+      # In-app rejection
+      update_success = @requisition.update(
+        reviewed_by: current_user.id,
+        workflow_state_id: new_state.first.id
+      )
+    else
+      # Rejection via email link (no current_user)
+      update_success = @requisition.update(
+        reviewed_by: params[:reviewer_first_name], # From the email link
+        workflow_state_id: new_state.first.id
+      )
+    end
+
+    if update_success
+      flash[:notice] = 'Purchase Request rejected successfully.'
+    else
+      flash[:alert] = 'Error rejecting purchase request.'
+    end
+
     redirect_to "/requisitions/#{params[:id]}"
   end
 
@@ -123,28 +189,29 @@ class PurchaseRequestsController < ApplicationController
   end
 
   def schedule_ipc_meeting
-  requisition = Requisition.find(params[:id])
+    requisition = Requisition.find(params[:id])
     employee_ids = params[:employee_ids]
     meeting_date = Date.parse(params[:meeting_date])
-     raise "Missing meeting date" unless meeting_date.present?
+    raise 'Missing meeting date' unless meeting_date.present?
+
     employees = Employee.where(id: employee_ids)
-    raise "No employees selected" if employees.empty?
+    raise 'No employees selected' if employees.empty?
+
     employees.each do |employee|
-    RequisitionMailer.notify_ipc_members(requisition, employee, meeting_date).deliver_later
-  end
+      RequisitionMailer.notify_ipc_members(requisition, employee, meeting_date).deliver_later
+    end
 
-  render json: { message: "Emails sent successfully" }, status: :ok
-    rescue => e
+    render json: { message: 'Emails sent successfully' }, status: :ok
+  rescue StandardError => e
     logger.error "Failed to schedule IPC meeting: #{e.message}"
-    render json: { error: "Failed to send invitations" }, status: :internal_server_error
- end
-
+    render json: { error: 'Failed to send invitations' }, status: :internal_server_error
+  end
 
   def request_payments
     @requisition = Requisition.find(params[:id])
     current_state = @requisition.workflow_state&.state # Get the current state
-     cleaned_amount_string = params[:requisition][:amount].gsub(',', '')
-  approved_amount = cleaned_amount_string.to_f # Ensure it's a float for comparison
+    cleaned_amount_string = params[:requisition][:amount].gsub(',', '')
+    approved_amount = cleaned_amount_string.to_f # Ensure it's a float for comparison
     supplier = params[:requisition][:supplier]
 
     new_state = WorkflowState.find_by(
@@ -163,7 +230,8 @@ class PurchaseRequestsController < ApplicationController
       if approved_amount <= threshold
         process_payment_request_and_update(@requisition, new_state, approved_amount, supplier)
       else
-        flash[:alert] = "The approved amount (£#{'%.2f' % approved_amount}) exceeds the purchase request threshold (£#{'%.2f' % threshold}).Please Request IPC."
+        flash[:alert] =
+          "The approved amount (£#{'%.2f' % approved_amount}) exceeds the purchase request threshold (£#{'%.2f' % threshold}).Please Request IPC."
         redirect_to "/requisitions/#{@requisition.id}" and return
       end
     else
@@ -171,7 +239,7 @@ class PurchaseRequestsController < ApplicationController
       process_payment_request_and_update(@requisition, new_state, approved_amount, supplier)
     end
   rescue ActiveRecord::RecordNotFound
-    flash[:error] = "Purchase Request not found."
+    flash[:error] = 'Purchase Request not found.'
     redirect_to "/requisitions/#{params[:id]}"
   rescue ActiveRecord::RecordInvalid => e
     flash[:error] = "Failed to complete procurement: #{e.message}"
@@ -180,16 +248,18 @@ class PurchaseRequestsController < ApplicationController
     flash[:error] = "An unexpected error occurred: #{e.message}"
     redirect_to "/requisitions/#{params[:id]}"
   end
+
   def request_payment
     @requisition = Requisition.find(params[:id])
     current_state = @requisition.workflow_state&.state # Get the current state
-      cleaned_amount_string = params[:requisition][:amount].gsub(',', '')
-  approved_amount = cleaned_amount_string.to_f
+    cleaned_amount_string = params[:requisition][:amount].gsub(',', '')
+    approved_amount = cleaned_amount_string.to_f
 
     supplier = params[:requisition][:supplier]
+    budget_line_reference = params[:requisition][:budget_line_reference]
 
     # Check if this is an LPO issuance
-    if params[:commit] == "Issue LPO"
+    if params[:commit] == 'Issue LPO'
       lpo_new_state = WorkflowState.find_by(
         state: 'LPO Issued',
         workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request')&.id
@@ -202,13 +272,13 @@ class PurchaseRequestsController < ApplicationController
 
       # Validate supplier presence
       if supplier.blank?
-        flash[:error] = "Supplier name is required before issuing LPO."
+        flash[:error] = 'Supplier name is required before issuing LPO.'
         redirect_to "/requisitions/#{@requisition.id}" and return
       end
 
       # Validate amount presence
       if approved_amount <= 0
-        flash[:error] = "Total amount must be greater than 0 before issuing LPO."
+        flash[:error] = 'Total amount must be greater than 0 before issuing LPO.'
         redirect_to "/requisitions/#{@requisition.id}" and return
       end
 
@@ -216,14 +286,15 @@ class PurchaseRequestsController < ApplicationController
       if current_state == 'Pending Payment Request'
         threshold = GlobalProperty.purchase_request_threshold
         if approved_amount <= threshold
-          process_lpo_issuance_and_update(@requisition, lpo_new_state, approved_amount, supplier)
+          process_lpo_issuance_and_update(@requisition, lpo_new_state, approved_amount, supplier, budget_line_reference)
         else
-          flash[:alert] = "The approved amount (£#{'%.2f' % approved_amount}) exceeds the purchase request threshold (£#{'%.2f' % threshold}). Please Request IPC."
+          flash[:alert] =
+            "The approved amount (£#{'%.2f' % approved_amount}) exceeds the purchase request threshold (£#{'%.2f' % threshold}). Please Request IPC."
           redirect_to "/requisitions/#{@requisition.id}" and return
         end
       else
         # For any other state, proceed with LPO issuance without threshold check
-        process_lpo_issuance_and_update(@requisition, lpo_new_state, approved_amount, supplier)
+        process_lpo_issuance_and_update(@requisition, lpo_new_state, approved_amount, supplier, budget_line_reference)
       end
       return
     end
@@ -235,7 +306,7 @@ class PurchaseRequestsController < ApplicationController
         state: 'Payment Requested',
         workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request')&.id
       )
-      
+
       unless new_state
         flash[:error] = "Error: 'Payment Requested' workflow state not found."
         redirect_to "/requisitions/#{@requisition.id}" and return
@@ -243,7 +314,7 @@ class PurchaseRequestsController < ApplicationController
 
       # Mark as went through IPC and update state
       @requisition.update!(went_through_ipc: true)
-      process_ipc_payment_request_and_update(@requisition, new_state, approved_amount, supplier)
+      process_ipc_payment_request_and_update(@requisition, new_state, approved_amount, supplier, budget_line_reference)
     else
       # Non-IPC flow: Request Payment -> Approve/Reject Funds -> Confirm Item Delivery
       new_state = WorkflowState.find_by(
@@ -252,7 +323,7 @@ class PurchaseRequestsController < ApplicationController
       )
 
       unless new_state
-        flash[:error] = "Error: 'Payment Requested' workflow state not found."    
+        flash[:error] = "Error: 'Payment Requested' workflow state not found."
         redirect_to "/requisitions/#{@requisition.id}" and return
       end
 
@@ -260,18 +331,19 @@ class PurchaseRequestsController < ApplicationController
       if current_state == 'Pending Payment Request'
         threshold = GlobalProperty.purchase_request_threshold
         if approved_amount <= threshold
-          process_payment_request_and_update(@requisition, new_state, approved_amount, supplier)
+          process_payment_request_and_update(@requisition, new_state, approved_amount, supplier, budget_line_reference)
         else
-          flash[:alert] = "The approved amount (£#{'%.2f' % approved_amount}) exceeds the purchase request threshold (£#{'%.2f' % threshold}).Please Request IPC."
+          flash[:alert] =
+            "The approved amount (£#{'%.2f' % approved_amount}) exceeds the purchase request threshold (£#{'%.2f' % threshold}).Please Request IPC."
           redirect_to "/requisitions/#{@requisition.id}" and return
         end
       else
         # For any other state, proceed with the payment request without a threshold check.
-        process_payment_request_and_update(@requisition, new_state, approved_amount, supplier)
+        process_payment_request_and_update(@requisition, new_state, approved_amount, supplier, budget_line_reference)
       end
     end
   rescue ActiveRecord::RecordNotFound
-    flash[:error] = "Purchase Request not found."
+    flash[:error] = 'Purchase Request not found.'
     redirect_to "/requisitions/#{@requisition.id}"
   rescue ActiveRecord::RecordInvalid => e
     flash[:error] = "Failed to complete procurement: #{e.message}"
@@ -301,17 +373,19 @@ class PurchaseRequestsController < ApplicationController
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
+
   def withdraw_request
     new_state = WorkflowState.where(state: 'Withdrawn',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
-    @requisition = Requisition.find(params[:id]).update(approved_by: current_user.id, workflow_state_id: new_state.first.id)
+    @requisition = Requisition.find(params[:id]).update(approved_by: current_user.id,
+                                                        workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
 
   def confirm_lpo_acceptance
     @requisition = Requisition.find(params[:id])
     current_state = @requisition.workflow_state&.state
-    
+
     # Get and validate parameters
     cleaned_amount_string = params[:requisition][:amount].gsub(',', '')
     approved_amount = cleaned_amount_string.to_f
@@ -329,13 +403,13 @@ class PurchaseRequestsController < ApplicationController
 
     # Validate supplier presence
     if supplier.blank?
-      flash[:error] = "Supplier name is required before issuing LPO."
+      flash[:error] = 'Supplier name is required before issuing LPO.'
       redirect_to "/requisitions/#{@requisition.id}" and return
     end
 
     # Validate amount presence
     if approved_amount <= 0
-      flash[:error] = "Total amount must be greater than 0 before issuing LPO."
+      flash[:error] = 'Total amount must be greater than 0 before issuing LPO.'
       redirect_to "/requisitions/#{@requisition.id}" and return
     end
 
@@ -345,7 +419,8 @@ class PurchaseRequestsController < ApplicationController
       if approved_amount <= threshold
         process_lpo_issuance_and_update(@requisition, new_state, approved_amount, supplier)
       else
-        flash[:alert] = "The approved amount (£#{'%.2f' % approved_amount}) exceeds the purchase request threshold (£#{'%.2f' % threshold}). Please Request IPC."
+        flash[:alert] =
+          "The approved amount (£#{'%.2f' % approved_amount}) exceeds the purchase request threshold (£#{'%.2f' % threshold}). Please Request IPC."
         redirect_to "/requisitions/#{@requisition.id}" and return
       end
     else
@@ -353,7 +428,7 @@ class PurchaseRequestsController < ApplicationController
       process_lpo_issuance_and_update(@requisition, new_state, approved_amount, supplier)
     end
   rescue ActiveRecord::RecordNotFound
-    flash[:error] = "Purchase Request not found."
+    flash[:error] = 'Purchase Request not found.'
     redirect_to "/requisitions/#{@requisition.id}"
   rescue ActiveRecord::RecordInvalid => e
     flash[:error] = "Failed to issue LPO: #{e.message}"
@@ -367,67 +442,86 @@ class PurchaseRequestsController < ApplicationController
   def confirm_lpo_acceptance_form
     confirm_lpo_acceptance
   end
- def accept_item
-   requisition = Requisition.find(params[:id])
-   transition = WorkflowStateTransition.find_by(workflow_state_id: requisition.workflow_state_id, action: 'Accept Item')
- 
-   if transition.nil?
-     flash[:error] = 'Accept Item workflow transition is not configured for the current state.'
-     return redirect_to "/requisitions/#{params[:id]}"
-   end
- 
-   requisition.update(workflow_state_id: transition.next_state)
-   redirect_to "/requisitions/#{params[:id]}" 
- end
- def reject_item
-   new_state = WorkflowState.where(state: 'Item Rejected',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
-     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
-     redirect_to "/requisitions/#{params[:id]}"
- end
-def finish_process
-  new_state = WorkflowState.where(state: 'Process Completed',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
-    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+
+  def accept_item
+    requisition = Requisition.find(params[:id])
+    transition = WorkflowStateTransition.find_by(workflow_state_id: requisition.workflow_state_id,
+                                                 action: 'Accept Item')
+
+    if transition.nil?
+      flash[:error] = 'Accept Item workflow transition is not configured for the current state.'
+      return redirect_to "/requisitions/#{params[:id]}"
+    end
+
+    requisition.update(workflow_state_id: transition.next_state)
     redirect_to "/requisitions/#{params[:id]}"
-end
-def rescind_request
-  new_state = WorkflowState.where(state: 'Rescinded',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
-    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
-    redirect_to "/requisitions/#{params[:id]}"
-end
-def confirm_item_delivery
-  new_state = WorkflowState.where(state: 'Item Delivered',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
-    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
-    redirect_to "/requisitions/#{params[:id]}"
-end
-def approve_payments
-  new_state = WorkflowState.where(state: 'Funds Approved',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
-    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
-    redirect_to "/requisitions/#{params[:id]}"
-end
-def approve_item
-   new_state = WorkflowState.where(state: 'Item Approved',
-                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
-    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
-    redirect_to "/requisitions/#{params[:id]}"
-end 
-  private
-  def set_employees
-      @employees = Employee.includes(:person).all.sort_by { |e| e.person.full_name }
   end
+
+  def reject_item
+    new_state = WorkflowState.where(state: 'Item Rejected',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+  end
+
+  def finish_process
+    new_state = WorkflowState.where(state: 'Process Completed',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+  end
+
+  def rescind_request
+    new_state = WorkflowState.where(state: 'Rescinded',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+  end
+
+  def confirm_item_delivery
+    new_state = WorkflowState.where(state: 'Item Delivered',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+
+    # Send email to requester about item delivery
+    requisition = Requisition.find(params[:id])
+    item_description = requisition.requisition_items.first&.item_description || 'item'
+    requester = Employee.find_by(employee_id: requisition.initiated_by)
+
+    RequisitionMailer.item_delivered_email(requisition, item_description).deliver_now if requester
+
+    flash[:notice] = 'Item delivery confirmed and requester notified.'
+    redirect_to "/requisitions/#{params[:id]}"
+  end
+
+  def approve_payments
+    new_state = WorkflowState.where(state: 'Funds Approved',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+  end
+
+  def approve_item
+    new_state = WorkflowState.where(state: 'Item Approved',
+                                    workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
+    @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
+    redirect_to "/requisitions/#{params[:id]}"
+  end
+
+  private
+
+  def set_employees
+    @employees = Employee.includes(:person).all.sort_by { |e| e.person.full_name }
+  end
+
   # This helper method encapsulates the common logic for processing payment requests
-  def process_payment_request_and_update(requisition, new_state, approved_amount, supplier)
+  def process_payment_request_and_update(requisition, new_state, approved_amount, supplier, budget_line_reference = nil)
     ActiveRecord::Base.transaction do
       # Update the Requisition's state and approved_by
-      requisition.update!(approved_by: current_user.id, workflow_state_id: new_state.id)
+      requisition.update!(approved_by: current_user.id, workflow_state_id: new_state.id,
+                          budget_line_reference: budget_line_reference)
 
-      if requisition.requisition_items.any?
-        requisition.requisition_items.first.update!(value: approved_amount)
-      end
+      requisition.requisition_items.first.update!(value: approved_amount) if requisition.requisition_items.any?
 
       # Update supplier in PurchaseRequestAttachment
       if supplier.present?
@@ -436,19 +530,18 @@ end
         attachment.save!
       end
     end
-    flash[:notice] = "Payment request processed successfully."
+    flash[:notice] = 'Payment request processed successfully.'
     redirect_to "/requisitions/#{requisition.id}"
   end
 
   # This helper method encapsulates the common logic for processing LPO issuance
-  def process_lpo_issuance_and_update(requisition, new_state, approved_amount, supplier)
+  def process_lpo_issuance_and_update(requisition, new_state, approved_amount, supplier, budget_line_reference = nil)
     ActiveRecord::Base.transaction do
       # Update the Requisition's state and approved_by
-      requisition.update!(approved_by: current_user.id, workflow_state_id: new_state.id)
+      requisition.update!(approved_by: current_user.id, workflow_state_id: new_state.id,
+                          budget_line_reference: budget_line_reference)
 
-      if requisition.requisition_items.any?
-        requisition.requisition_items.first.update!(value: approved_amount)
-      end
+      requisition.requisition_items.first.update!(value: approved_amount) if requisition.requisition_items.any?
 
       # Update supplier in PurchaseRequestAttachment
       if supplier.present?
@@ -457,19 +550,19 @@ end
         attachment.save!
       end
     end
-    flash[:notice] = "LPO issued successfully."
+    flash[:notice] = 'LPO issued successfully.'
     redirect_to "/requisitions/#{requisition.id}"
   end
 
   # This helper method encapsulates the common logic for processing IPC payment requests
-  def process_ipc_payment_request_and_update(requisition, new_state, approved_amount, supplier)
+  def process_ipc_payment_request_and_update(requisition, new_state, approved_amount, supplier,
+                                             budget_line_reference = nil)
     ActiveRecord::Base.transaction do
       # Update the Requisition's state and approved_by
-      requisition.update!(approved_by: current_user.id, workflow_state_id: new_state.id)
+      requisition.update!(approved_by: current_user.id, workflow_state_id: new_state.id,
+                          budget_line_reference: budget_line_reference)
 
-      if requisition.requisition_items.any?
-        requisition.requisition_items.first.update!(value: approved_amount)
-      end
+      requisition.requisition_items.first.update!(value: approved_amount) if requisition.requisition_items.any?
 
       # Update supplier in PurchaseRequestAttachment
       if supplier.present?
@@ -478,19 +571,20 @@ end
         attachment.save!
       end
     end
-    flash[:notice] = "Payment request processed successfully (IPC flow). You can now confirm item delivery."
+    flash[:notice] = 'Payment request processed successfully (IPC flow). You can now confirm item delivery.'
     redirect_to "/requisitions/#{requisition.id}"
   end
 
   def asset_params
-     params.require(:requisition).permit(
-    :asset_category_id, :description, :make, :model, :serial_number, :location, :value, :requisition_id, :tag_id, :status
-     )
+    params.require(:requisition).permit(
+      :asset_category_id, :description, :make, :model, :serial_number, :location, :value, :requisition_id, :tag_id, :status
+    )
   end
 
-   def set_categories
+  def set_categories
     @categories = AssetCategory.pluck(:category, :id)
   end
+
   def purchase_request_params
     params.require(:requisition).permit(
       :initiated_on,
@@ -506,7 +600,8 @@ end
       :comments,
       :supplier,
       :item_requested,
-      :stakeholder_id
+      :stakeholder_id,
+      :budget_line_reference
     )
   end
 end
