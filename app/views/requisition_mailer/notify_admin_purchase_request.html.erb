@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <style>
+    body {
+      font-family: 'Trebuchet MS', sans-serif;
+    }
+  </style>
+</head>
+<body style="background-color: #F3F4F6; padding: 20px;">
+
+  <div style="border: 1px solid #002130; width: 100%; margin: 0 auto;">
+    <div style="background-color: #002130; font-weight: bold; color: #E3E4E7; padding: 20px; text-align: center; font-size: 1.5rem;">
+      Purchase Request Approved - Procurement Action Required
+    </div>
+
+    <div style="padding: 30px; font-size: 1.2rem;">
+      <p>
+        Dear <%= @admin.person.full_name %>,
+      </p>
+
+      <p>
+        A purchase request has been approved by the supervisor and now requires procurement processing.
+      </p>
+
+      <p>
+        <strong>Request Details:</strong><br>
+        <strong>Requester:</strong> <%= @requester.person.full_name %><br>
+        <strong>Item Requested:</strong> <%= @requisition.purchase_request_attachment&.item_requested || @requisition.requisition_items.first&.item_description %><br>
+        <strong>Quantity:</strong> <%= @requisition.requisition_items.first&.quantity || 'Not specified' %><br>
+        <strong>Purpose:</strong> <%= @requisition.purpose %><br>
+        <strong>Budget Line Reference:</strong> <%= @requisition.budget_line_reference %><br>
+        <% if @supervisor_name.present? %>
+        <strong>Approved by:</strong> <%= @supervisor_name %><br>
+        <% end %>
+        <strong>Submitted:</strong> <%= @requisition.created_at.strftime("%A, %B %d, %Y at %I:%M %p") %><br>
+      </p>
+
+      <p>
+        Please log into OMIS to process this purchase request and initiate procurement procedures.
+      </p>
+
+      <p>
+        <strong>OMIS Link:</strong> <a href="<%= Rails.application.config.omis_url %>" style="color: #002130;"><%= Rails.application.config.omis_url %></a>
+      </p>
+
+      <p>
+        Your prompt attention to this procurement matter is greatly appreciated.
+      </p>
+    </div>
+  </div>
+
+  <div style="margin-top: 30px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+    <p>This is an automated notification. <%= Time.current.year %></p>
+  </div>
+
+</body>
+</html>

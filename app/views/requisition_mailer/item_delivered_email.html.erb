@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <style>
+    body {
+      font-family: 'Trebuchet MS', sans-serif;
+    }
+  </style>
+</head>
+<body style="background-color: #F3F4F6; padding: 20px;">
+
+  <div style="border: 1px solid #002130; width: 100%; margin: 0 auto;">
+    <div style="background-color: #002130; font-weight: bold; color: #E3E4E7; padding: 20px; text-align: center; font-size: 1.5rem;">
+      Item Delivered
+    </div>
+
+    <div style="padding: 30px; font-size: 1.2rem;">
+      <p>
+        Dear <%= @requester.person.full_name %>,
+      </p>
+
+      <p>
+        Your requested item has been delivered and is ready for collection.
+      </p>
+
+      <p>
+        <strong>Delivery Details:</strong><br>
+        <strong>Request ID:</strong> <%= @requisition.id %><br>
+        <strong>Item Requested:</strong> <%= @requisition.purchase_request_attachment&.item_requested || @requisition.requisition_items.first&.item_description %><br>
+        <strong>Budget Line Reference:</strong> <%= @requisition.budget_line_reference %><br>
+        <strong>Delivery Date:</strong> <%= Date.today.strftime("%A, %B %d, %Y") %><br>
+      </p>
+
+      <p>
+        Please visit the admin office to inspect and collect your item. You will need to confirm receipt in the OMIS system.
+      </p>
+
+      <p>
+        <strong>OMIS Link:</strong> <a href="<%= Rails.application.config.omis_url %>" style="color: #002130;"><%= Rails.application.config.omis_url %></a>
+      </p>
+
+      <p>
+        Thank you for your patience.
+      </p>
+    </div>
+  </div>
+
+  <div style="margin-top: 30px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+    <p>This is an automated notification. <%= Time.current.year %></p>
+  </div>
+
+</body>
+</html>

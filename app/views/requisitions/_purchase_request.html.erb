@@ -55,6 +55,13 @@
         </div>
       </div>
 
+      <div class="row mt-3 mb-3">
+        <div class="col-2 fw-normal">Budget Line Reference</div>
+        <div class="col-4">
+          <%= form.text_field :budget_line_reference, class: 'form-control', required: true %>
+        </div>
+      </div>
+
       <%= form.hidden_field :requisition_type, value: "Purchase Request" %>
       <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
       <%= hidden_field_tag :donor_name, Stakeholder.find_by(stakeholder_id: params[:stakeholder_id])&.stakeholder_name %>

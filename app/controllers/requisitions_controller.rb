@@ -8,16 +8,18 @@ class RequisitionsController < ApplicationController
 
   def show
     @requisition = Requisition.find(params[:id])
-   if @requisition.requisition_type == 'Purchase Request'
+    if @requisition.requisition_type == 'Purchase Request'
       @project_options = Project.all.collect { |x| [x.project_name, x.id] }
       @selected_project = @requisition.project
       @purchase_request_threshold = GlobalProperty.purchase_request_threshold
       @stakeholder_options = Stakeholder.where(is_donor: true).pluck(:stakeholder_name, :stakeholder_id)
       @employees = Employee.where(still_employed: true).includes(:person)
-  # Pre-select stakeholder if coming from params
-    @selected_stakeholder = Stakeholder.find_by(stakeholder_id: params[:stakeholder_id]) if params[:stakeholder_id].present?
+      # Pre-select stakeholder if coming from params
+      if params[:stakeholder_id].present?
+        @selected_stakeholder = Stakeholder.find_by(stakeholder_id: params[:stakeholder_id])
+      end
     else
-      @projects = Project.all 
+      @projects = Project.all
       @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f if @requisition.requisition_type == 'Petty Cash'
     end
     @petty_cash_limit = GlobalProperty.petty_cash_limit.to_f if @requisition.requisition_type == 'Petty Cash'
@@ -54,11 +56,13 @@ class RequisitionsController < ApplicationController
     @project_options = Project.all.collect { |x| [x.project_name, x.id] }
     @department_options = Department.all.collect { |x| [x.department_name, x.id] }
     @selected_project = Project.find_by_short_name(params[:prj])
-     #Load only stakeholders marked as donors
+    # Load only stakeholders marked as donors
     @stakeholder_options = Stakeholder.where(is_donor: true).pluck(:stakeholder_name, :stakeholder_id)
 
-  # Pre-select stakeholder if coming from params
-    @selected_stakeholder = Stakeholder.find_by(stakeholder_id: params[:stakeholder_id]) if params[:stakeholder_id].present?
+    # Pre-select stakeholder if coming from params
+    if params[:stakeholder_id].present?
+      @selected_stakeholder = Stakeholder.find_by(stakeholder_id: params[:stakeholder_id])
+    end
 
     case @selected_request
     when 'Petty Cash'
@@ -67,9 +71,9 @@ class RequisitionsController < ApplicationController
       @asset_types = AssetCategory.all.collect { |x| x.category }
     when 'Purchase Request'
       @employees = Employee.where(still_employed: true).includes(:person).order('people.first_name')
-        Rails.logger.info ">>>> Employees loaded: #{@employees&.count}"
+      Rails.logger.info ">>>> Employees loaded: #{@employees&.count}"
     when 'Travel Request'
-      @employees = Employee.where(still_employed: true).collect { |x| x.person.full_name }
+      @employees = Employee.where(still_employed: true).includes(:person).collect { |x| x.person.full_name }
     when 'Personnel Requests'
 
     when 'Token Request'
@@ -95,30 +99,49 @@ class RequisitionsController < ApplicationController
   end
 
   def create
-    state_id = InitialState.find_by_workflow_process_id(
-      WorkflowProcess.find_by_workflow('Petty Cash Request')
-    ).workflow_state_id
+    department = Department.find_by(department_name: params[:requisition][:Department])
+    project = Project.find_by(project_name: params[:requisition][:Project])
 
     @requisition = Requisition.new(
       purpose: params[:requisition][:purpose],
       initiated_by: current_user.id,
       initiated_on: Date.today,
       requisition_type: params[:requisition][:requisition_type],
-      workflow_state_id: state_id,
-      project_id: params[:requisition][:project_id]
+      workflow_state_id: nil,  # Will be set by assign_state
+      project_id: project&.id,
+      department_id: department&.id,
+      budget_line_reference: params[:requisition][:budget_line_reference]
     )
 
+    @requisition.assign_state  # Set the initial state
+
     ActiveRecord::Base.transaction do
-      raise ActiveRecord::Rollback unless @requisition.save # Save the requisition to trigger the callback
+      raise ActiveRecord::Rollback unless @requisition.save
 
-      RequisitionItem.create(
-        requisition_id: @requisition.id,
-        value: params[:requisition][:amount],
-        quantity: 1.0,
-        item_description: 'Petty Cash'
-      )
+      case @requisition.requisition_type
+      when 'Petty Cash Request'
+        RequisitionItem.create(
+          requisition_id: @requisition.id,
+          value: params[:requisition][:amount],
+          quantity: 1.0,
+          item_description: 'Petty Cash'
+        )
+      when 'Transport Request'
+        RequisitionItem.create(
+          requisition_id: @requisition.id,
+          value: params[:requisition][:amount_requested],
+          quantity: 1.0,
+          item_description: 'Travel'
+        )
 
-      # If saving fails, rollback the transaction
+        TravelRequest.create(
+          requisition_id: @requisition.id,
+          destination: params[:requisition][:Destination],
+          departure_date: params[:requisition][:departure_date],
+          return_date: params[:requisition][:return_date],
+          traveler_names: params[:requisition][:traveller_ids]&.join(', ')
+        )
+      end
     end
 
     if @requisition.errors.empty?
@@ -134,31 +157,31 @@ class RequisitionsController < ApplicationController
       render :new
     end
   end
-  #sending email to ipc members when purchase request is above threshold
-  def schedule_ipc_meeting
-  requisition = Requisition.find(params[:id])
-  employee_ids = params[:employee_ids]
-  meeting_date = Date.parse(params[:meeting_date])
-  meeting_time = Time.zone.parse("#{params[:meeting_date]} #{params[:meeting_time]}")
-  employees = Employee.where(employee_id: employee_ids)
 
-   # Transition state
-   new_state = WorkflowState.where(state: 'Pending IPC',
+  # sending email to ipc members when purchase request is above threshold
+  def schedule_ipc_meeting
+    requisition = Requisition.find(params[:id])
+    employee_ids = params[:employee_ids]
+    meeting_date = Date.parse(params[:meeting_date])
+    meeting_time = Time.zone.parse("#{params[:meeting_date]} #{params[:meeting_time]}")
+    employees = Employee.where(employee_id: employee_ids)
+
+    # Transition state
+    new_state = WorkflowState.where(state: 'Pending IPC',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Purchase Request').id)
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
-  employees.each do |employee|
-    RequisitionMailer.notify_ipc_members(requisition, employee, meeting_date, meeting_time).deliver_later
-  end
+    employees.each do |employee|
+      RequisitionMailer.notify_ipc_members(requisition, employee, meeting_date, meeting_time).deliver_later
+    end
     render json: {
-    message: 'All IPC members you selected have been notified.',
-    redirect_url: requisition_path(requisition) 
-  }, status: :ok
- # render json: { message: 'All IPC members you selected have been notified for the scheduled meeting.' }, status: :ok
-rescue => e
-  logger.error "Failed to schedule IPC meeting: #{e.message}"
-  render json: { error: "Failed to send invitations" }, status: :internal_server_error
-end
-
+      message: 'All IPC members you selected have been notified.',
+      redirect_url: requisition_path(requisition)
+    }, status: :ok
+    # render json: { message: 'All IPC members you selected have been notified for the scheduled meeting.' }, status: :ok
+  rescue StandardError => e
+    logger.error "Failed to schedule IPC meeting: #{e.message}"
+    render json: { error: 'Failed to send invitations' }, status: :internal_server_error
+  end
 
   def approve_request
     @requisition = Requisition.find_by(requisition_id: params[:id])
@@ -274,35 +297,33 @@ end
             flash[:alert] = 'Error rejecting requisition.'
             redirect_to "/requisitions/#{@requisition.id}"
           end
-        else
+        elsif @requisition.update(workflow_state_id: rejected_state.id)
           # External rejection via email link (no current_user)
-          if @requisition.update(workflow_state_id: rejected_state.id)
-            recipient_email = @requisition&.user&.email
-            if recipient_email.present?
-              RequisitionMailer.rejected_request_email(@requisition).deliver_now
-              render html: <<-HTML.html_safe
+          recipient_email = @requisition&.user&.email
+          if recipient_email.present?
+            RequisitionMailer.rejected_request_email(@requisition).deliver_now
+            render html: <<-HTML.html_safe
                 <script>
                   alert("Requisition has been successfully rejected. The requester and admin have been notified.");
                   window.close();
                 </script>
-              HTML
-            else
-              Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
-              render html: <<-HTML.html_safe
+            HTML
+          else
+            Rails.logger.warn "No recipient email for requisition ##{@requisition.id}"
+            render html: <<-HTML.html_safe
                 <script>
                   alert("Requisition rejected, but no confirmation email was sent (missing recipient email).");
                   window.close();
                 </script>
-              HTML
-            end
-          else
-            render html: <<-HTML.html_safe
+            HTML
+          end
+        else
+          render html: <<-HTML.html_safe
               <script>
                 alert("Error rejecting the requisition. Please try again or contact support.");
                 window.close();
               </script>
-            HTML
-          end
+          HTML
         end
       else # Requisition is not in the 'Requested' state
         render html: <<-HTML.html_safe
@@ -421,24 +442,22 @@ end
         flash[:alert] = 'Error denying funds.'
       end
       redirect_to "/requisitions/#{@requisition.id}"
-    else
+    elsif @requisition.update(workflow_state_id: denied_state.id)
       # Denial via email (external access)
-      if @requisition.update(workflow_state_id: denied_state.id)
-        send_funds_denied_email(@requisition)
-        render html: <<-HTML.html_safe
+      send_funds_denied_email(@requisition)
+      render html: <<-HTML.html_safe
           <script>
             alert("Funds have been denied successfully. The requester has been notified.");
             window.close();
           </script>
-        HTML
-      else
-        render html: <<-HTML.html_safe
+      HTML
+    else
+      render html: <<-HTML.html_safe
           <script>
             alert("Error denying funds. Please try again or contact support.");
             window.close();
           </script>
-        HTML
-      end
+      HTML
     end
   end
 
@@ -450,7 +469,6 @@ end
       Rails.logger.warn "No recipient email for requisition ##{requisition.id}"
     end
   end
-
 
   def approve_funds
     @requisition = Requisition.find_by(requisition_id: params[:id])
@@ -492,24 +510,22 @@ end
         flash[:alert] = 'Error approving funds.'
       end
       redirect_to "/requisitions/#{@requisition.id}"
-    else
+    elsif @requisition.update(workflow_state_id: approved_state.id)
       # Approval via email (external)
-      if @requisition.update(workflow_state_id: approved_state.id)
-        send_funds_approved_email(@requisition)
-        render html: <<-HTML.html_safe
+      send_funds_approved_email(@requisition)
+      render html: <<-HTML.html_safe
           <script>
             alert("Funds have been approved successfully. The requester has been notified.");
             window.close();
           </script>
-        HTML
-      else
-        render html: <<-HTML.html_safe
+      HTML
+    else
+      render html: <<-HTML.html_safe
           <script>
             alert("Error approving funds. Please try again or contact support.");
             window.close();
           </script>
-        HTML
-      end
+      HTML
     end
   end
 
@@ -529,7 +545,6 @@ end
     redirect_to "/requisitions/#{params[:id]}"
   end
 
-
   # Corrected: Removed the duplicate recall_request method
   def recall_request
     new_state = WorkflowState.where(state: 'Recalled',
@@ -544,64 +559,68 @@ end
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
+
   def disburse_funds
     new_state = WorkflowState.where(state: 'Collected',
                                     workflow_process_id: WorkflowProcess.find_by_workflow('Petty Cash Request').id)
     @requisition = Requisition.find(params[:id]).update(workflow_state_id: new_state.first.id)
     redirect_to "/requisitions/#{params[:id]}"
   end
+
   def liquidate_funds
-  @requisition = Requisition.find(params[:id])
+    @requisition = Requisition.find(params[:id])
 
-  new_state = WorkflowState.find_by(
-    state: 'Liquidated',
-    workflow_process_id: WorkflowProcess.find_by(workflow: 'Petty Cash Request')&.id
-  )
+    new_state = WorkflowState.find_by(
+      state: 'Liquidated',
+      workflow_process_id: WorkflowProcess.find_by(workflow: 'Petty Cash Request')&.id
+    )
 
-  # Make sure used_amount is permitted via strong parameters
-  # You already have liquidate_params, let's use it!
-  liquidate_params = params.require(:requisition).permit(:used_amount, :workflow_state_id)
-  submitted_used_amount = liquidate_params[:used_amount]
+    # Make sure used_amount is permitted via strong parameters
+    # You already have liquidate_params, let's use it!
+    liquidate_params = params.require(:requisition).permit(:used_amount, :workflow_state_id)
+    submitted_used_amount = liquidate_params[:used_amount]
 
-  # Find or create the PettyCashComment
-  # This is the crucial part: Ensure a comment record exists to update
-  petty_cash_comment = @requisition.petty_cash_comments.first_or_create(
-    comment: nil, # Provide a default comment if creating
-    used_amount: 0.0 # Provide a default used_amount if creating
-  )
+    # Find or create the PettyCashComment
+    # This is the crucial part: Ensure a comment record exists to update
+    petty_cash_comment = @requisition.petty_cash_comments.first_or_create(
+      comment: nil, # Provide a default comment if creating
+      used_amount: 0.0 # Provide a default used_amount if creating
+    )
 
-  ActiveRecord::Base.transaction do
-    # Now, attempt to update the found or created comment
-    if petty_cash_comment.update(used_amount: submitted_used_amount)
-      # Only update the workflow state if the used_amount update was successful
-      @requisition.update!(workflow_state_id: new_state.id)
-      redirect_to "/requisitions/#{params[:id]}", notice: "Funds liquidated successfully."
-    else
-      # If comment update failed (e.g., validations), provide a specific alert
-      redirect_to "/requisitions/#{params[:id]}", alert: "Failed to update used amount: #{petty_cash_comment.errors.full_messages.to_sentence}"
+    ActiveRecord::Base.transaction do
+      # Now, attempt to update the found or created comment
+      if petty_cash_comment.update(used_amount: submitted_used_amount)
+        # Only update the workflow state if the used_amount update was successful
+        @requisition.update!(workflow_state_id: new_state.id)
+        redirect_to "/requisitions/#{params[:id]}", notice: 'Funds liquidated successfully.'
+      else
+        # If comment update failed (e.g., validations), provide a specific alert
+        redirect_to "/requisitions/#{params[:id]}",
+                    alert: "Failed to update used amount: #{petty_cash_comment.errors.full_messages.to_sentence}"
+      end
     end
+  rescue StandardError => e
+    # This catch-all rescue should ideally be more specific,
+    # but it's useful for debugging unexpected errors.
+    redirect_to "/requisitions/#{params[:id]}", alert: "Error: #{e.message}"
   end
-rescue => e
-  # This catch-all rescue should ideally be more specific,
-  # but it's useful for debugging unexpected errors.
-  redirect_to "/requisitions/#{params[:id]}", alert: "Error: #{e.message}"
-end
 
-def amount
-  @requisition = Requisition.find(params[:id])
-  render json: { 
-    amount: @requisition.requisition_items.first&.value || 0 
-  }
-end
+  def amount
+    @requisition = Requisition.find(params[:id])
+    render json: {
+      amount: @requisition.requisition_items.first&.value || 0
+    }
+  end
 
   private
 
   def task_params
     params.require(:requisition).permit(:purpose, :project_id, :initiated_by, :initiated_on,
-                                        :requisition_type, :workflow_state_id, :amount)
+                                        :requisition_type, :workflow_state_id, :amount, :budget_line_reference)
   end
+
   def liquidate_params
-     params.require(:requisition).permit(:used_amount, :workflow_state_id)
+    params.require(:requisition).permit(:used_amount, :workflow_state_id)
   end
 
   def set_categories

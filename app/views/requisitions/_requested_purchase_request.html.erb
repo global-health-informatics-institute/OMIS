@@ -53,6 +53,11 @@
             </div>
           </div>
 
+          <div class="row mt-3 mb-3">
+            <div class="col-2 fw-normal">Budget Line Reference</div>
+            <div class="col-2 fw-bold fst-italic"><%= @requisition.budget_line_reference %></div>
+          </div>
+
           <% if @requisition.current_state == "Procured" %>
             <div class="row mt-4 mb-3">
               <div class="col-4">
@@ -129,6 +134,7 @@
 
       <%= form.hidden_field :requisition_type, value: "Purchase Request" %>
       <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
+      <%= form.hidden_field :budget_line_reference, value: @requisition.budget_line_reference %>
       <%= hidden_field_tag :requisition_state, @requisition.current_state,
       data: { purchase_target: "stateField" } %>
 

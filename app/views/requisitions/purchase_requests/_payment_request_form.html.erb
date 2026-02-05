@@ -85,6 +85,11 @@
               </div>
 
               <div class="row mb-3">
+                <div class="col-4 fw-normal">Budget Line Reference</div>
+                <div class="col-8 fw-bold fst-italic"><%= @requisition.budget_line_reference %></div>
+              </div>
+
+              <div class="row mb-3">
                 <div class="col-4">
                   <%= form.label :unit_price, "Unit Price (MWK)", class: "form-label" %>
                   <% unit_price = @requisition.quantity.to_f > 0 ? (@requisition.requisition_items.first&.value.to_f / @requisition.quantity.to_f) : 0 %>
@@ -295,4 +300,5 @@
 
     </div>
   </div>
+<%= form.hidden_field :budget_line_reference, value: @requisition.budget_line_reference %>
 <% end %>

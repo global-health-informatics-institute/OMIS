@@ -109,6 +109,11 @@
               <%= @requisition.purchase_request_attachment&.stakeholder&.stakeholder_name %>
             </div>
           </div>
+
+          <div class="row mt-3 mb-3">
+            <div class="col-2 fw-normal">Budget Line Reference</div>
+            <div class="col-2 fw-bold fst-italic"><%= @requisition.budget_line_reference %></div>
+          </div>
         </div>
       </div>
 
@@ -116,6 +121,7 @@
 
       <%= form.hidden_field :requisition_type, value: "Purchase Request" %>
       <%= form.hidden_field :workflow_state_id, value: params[:workflow_state_id] %>
+      <%= form.hidden_field :budget_line_reference, value: @requisition.budget_line_reference %>
 
       <% (@possible_actions || []).each do |action| %>
         <% btn_class = case action

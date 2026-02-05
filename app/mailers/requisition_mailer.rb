@@ -1,5 +1,5 @@
 class RequisitionMailer < ApplicationMailer
-  default from: 'omis@ghii.org'
+  default from: 'mkhalipiwatipatso@gmail.com'
   def notify_supervisor(requisition, supervisor)
     @requisition = requisition
     @supervisor = supervisor
@@ -7,6 +7,43 @@ class RequisitionMailer < ApplicationMailer
     recipient_email = @supervisor.person.official_email || @supervisor.person.email_address
 
     mail(to: recipient_email, subject: 'New Requisition Requires Your Review') 
+  end
+  
+  def notify_supervisor_purchase_request(requisition, supervisor)
+    @requisition = requisition
+    @supervisor = supervisor
+    @requester = Employee.find_by(employee_id: requisition.initiated_by)
+    recipient_email = @supervisor.person.official_email || @supervisor.person.email_address
+
+    mail(to: recipient_email, subject: 'New Purchase Request Requires Your Review') 
+  end
+  
+  def purchase_request_approved_email(requisition)
+    @requisition = requisition
+    @user = @requisition.user
+    @person = @user.person
+
+    # Get the initiator's email through associations
+    user = @requisition.user
+    receiver_email = user.person.official_email || user.person.email_address
+
+    Rails.logger.info "Sending purchase request approval email to: #{receiver_email} for requisition ##{@requisition.id}"
+
+    mail(
+      to: receiver_email,
+      subject: "Your Purchase Request ##{@requisition.id} Has Been Approved"
+    )
+  end
+  
+  def notify_admin_purchase_request(requisition, admin)
+    @requisition = requisition
+    @admin = admin
+    @requester = Employee.find_by(employee_id: requisition.initiated_by)
+    @supervisor_name = @requisition.reviewer # Get the stored first name
+  
+    recipient_email = @admin.person.official_email.presence || @admin.person.email_address
+  
+    mail(to: recipient_email, subject: 'Purchase Request Approved - Procurement Action Required')
   end
   def notify_admin(requisition, admin)
     @requisition = requisition
@@ -126,6 +163,19 @@ class RequisitionMailer < ApplicationMailer
   mail(
     to: recipient_email,
     subject: "IPC Meeting Invitation for Requisition ##{requisition.id}"
+  )
+ end
+
+ def item_delivered_email(requisition, item_description)
+  @requisition = requisition
+  @item_description = item_description
+  @requester = Employee.find_by(employee_id: requisition.initiated_by)
+  
+  recipient_email = @requester.person.official_email || @requester.person.email_address
+
+  mail(
+    to: recipient_email,
+    subject: "Your #{@item_description} has been delivered"
   )
  end
 end

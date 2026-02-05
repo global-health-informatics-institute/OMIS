@@ -367,6 +367,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_20_073142) do
     t.integer "department_id"
     t.boolean "delivery_confirmation_required", default: false
     t.boolean "went_through_ipc", default: false
+    t.string "budget_line_reference"
   end
 
   create_table "stakeholders", primary_key: "stakeholder_id", force: :cascade do |t|

@@ -1,0 +1,21 @@
+Item Delivered - Request #<%= @requisition.id %>
+
+Dear <%= @requester.person.first_name %>,
+
+Good news! Your requested <%= @item_description %> has been delivered and is ready for collection.
+
+Request Details:
+- Request ID: <%= @requisition.id %>
+- Item: <%= @item_description %>
+- Budget Line Reference: <%= @requisition.budget_line_reference %>
+- Delivery Date: <%= Date.today.strftime('%B %d, %Y') %>
+
+Please get in touch with the admin office to collect your item. Remember to bring your identification for verification purposes.
+
+Admin Office Contact:
+Please visit the admin office during working hours or contact them via phone for collection arrangements.
+
+Thank you for your patience throughout this procurement process.
+
+Best regards,
+The Procurement Team
