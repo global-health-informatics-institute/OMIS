@@ -15,8 +15,13 @@
           <div class="col-6 ">
             <%= select_tag(:request_type, options_for_select(select_requisition), class: "form-select") %>
           </div>
-          <div class="col-6 ">
+          <div class="col-3 ">
             <%= submit_tag("Show Requisition Form", class: "btn btn-primary") %>
+          </div>
+          <div class="col-3 ">
+            <button type="button" class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#downloadTemplatesModal">
+              <i class="fas fa-download me-1"></i> Templates
+            </button>
           </div>
         </div>
       <% end %>
@@ -33,5 +38,8 @@
     <%= render partial: "requisitions/new" %>
   </div>
 </div>
+
+<!-- Download Templates Modal -->
+<%= render partial: "requisitions/download_templates_modal" %>
 
 
