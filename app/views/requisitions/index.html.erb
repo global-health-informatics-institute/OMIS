@@ -1,10 +1,11 @@
-<p class="h5 ">Requisitions Center</p>
+<p class="h5">Requisitions Center</p>
 <div class="border p-2">
   <div class="row p-2 pb-1">
-    <div class="card m-1 col-5" >
+    <div class="card m-1 col-12 col-md-3">
       <span class="fs-6 fw-bold">Requisitions Summary</span>
     </div>
-    <div class="card m-1 col-6" >
+
+    <div class="card m-1 col-12 col-md-8">
       <%= form_tag(requisitions_new_path, method: "GET") do %>
         <div class="row pt-2 pb-2">
           <div class="col fs-6 fw-bold">
@@ -12,11 +13,16 @@
           </div>
         </div>
         <div class="row pt-2 pb-2">
-          <div class="col-6 ">
+          <div class="col-12 col-md-6 mb-1">
             <%= select_tag(:request_type, options_for_select(select_requisition), class: "form-select") %>
           </div>
-          <div class="col-6 ">
-            <%= submit_tag("Show Requisition Form", class: "btn btn-primary") %>
+          <div class="col-12 col-md-3">
+            <%= submit_tag("Show Requisition Form", class: "btn btn-primary w-100") %>
+          </div>
+          <div class="col-12 col-md-3">
+            <button type="button" class="btn btn-info text-white w-100" data-bs-toggle="modal" data-bs-target="#downloadTemplatesModal">
+              <i class="fas fa-download me-1"></i> Templates
+            </button>
           </div>
         </div>
       <% end %>
@@ -33,5 +39,8 @@
     <%= render partial: "requisitions/new" %>
   </div>
 </div>
+
+<!-- Download Templates Modal -->
+<%= render partial: "requisitions/download_templates_modal" %>
 
 
