@@ -1,0 +1,98 @@
+<h4 class="mb-4">Purchase Request</h4>
+
+<%= form_with model: @purchase_request do |form| %>
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+
+      <%# nl %>
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label fw-normal">Initiated By</label>
+            <%= form.text_field :initiated_by, value: current_user.full_name, class: 'form-control', required: true, readonly: true %>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label fw-normal">Date</label>
+            <%= form.date_field :initiated_on, value: Date.today, class: 'form-control', required: true, readonly: true %>
+          </div>
+        </div>
+      </div>
+
+      <%# nl %>
+      <div class="row mt-3">
+        <%= form.fields_for :purchase_request_detail do |purchase_request_detail_form| %>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label fw-normal">Item Name</label>
+              <%= purchase_request_detail_form.text_field :item_name, placeholder: "Enter item name", class: 'form-control', required: true %>
+            </div>
+          </div>
+        <% end %>
+
+        <%= form.fields_for :requisition_items do |requisition_item_form| %>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-normal">Quantity</label>
+                <%= requisition_item_form.number_field :quantity, value: 0, class: 'form-control', required: true %>
+              </div>
+            </div>
+        <% end %>
+      </div>
+
+
+      <%# nl %>
+      <div class="row mt-3">
+          <div class="mb-3">
+            <label class="form-label fw-normal">Purpose</label>
+            <%= form.text_field :purpose, placeholder: "Enter purpose", class: 'form-control', required: true %>
+          </div>
+      </div>
+
+
+      <%# nl %>
+      <div class="row mt-3">
+          <div class="mb-3">
+            <label class="form-label fw-normal">Description</label>
+            <%= form.text_area :description, placeholder: "Enter description", class: 'form-control', rows: 2, required: true %>
+          </div>
+      </div>
+
+      <%# nl %>
+      <div class="row mt-3">
+        <%= form.fields_for :budget_line do |budget_line_form| %>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label fw-normal">Budget Line</label>
+              <%= budget_line_form.text_field :item_name, placeholder: "Enter the budget line", class: 'form-control', tooltip: "If unsure, please ask your supervisor", required: true %>
+            </div>
+          </div>
+        <% end %>
+
+        <%= form.fields_for :donor do |donor_form| %>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-normal">Donor</label>
+                <%=
+                  donor_form.select :donor_id, select_donors,
+                  { include_blank: 'Select Donor' },
+                  { class: 'form-control form-select', placeholder: "Enter donor name", tooltip: "If unsure, please ask your supervisor", required: true }
+                %>
+              </div>
+            </div>
+        <% end %>
+      </div>
+
+      <%# Requisition Items fields %>
+
+
+      <div class="row mt-4">
+        <div class="col-md-3">
+          <%= form.submit "Submit Request", class: "btn btn-success" %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
