@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_03_134712) do
+ActiveRecord::Schema[7.0].define(version: 2026_02_24_133832) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -329,6 +329,15 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_03_134712) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "requisition_budget_lines", force: :cascade do |t|
+    t.integer "requisition_id", null: false
+    t.bigint "budget_line_id", null: false
+    t.boolean "voided"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["budget_line_id"], name: "index_requisition_budget_lines_on_budget_line_id"
+  end
+
   create_table "requisition_items", primary_key: "requisition_item_id", force: :cascade do |t|
     t.integer "requisition_id", null: false
     t.decimal "quantity"
@@ -471,4 +480,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_03_134712) do
   add_foreign_key "employees", "people", primary_key: "person_id"
   add_foreign_key "petty_cash_comments", "requisitions", primary_key: "requisition_id"
   add_foreign_key "purchase_request_details", "requisitions", primary_key: "requisition_id"
+  add_foreign_key "requisition_budget_lines", "budget_lines"
+  add_foreign_key "requisition_budget_lines", "requisitions", primary_key: "requisition_id"
 end
