@@ -93,6 +93,7 @@ class LeaveRequestsController < ApplicationController
     )
       begin
         LeaveRequestMailer.approve_leave_request(@leave_request).deliver_now
+        LeaveRequestMailer.broadcast_approved_leave_request(@leave_request).deliver_now
       rescue Net::OpenTimeout => e
         return render_error(
           status: 408,

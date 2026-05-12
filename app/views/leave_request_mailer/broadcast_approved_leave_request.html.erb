@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  <style>
+    body {
+      font-family: 'Trebuchet MS', Arial, sans-serif;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body style="background-color: #F3F4F6; padding: 20px; margin: 0;">
+
+  <div style="max-width: 600px; margin: 0 auto; border: 1px solid #002130; border-radius: 4px; overflow: hidden;">
+    <!-- Header -->
+    <div style="background-color: #002130; color: #E3E4E7; padding: 20px; text-align: center; font-size: 1.5rem; font-weight: bold;">
+      <%= @leave_details[:leave_type] %> Request Notification
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 10px 30px; font-size: 1.4rem; color: #333;">
+      <p>Dear <%= @leave_details[:recepient_full_name] %>,</p>
+      <p>
+        Please be informed that <strong><%= @leave_details[:requester_full_name] %></strong> will be on
+        <strong> <%=@leave_details[:leave_type]%> </strong>
+        from <strong> <%=@leave_details[:duration_start]%> </strong>
+        to <strong> <%= @leave_details[:duration_end] %> </strong>
+      </p>
+      <p>
+        During this period, please direct any urgent matters to
+        <strong><%= @leave_details[:leave_stand_in] %></strong>
+        as the designated stand-in.
+      </p>
+      <p>Thank you for your attention.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="margin-top: 30px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+    <p>Informatics Team | <%= Time.current.year %></p>
+  </div>
+
+</body>
+</html>

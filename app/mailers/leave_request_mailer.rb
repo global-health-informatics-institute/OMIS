@@ -42,6 +42,28 @@ class LeaveRequestMailer < ApplicationMailer # rubocop:disable Style/Documentati
     )
   end
 
+  def broadcast_approved_leave_request(leave) # rubocop:disable Metrics/...
+    leave = leave.first if leave.is_a?(Array)
+    leave = leave.attributes unless leave.is_a?(Hash)
+    leave = leave.transform_keys(&:to_sym) if leave.is_a?(Hash)
+    @leave_details = {
+      leave_type: (leave[:leave_type]).downcase.include?('leave') ? leave[:leave_type] : "#{leave[:leave_type]} Leave",
+      leave_id: leave[:leave_request_id],
+      duration_start: (leave[:start_on]&.strftime('%B %d, %Y at %I:%M %p') || 'N/A').to_s,
+      duration_end: (leave[:end_on]&.strftime('%B %d, %Y at %I:%M %p') || 'N/A').to_s,
+      requester_full_name: Employee.find_by_employee_id(leave[:employee_id])&.person&.full_name,
+      leave_stand_in: Employee.find_by(employee_id: leave[:stand_in])&.person&.full_name,
+      requester_email: Employee.find_by_employee_id(leave[:employee_id])&.person&.official_email.presence ||
+                       Employee.find_by_employee_id(leave[:employee_id])&.person&.email_address,
+      recepient_full_name: 'All',
+      receipient_email: GlobalProperty.find_by(property: 'approved_email_group').property_value
+    }
+    mail(
+      to: @leave_details[:receipient_email],
+      subject: "Out Of Office Notice #{@leave_details[:requester_full_name]}"
+    )
+  end
+
   def deny_leave_request(leave) # rubocop:disable Metrics/...
     leave = leave.first if leave.is_a?(Array)
     leave = leave.attributes unless leave.is_a?(Hash)
