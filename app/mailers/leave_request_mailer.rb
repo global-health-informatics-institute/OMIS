@@ -49,8 +49,8 @@ class LeaveRequestMailer < ApplicationMailer # rubocop:disable Style/Documentati
     @leave_details = {
       leave_type: (leave[:leave_type]).downcase.include?('leave') ? leave[:leave_type] : "#{leave[:leave_type]} Leave",
       leave_id: leave[:leave_request_id],
-      duration_start: (leave[:start_on]&.strftime('%B %d, %Y at %I:%M %p') || 'N/A').to_s,
-      duration_end: (leave[:end_on]&.strftime('%B %d, %Y at %I:%M %p') || 'N/A').to_s,
+      duration_start: (leave[:start_on]&.strftime('%I:%M %p, %B %d, %Y') || 'N/A').to_s,
+      duration_end: (leave[:end_on]&.strftime('%I:%M %p, %B %d, %Y') || 'N/A').to_s,
       requester_full_name: Employee.find_by_employee_id(leave[:employee_id])&.person&.full_name,
       leave_stand_in: Employee.find_by(employee_id: leave[:stand_in])&.person&.full_name,
       requester_email: Employee.find_by_employee_id(leave[:employee_id])&.person&.official_email.presence ||
@@ -60,7 +60,7 @@ class LeaveRequestMailer < ApplicationMailer # rubocop:disable Style/Documentati
     }
     mail(
       to: @leave_details[:receipient_email],
-      subject: "Out Of Office Notice #{@leave_details[:requester_full_name]}"
+      subject: "Out Of Office Notice - #{@leave_details[:requester_full_name]}"
     )
   end
 
