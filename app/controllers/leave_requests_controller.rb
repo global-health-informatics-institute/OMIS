@@ -93,7 +93,9 @@ class LeaveRequestsController < ApplicationController
     )
       begin
         LeaveRequestMailer.approve_leave_request(@leave_request).deliver_now
-        LeaveRequestMailer.broadcast_approved_leave_request(@leave_request).deliver_now
+        if @leave_request[:leave_type] == 'Annual Leave'
+          LeaveRequestMailer.broadcast_approved_leave_request(@leave_request).deliver_now
+        end
       rescue Net::OpenTimeout => e
         return render_error(
           status: 408,
