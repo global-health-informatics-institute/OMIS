@@ -27,7 +27,38 @@ module TimesheetsHelper
     # Write this sheet's contain to the test.xls file.
     book.write 'tmp/timesheet.xls'
 
+  def _state_section_builder(timesheet) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+    status = timesheet.current_status
+    case status
+    when 'pending Submission'
+      pdf.text "Timesheet State: #{Prawn::Text::NBSP * 1}#{status}"
+      pdf.move_down 40
+    when 'Submitted'
+      pdf.text "Timesheet State: #{Prawn::Text::NBSP * 1}#{status} #{Prawn::Text::NBSP * 110}Submitted on: #{timesheet[:submitted_on]}" # rubocop:disable Layout/LineLength
+      pdf.move_down 40
+    when 'Approved'
+      pdf.text "Timesheet State: #{Prawn::Text::NBSP * 1}#{status} #{Prawn::Text::NBSP * 110}Approved by: #{@Person.full_name}" # rubocop:disable Layout/LineLength
+      pdf.move_down 40
+      pdf.text "Submitted On: #{Prawn::Text::NBSP * 1}#{timesheet[:submitted_on]} #{Prawn::Text::NBSP * 110}Approved On: #{timesheet[:approved_on]}" # rubocop:disable Layout/LineLength
+      pdf.move_down 40
+    when 'Recalled'
+      pdf.text "Timesheet State: #{Prawn::Text::NBSP * 1}#{status} #{Prawn::Text::NBSP * 110}Initially Submitted on: #{timesheet[:submitted_on]}" # rubocop:disable Layout/LineLength
+      pdf.move_down 40
+      pdf.text "Recalled on: #{Prawn::Text::NBSP * 1}#{timesheet[:updated_at]}"
+      pdf.move_down 40
+    when 'Re-opened'
+      pdf.text "Timesheet State: #{Prawn::Text::NBSP * 1}#{status} #{Prawn::Text::NBSP * 110}Initially Submitted on: #{timesheet[:submitted_on]}" # rubocop:disable Layout/LineLength
+      pdf.move_down 40
+      pdf.text "Re-open: #{Prawn::Text::NBSP * 1}#{timesheet[:updated_at]}"
+      pdf.move_down 40
+    when 'Re-submitted'
+      pdf.text "Timesheet State: #{Prawn::Text::NBSP * 1}#{status} #{Prawn::Text::NBSP * 110}Initially Submitted on: #{timesheet[:submitted_on]}" # rubocop:disable Layout/LineLength
+      pdf.move_down 40
+      pdf.text "Re-submitted On: #{Prawn::Text::NBSP * 1}#{timesheet[:updated_at]}"
+      pdf.move_down 40
+    end
   end
+
 
   def weekly_pdf(records, projects, timesheet)
     
