@@ -65,7 +65,7 @@ module TimesheetsHelper # rubocop:disable Style/Documentation
   def weekly_pdf(records, projects, timesheet) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength
     Prawn::Document.generate('tmp/timesheet.pdf', page_size: 'A3', page_layout: :landscape, # rubocop:disable Metrics/BlockLength
                                                   left_margin: 40, right_margin: 30 ) do |pdf|
-      pdf.image 'app/assets/images/GHII-Letterhead.png', width: 1100, height: 100
+      pdf.image 'app/assets/images/GHII-Letterhead.png', width: 1100, height: 120
       pdf.move_down 40
       table_data = []
       titles = %w[Project Task]
