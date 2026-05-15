@@ -1,5 +1,7 @@
-module TimesheetsHelper
-  def weekly_spreadsheet(records, projects, timesheet)
+# frozen_string_literal: true
+
+module TimesheetsHelper # rubocop:disable Style/Documentation
+  def weekly_spreadsheet(records, projects, timesheet) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength
     book = Spreadsheet::Workbook.new # We have created a new object of the Spreadsheet book
 
     sheet = book.create_worksheet(name: 'First sheet') # We are creating new sheet in the Spreadsheet(We can create multiple sheets in one Spreadsheet book)
@@ -26,6 +28,7 @@ module TimesheetsHelper
     end
     # Write this sheet's contain to the test.xls file.
     book.write 'tmp/timesheet.xls'
+  end
 
   def _state_section_builder(timesheet) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
     status = timesheet.current_status
@@ -59,17 +62,15 @@ module TimesheetsHelper
     end
   end
 
-
-  def weekly_pdf(records, projects, timesheet)
-    
-    Prawn::Document.generate('tmp/timesheet.pdf', page_size: 'A3', page_layout: :landscape,
-    left_margin: 40, right_margin: 30 ) do |pdf|
+  def weekly_pdf(records, projects, timesheet) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength
+    Prawn::Document.generate('tmp/timesheet.pdf', page_size: 'A3', page_layout: :landscape, # rubocop:disable Metrics/BlockLength
+                                                  left_margin: 40, right_margin: 30 ) do |pdf|
       pdf.image 'app/assets/images/GHII-Letterhead.png', width: 1100, height: 100
       pdf.move_down 40
       table_data = []
       titles = %w[Project Task]
-      [7,1,2,3,4,5,6].each do |day|
-        titles.append(timesheet.timesheet_week.advance(:days => day).strftime("%a, %b %d"))
+      [7, 1, 2, 3, 4, 5, 6].each do |day|
+        titles.append(timesheet.timesheet_week.advance(days: day).strftime('%a, %b %d'))
       end
 
       table_data.append(titles)
@@ -85,13 +86,13 @@ module TimesheetsHelper
         end
       end
 
-      pdf.table(table_data, :width => 1100, :cell_style => { :inline_format => true })
+      pdf.table(table_data, width: 1100, cell_style: { inline_format: true })
       pdf.move_down 40
-      pdf.text "Employee Name: #{Prawn::Text::NBSP*1}#{@person.person.full_name} #{Prawn::Text::NBSP*110}Supervisor Name: ___________________________________"
+      pdf.text "Employee Name: #{Prawn::Text::NBSP * 1}#{@person.person.full_name} #{Prawn::Text::NBSP * 110}Supervisor Name: ___________________________________" # rubocop:disable Layout/LineLength
       pdf.move_down 40
-      pdf.text "Date: #{Prawn::Text::NBSP*1}_____________________________________________ #{Prawn::Text::NBSP*120}Date: _____________________________________________"
+      pdf.text "Date: #{Prawn::Text::NBSP * 1}_____________________________________________ #{Prawn::Text::NBSP * 120}Date: _____________________________________________" # rubocop:disable Layout/LineLength
       pdf.move_down 60
-      pdf.text "Signature:  #{Prawn::Text::NBSP*1}________________________________________ #{Prawn::Text::NBSP*120}Signature: __________________________________________"
+      pdf.text "Signature:  #{Prawn::Text::NBSP * 1}________________________________________ #{Prawn::Text::NBSP * 120}Signature: __________________________________________" # rubocop:disable Layout/LineLength
       pdf.start_new_page
     end
   end
