@@ -30,35 +30,65 @@ module TimesheetsHelper # rubocop:disable Style/Documentation
     book.write 'tmp/timesheet.xls'
   end
 
-  def _state_section_builder(timesheet) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+  def _state_section_builder(pdf:, timesheet:) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
     status = timesheet.current_status
     case status
+
     when 'pending Submission'
-      pdf.text "Timesheet State: #{Prawn::Text::NBSP * 1}#{status}"
-      pdf.move_down 40
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP * 1}#{status}"
+      )
+
     when 'Submitted'
-      pdf.text "Timesheet State: #{Prawn::Text::NBSP * 1}#{status} #{Prawn::Text::NBSP * 110}Submitted on: #{timesheet[:submitted_on]}" # rubocop:disable Layout/LineLength
-      pdf.move_down 40
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
+        next_text: "Submitted on: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
     when 'Approved'
-      pdf.text "Timesheet State: #{Prawn::Text::NBSP * 1}#{status} #{Prawn::Text::NBSP * 110}Approved by: #{@Person.full_name}" # rubocop:disable Layout/LineLength
-      pdf.move_down 40
-      pdf.text "Submitted On: #{Prawn::Text::NBSP * 1}#{timesheet[:submitted_on]} #{Prawn::Text::NBSP * 110}Approved On: #{timesheet[:approved_on]}" # rubocop:disable Layout/LineLength
-      pdf.move_down 40
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
+        next_text: "Submitted on: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+      _write_line(
+        pdf:,
+        previous_text: "Submitted On: #{Prawn::Text::NBSP}#{timesheet[:submitted_on]}",
+        next_text: "Approved On: #{timesheet[:approved_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+
     when 'Recalled'
-      pdf.text "Timesheet State: #{Prawn::Text::NBSP * 1}#{status} #{Prawn::Text::NBSP * 110}Initially Submitted on: #{timesheet[:submitted_on]}" # rubocop:disable Layout/LineLength
-      pdf.move_down 40
-      pdf.text "Recalled on: #{Prawn::Text::NBSP * 1}#{timesheet[:updated_at]}"
-      pdf.move_down 40
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
+        next_text: "Recalled On: #{timesheet[:updated_at]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+
+    when 'Rejected'
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
+        next_text: "Rejected On: #{timesheet[:updated_at]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+
     when 'Re-opened'
-      pdf.text "Timesheet State: #{Prawn::Text::NBSP * 1}#{status} #{Prawn::Text::NBSP * 110}Initially Submitted on: #{timesheet[:submitted_on]}" # rubocop:disable Layout/LineLength
-      pdf.move_down 40
-      pdf.text "Re-open: #{Prawn::Text::NBSP * 1}#{timesheet[:updated_at]}"
-      pdf.move_down 40
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
+        next_libne: "Submitted On: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+      _write_line(
+        pdf:,
+        previous_text: "Re-opened On: #{Prawn::Text::NBSP}#{timesheet[:updated_at]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}" # rubocop:disable Layout/LineLength
+      )
+
     when 'Re-submitted'
-      pdf.text "Timesheet State: #{Prawn::Text::NBSP * 1}#{status} #{Prawn::Text::NBSP * 110}Initially Submitted on: #{timesheet[:submitted_on]}" # rubocop:disable Layout/LineLength
-      pdf.move_down 40
-      pdf.text "Re-submitted On: #{Prawn::Text::NBSP * 1}#{timesheet[:updated_at]}"
-      pdf.move_down 40
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP * 1}#{status}",
+        next_text: "Re-submitted On: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}" # rubocop:disable Layout/LineLength
+      )
     end
   end
 
@@ -88,12 +118,36 @@ module TimesheetsHelper # rubocop:disable Style/Documentation
 
       pdf.table(table_data, width: 1100, cell_style: { inline_format: true })
       pdf.move_down 40
-      pdf.text "Employee Name: #{Prawn::Text::NBSP * 1}#{@person.person.full_name} #{Prawn::Text::NBSP * 110}Supervisor Name: ___________________________________" # rubocop:disable Layout/LineLength
-      pdf.move_down 40
-      pdf.text "Date: #{Prawn::Text::NBSP * 1}_____________________________________________ #{Prawn::Text::NBSP * 120}Date: _____________________________________________" # rubocop:disable Layout/LineLength
-      pdf.move_down 60
-      pdf.text "Signature:  #{Prawn::Text::NBSP * 1}________________________________________ #{Prawn::Text::NBSP * 120}Signature: __________________________________________" # rubocop:disable Layout/LineLength
+      _write_line(
+        pdf:,
+        previous_text: "Employee Name: #{Prawn::Text::NBSP}#{@person.person.full_name}",
+        next_text: "Supervisor Name: #{Prawn::Text::NBSP}#{@person.supervisor.person.full_name}"
+      )
+      _state_section_builder(pdf:, timesheet:)
       pdf.start_new_page
     end
+  end
+
+  def _dynamic_nbsp(pdf, previous_text, target_width = 550)
+    text_width = pdf.width_of(previous_text)
+
+    nbsp_width = pdf.width_of(Prawn::Text::NBSP)
+
+    remaining_width = target_width - text_width
+
+    count = [(remaining_width / nbsp_width).floor, 1].max
+
+    Prawn::Text::NBSP * count
+  end
+
+  def _write_line(pdf:, previous_text:, next_text: '', move_down: 40)
+    gap = _dynamic_nbsp(pdf, previous_text)
+
+    pdf.text(
+      "#{previous_text}" \
+      "#{gap}" \
+      "#{next_text}"
+    )
+    pdf.move_down move_down
   end
 end
