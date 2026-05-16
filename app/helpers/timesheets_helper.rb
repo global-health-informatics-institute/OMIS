@@ -34,7 +34,7 @@ module TimesheetsHelper # rubocop:disable Style/Documentation
     status = timesheet.current_status
     case status
 
-    when 'pending Submission'
+    when 'Pending Submission'
       _write_line(
         pdf:,
         previous_text: "Timesheet State: #{Prawn::Text::NBSP * 1}#{status}"
