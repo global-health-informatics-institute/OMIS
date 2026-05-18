@@ -1,5 +1,7 @@
-module TimesheetsHelper
-  def weekly_spreadsheet(records, projects, timesheet)
+# frozen_string_literal: true
+
+module TimesheetsHelper # rubocop:disable Style/Documentation
+  def weekly_spreadsheet(records, projects, timesheet) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength
     book = Spreadsheet::Workbook.new # We have created a new object of the Spreadsheet book
 
     sheet = book.create_worksheet(name: 'First sheet') # We are creating new sheet in the Spreadsheet(We can create multiple sheets in one Spreadsheet book)
@@ -26,19 +28,79 @@ module TimesheetsHelper
     end
     # Write this sheet's contain to the test.xls file.
     book.write 'tmp/timesheet.xls'
-
   end
 
-  def weekly_pdf(records, projects, timesheet)
-    
-    Prawn::Document.generate('tmp/timesheet.pdf', page_size: 'A3', page_layout: :landscape,
-    left_margin: 40, right_margin: 30 ) do |pdf|
-      pdf.image 'app/assets/images/GHII-Letterhead.png', width: 1100, height: 100
+  def _state_section_builder(pdf:, timesheet:) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+    status = timesheet.current_status
+    case status
+
+    when 'Pending Submission'
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP * 1}#{status}"
+      )
+
+    when 'Submitted'
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
+        next_text: "Submitted on: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+    when 'Approved'
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
+        next_text: "Submitted on: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+      _write_line(
+        pdf:,
+        previous_text: "Submitted On: #{Prawn::Text::NBSP}#{timesheet[:submitted_on]}",
+        next_text: "Approved On: #{timesheet[:approved_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+
+    when 'Recalled'
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
+        next_text: "Re-called On: #{timesheet[:updated_at]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+
+    when 'Rejected'
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
+        next_text: "Rejected On: #{timesheet[:updated_at]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+
+    when 'Re-opened'
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
+        next_libne: "Submitted On: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+      _write_line(
+        pdf:,
+        previous_text: "Re-opened On: #{Prawn::Text::NBSP}#{timesheet[:updated_at]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}" # rubocop:disable Layout/LineLength
+      )
+
+    when 'Re-submitted'
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP * 1}#{status}",
+        next_text: "Re-submitted On: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}" # rubocop:disable Layout/LineLength
+      )
+    end
+  end
+
+  def weekly_pdf(records, projects, timesheet) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength
+    Prawn::Document.generate('tmp/timesheet.pdf', page_size: 'A3', page_layout: :landscape, # rubocop:disable Metrics/BlockLength
+                                                  left_margin: 40, right_margin: 30 ) do |pdf|
+      pdf.image 'app/assets/images/GHII-Letterhead.png', width: 1100, height: 120
       pdf.move_down 40
       table_data = []
       titles = %w[Project Task]
-      [7,1,2,3,4,5,6].each do |day|
-        titles.append(timesheet.timesheet_week.advance(:days => day).strftime("%a, %b %d"))
+      [7, 1, 2, 3, 4, 5, 6].each do |day|
+        titles.append(timesheet.timesheet_week.advance(days: day).strftime('%a, %b %d'))
       end
 
       table_data.append(titles)
@@ -54,14 +116,38 @@ module TimesheetsHelper
         end
       end
 
-      pdf.table(table_data, :width => 1100, :cell_style => { :inline_format => true })
+      pdf.table(table_data, width: 1100, cell_style: { inline_format: true })
       pdf.move_down 40
-      pdf.text "Employee Name: #{Prawn::Text::NBSP*1}#{@person.person.full_name} #{Prawn::Text::NBSP*110}Supervisor Name: ___________________________________"
-      pdf.move_down 40
-      pdf.text "Date: #{Prawn::Text::NBSP*1}_____________________________________________ #{Prawn::Text::NBSP*120}Date: _____________________________________________"
-      pdf.move_down 60
-      pdf.text "Signature:  #{Prawn::Text::NBSP*1}________________________________________ #{Prawn::Text::NBSP*120}Signature: __________________________________________"
+      _write_line(
+        pdf:,
+        previous_text: "Employee Name: #{Prawn::Text::NBSP}#{@person.person.full_name}",
+        next_text: "Supervisor Name: #{Prawn::Text::NBSP}#{@person.supervisor.person.full_name}"
+      )
+      _state_section_builder(pdf:, timesheet:)
       pdf.start_new_page
     end
+  end
+
+  def _dynamic_nbsp(pdf, previous_text, target_width = 550)
+    text_width = pdf.width_of(previous_text)
+
+    nbsp_width = pdf.width_of(Prawn::Text::NBSP)
+
+    remaining_width = target_width - text_width
+
+    count = [(remaining_width / nbsp_width).floor, 1].max
+
+    Prawn::Text::NBSP * count
+  end
+
+  def _write_line(pdf:, previous_text:, next_text: '', move_down: 40)
+    gap = _dynamic_nbsp(pdf, previous_text)
+
+    pdf.text(
+      "#{previous_text}" \
+      "#{gap}" \
+      "#{next_text}"
+    )
+    pdf.move_down move_down
   end
 end
