@@ -62,7 +62,7 @@ module TimesheetsHelper # rubocop:disable Style/Documentation
       _write_line(
         pdf:,
         previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
-        next_text: "Recalled On: #{timesheet[:updated_at]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+        next_text: "Re-called On: #{timesheet[:updated_at]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
       )
 
     when 'Rejected'
