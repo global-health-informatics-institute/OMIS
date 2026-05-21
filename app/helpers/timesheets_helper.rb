@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module TimesheetsHelper # rubocop:disable Style/Documentation
+module TimesheetsHelper # rubocop:disable Style/Documentation,Metrics/ModuleLength
   def weekly_spreadsheet(records, projects, timesheet) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength
     book = Spreadsheet::Workbook.new # We have created a new object of the Spreadsheet book
 
@@ -28,67 +28,6 @@ module TimesheetsHelper # rubocop:disable Style/Documentation
     end
     # Write this sheet's contain to the test.xls file.
     book.write 'tmp/timesheet.xls'
-  end
-
-  def _state_section_builder(pdf:, timesheet:) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-    status = timesheet.current_status
-    case status
-
-    when 'Pending Submission'
-      _write_line(
-        pdf:,
-        previous_text: "Timesheet State: #{Prawn::Text::NBSP * 1}#{status}"
-      )
-
-    when 'Submitted'
-      _write_line(
-        pdf:,
-        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
-        next_text: "Submitted on: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
-      )
-    when 'Approved'
-      _write_line(
-        pdf:,
-        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
-        next_text: "Submitted on: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
-      )
-      _write_line(
-        pdf:,
-        previous_text: "Approved On: #{timesheet[:approved_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}" # rubocop:disable Layout/LineLength
-      )
-
-    when 'Recalled'
-      _write_line(
-        pdf:,
-        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
-        next_text: "Re-called On: #{timesheet[:updated_at]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
-      )
-
-    when 'Rejected'
-      _write_line(
-        pdf:,
-        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
-        next_text: "Rejected On: #{timesheet[:updated_at]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
-      )
-
-    when 'Re-opened'
-      _write_line(
-        pdf:,
-        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
-        next_libne: "Submitted On: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
-      )
-      _write_line(
-        pdf:,
-        previous_text: "Re-opened On: #{Prawn::Text::NBSP}#{timesheet[:updated_at]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}" # rubocop:disable Layout/LineLength
-      )
-
-    when 'Re-submitted'
-      _write_line(
-        pdf:,
-        previous_text: "Timesheet State: #{Prawn::Text::NBSP * 1}#{status}",
-        next_text: "Re-submitted On: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}" # rubocop:disable Layout/LineLength
-      )
-    end
   end
 
   def weekly_pdf(records, projects, timesheet) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength
@@ -139,6 +78,68 @@ module TimesheetsHelper # rubocop:disable Style/Documentation
     count = [(remaining_width / nbsp_width).floor, 1].max
 
     Prawn::Text::NBSP * count
+  end
+
+  def _state_section_builder(pdf:, timesheet:) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+    status = timesheet.current_status
+    case status
+
+    when 'Pending Submission'
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP * 1}#{status}"
+      )
+
+    when 'Submitted'
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
+        next_text: "Submitted on: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+    when 'Approved'
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
+        next_text: "Submitted on: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+      _write_line(
+        pdf:,
+        previous_text: "Approved On: #{timesheet[:approved_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}", # rubocop:disable Layout/LineLength
+        next_text: "Approved By: #{Employee.find(timesheet[:approved_by])&.person&.full_name || '--'}"
+      )
+
+    when 'Recalled'
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
+        next_text: "Re-called On: #{timesheet[:updated_at]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+
+    when 'Rejected'
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
+        next_text: "Rejected On: #{timesheet[:updated_at]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+
+    when 'Re-opened'
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP}#{status}",
+        next_libne: "Submitted On: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+      )
+      _write_line(
+        pdf:,
+        previous_text: "Re-opened On: #{Prawn::Text::NBSP}#{timesheet[:updated_at]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}" # rubocop:disable Layout/LineLength
+      )
+
+    when 'Re-submitted'
+      _write_line(
+        pdf:,
+        previous_text: "Timesheet State: #{Prawn::Text::NBSP * 1}#{status}",
+        next_text: "Re-submitted On: #{timesheet[:submitted_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}" # rubocop:disable Layout/LineLength
+      )
+    end
   end
 
   def _write_line(pdf:, previous_text:, next_text: '', move_down: 40)
