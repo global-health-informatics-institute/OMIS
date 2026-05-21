@@ -54,8 +54,7 @@ module TimesheetsHelper # rubocop:disable Style/Documentation
       )
       _write_line(
         pdf:,
-        previous_text: "Submitted On: #{Prawn::Text::NBSP}#{timesheet[:submitted_on]}",
-        next_text: "Approved On: #{timesheet[:approved_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}"
+        previous_text: "Approved On: #{timesheet[:approved_on]&.in_time_zone&.strftime('%A, %d %B %Y at %H:%M') || '--'}" # rubocop:disable Layout/LineLength
       )
 
     when 'Recalled'
