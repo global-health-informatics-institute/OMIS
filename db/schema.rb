@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_05_14_012743) do
+ActiveRecord::Schema[7.0].define(version: 2026_06_02_130303) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -60,10 +60,11 @@ ActiveRecord::Schema[7.0].define(version: 2026_05_14_012743) do
   end
 
   create_table "budget_lines", force: :cascade do |t|
-    t.string "budget_line", null: false
+    t.string "budget_line_ref", null: false
     t.boolean "voided", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "description"
   end
 
   create_table "departments", primary_key: "department_id", force: :cascade do |t|
