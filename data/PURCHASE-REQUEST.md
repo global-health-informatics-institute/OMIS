@@ -37,6 +37,7 @@
 1. **Get new changes:** run `git pull origin main`  
 2. **Database Migrations:** Run `bunde exec rails db:migrate`.
 3. **Seed Data:**  run `bundle exec rake db:seed:<seed_file>` for Donor, Budget Line, Donor_Project data
+   - bundle exec rake db:seed:donor # seeds ProjectDonors too
 4. **Test application:** run `bundle exec rails s -b 0.0.0.0`
 5. **Restart Service:** `sudo systemctl restart <app>.service && sudo systemctl status <app>.service`
 
