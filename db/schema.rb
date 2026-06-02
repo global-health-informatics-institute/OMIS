@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_24_134952) do
+ActiveRecord::Schema[7.0].define(version: 2026_05_14_012743) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -203,9 +203,9 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_24_134952) do
     t.datetime "end_on", null: false
     t.integer "stand_in", null: false
     t.integer "reviewed_by"
-    t.boolean "reviewed_on"
+    t.datetime "reviewed_on"
     t.integer "approved_by"
-    t.boolean "approved_on"
+    t.datetime "approved_on"
     t.integer "status", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
