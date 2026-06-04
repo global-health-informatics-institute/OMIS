@@ -53,24 +53,38 @@
 
       <%# nl %>
       <div class="row mt-3">
-        <%= form.fields_for :budget_line do |budget_line_form| %>
+        <%= form.fields_for :requisition_budget_lines do |rbl_form| %>
           <div class="col-md-6">
             <div class="mb-3">
               <label class="form-label fw-normal">Budget Line</label>
-              <%= budget_line_form.text_field :item_name, placeholder: "Enter the budget line", class: 'form-control', tooltip: "If unsure, please ask your supervisor", required: true %>
+                <%= rbl_form.select(
+                  :budget_line_id,
+                  budget_lines,
+                  { include_blank: 'Select Budget Line' },
+                  {
+                    class: 'form-control form-select',
+                    tooltip: "If unsure, please ask your supervisor",
+                    required: true
+                  }
+                )%>
+              </div>
             </div>
-          </div>
-        <% end %>
+          <% end %>
 
         <%= form.fields_for :donor do |donor_form| %>
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label fw-normal">Donor</label>
-                <%=
-                  donor_form.select :donor_id, select_donors,
+                <%= donor_form.select(
+                  :donor_id,
+                  donors,
                   { include_blank: 'Select Donor' },
-                  { class: 'form-control form-select', placeholder: "Enter donor name", tooltip: "If unsure, please ask your supervisor", required: true }
-                %>
+                  {
+                    class: 'form-control form-select',
+                    tooltip: "If unsure, please ask your supervisor",
+                    required: true
+                  }
+                )%>
               </div>
             </div>
         <% end %>
