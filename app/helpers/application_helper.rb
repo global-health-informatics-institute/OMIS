@@ -50,4 +50,12 @@ module ApplicationHelper
   def departments
     Department.all.collect{|x| x.department_name}
   end
+
+  def budget_lines
+    BudgetLine.all.collect { |x| [x.budget_line_ref, x.id] }
+  end
+
+  def donors
+    Donor.all.collect { |x| [x.name, x.id] }
+  end
 end
