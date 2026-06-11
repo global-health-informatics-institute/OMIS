@@ -12,6 +12,8 @@ class Employee < ApplicationRecord
   has_one :received_supervision, foreign_key: 'supervisee', class_name: 'Supervision'
   has_one :supervisor, through: :received_supervision, source: :supervisor_employee
 
+  default_scope { where(still_employed: true) }
+
   def full_details(period = 'current')
     record = {}
     person = self.person

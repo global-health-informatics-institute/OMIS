@@ -84,6 +84,27 @@ class LeaveRequestsController < ApplicationController
 
     return render_error(status: 404, message: 'requisition not found.') unless @leave_request
 
+    management_designation_roles = [
+      'Director',
+      'Director of Finance and Administration',
+      'Finance & Administration Lead',
+      'Finance Lead',
+      'Administration Lead',
+      'Operations Lead',
+      'Human Resources Lead',
+      'Programs Lead',
+      'Program Manager',
+      'Deparment Head',
+      'Training Program Coordinator',
+      'Product Development Manager',
+      'Monitoring and Evaluation Manager',
+      'Resource Mobilization Lead',
+      'Resource Mobilization Manager',
+      'Program Director'
+    ].freeze
+
+    broadcast_types = ['Annual Leave']
+
     if @leave_request.update(
       reviewed_by: current_user.user_id,
       reviewed_on: Time.now,
@@ -93,8 +114,13 @@ class LeaveRequestsController < ApplicationController
     )
       begin
         LeaveRequestMailer.approve_leave_request(@leave_request).deliver_now
-        if @leave_request[:leave_type] == 'Annual Leave'
-          LeaveRequestMailer.broadcast_approved_leave_request(@leave_request).deliver_now
+        if broadcast_types.include?(@leave_request[:leave_type])
+          if management_designation_roles.include?(Designation.find_by_designation_id(Employee.find_by_employee_id(@leave_request.employee_id).designations.first.designation_id).designated_role) # rubocop:disable Layout/LineLength
+            LeaveRequestMailer.broadcast_approved_leave_request(@leave_request).deliver_now
+          else
+            puts("Initiating CC email for leave request ID: #{@leave_request.inspect}") # Debug log
+            LeaveRequestMailer.team_broadcast_approved_leave_request(@leave_request).deliver_now
+          end
         end
       rescue Net::OpenTimeout => e
         return render_error(
