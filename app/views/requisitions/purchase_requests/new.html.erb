@@ -1,6 +1,6 @@
 <h4 class="mb-4">Purchase Request</h4>
 
-<%= form_with model: @purchase_request do |form| %>
+<%= form_with model: [:requisitions, @purchase_request], url: requisitions_purchase_requests_path, method: :post do |form| %>
   <div class="card shadow-sm mb-4">
     <div class="card-body">
 
@@ -23,14 +23,12 @@
 
       <%# nl %>
       <div class="row mt-3">
-        <%= form.fields_for :purchase_request_detail do |purchase_request_detail_form| %>
           <div class="col-md-6">
             <div class="mb-3">
               <label class="form-label fw-normal">Item Name</label>
-              <%= purchase_request_detail_form.text_field :item_name, placeholder: "Enter item name", class: 'form-control', required: true %>
+              <%= form.text_field :purpose, placeholder: "Enter item name", class: 'form-control', required: true %>
             </div>
           </div>
-        <% end %>
 
         <%= form.fields_for :requisition_items do |requisition_item_form| %>
             <div class="col-md-6">
@@ -44,12 +42,14 @@
 
 
       <%# nl %>
-      <div class="row mt-3">
-          <div class="mb-3">
-            <label class="form-label fw-normal">Description</label>
-            <%= form.text_area :description, placeholder: "Enter description", class: 'form-control', rows: 2, required: true %>
+        <%= form.fields_for :requisition_items do |requisition_item_form| %>
+          <div class="row mt-3">
+              <div class="mb-3">
+                <label class="form-label fw-normal">Description</label>
+                <%= requisition_item_form.text_area :item_description, placeholder: "Enter description", class: 'form-control', rows: 2, required: true %>
+              </div>
           </div>
-      </div>
+        <% end %>
 
       <%# nl %>
       <div class="row mt-3">

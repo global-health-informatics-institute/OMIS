@@ -45,7 +45,8 @@ class RequisitionsController < ApplicationController
     when 'Asset Request'
       @asset_types = AssetCategory.all.collect { |x| x.category }
     when 'Purchase Request'
-
+      @purchase_request = Requisition.new
+      @purchase_request.requisition_items.build
     when 'Travel Request'
       @employees = Employee.where(still_employed: true).collect { |x| x.person.full_name }
     when 'Personnel Requests'
