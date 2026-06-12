@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_06_02_130303) do
+ActiveRecord::Schema[7.0].define(version: 2026_06_12_093556) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -338,6 +338,16 @@ ActiveRecord::Schema[7.0].define(version: 2026_06_02_130303) do
     t.index ["budget_line_id"], name: "index_requisition_budget_lines_on_budget_line_id"
   end
 
+  create_table "requisition_donors", force: :cascade do |t|
+    t.bigint "requisition_id", null: false
+    t.bigint "donor_id", null: false
+    t.boolean "voided", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["donor_id"], name: "index_requisition_donors_on_donor_id"
+    t.index ["requisition_id"], name: "index_requisition_donors_on_requisition_id"
+  end
+
   create_table "requisition_items", primary_key: "requisition_item_id", force: :cascade do |t|
     t.integer "requisition_id", null: false
     t.decimal "quantity"
@@ -481,4 +491,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_06_02_130303) do
   add_foreign_key "purchase_request_details", "requisitions", primary_key: "requisition_id"
   add_foreign_key "requisition_budget_lines", "budget_lines"
   add_foreign_key "requisition_budget_lines", "requisitions", primary_key: "requisition_id"
+  add_foreign_key "requisition_donors", "donors"
+  add_foreign_key "requisition_donors", "requisitions", primary_key: "requisition_id"
 end
