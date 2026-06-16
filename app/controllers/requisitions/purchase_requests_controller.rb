@@ -14,8 +14,9 @@ module Requisitions
     end
 
     def create
-      @purchase_request = Requisition.new(purchase_request_params)
-      puts "Purchase Request Params: #{@purchase_request.inspect}" # Debugging line
+      @purchase_request = PurchaseRequestService.create(permit_purchase_request_params)
+      flash[:notice] = 'Purchase request successfully submitted'
+      # redirect_to :show, id: @purchase_request.requisition_id
     end
 
     def show
@@ -32,7 +33,7 @@ module Requisitions
 
     private
 
-    def purchase_request_params
+    def permit_purchase_request_params
       params.require(:requisition).permit(
         :project_id,
         :donor_id,
@@ -40,8 +41,8 @@ module Requisitions
         :initiated_on,
         :purpose,
         requisition_items_attributes: %i[id item_description quantity _destroy],
-        requisition_budget_lines: [:budget_line_id],
-        donor: [:donor_id]
+        requisition_budget_line_attributes: %i[id budget_line_id _destroy],
+        requisition_donor_attributes: %i[id donor_id _destroy],
       )
     end
   end

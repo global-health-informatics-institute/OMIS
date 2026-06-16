@@ -58,4 +58,8 @@ module ApplicationHelper
   def donors
     Donor.all.collect { |x| [x.name, x.id] }
   end
+
+  def requisition_projects
+    Project.all.collect { |x| [x.project_name, x.project_id] }
+  end
 end

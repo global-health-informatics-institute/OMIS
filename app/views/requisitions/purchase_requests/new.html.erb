@@ -4,7 +4,7 @@
   <div class="card shadow-sm mb-4">
     <div class="card-body">
 
-      <%# nl %>
+      <%# Row 1: Initiated By and Date %>
       <div class="row mt-3">
         <div class="col-md-6">
           <div class="mb-3">
@@ -21,82 +21,92 @@
         </div>
       </div>
 
-      <%# nl %>
+      <%# Row 2 & 3: Item Name, Quantity, and Description %>
       <div class="row mt-3">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label fw-normal">Item Name</label>
+            <%= form.text_field :purpose, placeholder: "Enter item name", class: 'form-control', required: true %>
+          </div>
+        </div>
+
+        <%# FIX 1: Wrap BOTH quantity and description in ONE single fields_for block %>
+        <%= form.fields_for :requisition_items do |item_form| %>
           <div class="col-md-6">
             <div class="mb-3">
-              <label class="form-label fw-normal">Item Name</label>
-              <%= form.text_field :purpose, placeholder: "Enter item name", class: 'form-control', required: true %>
+              <label class="form-label fw-normal">Quantity</label>
+              <%= item_form.number_field :quantity, value: 1, class: 'form-control', min: 1, step: 1, required: true %>
             </div>
           </div>
+        </div> <%# Closes the row early to cleanly drop description to its own line %>
 
-        <%= form.fields_for :requisition_items do |requisition_item_form| %>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label class="form-label fw-normal">Quantity</label>
-                <%= requisition_item_form.number_field :quantity, value: 0, class: 'form-control', min: 0, step: 1, required: true %>
-              </div>
+        <div class="row mt-3">
+          <div class="col-md-12">
+            <div class="mb-3">
+              <label class="form-label fw-normal">Description</label>
+              <%= item_form.text_area :item_description, placeholder: "Enter description", class: 'form-control', rows: 2, required: true %>
             </div>
+          </div>
         <% end %>
       </div>
 
-
-      <%# nl %>
-        <%= form.fields_for :requisition_items do |requisition_item_form| %>
-          <div class="row mt-3">
-              <div class="mb-3">
-                <label class="form-label fw-normal">Description</label>
-                <%= requisition_item_form.text_area :item_description, placeholder: "Enter description", class: 'form-control', rows: 2, required: true %>
-              </div>
-          </div>
-        <% end %>
-
-      <%# nl %>
+      <%# Row 4: Budget Line and Donor %>
       <div class="row mt-3">
-        <%= form.fields_for :requisition_budget_lines do |rbl_form| %>
+        <%# FIX 2: Changed to singular :requisition_budget_line %>
+        <%= form.fields_for :requisition_budget_line do |rbl_form| %>
           <div class="col-md-6">
             <div class="mb-3">
               <label class="form-label fw-normal">Budget Line</label>
-                <%= rbl_form.select(
-                  :budget_line_id,
-                  budget_lines,
-                  { include_blank: 'Select Budget Line' },
-                  {
-                    class: 'form-control form-select',
-                    tooltip: "If unsure, please ask your supervisor",
-                    required: true
-                  }
-                )%>
-              </div>
+              <%= rbl_form.select(
+                :budget_line_id,
+                budget_lines,
+                { include_blank: 'Select Budget Line' },
+                { class: 'form-control form-select', required: true }
+              )%>
             </div>
-          <% end %>
+          </div>
+        <% end %>
 
-        <%= form.fields_for :donor do |donor_form| %>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label class="form-label fw-normal">Donor</label>
-                <%= donor_form.select(
-                  :donor_id,
-                  donors,
-                  { include_blank: 'Select Donor' },
-                  {
-                    class: 'form-control form-select',
-                    tooltip: "If unsure, please ask your supervisor",
-                    required: true
-                  }
-                )%>
-              </div>
+        <%# FIX 3: Changed to singular :requisition_donor %>
+        <%= form.fields_for :requisition_donor do |donor_form| %>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label fw-normal">Donor</label>
+              <%# FIX 4: Changed field from :id to :donor_id %>
+              <%= donor_form.select(
+                :donor_id, 
+                donors,
+                { include_blank: 'Select Donor' },
+                { class: 'form-control form-select', required: true }
+              )%>
             </div>
+          </div>
         <% end %>
       </div>
 
-      <%# Requisition Items fields %>
+      <div class="row mt-3">
+        <%# FIX 3: Changed to singular :requisition_donor %>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label fw-normal">Project</label>
+              <%# FIX 4: Changed field from :id to :donor_id %>
+              <%= form.select(
+                :project_id, 
+                requisition_projects,
+                { include_blank: 'Select Project' },
+                { class: 'form-control form-select', required: true }
+              )%>
+            </div>
+          </div>
 
-
-      <div class="row mt-4">
-        <div class="col-md-3">
-          <%= form.submit "Submit Request", class: "btn btn-success" %>
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <div class="col-md-3">
+            <%= form.submit "Submit Request", class: "btn btn-success" %>
+          </div>
         </div>
+      </div>
+
       </div>
     </div>
   </div>
