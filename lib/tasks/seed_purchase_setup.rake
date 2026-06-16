@@ -7,9 +7,8 @@ namespace :db do
       # Defined in logical order of dependencies
       seed_files = [
         'donors.rb',
-        'budget_line.rb'
-        # 'workflow_states.rb',
-        # 'workflow_process.rb'
+        'budget_lines.rb',
+        'purchase_request_workflow_data.rb'
       ]
 
       seed_files.each do |file|
