@@ -196,21 +196,25 @@ class Employee < ApplicationRecord
     actions += Timesheet.select('timesheet_id, employee_id, submitted_on, timesheet_week')
                         .where('employee_id in (?) and submitted_on is not NULL and approved_on is NULL', jnrs)
                         .collect do |x|
-      ["Review #{x.employee.person.first_name}\'s #{x.timesheet_week.strftime('%d %b, %Y')} timesheet",
-       "/timesheets/#{x.id}"]
-    end
+      if x.employee&.person
+        ["Review #{x.employee.person.first_name}\'s #{x.timesheet_week.strftime('%d %b, %Y')} timesheet",
+         "/timesheets/#{x.id}"]
+      end
+    end.compact
+
     designation_ids = current_designations.collect(&:designation_id)
 
     allowed_transitions = WorkflowStateActor.where(
       employee_designation_id: current_designations.collect { |x| x.designation_id }
     ).where.not(workflow_state_id: [22, 27, 28, 29]).pluck(:workflow_state_id)
+
     # Add exception: allow workflow_state_ids 28 and 29 for designation_id 12
-      [28, 29].each do |workflow_state_id|
+    [28, 29].each do |workflow_state_id|
       allowed_transitions << workflow_state_id if designation_ids.include?(
         Designation.find_by_designated_role('Human Resources Volunteer').designation_id
       ) && !allowed_transitions.include?(workflow_state_id)
+    end
 
-      end
     # requisition finance reviews
     actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
                           .collect do |x|
@@ -227,7 +231,7 @@ class Employee < ApplicationRecord
     owner_actionable_states = WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id)
     owner_actionable_states << 24 # Explicitly include the "Approved" state (ID 24)
 
-    actions += Requisition.where('workflow_state_id in (?) and initiated_by = ?', owner_actionable_states.uniq, id) # Use .uniq to avoid duplicates
+    actions += Requisition.where('workflow_state_id in (?) and initiated_by = ?', owner_actionable_states.uniq, id)
                           .collect do |x|
       if x.workflow_state_id == 28
         ["Collect Funds for #{x.requisition_type} request: #{x.purpose}",
@@ -238,15 +242,18 @@ class Employee < ApplicationRecord
       end
     end
 
- actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
-                      .where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
-                      .collect do |x|
-  ["Review #{x.user.person.first_name}'s #{x.requisition_type} requisition for #{x.purpose}",
-  "/requisitions/#{x.id}"]
-end
+    # junior requisitions
+    actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
+                          .where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
+                          .collect do |x|
+      # Defensive check: Ensure user and person are present
+      if x.user&.person
+        ["Review #{x.user.person.first_name}'s #{x.requisition_type} requisition for #{x.purpose}",
+         "/requisitions/#{x.id}"]
+      end
+    end.compact
 
-
-
+    # self leave requests
     actions += LeaveRequest.where('status in (?) and employee_id in (?)', WorkflowStateTransition
                            .where(by_owner: true).collect { |x| x.workflow_state_id }, id)
                            .collect { |x| ['Review leave request', "/leave_requests/#{x.id}"] }
@@ -256,11 +263,12 @@ end
       x.workflow_state_id
     end, jnrs)
                            .collect do |x|
-      ["Review #{x.employee.user.person.first_name}'s' #{x.leave_type} request",
-       "/leave_requests/#{x.id}"]
-    end
-    
-    # raise actions.inspect
+      # Defensive check: Ensure deep associations are present
+      if x.employee&.user&.person
+        ["Review #{x.employee.user.person.first_name}'s #{x.leave_type} request",
+         "/leave_requests/#{x.id}"]
+      end
+    end.compact
     actions
   end
 end
