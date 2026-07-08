@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_05_14_012743) do
+ActiveRecord::Schema[7.0].define(version: 2026_07_07_132251) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -59,6 +59,14 @@ ActiveRecord::Schema[7.0].define(version: 2026_05_14_012743) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "budget_lines", force: :cascade do |t|
+    t.string "budget_line_ref", null: false
+    t.boolean "voided", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "description"
+  end
+
   create_table "departments", primary_key: "department_id", force: :cascade do |t|
     t.integer "branch_id", null: false
     t.string "department_name", null: false
@@ -80,6 +88,26 @@ ActiveRecord::Schema[7.0].define(version: 2026_05_14_012743) do
     t.integer "department_id", null: false
     t.string "designated_role", null: false
     t.boolean "is_active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "donor_projects", force: :cascade do |t|
+    t.bigint "donor_id", null: false
+    t.bigint "project_id", null: false
+    t.boolean "voided", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["donor_id"], name: "index_donor_projects_on_donor_id"
+    t.index ["project_id"], name: "index_donor_projects_on_project_id"
+  end
+
+  create_table "donors", force: :cascade do |t|
+    t.integer "donor_id"
+    t.string "name"
+    t.string "short_name"
+    t.text "description"
+    t.boolean "voided", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -249,11 +277,12 @@ ActiveRecord::Schema[7.0].define(version: 2026_05_14_012743) do
     t.string "task_description", null: false
     t.decimal "estimated_duration"
     t.datetime "deadline"
-    t.string "task_status"
+    t.string "task_status", default: "Open"
     t.integer "performed_by"
     t.boolean "voided", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "reference"
   end
 
   create_table "project_teams", primary_key: "project_team_id", force: :cascade do |t|
@@ -280,6 +309,17 @@ ActiveRecord::Schema[7.0].define(version: 2026_05_14_012743) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "purchase_request_details", force: :cascade do |t|
+    t.integer "requisition_id", null: false
+    t.string "vendor_name"
+    t.integer "donor_id"
+    t.integer "department_id"
+    t.boolean "voided", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "item_name"
+  end
+
   create_table "report_statistics", primary_key: "statistic_id", force: :cascade do |t|
     t.date "period_start", null: false
     t.date "period_end", null: false
@@ -288,6 +328,25 @@ ActiveRecord::Schema[7.0].define(version: 2026_05_14_012743) do
     t.decimal "statistic_value", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "requisition_budget_lines", force: :cascade do |t|
+    t.integer "requisition_id", null: false
+    t.bigint "budget_line_id", null: false
+    t.boolean "voided"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["budget_line_id"], name: "index_requisition_budget_lines_on_budget_line_id"
+  end
+
+  create_table "requisition_donors", force: :cascade do |t|
+    t.bigint "requisition_id", null: false
+    t.bigint "donor_id", null: false
+    t.boolean "voided", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["donor_id"], name: "index_requisition_donors_on_donor_id"
+    t.index ["requisition_id"], name: "index_requisition_donors_on_requisition_id"
   end
 
   create_table "requisition_items", primary_key: "requisition_item_id", force: :cascade do |t|
@@ -426,6 +485,13 @@ ActiveRecord::Schema[7.0].define(version: 2026_05_14_012743) do
   end
 
   add_foreign_key "departments", "branches", primary_key: "branch_id"
+  add_foreign_key "donor_projects", "donors"
+  add_foreign_key "donor_projects", "projects", primary_key: "project_id"
   add_foreign_key "employees", "people", primary_key: "person_id"
   add_foreign_key "petty_cash_comments", "requisitions", primary_key: "requisition_id"
+  add_foreign_key "purchase_request_details", "requisitions", primary_key: "requisition_id"
+  add_foreign_key "requisition_budget_lines", "budget_lines"
+  add_foreign_key "requisition_budget_lines", "requisitions", primary_key: "requisition_id"
+  add_foreign_key "requisition_donors", "donors"
+  add_foreign_key "requisition_donors", "requisitions", primary_key: "requisition_id"
 end
