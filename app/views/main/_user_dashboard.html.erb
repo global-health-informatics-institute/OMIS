@@ -174,10 +174,35 @@
           </span>
         </h5>
       </div>
-      <div class="card-body p-2">
-        <% if (@approvals || []).empty? %>
-          <span class="fw-normal">No tasks assigned</span>
-        <% else%>
+          
+      <div class="overflow-y-scroll" style="height:25vh;">
+        
+        <%# direct project tasks %>
+        <% if not @direct_project_tasks.empty? %>
+          <ul class="list-group list-group-flush">
+            <% @direct_project_tasks.each do |task| %>
+              <a 
+                href="<%= task.reference_url? ? task.reference : '#' %>" 
+                class="list-group-item list-group-item-action"
+              >
+                <%= task.task_description %>
+              </a>
+            <% end %>
+          </ul>
+          <% end %>
+
+        <%# delegated project tasks %>
+        <% if not @delegated_project_tasks.empty? %>
+          <ul class="list-group list-group-flush">
+            <% @delegated_project_tasks.each do |task| %>
+              <div
+                class="list-group-item list-group-item-action"
+              >
+                <%= task.task_description %>
+                <%# button that takes task. %>
+              </div>
+            <% end %>
+          </ul>
         <% end %>
       </div>
     </div>
