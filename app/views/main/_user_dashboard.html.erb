@@ -214,7 +214,7 @@
             </div>
 
             <%# Bootstrap Revoke Button %>
-            <%= button_to "Revoke", 
+            <%= button_to "Dismiss", 
                           revoke_project_task_assignment_path(assignment["project_task_assignment_id"]), 
                           method: :patch, 
                           params: { project_task_id: assignment["project_task_assignment_id"] }, # Pass employee_id if your backend needs it
