@@ -46,6 +46,11 @@ class MainController < ApplicationController
         end
       end
 
+      pp "DIRECT PROJECT TASKS: #{ProjectTask.direct_project_tasks_as_json(current_user).inspect}"
+      pp "DELEGATED PROJECT TASKS: #{ProjectTask.delegated_project_tasks_as_json(current_user).inspect}"
+      @direct_project_tasks = ProjectTask.direct_project_tasks_as_json(current_user)
+      @delegated_project_tasks = ProjectTask.delegated_project_tasks_as_json(current_user)
+
       @loe_targets = ProjectTeam.where("employee_id = ? and project_id in (?) and end_date is NULL",
                                        current_user.employee_id, Project.select(:project_id).where(is_active: true))
       @unallocated_loe = 100 - @loe_targets.collect { |x| (x.allocated_effort)}.sum

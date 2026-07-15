@@ -16,7 +16,11 @@ Rails.application.routes.draw do
   resources :project_tasks
   resources :business_assets
   resources :time_sheet_tasks
-  resources :project_task_assignments
+  resources :project_task_assignments, only: [] do
+    member do
+      patch :revoke
+    end
+  end
   resources :user_sessions, only: [:new, :create, :destroy]
 
   get 'travel_requests/new', to: 'travel_requests#new', as: :save_budget_details
