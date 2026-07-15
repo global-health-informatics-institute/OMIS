@@ -72,12 +72,24 @@
                 <% end %>
               </tr>
             <% end %>
-            </tbody>
+              <%# project tasks %>
+            <% if @direct_project_tasks.present? %>
+              <% @direct_project_tasks.each do |task| %>
+                <tr>
+                  <td>
+                    <%= Time.parse(task["deadline"]).strftime('%d %b,%Y') %>
+                  </td>
+                  <td>
+                    <%= task["task_description"] %>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
         </table>
       </div>
     </div>
   </div>
-
 <%# END OF PANE %>
 </div>
 <div class="row mt-4">
