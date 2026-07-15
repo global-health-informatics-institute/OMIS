@@ -44,7 +44,7 @@ class ProjectTask < ApplicationRecord # rubocop:disable Style/Documentation
 
   def self.direct_project_tasks(current_user)
     ProjectTask
-      .where('deadline >= ?', Date.today)
+      .where('deadline >= ?', Time.zone.now.beginning_of_day)
       .where(task_status: 'open')
       .joins(project_task_assignments: :employee) 
       .includes(:project_task_assignments)
@@ -52,7 +52,7 @@ class ProjectTask < ApplicationRecord # rubocop:disable Style/Documentation
   end
 
   def self.delegated_project_tasks(current_user)
-    where('deadline >= ?', Date.today)
+    where('deadline >= ?', Time.zone.now.beginning_of_day)
       .where(performed_by: current_user.employee_id, task_status: 'open')
       .joins(project_task_assignments: :employee)
       .includes(:project_task_assignments)
