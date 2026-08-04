@@ -17,6 +17,7 @@ namespace :db do
         if File.exist?(path)
           puts "== Seeding: #{file} =="
           load(path)
+          puts
         else
           puts "== Warning: #{file} not found at #{path} =="
         end
