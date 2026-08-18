@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_06_12_093556) do
+ActiveRecord::Schema[7.0].define(version: 2026_07_07_132251) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -277,11 +277,12 @@ ActiveRecord::Schema[7.0].define(version: 2026_06_12_093556) do
     t.string "task_description", null: false
     t.decimal "estimated_duration"
     t.datetime "deadline"
-    t.string "task_status"
+    t.string "task_status", default: "Open"
     t.integer "performed_by"
     t.boolean "voided", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "reference"
   end
 
   create_table "project_teams", primary_key: "project_team_id", force: :cascade do |t|
