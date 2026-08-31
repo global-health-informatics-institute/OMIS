@@ -5,7 +5,8 @@ class PurchaseRequestService # rubocop:disable Style/Documentation
   def self.create(payload) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
     # 1. Guard against the controller passing a Requisition object
     if payload.is_a?(ActiveRecord::Base)
-      raise ArgumentError, "PurchaseRequestService expects a params Hash, but received a #{payload.class.name}. Please pass `params` from the controller."
+      raise ArgumentError,
+            "PurchaseRequestService expects a params Hash, but received a #{payload.class.name}. Please pass `params` from the controller." # rubocop:disable Layout/LineLength
     end
 
     ActiveRecord::Base.transaction do
