@@ -16,7 +16,7 @@ module Requisitions
     def create
       @purchase_request = PurchaseRequestCreateService.create(permit_purchase_request_params)
       flash[:notice] = 'Purchase request successfully submitted'
-      # redirect_to :show, id: @purchase_request.requisition_id
+      redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
     end
 
     def show
