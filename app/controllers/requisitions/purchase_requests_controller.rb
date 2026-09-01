@@ -20,7 +20,7 @@ module Requisitions
     end
 
     def show
-      @test_requisition = Requisition.first
+      @purchase_request = PurchaseRequestShowService.show(params[:id])
     end
 
     def update; end
