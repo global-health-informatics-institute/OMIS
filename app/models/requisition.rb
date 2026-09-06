@@ -16,8 +16,11 @@ class Requisition < ApplicationRecord
   default_scope { where(voided: false) }
 
   def current_state
-    return WorkflowState.find(self.workflow_state_id).state rescue ''
-    #self.workflow_state.state rescue status
+    WorkflowState.find(workflow_state_id).state
+  rescue StandardError
+    ''
+
+    # self.workflow_state.state rescue status
   end
 
   def approver
