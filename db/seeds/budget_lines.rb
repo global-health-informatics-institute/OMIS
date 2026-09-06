@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 # TODO: replace with actual data
-# db/seeds/budget_line.rb
-puts 'Seeding budget_line'
+# db/seeds/budget_lines.rb
+puts 'Seeding budget_lines'
 
 BUDGETLINE_NAMES =
   [
@@ -29,19 +29,17 @@ BUDGETLINE_NAMES =
   ].freeze
 
 ActiveRecord::Base.transaction do
-  # Clean BudgetLine associations before deleting donors.
-  puts "Deleting #{BudgetLine.count} BudgetLine"
-  BudgetLine.destroy_all
+  # We do NOT destroy BudgetLines here to prevent Foreign Key violations
+  # with the requisition_budget_lines table.
 
-  # create Donors
-  BUDGETLINE_NAMES.each do |budget_line|
-    next_id = (BudgetLine.maximum(:id) || 0) + 1
+  BUDGETLINE_NAMES.each do |budget_line_data|
+    # Find the budget line by its reference, or initialize a new one
+    budget_line = BudgetLine.find_or_initialize_by(budget_line_ref: budget_line_data[:budget_line_ref])
 
-    BudgetLine.find_or_create_by(
-      id: next_id,
-      budget_line_ref: budget_line[:budget_line_ref],
-      description: budget_line[:description]
-    )
+    # Update the description (and any other future fields)
+    budget_line.description = budget_line_data[:description]
+    budget_line.save!
   end
+
   puts "Completed seeding #{BudgetLine.count} budget lines"
 end

@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+# Steps documented here:
+# 1. Destroy existing workflow process, states, transitions, and initial state -> L77
+# 2. Create workflow process -> L87
+# 3. Create workflow states -> L105
+# 4. Create workflow state transitions -> L123
+# 5. Create initial state -> L141
+
 # TODO: replace with actual data
 # db/seeds/workflow_processes.rb
 WORKFLOW_PROCESS = {
@@ -9,19 +16,19 @@ WORKFLOW_PROCESS = {
 
 WORKFLOW_STATE = [
   {
-    state: 'Pending Submission',
+    state: 'Requested',
     description: 'Initial state which triggers the opening of a purchase request'
   },
   {
-    state: 'Requested',
-    description: 'State when a purchase request is created'
-  }
+    state: 'Pending Supervisor Review',
+    description: 'State indicating that the purchase request is awaiting review by the supervisor'
+  },
 ].freeze
 
 WORKFLOW_STATE_TRANSITIONS = [
   {
-    workflow_state_id: 'Pending Submission',
-    next_state: 'Requested',
+    workflow_state_id: 'Requested',
+    next_state: 'Pending Supervisor Review',
     action: 'Submit Purchase Request',
     by_owner: true,
     by_supervisor: false

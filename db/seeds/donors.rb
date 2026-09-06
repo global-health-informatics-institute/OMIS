@@ -52,23 +52,24 @@ DONOR_NAMES =
       description: 'Donor I description'
     }
   ].freeze
-
 ActiveRecord::Base.transaction do
-  # Clean donor associations before deleting donors.
-  puts "Deleting #{DonorProject.count} ProjectDonors  & #{Donor.count} Donors"
-  DonorProject.destroy_all
-  Donor.destroy_all
+  puts 'Resetting DonorProject associations'
+  # It is usually safe to reset the many-to-many project links
+  DonorProject.destroy_all 
 
-  # create Donors
-  DONOR_NAMES.each do |donor|
-    next_id = (Donor.maximum(:donor_id) || 0) + 1
+  # DO NOT destroy_all Donors here!
 
-    Donor.find_or_create_by(
-      donor_id: next_id,
-      short_name: donor[:short_name],
-      name: donor[:name],
-      description: donor[:description]
-    )
+  # create or update Donors
+  DONOR_NAMES.each do |donor_data|
+    # Find the donor by short_name, or initialize a new one if it doesn't exist
+    donor = Donor.find_or_initialize_by(short_name: donor_data[:short_name])
+
+    # Assign the next available ID ONLY if this is a brand new donor
+    donor.donor_id = (Donor.maximum(:donor_id) || 0) + 1 if donor.new_record?
+
+    donor.name = donor_data[:name]
+    donor.description = donor_data[:description]
+    donor.save!
   end
   puts "Completed seeding #{Donor.count} donors"
 
@@ -78,9 +79,9 @@ ActiveRecord::Base.transaction do
 
   Donor.find_each do |donor|
     project_ids.sample(rand(1..3)).each do |project_id|
-      DonorProject.find_or_create_by(
+      DonorProject.find_or_create_by!(
         donor_id: donor.id,
-        project_id:
+        project_id: project_id
       )
     end
   end
