@@ -17,7 +17,7 @@ class PurchaseRequestShowService # rubocop:disable Style/Documentation
 
     def build_requisition_attributes(requisition_id)
       # a complete purchase request requisition object with all its associated data
-      Requisition.includes(
+      PurchaseRequest.includes(
         :requisition_items,
         :requisition_budget_line,
         :requisition_donor

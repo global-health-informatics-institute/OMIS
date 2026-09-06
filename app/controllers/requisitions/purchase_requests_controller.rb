@@ -10,7 +10,6 @@ module Requisitions
 
     def new
       # This variable is already initialized in parent controller (RequisitionController)
-      @purchase_request = Requisition.new
     end
 
     def create
@@ -64,7 +63,7 @@ module Requisitions
     private
 
     def permit_purchase_request_params
-      params.require(:requisition).permit(
+      params.require(:purchase_request).permit(
         :project_id,
         :donor_id,
         :initiated_by,
