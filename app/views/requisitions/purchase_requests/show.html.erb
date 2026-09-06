@@ -10,12 +10,9 @@
                     <h5 class="mb-0">Purchase Request</h5>
                 </div>
                 <div class="col text-end">
-                    <span class="badge bg-secondary text-white p-3 fs-6">
-                        <%= 'Pending Submission' %>
-                        <%# TODO: add state here, conditional render by color %>
-                        <%# TODO: create an issue for a configurable state and color mapping %>
-                        <%# <%= @leave_request.leave_state == 'Rejected' ? 'Denied' : @leave_request.leave_state %>
-                    </span>
+                    <span class="badge <%= purchase_request_state_badge_class(@purchase_request.current_state) %> p-3 fs-6">
+                        <%= @purchase_request.current_state %>
+                        </span>
                 </div>
             </div>
         </div>
