@@ -23,6 +23,36 @@ module Requisitions
       @purchase_request = PurchaseRequestShowService.show(params[:id])
     end
 
+    # State: Pending Supervisor Approval
+    def recall
+      # TODO: Implement recall logic in the service layer
+      @purchase_request = PurchaseRequestRecallService.recall(params[:id])
+      flash[:notice] = 'Purchase request successfully recalled'
+      redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
+    end
+
+    def rescind
+      # TODO: Implement rescind logic in the service layer
+      @purchase_request = PurchaseRequestRescindService.rescind(params[:id])
+      flash[:notice] = 'Purchase request successfully rescinded'
+      redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
+    end
+
+    def approve
+      # TODO: Implement approve logic in the service layer
+      @purchase_request = PurchaseRequestApproveService.approve(params[:id])
+      flash[:notice] = 'Purchase request successfully approved'
+      redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
+    end
+
+    def decline
+      # TODO: Implement decline logic in the service layer
+      @purchase_request = PurchaseRequestDeclineService.decline(params[:id])
+      flash[:notice] = 'Purchase request successfully declined'
+      redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
+    end
+    # end of state: Pending Supervisor Approval
+
     def update; end
 
     def destroy; end

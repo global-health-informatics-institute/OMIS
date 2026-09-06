@@ -1,0 +1,188 @@
+<%# #<Requisition requisition_id: 149, purpose: "Item 1", initiated_by: 80, initiated_on: "2026-09-01 00:00:00.000000000 +0000", requisition_type: "Purchase Request", reviewed_by: nil, approved_by: nil, workflow_state_id: 39, voided: false, created_at: "2026-09-01 08:32:11.960988000 +0000", updated_at: "2026-09-01 08:32:11.960988000 +0000", project_id: 12> %>
+
+    <%# mother card  %>
+    <div class="card mt-3">
+
+
+        <div class="card-header card-header-dark">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h5 class="mb-0">Purchase Request</h5>
+                </div>
+                <div class="col text-end">
+                    <span class="badge bg-secondary text-white p-3 fs-6">
+                        <%= 'Pending Submission' %>
+                        <%# TODO: add state here, conditional render by color %>
+                        <%# TODO: create an issue for a configurable state and color mapping %>
+                        <%# <%= @leave_request.leave_state == 'Rejected' ? 'Denied' : @leave_request.leave_state %>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <%= form_with model: [:requisitions, @purchase_request], url: requisitions_purchase_requests_path, method: :post do |form| %>
+        <div class="p-3">
+
+            <%# Row 1: Initiated By and Date %>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-normal">Initiated By</label>
+                    <%=
+                        form.text_field :initiated_by,
+                        class: 'form-control',
+                        required: true,
+                        readonly: true,
+                        disabled: true
+                    %>
+                </div>
+                </div>
+
+                <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-normal">Date</label>
+                    <%# date_field requires a Date object or YYYY-MM-DD string to render properly %>
+                    <%=
+                        form.date_field :initiated_on,
+                        value: form.object.initiated_on&.to_date,
+                        class: 'form-control',
+                        required: true,
+                        readonly: true,
+                        disabled: true
+                    %>
+                </div>
+                </div>
+            </div>
+
+            <%# Row 2 & 3: Item Name, Quantity, and Description %>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-normal">Item Name</label>
+                    <%=
+                        form.text_field :purpose,
+                        readonly: true,
+                        class: 'form-control',
+                        required: true,
+                        readonly: true,
+                        disabled: true
+                    %>
+                </div>
+                </div>
+
+                <%= form.fields_for :requisition_items do |item_form| %>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                    <label class="form-label fw-normal">Quantity</label>
+                    <%=
+                        item_form.number_field :quantity,
+                        class: 'form-control',
+                        readonly: true,
+                        required: true,
+                        disabled: true
+                        %>
+                    </div>
+                </div>
+            </div> <%# Closes the row cleanly %>
+
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                    <label class="form-label fw-normal">Description</label>
+                    <%=
+                        item_form.text_area :item_description,
+                        class: 'form-control',
+                        rows: 2,
+                        required: true,
+                        readonly: true,
+                        disabled: true
+                    %>
+                    </div>
+                </div>
+                <% end %>
+            </div>
+
+            <%# Row 4: Budget Line and Donor %>
+            <div class="row mt-3">
+                <%= form.fields_for :requisition_budget_line do |rbl_form| %>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                    <label class="form-label fw-normal">Budget Line</label>
+                    <%# Ensure you have a 'budget_lines' collection variable defined in your controller %>
+                    <%= rbl_form.select(
+                        :budget_line_id,
+                        budget_lines, 
+                        { include_blank: 'Select Budget Line' },
+                        {
+                            class: 'form-control form-select',
+                            required: true,
+                            readonly: true,
+                            disabled: true
+                        }
+                    )%>
+                    </div>
+                </div>
+                <% end %>
+
+                <%= form.fields_for :requisition_donor do |donor_form| %>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                    <label class="form-label fw-normal">Donor</label>
+                    <%= donor_form.select(
+                        :donor_id,
+                        donors,
+                        { include_blank: 'Select Donor' },
+                        {
+                            class: 'form-control form-select',
+                            required: true,
+                            readonly: true,
+                            disabled: true
+                        }
+                    )%>
+                    </div>
+                </div>
+                <% end %>
+            </div>
+
+            <%# Row 5: Project %>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-normal">Project</label>
+                    <%= form.select(
+                    :project_id, 
+                    requisition_projects,
+                    { include_blank: 'Select Project' },
+                    {
+                        class: 'form-control form-select',
+                        required: true,
+                        readonly: true,
+                        disabled: true
+                    },
+                    )%>
+                </div>
+                </div>
+            </div>
+
+        <% end %>
+
+    <hr>
+        
+        <div class="row p-3">
+            <div class="col gap-2 d-flex">
+                <%# TODO: wire up dynamic calls button displays %>
+                
+                <%= button_to "Recall", 
+                    recall_requisitions_purchase_request_path(@purchase_request), 
+                    method: :patch, 
+                    class: "btn btn-warning" %>
+
+                <%= button_to "Rescind", 
+                    rescind_requisitions_purchase_request_path(@purchase_request), 
+                    method: :patch, 
+                    class: "btn btn-danger",
+                    data: { turbo_confirm: "Are you sure you want to rescind this request?" } %>
+            </div>
+        </div>
+    </div> <%# Closes form card %>
+</div>

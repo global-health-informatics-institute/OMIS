@@ -60,6 +60,11 @@ Rails.application.routes.draw do
   namespace :requisitions do
     resources :purchase_requests do
       member do
+        # note: # rubocop:disable Style/CommentAnnotation
+        # the helper method is recall_requisitions_purchase_request_path, which generates the browser URL
+        # url: /requisitions/purchase_requests/:id/recall
+        patch 'recall'
+        patch 'rescind'
         # Define custom routes for purchase_requests here
       end
     end
