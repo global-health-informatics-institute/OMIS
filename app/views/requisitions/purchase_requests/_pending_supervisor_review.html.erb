@@ -141,7 +141,11 @@
       <div class="row mt-3">
           <div class="col-md-6">
             <div class="col-md-3">
-              <%= form.submit "Re-Submit Request", class: "btn #{available_actions_badge_class('Resubmit Purchase Request')}" %>
+              <%=
+                form.submit "Re-Submit Request",
+                class: "btn #{available_actions_badge_class('Resubmit Purchase Request')}",
+                data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to resubmit this request?" }
+              %>
             </div>
           </div>
       </div>
