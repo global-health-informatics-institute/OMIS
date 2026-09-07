@@ -33,5 +33,14 @@ module Requisitions
         'bg-secondary text-white'
       end
     end
+
+    def field_edit_options(purchase_request, user)
+      editable = purchase_request.editable_by?(user)
+
+      {
+        readonly: !editable,
+        disabled: !editable
+      }
+    end
   end
 end

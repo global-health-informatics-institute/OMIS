@@ -43,4 +43,17 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
 
     actions.compact.uniq
   end
+
+  def editable_by?(user)
+    return false unless user
+
+    is_owner = initiated_by == user&.employee&.id || initiated_by == user&.id
+
+    case current_state.to_s.downcase
+    when 'purchase request recalled', 'purchase request rejected'
+      is_owner
+    else
+      false
+    end
+  end
 end

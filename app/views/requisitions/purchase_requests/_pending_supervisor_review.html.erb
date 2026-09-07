@@ -1,4 +1,5 @@
-<%= form_with model: [:requisitions, @purchase_request], url: requisitions_purchase_requests_path, method: :post do |form| %>
+<% edit_opts = field_edit_options(@purchase_request, current_user) %>
+<%= form_with model: [:requisitions, @purchase_request] do |form| %>
 <div class="p-3">
 
     <%# Row 1: Initiated By and Date %>
@@ -10,8 +11,7 @@
                 form.text_field :initiated_by,
                 class: 'form-control',
                 required: true,
-                readonly: true,
-                disabled: true
+                **edit_opts
             %>
         </div>
         </div>
@@ -25,8 +25,7 @@
                 value: form.object.initiated_on&.to_date,
                 class: 'form-control',
                 required: true,
-                readonly: true,
-                disabled: true
+                **edit_opts
             %>
         </div>
         </div>
@@ -41,8 +40,8 @@
                 form.text_field :purpose,
                 class: 'form-control',
                 required: true,
-                readonly: true,
-                disabled: true
+                **edit_opts
+
             %>
         </div>
         </div>
@@ -54,9 +53,8 @@
             <%=
                 item_form.number_field :quantity,
                 class: 'form-control',
-                readonly: true,
                 required: true,
-                disabled: true
+                **edit_opts
                 %>
             </div>
         </div>
@@ -71,8 +69,7 @@
                 class: 'form-control',
                 rows: 2,
                 required: true,
-                readonly: true,
-                disabled: true
+                **edit_opts
             %>
             </div>
         </div>
@@ -93,8 +90,7 @@
                 {
                     class: 'form-control form-select',
                     required: true,
-                    readonly: true,
-                    disabled: true
+                    **edit_opts
                 }
             )%>
             </div>
@@ -112,8 +108,7 @@
                 {
                     class: 'form-control form-select',
                     required: true,
-                    readonly: true,
-                    disabled: true
+                    **edit_opts
                 }
             )%>
             </div>
@@ -133,13 +128,24 @@
             {
                 class: 'form-control form-select',
                 required: true,
-                readonly: true,
-                disabled: true
+                **edit_opts
             },
             )%>
         </div>
         </div>
     </div>
+
+
+    <%# Only show the submit button if the fields are NOT disabled %>
+    <% unless edit_opts[:disabled] %>
+      <div class="row mt-3">
+          <div class="col-md-6">
+            <div class="col-md-3">
+              <%= form.submit "Re-Submit Request", class: "btn btn-primary" %>
+            </div>
+          </div>
+      </div>
+    <% end %>
 
 <% end %>
 
