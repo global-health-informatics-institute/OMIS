@@ -20,6 +20,11 @@ module Requisitions
 
     def show
       @purchase_request = PurchaseRequestShowService.show(params[:id])
+      @possible_actions = @purchase_request.available_actions(
+        user: current_user,
+        is_owner: @purchase_request.initiated_by == current_user.id,
+        is_supervisor: current_user.employee&.current_supervisees&.pluck(:supervisee)&.include?(@purchase_request.initiated_by) # rubocop:disable Layout/LineLength
+      )
     end
 
     # State: Pending Supervisor Approval
