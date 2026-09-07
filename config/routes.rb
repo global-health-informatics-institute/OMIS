@@ -65,6 +65,8 @@ Rails.application.routes.draw do
         # url: /requisitions/purchase_requests/:id/recall
         patch 'recall'
         patch 'rescind'
+        patch 'approve'
+        patch 'decline'
         # Define custom routes for purchase_requests here
       end
     end
