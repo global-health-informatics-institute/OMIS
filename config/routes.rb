@@ -67,6 +67,7 @@ Rails.application.routes.draw do
         patch 'rescind'
         patch 'approve'
         patch 'decline'
+        patch 'resubmit'
         # Define custom routes for purchase_requests here
       end
     end

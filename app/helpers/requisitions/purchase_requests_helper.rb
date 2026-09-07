@@ -20,7 +20,7 @@ module Requisitions
       end
     end
 
-    def available_actions_badge_class(action)
+    def available_actions_badge_class(action) # rubocop:disable Metrics/MethodLength
       case action.to_s.downcase
       # actions when state "Pending Supervisor Review"
       when 'approve purchase request'
@@ -29,6 +29,8 @@ module Requisitions
         'bg-warning text-dark'
       when 'rescind purchase request', 'decline purchase request'
         'bg-danger text-white'
+      when 'resubmit purchase request'
+        'bg-primary text-black'
       else
         'bg-secondary text-white'
       end

@@ -67,6 +67,22 @@ WORKFLOW_STATE_TRANSITIONS = [
     action: 'Recall Purchase Request',
     by_owner: true,
     by_supervisor: false
+  },
+  # on recalled
+  # by owner
+  {
+    workflow_state_id: 'Purchase Request Recalled',
+    next_state: 'Pending Supervisor Review',
+    action: 'Resubmit Purchase Request',
+    by_owner: true,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Purchase Request Recalled',
+    next_state: 'Purchase Request Rescinded',
+    action: 'Rescind Purchase Request',
+    by_owner: true,
+    by_supervisor: false
   }
 ].freeze
 

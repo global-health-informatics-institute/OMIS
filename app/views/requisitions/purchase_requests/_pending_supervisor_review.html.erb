@@ -141,7 +141,7 @@
       <div class="row mt-3">
           <div class="col-md-6">
             <div class="col-md-3">
-              <%= form.submit "Re-Submit Request", class: "btn btn-primary" %>
+              <%= form.submit "Re-Submit Request", class: "btn #{available_actions_badge_class('Resubmit Purchase Request')}" %>
             </div>
           </div>
       </div>
@@ -151,22 +151,24 @@
 
 <hr>
 
-<div class="row">
-    <div class="col gap-2 d-flex">
-        <% @possible_actions.each do |action| %>
-            <% 
-                # Extracts "approve" from "Approve Purchase Request"
-                route_verb = action.split.first.downcase 
-                
-                # Constructs "approve_requisitions_purchase_request_path"
-                dynamic_path = send("#{route_verb}_requisitions_purchase_request_path", @purchase_request)
-                confirm_msg = "Are you sure you want to #{route_verb} this request?"
-            %>
+<% if edit_opts[:disabled]%>
+    <div class="row">
+        <div class="col gap-2 d-flex">
+            <% @possible_actions.each do |action| %>
+                <% 
+                    # Extracts "approve" from "Approve Purchase Request"
+                    route_verb = action.split.first.downcase 
+                    
+                    # Constructs "approve_requisitions_purchase_request_path"
+                    dynamic_path = send("#{route_verb}_requisitions_purchase_request_path", @purchase_request)
+                    confirm_msg = "Are you sure you want to #{route_verb} this request?"
+                %>
 
-            <%= link_to action, 
-                dynamic_path, 
-                data: { turbo_method: :patch, turbo_confirm: confirm_msg },
-                class: "btn #{available_actions_badge_class(action)}" %>
-        <% end %>
+                <%= link_to action, 
+                    dynamic_path, 
+                    data: { turbo_method: :patch, turbo_confirm: confirm_msg },
+                    class: "btn #{available_actions_badge_class(action)}" %>
+            <% end %>
+        </div>
     </div>
-</div>
+<% end %>

@@ -57,7 +57,13 @@ module Requisitions
     end
     # end of state: Pending Supervisor Approval
 
-    def update; end
+    def update
+      @purchase_request = PurchaseRequestUpdateService.update(params[:id])
+      flash[:notice] = 'Purchase request successfully updated'
+      redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
+    end
+
+    def resubmit; end
 
     def destroy; end
 
