@@ -163,22 +163,30 @@
         <% end %>
 
     <hr>
-        
-        <div class="row p-3">
-            <div class="col gap-2 d-flex">
-                <%# TODO: wire up dynamic calls button displays %>
-                
-                <%= button_to "Recall", 
-                    recall_requisitions_purchase_request_path(@purchase_request), 
-                    method: :patch, 
-                    class: "btn btn-warning" %>
 
-                <%= button_to "Rescind", 
-                    rescind_requisitions_purchase_request_path(@purchase_request), 
-                    method: :patch, 
-                    class: "btn btn-danger",
-                    data: { turbo_confirm: "Are you sure you want to rescind this request?" } %>
-            </div>
+        <div class="row p-3">
+        <div class="col gap-2 d-flex">
+            <% @possible_actions.each do |action| %>
+            <% 
+                # Extracts "approve" from "Approve Purchase Request"
+                route_verb = action.split.first.downcase 
+                
+                # Constructs "approve_requisitions_purchase_request_path"
+                dynamic_path = send("#{route_verb}_requisitions_purchase_request_path", @purchase_request)
+                
+                # Optional: Add confirmation for destructive actions
+                is_destructive = ['rescind', 'decline'].include?(route_verb)
+                confirm_msg = is_destructive ? "Are you sure you want to #{route_verb} this request?" : nil
+            %>
+
+            <%= button_to action, 
+                dynamic_path, 
+                method: :patch, 
+                class: "btn #{available_actions_badge_class(action)}",
+                form: { data: { turbo_confirm: confirm_msg } }.compact
+                %>
+            <% end %>
         </div>
-    </div> <%# Closes form card %>
+        </div>
+
 </div>
