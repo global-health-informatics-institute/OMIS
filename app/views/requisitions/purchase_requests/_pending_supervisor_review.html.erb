@@ -155,17 +155,17 @@
 
 <hr>
 
-<% if edit_opts[:disabled]%>
+
+<% if edit_opts[:disabled] %>
     <div class="row">
         <div class="col gap-2 d-flex">
             <% @possible_actions.each do |action| %>
                 <% 
-                    # Extracts "approve" from "Approve Purchase Request"
-                    route_verb = action.split.first.downcase 
-                    
-                    # Constructs "approve_requisitions_purchase_request_path"
+                    route_verb = action_route_verb(action)
                     dynamic_path = send("#{route_verb}_requisitions_purchase_request_path", @purchase_request)
-                    confirm_msg = "Are you sure you want to #{route_verb} this request?"
+                    
+                    # Makes the message read: "Are you sure you want to request ipc?"
+                    confirm_msg = "Are you sure you want to #{action.downcase}?"
                 %>
 
                 <%= link_to action, 

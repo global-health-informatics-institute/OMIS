@@ -29,8 +29,8 @@ module Requisitions
         'bg-warning text-dark'
       when 'rescind purchase request', 'decline purchase request'
         'bg-danger text-white'
-      when 'resubmit purchase request'
-        'bg-primary text-black'
+      when 'resubmit purchase request', 'request ipc', 'request lpo'
+        'bg-primary text-white'
       else
         'bg-secondary text-white'
       end
@@ -43,6 +43,18 @@ module Requisitions
         readonly: !editable,
         disabled: !editable
       }
+    end
+
+    def action_route_verb(action)
+      # 1. Removes the words "Purchase Request" (case insensitive)
+      # 2. Strips leading/trailing whitespace
+      # 3. Parameterizes with underscores
+      #
+      # "Approve Purchase Request" -> "approve"
+      # "Recall Purchase Request"  -> "recall"
+      # "Request IPC"              -> "request_ipc"
+      # "Request LPO"              -> "request_lpo"
+      action.gsub(/Purchase Request/i, '').strip.parameterize(separator: '_')
     end
   end
 end
