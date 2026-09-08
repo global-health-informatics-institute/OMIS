@@ -27,9 +27,9 @@ module Requisitions
         'bg-success text-white'
       when 'recall purchase request'
         'bg-warning text-dark'
-      when 'rescind purchase request', 'decline purchase request'
+      when 'rescind purchase request', 'decline purchase request', 'mark sourcing as failed'
         'bg-danger text-white'
-      when 'resubmit purchase request', 'request ipc', 'request lpo'
+      when 'resubmit purchase request', 'route to ipc', 'route to lpo'
         'bg-primary text-white'
       else
         'bg-secondary text-white'

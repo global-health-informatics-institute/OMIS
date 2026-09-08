@@ -63,6 +63,24 @@ module Requisitions
       redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
     end
 
+    def route_to_ipc
+      @purchase_request = PurchaseRequestIpcRouteService.route_to_ipc(params[:id])
+      flash[:notice] = 'Purchase request successfully updated'
+      redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
+    end
+
+    def route_to_lpo
+      @purchase_request = PurchaseRequestLpoRouteService.route_to_lpo(params[:id])
+      flash[:notice] = 'Purchase request successfully updated'
+      redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
+    end
+
+    def mark_sourcing_as_failed
+      @purchase_request = PurchaseRequestMarkSourcingAsFailedService.mark_sourcing_as_failed(params[:id])
+      flash[:notice] = 'Purchase request successfully updated'
+      redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
+    end
+
     def resubmit; end
 
     def destroy; end

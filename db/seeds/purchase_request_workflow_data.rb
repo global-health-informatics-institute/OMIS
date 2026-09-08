@@ -33,7 +33,17 @@ WORKFLOW_STATE = [
     # state: 'Approved',
     state: 'Pending Sourcing Quotation',
     description: 'State indicating that the purchase request has been approved by the supervisor and the request has been moved to the finance team for sourcing quotations from vendors' # rubocop:disable Layout/LineLength
+  },
+  # after supervisor approval, sourcing quotation should direct the method to use for purchasing: IPC or LPO
+  {
+    state: 'Pending IPC',
+    description: 'State indicating that the items estimated or sourced price will require the internal committee to select a vendor' # rubocop:disable Layout/LineLength
+  },
+  {
+    state: 'Pending LPO',
+    description: 'State indicating that the sourced quotations do not exceed the threshold and items can be procured using the LPO document' # rubocop:disable Layout/LineLength
   }
+
 ].freeze
 
 WORKFLOW_STATE_TRANSITIONS = [
@@ -83,18 +93,62 @@ WORKFLOW_STATE_TRANSITIONS = [
     action: 'Rescind Purchase Request',
     by_owner: true,
     by_supervisor: false
+  },
+  # on pending sourcing qoutation
+  {
+    workflow_state_id: 'Pending Sourcing Quotation',
+    next_state: 'Pending IPC',
+    action: 'Route to IPC',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Sourcing Quotation',
+    next_state: 'Pending LPO',
+    action: 'Route to LPO',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Sourcing Quotation',
+    next_state: 'Purchase Request Declined',
+    action: 'Mark Sourcing as Failed',
+    by_owner: false,
+    by_supervisor: false
   }
 ].freeze
+
+# TODO: add to workflow_state_actors
+WORKFLOW_STATE_TRANSITIONS_ACTORS = [
+  {
+    state_to_act_on: 'Pending Sourcing Quotation',
+    designations: [
+      'Director of Finance and Administration',
+      'Finance & Administration Lead',
+      'Finance Lead',
+      'Administration Lead',
+      'Finance Officer'
+    ]
+  }
+]
 
 def _get_workflow_process_id(workflow_process_name)
   WorkflowProcess.find_by(workflow: workflow_process_name)&.workflow_process_id
 end
 
-def _get_workflow_state_id(workflow_process_name, state_name)
+def _get_workflow_state_id(process_id, state_name)
   WorkflowState.find_by(
-    workflow_process_id: _get_workflow_process_id(workflow_process_name),
+    workflow_process_id: process_id,
     state: state_name
   )&.workflow_state_id
+end
+
+# workflow state actors
+def _get_designation_role_id(designated_role)
+  Designation.find_by(
+    designated_role:,
+    is_active: true
+  )&.designation_id
 end
 
 ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
@@ -108,10 +162,12 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
     wp.active = WORKFLOW_PROCESS[:active]
   end
 
+  process_id = process.workflow_process_id
+
   # 2. Upsert States (preserves existing IDs)
   WORKFLOW_STATE.each do |state_data|
     state = WorkflowState.find_or_initialize_by(
-      workflow_process_id: process.workflow_process_id,
+      workflow_process_id: process_id,
       state: state_data[:state]
     )
     state.update!(description: state_data[:description])
@@ -119,8 +175,8 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
 
   # 3. Upsert Transitions
   WORKFLOW_STATE_TRANSITIONS.each do |transition_data|
-    from_state_id = _get_workflow_state_id(WORKFLOW_PROCESS[:workflow], transition_data[:workflow_state_id])
-    to_state_id   = _get_workflow_state_id(WORKFLOW_PROCESS[:workflow], transition_data[:next_state])
+    from_state_id = _get_workflow_state_id(process_id, transition_data[:workflow_state_id])
+    to_state_id   = _get_workflow_state_id(process_id, transition_data[:next_state])
 
     transition = WorkflowStateTransition.find_or_initialize_by(
       workflow_state_id: from_state_id,
@@ -133,8 +189,30 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
     )
   end
 
-  # 4. Upsert Initial State
-  first_state_id = _get_workflow_state_id(WORKFLOW_PROCESS[:workflow], WORKFLOW_STATE.first[:state])
-  initial_state = InitialState.find_or_initialize_by(workflow_process_id: process.workflow_process_id)
+  # 4. Upsert Actors
+  WORKFLOW_STATE_TRANSITIONS_ACTORS.each do |workflow_state_actor|
+    workflow_state_id = _get_workflow_state_id(process_id, workflow_state_actor[:state_to_act_on])
+    next unless workflow_state_id
+
+    workflow_state_actor[:designations].each do |designation|
+      designation_id = _get_designation_role_id(designation)
+      next unless designation_id
+
+      wsa = WorkflowStateActor.find_or_initialize_by(
+        workflow_state_id:,
+        employee_designation_id: designation_id,
+        voided: false
+      )
+
+      wsa.update!(
+        workflow_state_id:,
+        employee_designation_id: designation_id
+      )
+    end
+  end
+
+  # 5. Upsert Initial State
+  first_state_id = _get_workflow_state_id(process_id, WORKFLOW_STATE.first[:state])
+  initial_state = InitialState.find_or_initialize_by(workflow_process_id: process_id)
   initial_state.update!(workflow_state_id: first_state_id)
 end
