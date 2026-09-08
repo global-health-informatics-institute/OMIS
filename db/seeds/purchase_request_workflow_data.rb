@@ -15,11 +15,6 @@ WORKFLOW_STATE = [
     description: 'Initial state which triggers the opening of a purchase request and is pending supervisor review'
   },
   {
-    # state: 'Approved',
-    state: 'Pending Sourcing Quotation',
-    description: 'State indicating that the purchase request has been approved by the supervisor and the request has been moved to the finance team for sourcing quotations from vendors' # rubocop:disable Layout/LineLength
-  },
-  {
     # state: 'Declined',
     state: 'Purchase Request Declined',
     description: 'State indicating that the purchase request has been declined by the supervisor'
@@ -33,6 +28,11 @@ WORKFLOW_STATE = [
     # state: 'Recalled',
     state: 'Purchase Request Recalled',
     description: 'State indicating that the purchase request has been recalled by the owner'
+  },
+  {
+    # state: 'Approved',
+    state: 'Pending Sourcing Quotation',
+    description: 'State indicating that the purchase request has been approved by the supervisor and the request has been moved to the finance team for sourcing quotations from vendors' # rubocop:disable Layout/LineLength
   }
 ].freeze
 
