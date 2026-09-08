@@ -67,10 +67,6 @@ module Requisitions
 
     def destroy; end
 
-    def approve; end
-
-    def decline; end
-
     private
 
     def permit_purchase_request_params
