@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_07_07_132251) do
+ActiveRecord::Schema[7.0].define(version: 2026_09_08_182537) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -312,12 +312,12 @@ ActiveRecord::Schema[7.0].define(version: 2026_07_07_132251) do
   create_table "purchase_request_details", force: :cascade do |t|
     t.integer "requisition_id", null: false
     t.string "vendor_name"
-    t.integer "donor_id"
     t.integer "department_id"
     t.boolean "voided", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "item_name"
+    t.datetime "reviewed_on"
   end
 
   create_table "report_statistics", primary_key: "statistic_id", force: :cascade do |t|
