@@ -30,6 +30,10 @@ class PurchaseRequestCreateService # rubocop:disable Style/Documentation
         budget_line_id: data[:budget_line][:budget_line_id]
       )
 
+      PurchaseRequestDetail.create!(
+        requisition_id: requisition.id
+      )
+
       requisition
     end
   end
