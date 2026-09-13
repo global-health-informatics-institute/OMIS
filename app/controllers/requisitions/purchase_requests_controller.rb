@@ -59,7 +59,7 @@ module Requisitions
       # TODO: Implement decline logic in the service layer
       @purchase_request = PurchaseRequestDeclineService.decline(
         requisition_id: params[:id],
-        approved_by: current_user&.employee&.employee_id || current_user&.id
+        reviewed_by: current_user&.employee&.employee_id || current_user&.id
       )
       flash[:notice] = 'Purchase request successfully declined'
       redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
