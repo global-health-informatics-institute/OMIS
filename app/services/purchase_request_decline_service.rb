@@ -1,20 +1,27 @@
-# update the state to triger a recall
 # frozen_string_literal: true
 
 class PurchaseRequestDeclineService # rubocop:disable Style/Documentation
   class << self
-    def decline(id)
-      # 1. Fetch the purchase request
-      purchase_request = PurchaseRequest.find(id)
+    def decline(requisition_id:, reviewed_by:) # rubocop:disable Metrics/MethodLength
+      purchase_request = PurchaseRequest.find(requisition_id)
 
-      # 2. Find the transition for the recall action
       transition = WorkflowStateTransition.find_by!(
         workflow_state_id: purchase_request.workflow_state_id,
         action: 'Decline Purchase Request'
       )
 
-      # 3. Update to the next state
-      purchase_request.update!(workflow_state_id: transition.next_state)
+      ActiveRecord::Base.transaction do
+        purchase_request.update!(
+          workflow_state_id: transition.next_state,
+          reviewed_by:,
+          approved_by: nil
+        )
+
+        purchase_request.purchase_request_detail.update!(
+          reviewed_on: Time.current,
+          approved_on: nil
+        )
+      end
 
       purchase_request
     end
