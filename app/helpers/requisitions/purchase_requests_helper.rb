@@ -45,6 +45,28 @@ module Requisitions
       }
     end
 
+    def show_section?(purchase_request, section)
+      case section.to_sym
+      when :approval
+        # Visible once an approver or approval timestamp is attached
+        purchase_request.approved_by.present? || purchase_request.approved_on.present?
+
+      when :review
+        # Visible once reviewed by a supervisor
+        purchase_request.reviewed_by.present? || purchase_request.reviewed_on.present?
+      when :sourcing
+        # Reserved for finance metadata (quotes/vendors)
+        purchase_request.purchase_request_detail&.vendor_name.present?
+      else
+        true
+      end
+    end
+
+    # Block helper for clean ERB syntax
+    def render_section_if(purchase_request, section, &block)
+      capture(&block) if show_section?(purchase_request, section)
+    end
+
     def action_route_verb(action)
       # 1. Removes the words "Purchase Request" (case insensitive)
       # 2. Strips leading/trailing whitespace

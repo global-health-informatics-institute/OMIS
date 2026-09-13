@@ -42,11 +42,17 @@ module Requisitions
       redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
     end
 
-    def approve
-      # TODO: Implement approve logic in the service layer
-      @purchase_request = PurchaseRequestApproveService.approve(params[:id])
+    def approve # rubocop:disable Metrics/AbcSize
+      @purchase_request = PurchaseRequestApproveService.approve(
+        requisition_id: params[:id],
+        approved_by: current_user&.employee&.employee_id || current_user&.id
+      )
+
       flash[:notice] = 'Purchase request successfully approved'
-      redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    rescue ActiveRecord::RecordNotFound, ActiveRecord::RecordInvalid => e
+      flash[:alert] = "Failed to approve request: #{e.message}"
+      redirect_to requisitions_purchase_requests_path
     end
 
     def decline

@@ -20,7 +20,9 @@ class PurchaseRequestShowService # rubocop:disable Style/Documentation
       PurchaseRequest.includes(
         :requisition_items,
         :requisition_budget_line,
-        :requisition_donor
+        :requisition_donor,
+        :initiator,
+        :approver
       ).find(requisition_id)
     end
   end

@@ -9,6 +9,7 @@
             <label class="form-label fw-normal">Initiated By</label>
             <%=
                 form.text_field :initiated_by,
+                value: form.object.initiated_by_full_name,
                 class: 'form-control',
                 required: true,
                 **edit_opts
@@ -135,7 +136,37 @@
         </div>
     </div>
 
+    <%= render_section_if(@purchase_request, :approval) do %>
+      <hr>
+      <div class="row mt-3">
+          <div class="col-md-6">
+          <div class="mb-3">
+              <label class="form-label fw-normal">Approved By</label>
+              <%=
+                  form.text_field :approved_by,
+                  value: form.object.approved_by_full_name,
+                  class: 'form-control',
+                  required: true,
+                  **edit_opts
+              %>
+          </div>
+          </div>
 
+          <div class="col-md-6">
+          <div class="mb-3">
+              <label class="form-label fw-normal">Approved on</label>
+              <%=
+                  form.date_field :approved_on,
+                  value: form.object.approved_on&.to_date,
+                  class: 'form-control',
+                  required: true,
+                  **edit_opts
+              %>
+          </div>
+          </div>
+      </div>
+    <% end %>
+    
     <%# Only show the submit button if the fields are NOT disabled %>
     <% unless edit_opts[:disabled] %>
       <div class="row mt-3">
