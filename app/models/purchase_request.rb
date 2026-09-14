@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
 class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
-  has_one :purchase_request_detail, foreign_key: :requisition_id, primary_key: :requisition_id, dependent: :delete
+  has_one :purchase_request_detail,
+          foreign_key: :requisition_id,
+          primary_key: :requisition_id,
+          dependent: :delete,
+          autosave: true
   has_one :requisition_budget_line, foreign_key: :requisition_id, dependent: :delete
   has_one :requisition_donor, foreign_key: :requisition_id, dependent: :delete
 
@@ -50,7 +54,6 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
                                                by_supervisor: true).pluck(:action)
     end
 
-    # role/designation based priledges - Specific actions are available based on your current office
     # TODO: Correct misleading field 'employee_designation_id' to 'designation_id' in the WorkflowStateTransition model
     # because the field is actually referencing the Designation model, not the EmployeeDesignation model.
     designation_id = user&.employee&.employee_designations&.last&.designation_id
@@ -99,5 +102,11 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
 
   def editable_by?(user)
     core_editable_by?(user) || sourcing_editable_by?(user)
+  end
+
+  def self.ipc_threshold
+    GlobalProperty.find_by(
+      property: 'IPC threshold'
+    )&.property_value.to_i
   end
 end

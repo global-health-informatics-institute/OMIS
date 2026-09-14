@@ -42,8 +42,11 @@ WORKFLOW_STATE = [
   {
     state: 'Pending LPO',
     description: 'State indicating that the sourced quotations do not exceed the threshold and items can be procured using the LPO document' # rubocop:disable Layout/LineLength
+  },
+  {
+    state: 'Pending Payment Request',
+    description: 'State indicating that a vendor analysis was done and the vendor name and qoutation has taken place'
   }
-
 ].freeze
 
 WORKFLOW_STATE_TRANSITIONS = [
@@ -95,6 +98,7 @@ WORKFLOW_STATE_TRANSITIONS = [
     by_supervisor: false
   },
   # on pending sourcing qoutation
+  # by finance team
   {
     workflow_state_id: 'Pending Sourcing Quotation',
     next_state: 'Pending IPC',
@@ -115,6 +119,38 @@ WORKFLOW_STATE_TRANSITIONS = [
     action: 'Mark Sourcing as Failed',
     by_owner: false,
     by_supervisor: false
+  },
+  # on Pending IPC
+  # by finance team
+  {
+    workflow_state_id: 'Pending IPC',
+    next_state: 'Pending Payment Request',
+    action: 'Save Qoutation',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending IPC',
+    next_state: 'Purchase Request Declined',
+    action: 'Mark Sourcing as Failed',
+    by_owner: false,
+    by_supervisor: false
+  },
+  # on Pending LP)
+  # by finance team
+  {
+    workflow_state_id: 'Pending LPO',
+    next_state: 'Pending Payment Request',
+    action: 'Save Qoutation',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending IPC',
+    next_state: 'Purchase Request Declined',
+    action: 'Mark Sourcing as Failed',
+    by_owner: false,
+    by_supervisor: false
   }
 ].freeze
 
@@ -129,6 +165,36 @@ WORKFLOW_STATE_TRANSITIONS_ACTORS = [
       'Administration Lead',
       'Finance Officer'
     ]
+  },
+  {
+    state_to_act_on: 'Pending IPC',
+    designations: [
+      'Director of Finance and Administration',
+      'Finance & Administration Lead',
+      'Finance Lead',
+      'Administration Lead',
+      'Finance Officer'
+    ]
+  },
+  {
+    state_to_act_on: 'Pending LPO',
+    designations: [
+      'Director of Finance and Administration',
+      'Finance & Administration Lead',
+      'Finance Lead',
+      'Administration Lead',
+      'Finance Officer'
+    ]
+  }
+
+]
+
+# IPC threshhold
+GLOBAL_PROPERTIES = [
+  {
+    property: 'IPC threshold',
+    property_value: '3000000',
+    description: 'The IPC threshold cap is the maximum amount that can be approved for procurement without requiring an (IPC) review.' # rubocop:disable Layout/LineLength
   }
 ]
 
@@ -211,7 +277,18 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
     end
   end
 
-  # 5. Upsert Initial State
+  # 5. Upsert Global Properties
+  GLOBAL_PROPERTIES.each do |global_property|
+    gp = GlobalProperty.find_or_initialize_by(
+      global_property
+    )
+
+    gp.update!(
+      global_property
+    )
+  end
+
+  # 6. Upsert Initial State
   first_state_id = _get_workflow_state_id(process_id, WORKFLOW_STATE.first[:state])
   initial_state = InitialState.find_or_initialize_by(workflow_process_id: process_id)
   initial_state.update!(workflow_state_id: first_state_id)

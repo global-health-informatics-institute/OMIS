@@ -29,7 +29,7 @@ module Requisitions
         'bg-warning text-dark'
       when 'rescind purchase request', 'decline purchase request', 'mark sourcing as failed'
         'bg-danger text-white'
-      when 'resubmit purchase request', 'route to ipc', 'route to lpo'
+      when 'resubmit purchase request', 'route to ipc', 'route to lpo', 'save qoutation'
         'bg-primary text-white'
       else
         'bg-secondary text-white'
@@ -45,7 +45,7 @@ module Requisitions
       }
     end
 
-    def show_section?(purchase_request, section)
+    def show_section?(purchase_request, section) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/MethodLength
       case section.to_sym
       when :approval
         # Visible once an approver or approval timestamp is attached
@@ -56,7 +56,7 @@ module Requisitions
         purchase_request.reviewed_by.present? || purchase_request.reviewed_on.present?
       when :sourcing
         # Reserved for finance metadata (quotes/vendors)
-        (purchase_request.current_state.in? ['Pending IPC', 'Pending IPO']) &&
+        (purchase_request.current_state.in? ['Pending IPC', 'Pending IPO', 'Pending Payment Request']) &&
           (current_user&.employee_id != purchase_request&.initiated_by)
       else
         true
@@ -78,6 +78,22 @@ module Requisitions
       # "Request IPC"              -> "request_ipc"
       # "Request LPO"              -> "request_lpo"
       action.gsub(/Purchase Request/i, '').strip.parameterize(separator: '_')
+    end
+
+    def cap_limit(route_type) # rubocop:disable Metrics/MethodLength
+      threshold = PurchaseRequest.ipc_threshold
+
+      if route_type.to_s.downcase == 'pending ipc'
+        {
+          min: threshold,
+          placeholder: "value not less than #{threshold}"
+        }
+      else
+        {
+          max: threshold - 1,
+          placeholder: "value not more or equal to #{threshold}"
+        }
+      end
     end
   end
 end

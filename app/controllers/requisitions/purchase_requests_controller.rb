@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Requisitions
-  class PurchaseRequestsController < ApplicationController # rubocop:disable Style/Documentation
+  class PurchaseRequestsController < ApplicationController # rubocop:disable Style/Documentation,Metrics/ClassLength
     def index
       @purchase_requests = Requisition.where(
         request_type: 'purchase request'
@@ -107,6 +107,24 @@ module Requisitions
       @purchase_request = PurchaseRequestMarkSourcingAsFailedService.mark_sourcing_as_failed(params[:id])
       flash[:notice] = 'Purchase request successfully updated'
       redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
+    end
+
+    def save_qoutation # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+      safe_params = params[:purchase_request].present? ? permit_purchase_request_params : {}
+
+      @purchase_request = PurchaseRequestSaveQoutationService.call(
+        id: params[:id],
+        params: safe_params
+      )
+
+      redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
+    rescue ActiveRecord::RecordInvalid => e
+      # If they tried to resubmit but left a required field blank
+      @purchase_request = e.record
+      @possible_actions = @purchase_request.available_actions(user: current_user)
+
+      flash.now[:alert] = 'Please make sure all fields are filled before resubmitting.'
+      render :edit, status: :unprocessable_entity
     end
 
     def destroy; end
