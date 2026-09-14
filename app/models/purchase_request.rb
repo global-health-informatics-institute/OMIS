@@ -13,7 +13,10 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
   accepts_nested_attributes_for :requisition_budget_line
   accepts_nested_attributes_for :requisition_donor
 
-  delegate :approved_on, :approved_on=, :reviewed_on, :reviewed_on=, to: :purchase_request_detail, allow_nil: true
+  delegate :approved_on, :approved_on=,
+           :reviewed_on, :reviewed_on=,
+           :vendor_name, :vendor_name=,
+           to: :purchase_request_detail, allow_nil: true
 
   # convenience methods for full names
   def initiated_by_full_name
@@ -68,16 +71,33 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
     actions.compact.uniq
   end
 
-  def editable_by?(user)
+  def actor?(user)
     return false unless user
 
-    is_owner = initiated_by == user&.employee&.id || initiated_by == user&.id
+    designation_id = user.employee&.employee_designations&.last&.designation_id
+    return false unless designation_id
 
-    case current_state.to_s.downcase
-    when 'purchase request recalled', 'purchase request rejected'
-      is_owner
-    else
-      false
-    end
+    WorkflowStateActor.exists?(
+      employee_designation_id: designation_id,
+      workflow_state_id: workflow_state_id
+    )
+  end
+
+  def core_editable_by?(user)
+    return false unless user
+
+    is_owner = initiated_by == user.employee&.id || initiated_by == user.id
+
+    ['purchase request recalled', 'purchase request rejected'].include?(current_state.to_s.downcase) && is_owner
+  end
+
+  def sourcing_editable_by?(user)
+    return false unless user
+
+    ['pending ipc', 'pending lpo'].include?(current_state.to_s.downcase) && actor?(user)
+  end
+
+  def editable_by?(user)
+    core_editable_by?(user) || sourcing_editable_by?(user)
   end
 end
