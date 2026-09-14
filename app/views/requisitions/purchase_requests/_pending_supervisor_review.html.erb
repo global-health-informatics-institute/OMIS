@@ -1,77 +1,74 @@
-<% edit_opts = field_edit_options(@purchase_request, current_user) %>
+<% 
+  # Determine which sections the current user is allowed to edit
+  core_opts     = { disabled: !@purchase_request.core_editable_by?(current_user) }
+  sourcing_opts = { disabled: !@purchase_request.sourcing_editable_by?(current_user) }
+%>
+
 <%= form_with model: [:requisitions, @purchase_request] do |form| %>
 <div class="p-3">
 
     <%# Row 1: Initiated By and Date %>
     <div class="row mt-3">
         <div class="col-md-6">
-        <div class="mb-3">
-            <label class="form-label fw-normal">Initiated By</label>
-            <%=
-                form.text_field :initiated_by,
-                value: form.object.initiated_by_full_name,
-                class: 'form-control',
-                required: true,
-                **edit_opts
-            %>
-        </div>
+            <div class="mb-3">
+                <label class="form-label fw-normal">Initiated By</label>
+                <%= form.text_field :initiated_by,
+                                    value: form.object.initiated_by_full_name,
+                                    class: 'form-control',
+                                    required: true,
+                                    readonly: true,
+                                    disabled: true
+                                    %>
+            </div>
         </div>
 
         <div class="col-md-6">
-        <div class="mb-3">
-            <label class="form-label fw-normal">Date</label>
-            <%# date_field requires a Date object or YYYY-MM-DD string to render properly %>
-            <%=
-                form.date_field :initiated_on,
-                value: form.object.initiated_on&.to_date,
-                class: 'form-control',
-                required: true,
-                **edit_opts
-            %>
-        </div>
+            <div class="mb-3">
+                <label class="form-label fw-normal">Date</label>
+                <%= form.date_field :initiated_on,
+                                    value: form.object.initiated_on&.to_date,
+                                    class: 'form-control',
+                                    required: true,
+                                    readonly: true,
+                                    disabled: true
+                                    %>
+            </div>
         </div>
     </div>
 
     <%# Row 2 & 3: Item Name, Quantity, and Description %>
     <div class="row mt-3">
         <div class="col-md-6">
-        <div class="mb-3">
-            <label class="form-label fw-normal">Item Name</label>
-            <%=
-                form.text_field :purpose,
-                class: 'form-control',
-                required: true,
-                **edit_opts
-
-            %>
-        </div>
+            <div class="mb-3">
+                <label class="form-label fw-normal">Item Name</label>
+                <%= form.text_field :purpose,
+                                    class: 'form-control',
+                                    required: true,
+                                    **core_opts %>
+            </div>
         </div>
 
         <%= form.fields_for :requisition_items do |item_form| %>
-        <div class="col-md-6">
-            <div class="mb-3">
-            <label class="form-label fw-normal">Quantity</label>
-            <%=
-                item_form.number_field :quantity,
-                class: 'form-control',
-                required: true,
-                **edit_opts
-                %>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-normal">Quantity</label>
+                    <%= item_form.number_field :quantity,
+                                               class: 'form-control',
+                                               required: true,
+                                               **core_opts %>
+                </div>
             </div>
-        </div>
-    </div> <%# Closes the row cleanly %>
+    </div> 
 
     <div class="row mt-3">
         <div class="col-md-12">
             <div class="mb-3">
-            <label class="form-label fw-normal">Description</label>
-            <%=
-                item_form.text_area :item_description,
-                class: 'form-control',
-                rows: 2,
-                required: true,
-                **edit_opts
-            %>
+                <label class="form-label fw-normal">Description</label>
+                <%= item_form.text_area :item_description,
+                                        class: 'form-control',
+                                        rows: 2,
+                                        required: true,
+                                        **core_opts %>
             </div>
         </div>
         <% end %>
@@ -80,130 +77,120 @@
     <%# Row 4: Budget Line and Donor %>
     <div class="row mt-3">
         <%= form.fields_for :requisition_budget_line do |rbl_form| %>
-        <div class="col-md-6">
-            <div class="mb-3">
-            <label class="form-label fw-normal">Budget Line</label>
-            <%# Ensure you have a 'budget_lines' collection variable defined in your controller %>
-            <%= rbl_form.select(
-                :budget_line_id,
-                budget_lines, 
-                { include_blank: 'Select Budget Line' },
-                {
-                    class: 'form-control form-select',
-                    required: true,
-                    **edit_opts
-                }
-            )%>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-normal">Budget Line</label>
+                    <%= rbl_form.select(:budget_line_id, budget_lines, 
+                                        { include_blank: 'Select Budget Line' }, 
+                                        { class: 'form-control form-select', required: true, **core_opts }) %>
+                </div>
             </div>
-        </div>
         <% end %>
 
         <%= form.fields_for :requisition_donor do |donor_form| %>
-        <div class="col-md-6">
-            <div class="mb-3">
-            <label class="form-label fw-normal">Donor</label>
-            <%= donor_form.select(
-                :donor_id,
-                donors,
-                { include_blank: 'Select Donor' },
-                {
-                    class: 'form-control form-select',
-                    required: true,
-                    **edit_opts
-                }
-            )%>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-normal">Donor</label>
+                    <%= donor_form.select(:donor_id, donors, 
+                                          { include_blank: 'Select Donor' }, 
+                                          { class: 'form-control form-select', required: true, **core_opts }) %>
+                </div>
             </div>
-        </div>
         <% end %>
     </div>
 
     <%# Row 5: Project %>
     <div class="row mt-3">
         <div class="col-md-6">
-        <div class="mb-3">
-            <label class="form-label fw-normal">Project</label>
-            <%= form.select(
-            :project_id, 
-            requisition_projects,
-            { include_blank: 'Select Project' },
-            {
-                class: 'form-control form-select',
-                required: true,
-                **edit_opts
-            },
-            )%>
-        </div>
+            <div class="mb-3">
+                <label class="form-label fw-normal">Project</label>
+                <%= form.select(:project_id, requisition_projects, 
+                                { include_blank: 'Select Project' }, 
+                                { class: 'form-control form-select', required: true, **core_opts }) %>
+            </div>
         </div>
     </div>
 
+    <%# Approval Section %>
     <%= render_section_if(@purchase_request, :approval) do %>
       <hr>
       <div class="row mt-3">
           <div class="col-md-6">
-          <div class="mb-3">
-              <label class="form-label fw-normal">Approved By</label>
-              <%=
-                  form.text_field :approved_by,
-                  value: form.object.approved_by_full_name,
-                  class: 'form-control',
-                  required: true,
-                  **edit_opts
-              %>
+              <div class="mb-3">
+                  <label class="form-label fw-normal">Approved By</label>
+                  <%= form.text_field :approved_by, 
+                                      value: form.object.approved_by_full_name, 
+                                      class: 'form-control', 
+                                      required: true, 
+                                      **core_opts %>
+              </div>
           </div>
-          </div>
-
           <div class="col-md-6">
-          <div class="mb-3">
-              <label class="form-label fw-normal">Approved on</label>
-              <%=
-                  form.date_field :approved_on,
-                  value: form.object.approved_on&.to_date,
-                  class: 'form-control',
-                  required: true,
-                  **edit_opts
-              %>
-          </div>
+              <div class="mb-3">
+                  <label class="form-label fw-normal">Approved on</label>
+                  <%= form.date_field :approved_on, 
+                                      value: form.object.approved_on&.to_date, 
+                                      class: 'form-control', 
+                                      required: true, 
+                                      **core_opts %>
+              </div>
           </div>
       </div>
     <% end %>
-    
-    <%# Only show the submit button if the fields are NOT disabled %>
-    <% unless edit_opts[:disabled] %>
-      <div class="row mt-3">
-          <div class="col-md-6">
-            <div class="col-md-3">
-              <%=
-                form.submit "Re-Submit Request",
-                class: "btn #{available_actions_badge_class('Resubmit Purchase Request')}",
-                data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to resubmit this request?" }
-              %>
+
+    <%# Sourcing Section %>
+    <%= render_section_if(@purchase_request, :sourcing) do %>
+        <hr>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-normal">Name of Supplier</label>
+                    <%# ONLY SOURCING OPTS APPLIED HERE %>
+                    <%= form.text_field :vendor_name, 
+                                        class: 'form-control', 
+                                        required: true, 
+                                        **sourcing_opts %>
+                </div>
             </div>
-          </div>
-      </div>
-    <% end %>
 
-<% end %>
-
-<hr>
-
-
-<% if edit_opts[:disabled] %>
-    <div class="row">
-        <div class="col gap-2 d-flex">
-            <% @possible_actions.each do |action| %>
-                <% 
-                    route_verb = action_route_verb(action)
-                    dynamic_path = send("#{route_verb}_requisitions_purchase_request_path", @purchase_request)
-                    
-                    # Makes the message read: "Are you sure you want to request ipc?"
-                    confirm_msg = "Are you sure you want to #{action.downcase}?"
-                %>
-
-                <%= link_to action, 
-                    dynamic_path, 
-                    data: { turbo_method: :patch, turbo_confirm: confirm_msg },
-                    class: "btn #{available_actions_badge_class(action)}" %>
+            <%= form.fields_for :requisition_items do |item_form| %>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-normal">Total Item Cost</label>
+                        <%# ONLY SOURCING OPTS APPLIED HERE %>
+                        <%= item_form.number_field :value, 
+                                                   class: 'form-control', 
+                                                   required: true, 
+                                                   **sourcing_opts %>
+                    </div>
+                </div>
             <% end %>
         </div>
-    </div>
+    <% end %>
+
+    <%# Workflow Action Buttons - NOW INSIDE THE FORM %>
+    <% if @possible_actions.present? %>
+        <div class="row p-3">
+            <div class="col gap-2 d-flex">
+                <% @possible_actions.each do |action| %>
+                    <% 
+                        route_verb = action_route_verb(action)
+                        dynamic_path = send("#{route_verb}_requisitions_purchase_request_path", @purchase_request)
+                    %>
+                    
+                    <%# 
+                        button_tag with type="submit" and "formaction" tells the browser to submit 
+                        the form data, but push it to the custom URL instead of the default form URL.
+                    %>
+                    <%= button_tag action, 
+                                    type: :submit, 
+                                    formaction: dynamic_path, 
+                                    class: "btn #{available_actions_badge_class(action)}",
+                                    data: { turbo_confirm: "Are you sure you want to #{action.downcase}?" } %>
+                <% end %>
+            </div>
+        </div>
+    <% end %>
+
+  </div>
 <% end %>
