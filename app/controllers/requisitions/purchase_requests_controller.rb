@@ -42,6 +42,25 @@ module Requisitions
       redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
     end
 
+    def resubmit # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+      # Pass the permitted parameters to the service, or an empty hash if none were sent
+      safe_params = params[:purchase_request].present? ? permit_purchase_request_params : {}
+
+      @purchase_request = PurchaseRequestResubmitService.call(
+        id: params[:id],
+        params: safe_params
+      )
+
+      redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
+    rescue ActiveRecord::RecordInvalid => e
+      # If they tried to resubmit but left a required field blank
+      @purchase_request = e.record
+      @possible_actions = @purchase_request.available_actions(user: current_user)
+
+      flash.now[:alert] = 'Please fix the errors before resubmitting.'
+      render :edit, status: :unprocessable_entity
+    end
+
     def approve # rubocop:disable Metrics/AbcSize
       @purchase_request = PurchaseRequestApproveService.approve(
         requisition_id: params[:id],
