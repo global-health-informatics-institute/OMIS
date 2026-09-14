@@ -109,20 +109,19 @@ module Requisitions
       redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
     end
 
-    def resubmit; end
-
     def destroy; end
 
     private
 
-    def permit_purchase_request_params
+    def permit_purchase_request_params # rubocop:disable Metrics/MethodLength
       params.require(:purchase_request).permit(
         :project_id,
         :donor_id,
         :initiated_by,
         :initiated_on,
         :purpose,
-        requisition_items_attributes: %i[id item_description quantity _destroy],
+        :vendor_name,
+        requisition_items_attributes: %i[id item_description quantity value _destroy],
         requisition_budget_line_attributes: %i[id budget_line_id _destroy],
         requisition_donor_attributes: %i[id donor_id _destroy],
       )
