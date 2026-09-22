@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram name="Page-1" id="F6q0zWo0p0fou0u2Rc1e">
-        <mxGraphModel dx="1997" dy="3510" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1926" dy="2734" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -32,7 +32,7 @@
                 <mxCell id="6tISSOz9F0gEN5QQDEY7-14" value="If requisition is approved&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;rounded=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="610" y="-935" width="130" height="110" as="geometry"/>
                 </mxCell>
-                <mxCell id="4" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" target="3">
+                <mxCell id="4" value="" style="edgeStyle=none;html=1;" parent="1" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint x="850" y="-880" as="sourcePoint"/>
                     </mxGeometry>
@@ -97,8 +97,8 @@
                 <mxCell id="6tISSOz9F0gEN5QQDEY7-45" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" parent="1" source="6tISSOz9F0gEN5QQDEY7-30" target="6tISSOz9F0gEN5QQDEY7-34" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
-                            <mxPoint x="290" y="-530"/>
-                            <mxPoint x="740" y="-530"/>
+                            <mxPoint x="305" y="-550"/>
+                            <mxPoint x="740" y="-550"/>
                         </Array>
                         <mxPoint x="710" y="-560" as="targetPoint"/>
                     </mxGeometry>
@@ -109,7 +109,7 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="6tISSOz9F0gEN5QQDEY7-30" value="If qoute &amp;gt; 3M" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;rounded=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=14;" parent="1" vertex="1">
-                    <mxGeometry x="250" y="-525" width="90" height="105" as="geometry"/>
+                    <mxGeometry x="240" y="-527.5" width="130" height="115" as="geometry"/>
                 </mxCell>
                 <mxCell id="6tISSOz9F0gEN5QQDEY7-35" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=14;" parent="1" source="6tISSOz9F0gEN5QQDEY7-32" target="6tISSOz9F0gEN5QQDEY7-34" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -178,7 +178,7 @@
                 <mxCell id="6tISSOz9F0gEN5QQDEY7-61" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=14;" parent="1" source="6tISSOz9F0gEN5QQDEY7-58" target="6tISSOz9F0gEN5QQDEY7-60" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="6tISSOz9F0gEN5QQDEY7-58" value="request&amp;nbsp; item acceptance" style="whiteSpace=wrap;html=1;rounded=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=14;" parent="1" vertex="1">
+                <mxCell id="6tISSOz9F0gEN5QQDEY7-58" value="auto invites request&amp;nbsp; item acceptance" style="whiteSpace=wrap;html=1;rounded=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=14;shape=mxgraph.flowchart.annotation_1;align=left;pointerEvents=1;" parent="1" vertex="1">
                     <mxGeometry x="520" y="-220" width="120" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="6tISSOz9F0gEN5QQDEY7-63" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=14;" parent="1" source="6tISSOz9F0gEN5QQDEY7-60" target="6tISSOz9F0gEN5QQDEY7-62" edge="1">
@@ -265,62 +265,62 @@
                 <mxCell id="6tISSOz9F0gEN5QQDEY7-89" value="request approval from the D&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;irector&lt;/span&gt;" style="whiteSpace=wrap;html=1;rounded=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="480" y="210" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="5" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.flowchart.or;fontSize=14;" vertex="1" parent="1">
+                <mxCell id="5" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.flowchart.or;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="830" y="-920" width="70" height="70" as="geometry"/>
                 </mxCell>
-                <mxCell id="6" value="" style="edgeStyle=none;html=1;fontSize=14;" edge="1" parent="1" source="6tISSOz9F0gEN5QQDEY7-14" target="5">
+                <mxCell id="6" value="" style="edgeStyle=none;html=1;fontSize=14;" parent="1" source="6tISSOz9F0gEN5QQDEY7-14" target="5" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="20" value="&lt;font&gt;false&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=14;" vertex="1" connectable="0" parent="6">
+                <mxCell id="20" value="&lt;font&gt;false&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=14;" parent="6" vertex="1" connectable="0">
                     <mxGeometry x="-0.2262" y="3" relative="1" as="geometry">
                         <mxPoint as="offset"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="9" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.flowchart.or;fontSize=14;" vertex="1" parent="1">
+                <mxCell id="9" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.flowchart.or;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="820" y="205" width="70" height="70" as="geometry"/>
                 </mxCell>
-                <mxCell id="10" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;fontSize=14;" edge="1" parent="1" source="6tISSOz9F0gEN5QQDEY7-89" target="9">
+                <mxCell id="10" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;fontSize=14;" parent="1" source="6tISSOz9F0gEN5QQDEY7-89" target="9" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="15" value="Requisition Declined" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;whiteSpace=wrap;size=0.25;align=left;labelPosition=right;pointerEvents=1;fontSize=14;" vertex="1" parent="1">
+                <mxCell id="15" value="Requisition Declined" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;whiteSpace=wrap;size=0.25;align=left;labelPosition=right;pointerEvents=1;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="-120" y="-1170" width="80" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="24" style="edgeStyle=none;html=1;dashed=1;endArrow=none;endFill=0;fontSize=14;" edge="1" parent="1" source="17" target="6tISSOz9F0gEN5QQDEY7-11">
+                <mxCell id="24" style="edgeStyle=none;html=1;dashed=1;endArrow=none;endFill=0;fontSize=14;" parent="1" source="17" target="6tISSOz9F0gEN5QQDEY7-11" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
                             <mxPoint x="410" y="-1030"/>
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="17" value="Pending Supervisor review&lt;div&gt;&lt;font&gt;(recall, approve, decline, rescind)&lt;/font&gt;&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;whiteSpace=wrap;size=0.25;align=left;labelPosition=right;pointerEvents=1;direction=east;fontSize=14;" vertex="1" parent="1">
+                <mxCell id="17" value="Pending Supervisor review&lt;div&gt;&lt;font&gt;(recall, approve, decline, rescind)&lt;/font&gt;&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;whiteSpace=wrap;size=0.25;align=left;labelPosition=right;pointerEvents=1;direction=east;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="-340" y="-1070" width="100" height="95" as="geometry"/>
                 </mxCell>
-                <mxCell id="25" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;fontSize=14;endArrow=none;endFill=0;" edge="1" parent="1" source="18" target="6tISSOz9F0gEN5QQDEY7-20">
+                <mxCell id="25" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;fontSize=14;endArrow=none;endFill=0;" parent="1" source="18" target="6tISSOz9F0gEN5QQDEY7-20" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="18" value="Peding Sourcing Qoutation&lt;div&gt;(route to ipc, mark as failed, foward to vendor analysis&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;whiteSpace=wrap;size=0.25;align=left;pointerEvents=1;fontSize=14;" vertex="1" parent="1">
+                <mxCell id="18" value="Peding Sourcing Qoutation&lt;div&gt;(route to ipc, mark as failed, foward to vendor analysis&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;whiteSpace=wrap;size=0.25;align=left;pointerEvents=1;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="-710" y="-640" width="430" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="23" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;endArrow=none;endFill=0;fontSize=14;" edge="1" parent="1" source="15" target="5">
+                <mxCell id="23" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;endArrow=none;endFill=0;fontSize=14;" parent="1" source="15" target="5" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
                             <mxPoint x="860" y="-1140"/>
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="26" value="Pending&amp;nbsp;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;Vendor&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;Analysis&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;(Save qoutation)&lt;/span&gt;&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;align=left;pointerEvents=1;fontSize=14;" vertex="1" parent="1">
+                <mxCell id="26" value="Pending&amp;nbsp;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;Vendor&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;Analysis&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;(Save qoutation)&lt;/span&gt;&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;align=left;pointerEvents=1;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="-710" y="-525" width="120" height="90" as="geometry"/>
                 </mxCell>
-                <mxCell id="29" value="Pending&amp;nbsp;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;IPC&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;(save qoutation)&lt;/span&gt;&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;align=left;pointerEvents=1;fontSize=14;" vertex="1" parent="1">
+                <mxCell id="29" value="Pending&amp;nbsp;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;IPC&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;(save qoutation)&lt;/span&gt;&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;align=left;pointerEvents=1;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="-425" y="-530" width="160" height="90" as="geometry"/>
                 </mxCell>
-                <mxCell id="35" value="Checking LPO Availability&lt;div&gt;(Route to LPO request/, forward to payment request)&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;align=left;pointerEvents=1;fontSize=14;" vertex="1" parent="1">
+                <mxCell id="35" value="Checking LPO Availability&lt;div&gt;(Route to LPO request/, forward to payment request)&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;align=left;pointerEvents=1;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="-710" y="-390" width="50" height="100" as="geometry"/>
                 </mxCell>
-                <mxCell id="37" value="&lt;div&gt;&lt;font color=&quot;#000000&quot;&gt;Pemding LPO&lt;br&gt;&lt;/font&gt;(request reviewer from finance team -&amp;gt;&lt;/div&gt;&lt;div&gt;then finance lead -&amp;gt;&lt;br&gt;download LPO,&amp;nbsp;&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;align=left;pointerEvents=1;fontSize=14;" vertex="1" parent="1">
+                <mxCell id="37" value="&lt;div&gt;&lt;font color=&quot;#000000&quot;&gt;Pemding LPO&lt;br&gt;&lt;/font&gt;(request reviewer from finance team -&amp;gt;&lt;/div&gt;&lt;div&gt;then finance lead -&amp;gt;&lt;br&gt;download LPO,&amp;nbsp;&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;align=left;pointerEvents=1;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="-720" y="-240" width="140" height="100" as="geometry"/>
                 </mxCell>
-                <mxCell id="38" value="Comfirm Delivery&lt;div&gt;&lt;font color=&quot;#000000&quot;&gt;- triggers requster item acceptance&lt;br&gt;&lt;/font&gt;&lt;div&gt;(accept item, decline item)&lt;/div&gt;&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;align=left;pointerEvents=1;fontSize=14;" vertex="1" parent="1">
+                <mxCell id="38" value="Comfirm Delivery&lt;div&gt;&lt;font color=&quot;#000000&quot;&gt;- triggers requster item acceptance&lt;br&gt;&lt;/font&gt;&lt;div&gt;(accept item, decline item)&lt;/div&gt;&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;align=left;pointerEvents=1;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="-455" y="-240" width="190" height="100" as="geometry"/>
                 </mxCell>
             </root>
