@@ -1,31 +1,32 @@
 <%= javascript_include_tag 'custom/jquery-3.6.1.min', 'data-turbolinks-track' => false %>
 
-<p class="h5">Assets Dashboard</p>
+<p class="h5 d-none">Assets Dashboard</p>
 <div class="border p-2">
   <h6>Assets Filter</h6>
-  <div class="row pt-2 pb-2">
-    <div class="col">
+  <div class="row pt-2 pb-2 asset-filter-row">
+    <div class="col-12 col-md">
       <select class="form-select" id="categoryFilter">
         <% (@categories || []).each do |id, category| %>
           <option value="<%= category %>"><%= category %></option>
         <%end %>
       </select>
     </div>
-    <div class="col">
+    <div class="col-12 col-md">
       <input class="form-control" type="text" placeholder="Search for Asset" id="textFilter">
     </div>
-    <div class="col">
-      <button class="btn btn-success">
+    <div class="col-12 col-md">
+      <button class="btn btn-success asset-search-button">
         Search
       </button>
-      <%= link_to "Register Asset", new_business_asset_path, class: "btn btn-primary",
+      <%= link_to "Register Asset", new_business_asset_path, class: "btn btn-primary register-asset-button",
                   data: { turbo_frame: "remote_modal" } %>
     </div>
   </div>
 </div>
 
 <div class="border p-2 mt-2 fs-6">
-  <table class="table table-stripped table-sm" id="assetTable">
+  <% if @assets.present? %>
+    <table class="table table-stripped table-sm" id="assetTable">
     <thead class="thead-light">
       <tr>
         <th><abbr title="Lost">Asset ID</abbr></th>
@@ -54,7 +55,14 @@
         </tr>
       <% end %>
     </tbody>
-  </table>
+    </table>
+  <% else %>
+    <div class="text-center py-5 text-muted">
+      <%= bootstrap_icon "boxes", width: 32, height: 32, class: "mb-2" %>
+      <p class="mb-1 fw-semibold">No assets</p>
+      <small>There are no assets to display.</small>
+    </div>
+  <% end %>
 </div>
 
 <script>

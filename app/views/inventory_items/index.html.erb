@@ -1,19 +1,16 @@
 
 <%= javascript_include_tag 'custom/jquery-3.6.1.min', 'data-turbolinks-track' => false %>
 
-<p class="h4">Inventory Dashboard<p>
+<p class="h4 d-none">Inventory Dashboard<p>
 <div class="col">
-    <div class="row pt-2 mt-1" style="height: 35vh;">
-        <div class="col col-3">
+    <div class="row pt-2 mt-1 inventory-summary-row" style="height: 35vh;">
+        <div class="col-12 col-md-4">
             <%= render partial: "category_stock" %>
         </div>
-        <div class="col col-3">
+        <div class="col-12 col-md-4">
             <%= render partial: "stock_location" %>
         </div>
-        <div class="col col-3">
-            <%#= render partial: "stock_levels" %>
-        </div>
-        <div class="col">
+        <div class="col-12 col-md-4">
             <div class="card p-2 h-100">
                 <ol class="list-group list-group-numbered list-group-flush">
                     <li class="list-group-item d-flex justify-content-between align-items-start">
@@ -44,25 +41,26 @@
     <div class="row p-3 mt-1">
         <div class="border p-2">
             <h6>Inventory Filter</h6>
-            <div class="row pt-2 pb-2">
-                <div class="col">
+            <div class="row pt-2 pb-2 inventory-filter-row">
+                <div class="col-12 col-md">
                     <select class="form-select" id="categoryFilter">
                         <% ( @inventory_items || []).each do |item| %>
                             <option value="<%= item.category %>"><%= item.category %></option>
                         <%end %>
                     </select>
                 </div>
-                <div class="col">
+                <div class="col-12 col-md">
                     <input class="form-control" type="text" placeholder="Search for Inventory Item" id="textFilter">
                 </div>
-                <div class="col">
-                    <button class="btn btn-success">Search</button>
-                    <%= link_to "Register Item", new_inventory_item_path, class: "btn btn-primary", data: { turbo_frame: "remote_modal" } %>
+                <div class="col-12 col-md">
+                    <button class="btn btn-success inventory-search-button">Search</button>
+                    <%= link_to "Register Item", new_inventory_item_path, class: "btn btn-primary register-item-button", data: { turbo_frame: "remote_modal" } %>
                 </div>
             </div>
         </div>
 
         <div class="border p-2">
+          <% if @inventory_items.present? %>
             <table class="table table-striped table-sm" id="inventoryTable">
             <thead class="thead-light">
             <tr>
@@ -91,6 +89,13 @@
                 <%end %>
             </tbody>
             </table>
+          <% else %>
+            <div class="text-center py-5 text-muted">
+                <%= bootstrap_icon "box-seam", width: 32, height: 32, class: "mb-2" %>
+                <p class="mb-1 fw-semibold">No inventory items</p>
+                <small>There are no inventory items to display.</small>
+            </div>
+          <% end %>
         </div>
         
     </div>
