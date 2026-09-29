@@ -1,5 +1,25 @@
 module ApplicationHelper
 
+  def page_breadcrumb
+    return [{ label: "Home", path: root_path }] if controller_name == "main" && action_name == "home"
+
+    labels = {
+      "timesheets" => "Timesheet",
+      "time_sheet_tasks" => "Timesheet",
+      "inventory_items" => "Inventory",
+      "business_assets" => "Assets",
+      "employees" => "Personnel",
+      "requisitions" => "Requisitions",
+      "reports" => "Reports",
+      "projects" => "Projects"
+    }
+
+    [
+      { label: "Home", path: root_path },
+      { label: labels.fetch(controller_name, controller_name.humanize), path: request.path }
+    ]
+  end
+
   def leave_types
     options = ['Annual Leave', 'Compassionate Leave','Maternity Leave','Paternity Leave',
                'Sick Leave', 'Study Leave','Unpaid Leave']

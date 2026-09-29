@@ -5,6 +5,7 @@
   "author": "Timothy Mtonga <timmtonga@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "bootstrap-icons": "^1.13.1",
     "jquery": "^3.7.1"
   }
 }
