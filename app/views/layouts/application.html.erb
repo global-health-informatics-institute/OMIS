@@ -13,12 +13,23 @@
     <main role="main" class="d-flex flex-column vh-100 vw-100">
       <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#">
-            <img src="/assets/ic_omis.png" alt="" width="30" height="24" class="d-inline-block align-text-top">
-            OMIS
-          </a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
-            <span class="navbar-toggler-icon"></span>
+          <div class="d-flex align-items-center min-w-0">
+            <a class="navbar-brand" href="#">
+              <img src="/assets/ic_omis.png" alt="" height="24" class="d-inline-block align-text-top" style="width: auto; object-fit: contain;">
+              OMIS
+            </a>
+            <nav class="top-nav-breadcrumb text-white-50 small text-truncate" aria-label="Breadcrumb">
+              <% page_breadcrumb.each_with_index do |crumb, index| %>
+                <% if index.positive? %>
+                  <%= bootstrap_icon "chevron-right", width: 12, height: 12, class: "mx-1", aria: { hidden: true } %>
+                <% end %>
+                <%= link_to crumb[:label], crumb[:path], class: "text-white-50 text-decoration-none" %>
+              <% end %>
+            </nav>
+          </div>
+          <button class="btn btn-link d-md-none p-1 ms-auto text-white text-decoration-none mobile-side-nav-toggle" id="mobileSideNavToggle" type="button" aria-controls="sideNavigation" aria-expanded="false" aria-label="Expand navigation">
+            <%= bootstrap_icon "chevron-right", width: 20, height: 20, aria: { hidden: true } %>
+            <span class="ms-1 fw-bold text-decoration-none">Menu</span>
           </button>
           <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
             <ul class="navbar-nav">
@@ -46,9 +57,9 @@
           </div>
         </div>
       </nav>
-      <div class="flex-grow-1 row vw-100">
-        <div class="col-md-auto p-2" style="background: #252525 !important;">
-          <ul class="nav navbar-nav">
+      <div class="flex-grow-1 row vw-100" style="height: calc(100vh - 56px); min-height: 0; overflow: hidden;">
+        <div id="sideNavigation" class="col-md-auto p-2 side-navigation d-flex flex-column" style="background: #252525 !important; height: 100%; overflow: hidden;" aria-hidden="true">
+          <ul class="nav navbar-nav side-navigation-list">
             <li class ="nav-item ms-1">
               <button class ="nav-link" type="button" data-bs-toggle="collapse" data-bs-target=".multi-collapse" title="Menu">
                 <img src="/assets/menu.png" alt="Menu">
@@ -114,8 +125,25 @@
               </li> !-->
             <% end %>
           </ul>
+          <div class="side-navigation-footer">
+            <a href="/about" class="side-navigation-footer-link" title="About">
+              <%= bootstrap_icon "info-circle", width: 18, height: 18, aria: { hidden: true } %>
+              <span class="collapse multi-collapse">About</span>
+            </a>
+            <% if current_user %>
+              <a href="/logout" class="side-navigation-footer-link" title="Logout">
+                <%= bootstrap_icon "box-arrow-right", width: 18, height: 18, aria: { hidden: true } %>
+                <span class="collapse multi-collapse">Logout</span>
+              </a>
+              <a href="/users/<%= current_user.user_id %>" class="side-navigation-footer-link" title="Profile">
+                <%= bootstrap_icon "person-circle", width: 18, height: 18, aria: { hidden: true } %>
+                <span class="collapse multi-collapse">Profile</span>
+              </a>
+            <% end %>
+          </div>
         </div>
-        <div class="col overflow-y-scroll-auto" style="max-height: 90vh;">
+        <div id="sideNavigationOverlay" class="side-navigation-overlay" aria-hidden="true"></div>
+        <div class="col main-content-scroll" style="height: 100%; overflow-x: hidden; overflow-y: auto;">
           <%= render partial: 'layouts/notices' %>
           <%= yield %>
           <%= turbo_frame_tag "remote_modal", target: "_top" %>
@@ -128,5 +156,65 @@
     <main>
 
     </main>
+    <script>
+      function initializeMobileSideNavigation() {
+        const toggle = document.getElementById('mobileSideNavToggle');
+        const sideNavigation = document.getElementById('sideNavigation');
+        const overlay = document.getElementById('sideNavigationOverlay');
+
+        if (!toggle || !sideNavigation || !overlay) return;
+
+        const isMobile = window.matchMedia('(max-width: 767.98px)').matches;
+        sideNavigation.setAttribute('aria-hidden', isMobile.toString());
+
+        const closeSideNavigation = function() {
+          sideNavigation.classList.remove('is-open');
+          overlay.classList.remove('is-open');
+          toggle.classList.remove('is-open');
+          sideNavigation.setAttribute('aria-hidden', 'true');
+          overlay.setAttribute('aria-hidden', 'true');
+          toggle.setAttribute('aria-expanded', 'false');
+        };
+
+        toggle.onclick = function() {
+          const isOpen = sideNavigation.classList.toggle('is-open');
+          overlay.classList.toggle('is-open', isOpen);
+          toggle.classList.toggle('is-open', isOpen);
+          sideNavigation.setAttribute('aria-hidden', (!isOpen).toString());
+          overlay.setAttribute('aria-hidden', (!isOpen).toString());
+          toggle.setAttribute('aria-expanded', isOpen.toString());
+        };
+
+        sideNavigation.onclick = function(event) {
+          if (event.target.closest('a')) closeSideNavigation();
+        };
+
+        overlay.onclick = closeSideNavigation;
+
+        if (!document.body.dataset.mobileNavOutsideClickBound) {
+          document.addEventListener('click', function(event) {
+            const currentToggle = document.getElementById('mobileSideNavToggle');
+            const currentSideNavigation = document.getElementById('sideNavigation');
+
+            if (!currentToggle || !currentSideNavigation || !currentSideNavigation.classList.contains('is-open')) return;
+
+            if (!currentSideNavigation.contains(event.target) && !currentToggle.contains(event.target)) {
+              currentSideNavigation.classList.remove('is-open');
+              const currentOverlay = document.getElementById('sideNavigationOverlay');
+              currentOverlay.classList.remove('is-open');
+              currentToggle.classList.remove('is-open');
+              currentSideNavigation.setAttribute('aria-hidden', 'true');
+              currentToggle.setAttribute('aria-expanded', 'false');
+            }
+          });
+
+          document.body.dataset.mobileNavOutsideClickBound = 'true';
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', initializeMobileSideNavigation);
+      document.addEventListener('turbo:load', initializeMobileSideNavigation);
+      initializeMobileSideNavigation();
+    </script>
   </body>
 </html>

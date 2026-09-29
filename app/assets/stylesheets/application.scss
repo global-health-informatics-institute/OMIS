@@ -1,2 +1,414 @@
 @import "bootstrap";
 @import "components/snackbar";
+
+.main-content-scroll {
+  min-width: 0;
+  padding-top: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: #adb5bd transparent;
+  scrollbar-gutter: stable both-edges;
+}
+
+.side-navigation-overlay {
+  display: none;
+}
+
+.side-navigation-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.side-navigation-footer {
+  flex: 0 0 auto;
+  padding: 0.75rem 0.25rem 0.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  color: #a3cfbb;
+  text-align: center;
+}
+
+.side-navigation-footer-link {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.4rem;
+  padding: 0.4rem 0.25rem;
+  color: #a3cfbb;
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.side-navigation-footer-link:hover {
+  color: #fff;
+}
+
+.top-nav-breadcrumb {
+  max-width: 45vw;
+}
+
+.timesheet-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.timesheet-table {
+  min-width: 900px;
+}
+
+.timesheet-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.assigned-tasks-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.assigned-tasks-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.pending-actions-scroll,
+.personal-statistics-scroll {
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+.pending-actions-scroll.is-scrollable,
+.personal-statistics-scroll.is-scrollable {
+  height: 180px;
+  overflow-y: auto;
+}
+
+.assigned-tasks-scroll.is-scrollable {
+  height: 180px;
+  flex: 0 0 auto;
+  overflow-y: auto;
+}
+
+.inventory-summary-row {
+  height: auto !important;
+}
+
+.inventory-chart {
+  width: 220px !important;
+  height: 220px !important;
+  max-width: 100%;
+}
+
+.pending-actions-description-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.25rem;
+}
+
+.pending-actions-filter {
+  flex-shrink: 0;
+}
+
+.personal-statistics-scroll .personal-statistics-counter {
+  margin-left: auto;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0d6efd;
+  color: #fff !important;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.dashboard-summary-row {
+  align-items: stretch;
+}
+
+.dashboard-summary-row > [class*="col-"] {
+  display: flex;
+}
+
+.dashboard-summary-row > [class*="col-"] > .card {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.main-content-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.main-content-scroll::-webkit-scrollbar-thumb {
+  background-color: #adb5bd;
+  border-radius: 999px;
+}
+
+@media (max-width: 767.98px) {
+  .inventory-summary-row {
+    height: auto !important;
+    row-gap: 1rem;
+  }
+
+  .inventory-summary-row > [class*="col-"] {
+    margin-bottom: 1rem;
+  }
+
+  .inventory-summary-row .card {
+    min-height: 320px;
+  }
+
+  .inventory-chart {
+    width: 240px !important;
+    height: 240px !important;
+    max-width: 100%;
+  }
+
+  .register-item-button {
+    display: block;
+    width: 100%;
+    margin-top: 0.75rem;
+  }
+
+  .inventory-filter-row {
+    row-gap: 0.75rem;
+  }
+
+  .inventory-search-button {
+    display: block;
+    width: 100%;
+  }
+
+  .register-asset-button {
+    display: block;
+    width: 100%;
+    margin-top: 0.75rem;
+  }
+
+  .asset-filter-row {
+    row-gap: 0.75rem;
+  }
+
+  .asset-search-button {
+    display: block;
+    width: 100%;
+  }
+
+  .mobile-side-nav-toggle svg {
+    transition: transform 0.2s ease;
+  }
+
+  .mobile-side-nav-toggle.is-open svg {
+    transform: rotate(180deg);
+  }
+
+  .main-content-scroll {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .main-content-scroll > .row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    row-gap: 0;
+  }
+
+  .main-content-scroll > .row > [class*="col-"] {
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .main-content-scroll > .row > [class*="col-"] > .card {
+    margin-bottom: 0 !important;
+  }
+
+  .main-content-scroll > .row > [class*="col-"] > .card > .card-body {
+    padding: 0.75rem !important;
+  }
+
+  .main-content-scroll > .row.mt-4 .card-header {
+    align-items: stretch !important;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .pending-actions-card .card-header {
+    padding-top: 0.5rem !important;
+  }
+
+  .main-content-scroll > .row.mt-4 .card-body {
+    padding: 0.75rem !important;
+  }
+
+  .personal-statistics-scroll:not(.is-scrollable) {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .upcoming-activities-card:not(.has-many) {
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .upcoming-activities-scroll:not(.is-scrollable) {
+    overflow-y: visible !important;
+  }
+
+  #actionFilter {
+    width: 100%;
+  }
+
+  .pending-actions-card .card-header > div:last-child {
+    width: 100%;
+  }
+
+  .pending-actions-description-row {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .pending-actions-filter {
+    width: 100%;
+  }
+
+  .dashboard-summary-row > [class*="col-"] > .card {
+    min-height: 300px !important;
+    height: auto !important;
+  }
+
+  .dashboard-metrics-row {
+    height: auto !important;
+  }
+
+  .current-projects-table thead {
+    display: none;
+  }
+
+  .current-projects-table tbody tr {
+    display: block;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .current-projects-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    text-align: right;
+    border: 0;
+  }
+
+  .current-projects-table tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .timesheet-meta {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .timesheet-status {
+    order: 1;
+  }
+
+  .timesheet-period {
+    order: 2;
+    margin-top: 0.5rem;
+  }
+
+  .timesheet-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: left !important;
+  }
+
+  .timesheet-actions .btn {
+    width: 100%;
+  }
+
+  .timesheet-toolbar > [class*="col"] {
+    flex: 0 0 100%;
+    width: 100%;
+  }
+
+  .timesheet-toolbar .timesheet-actions {
+    margin-top: 0.75rem;
+  }
+
+  .side-navigation {
+    display: none !important;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    z-index: 1030;
+    width: 75vw;
+    height: calc(100vh - 56px) !important;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.25);
+  }
+
+  .side-navigation.is-open {
+    display: flex !important;
+  }
+
+  .side-navigation-overlay {
+    display: none;
+    position: fixed;
+    inset: 56px 0 0;
+    z-index: 1020;
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  .side-navigation-overlay.is-open {
+    display: block;
+  }
+
+  .side-navigation.is-open .multi-collapse {
+    display: inline !important;
+  }
+}
+
+@media (min-width: 1400px) {
+  .personal-statistics-scroll:not(.is-scrollable) {
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1399.98px) {
+  .dashboard-summary-row > [class*="col-"] > .card {
+    height: 320px !important;
+  }
+
+  .dashboard-summary-row > [class*="col-"] > .card > .card-body,
+  .dashboard-summary-row .assigned-tasks-scroll {
+    height: 180px;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .dashboard-summary-row .pending-actions-description-row {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .dashboard-summary-row .pending-actions-filter {
+    width: 100%;
+  }
+}

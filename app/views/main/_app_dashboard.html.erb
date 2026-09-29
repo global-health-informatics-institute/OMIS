@@ -1,22 +1,22 @@
 <p class="h4">Application Dashboard</p>
 
-<div class="row mt-1" style="height: 40vh;">
-  <div class="col col-4">
+<div class="row mt-1 dashboard-metrics-row" style="height: 40vh;">
+  <div class="col-12 col-md-4">
     <%= render partial: "reports/workforce_gender_distribution" %>
   </div>
-  <div class="col col-4">
+  <div class="col-12 col-md-4">
     <%= render partial: "reports/workforce_age_distribution" %>
   </div>
-  <div class="col col-4">
+  <div class="col-12 col-md-4">
     <%= render partial: "reports/workforce_type_distribution" %>
   </div>
 </div>
 
-<div class="row mt-4" style="height: 40vh;">
-  <div class="col col-5">
+<div class="row mt-4 dashboard-metrics-row" style="height: 40vh;">
+  <div class="col-12 col-md-5">
     <%= render partial: "reports/workforce_retention_distribution" %>
   </div>
-  <div class="col">
+  <div class="col-12 col-md-7">
     <%= render partial: "projects/current_projects" %>
   </div>
 </div>

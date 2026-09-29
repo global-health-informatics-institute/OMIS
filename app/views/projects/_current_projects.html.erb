@@ -1,7 +1,7 @@
-<div class="card h-100">
+<div class="card h-100 current-projects-card">
   <div class="card-body p-2">
     <h6 class="card-title">Current Projects</h6>
-    <table class="table m-0">
+    <table class="table m-0 current-projects-table">
       <thead>
       <tr>
         <th>Donor</th>
@@ -12,9 +12,9 @@
       <tbody>
         <% (@project || []).each do |project| %>
           <tr>
-            <td><%= project.donor %>></td>
-            <td><%= project.short_name %>></td>
-            <td><%= project.next_deadline %>></td>
+            <td data-label="Donor"><%= project.donor %></td>
+            <td data-label="Project Name"><%= project.short_name %></td>
+            <td data-label="Next Activity"><%= project.next_deadline %></td>
           </tr>
         <% end %>
       </tbody>
