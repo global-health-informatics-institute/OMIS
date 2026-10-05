@@ -20,7 +20,7 @@ module ApplicationHelper
   end
 
   def marital_options
-    %w[Single Married Divorced]
+    %w[Single Married Divorced Widowed]
   end
   def bg_colors
 
