@@ -98,8 +98,11 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
   end
 
   def can_access?
-    permitted_users = Designation.where(designated_role: ['Executive Director', 'Administration Officer',
-                                                          'Administraton & HR Officer', 'Human Resources Officer', 'Informatics Product Developer', 'Human Resources Volunteer']).pluck(:designation_id) # rubocop:disable Layout/LineLength
+    permitted_users = Designation.where(
+      designated_role: ['Executive Director', 'Administration Officer', 'Administraton & HR Officer',
+                        'Human Resources Officer', 'Informatics Product Developer', 'Human Resources Volunteer',
+                        'Director of Finance and Administration']
+    ).pluck(:designation_id)
     current_designation = EmployeeDesignation.where(employee_id: @current_user.id).pluck(:designation_id)
     return unless (current_designation & permitted_users).empty?
 
