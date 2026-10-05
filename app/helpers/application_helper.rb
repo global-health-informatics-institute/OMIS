@@ -43,6 +43,13 @@ module ApplicationHelper
     Person.where(person_id: s).collect{|x| x.first_name + " " + x.last_name}
   end
 
+  def active_employees
+    employee_ids = Employee.all.collect(&:employee_id)
+    Person.where(person_id: employee_ids)
+          .map { |x| "#{x.first_name} #{x.last_name}" }
+          .sort
+  end
+
   def branches
     Branch.all.collect { |x| [x.branch_name, x.id] }
   end
