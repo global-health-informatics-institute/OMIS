@@ -9,7 +9,7 @@ export default class extends Controller {
   }
 
   add() {
-    if (this.rowTargets.length >= this.maxRowsValue || this.totalEffort() >= 100) return
+    if (this.rowTargets.length >= this.maximumRows() || this.totalEffort() >= 100) return
 
     this.rowsTarget.insertAdjacentHTML("beforeend", this.rowMarkup())
     this.refresh()
@@ -24,7 +24,7 @@ export default class extends Controller {
 
   refresh() {
     this.refreshProjectOptions()
-    const atMaximumRows = this.rowTargets.length >= this.maxRowsValue
+    const atMaximumRows = this.rowTargets.length >= this.maximumRows()
     const singleRow = this.rowTargets.length === 1
     const totalIsComplete = this.totalEffort() >= 100
 
@@ -71,6 +71,10 @@ export default class extends Controller {
       .reduce((sum, effortInput) => sum + (Number(effortInput.value) || 0), 0)
 
     return Math.max(0, 100 - otherEffort)
+  }
+
+  maximumRows() {
+    return Math.min(this.maxRowsValue, this.projectsValue.length)
   }
 
   totalEffort() {
