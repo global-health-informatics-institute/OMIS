@@ -3,25 +3,31 @@
     <% affiliation = employee.current_affiliations.first %>
     <% designation = employee.current_designations.first %>
     <div class="row">
-      <div class="col-4">
+      <div class="col-5">
         <%= form.label :employment_date, class: "form-label" %>
         <%= form.date_field "employee[employment_date]", value: employee.employment_date, class: "form-control", required: true %>
       </div>
-      <div class="col">
+      <div class="col-5">
         <%= form.label :designated_role, class: "form-label" %>
         <%= form.select "employee[designated_role]", options_for_select(roles, designation&.designation&.designated_role), { include_blank: "Select role/position" }, class: "form-select", required: true %>
       </div>
-      <div class="col-4">
-        <%= form.label :designation_start_date, class: "form-label" %>
-        <%= form.date_field "employee[designation_start_date]", value: designation&.start_date, class: "form-control", required: true %>
+    </div>
+    <div class="row mt-3">
+        <div class="col-5">
+          <%= form.label :designation_start_date, class: "form-label" %>
+          <%= form.date_field "employee[designation_start_date]", value: designation&.start_date, class: "form-control", required: true %>
+      </div>
+      <div class="col-5">
+        <%= form.label :departure_date, class: "form-label" %>
+        <%= form.date_field "employee[departure_date]", value: employee.departure_date, class: "form-control" %>
       </div>
     </div>
     <div class="row mt-3">
-      <div class="col-4">
+      <div class="col-5">
         <%= form.label :branch, class: "form-label" %>
         <%= form.select "employee[branch]", options_for_select(branches, affiliation&.department&.branch_id), { include_blank: "Select branch" }, class: "form-select", required: true %>
       </div>
-      <div class="col">
+      <div class="col-5">
         <%= form.label :departments, class: "form-label" %>
         <%= form.select "employee[departments]", options_for_select(departments, affiliation&.department&.department_name), { include_blank: "Select department" }, class: "form-select", required: true %>
       </div>
