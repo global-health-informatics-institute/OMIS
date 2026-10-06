@@ -35,25 +35,35 @@
     </tr>
     </thead>
     <tbody>
-    <% (@list_employees || []).each do |person| %>
+    <% (@list_employees || []).each do |employee| %>
+      <% person = employee.person %>
+      <% can_remove_employee = employee.employee_id != current_user.employee_id %>
       <tr>
         <td><abbr title="fName"><%= person.first_name %></abbr></td>
         <td><abbr title="mName"><%= person.middle_name %></abbr></td>
         <td><abbr title="lName"><%= person.last_name %></abbr></td>
-        <td><abbr title="Post"><%= person.employee.current_position rescue " " %></abbr></td>
-        <td><abbr title="Emp. Date"><%= person.employee.employment_date.strftime('%d %b, %Y') rescue " "%></abbr></td>
+        <td><abbr title="Post"><%= employee.current_position rescue " " %></abbr></td>
+        <td><abbr title="Emp. Date"><%= employee.employment_date.strftime('%d %b, %Y') rescue " "%></abbr></td>
         <td><abbr title="Prim. #"><%= person.primary_phone rescue " "%></abbr></td>
         <td><abbr title="Alt. #"><%= person.alt_phone rescue " "%></abbr></td>
         <th>
-          <%= link_to image_tag("/assets/info.png"), "employees/#{person.id}", data: { turbo_frame: "remote_model"}%>
-          <%= link_to image_tag("/assets/edit.png"), "employees/#{person.id}/edit", data: { turbo_frame: "remote_model"} %>
-          <%= link_to image_tag("/assets/delete.png"), "business_assets/#{person.id}", data: { turbo_frame: "remote_model"} %>
+          <%= link_to image_tag("/assets/info.png"), employee_path(employee.employee_id), data: { turbo_frame: "remote_model"}%>
+          <%= link_to image_tag("/assets/edit.png"), edit_employee_path(employee.employee_id), data: { turbo_frame: "remote_model"} %>
+          <button type="button" class="btn btn-link border-0 p-0 align-baseline" title="<%= can_remove_employee ? 'Remove employee' : 'You cannot remove your own employee record' %>" data-bs-toggle="modal" data-bs-target="#terminate-employee-modal-<%= employee.employee_id %>" <%= 'disabled aria-disabled="true"' unless can_remove_employee %>>
+            <%= image_tag("/assets/delete.png", alt: "Remove employee") %>
+          </button>
         </th>
       </tr>
     <% end %>
     </tbody>
   </table>
-</div>
+</div>    
+
+<% (@list_employees || []).each do |employee| %>
+  <%= render "employees/delete/terminate_employee_modal",
+             employee: employee,
+             can_remove_employee: employee.employee_id != current_user.employee_id %>
+<% end %>
 
 <script>
     $(document).ready(function(){

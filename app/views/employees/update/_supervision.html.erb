@@ -1,0 +1,18 @@
+<div class="tab-pane fade" id="nav-supervision" role="tabpanel" aria-labelledby="nav-supervision-tab">
+  <%= form_with url: update_supervision_employee_path(employee), method: :patch, local: true, data: { action: "submit->update-confirmation#confirm" } do |form| %>
+    <% supervision = employee.received_supervision %>
+    <% supervisors = Employee.includes(:person).map { |supervisor| [supervisor.person.full_name, supervisor.id] }.sort_by(&:first) %>
+    <div class="row">
+      <div class="col-4">
+        <%= form.label :supervisor, class: "form-label" %>
+        <%= form.select "supervision[supervisor]", options_for_select(supervisors, supervision&.supervisor), { include_blank: "Select supervisor" }, class: "form-select", required: true %>
+      </div>
+      <div class="col-4">
+        <%= form.label :started_on, class: "form-label" %>
+        <%= form.date_field "supervision[started_on]", value: supervision&.started_on, class: "form-control", required: true %>
+      </div>
+    </div>
+
+    <%= form.submit "Update Supervision", class: "btn btn-primary mt-3", disabled: true, data: { confirm_section: "Supervision" } %>
+  <% end %>
+</div>

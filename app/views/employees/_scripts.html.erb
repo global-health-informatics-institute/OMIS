@@ -109,9 +109,15 @@ function buttonNavigate(currentStep, direction) {
 
     if (direction === "next") {
         if (validateFields(tabIds[currentStep - 1])) {
+            if (tabIds[targetStep - 1] === "nav-summary") {
+                populateSummary();
+            }
             navigateWithButton(tabIds[targetStep - 1]);
         }
     } else {
+        if (tabIds[targetStep - 1] === "nav-summary") {
+            populateSummary();
+        }
         navigateWithButton(tabIds[targetStep - 1]);
     }
 }
@@ -160,92 +166,100 @@ function updateProgress(step) {
 }
 
 // SUMMARY
-function populatePersonalDemographics() {
-  const firstName = document.querySelector("input[name='person[first_name]']")?.value || "--";
-  const middleName = document.querySelector("input[name='person[middle_name]']")?.value || "--";
-  const lastName = document.querySelector("input[name='person[last_name]']")?.value || "--";
-  const birthDate = document.querySelector("input[name='person[birth_date]']")?.value || "--";
-  const gender = document.querySelector("select[name='person[gender]']")?.value || "--";
-  const maritalStatus = document.querySelector("select[name='person[marital_status]']")?.value || "--";
-  const altPhone = document.querySelector("input[name='person[alt_phone]']")?.value || "--";
-  const email = document.querySelector("input[name='person[email_address]']")?.value || "--";
-  const postalAddress = document.querySelector("input[name='person[postal_address]']")?.value || "--";
-  const officialEmail = document.querySelector("input[name='person[official_email]']")?.value || "--";
-  const residentialAddress = document.querySelector("input[name='person[residential_address]']")?.value || "--";
-  const landmark = document.querySelector("input[name='person[landmark]']")?.value || "--";
+function setSummaryValue(id, value) {
+  const element = document.getElementById(id);
+  if (element) {
+    element.textContent = value || "—";
+  }
+}
 
-  document.getElementById("summary-first-name").textContent = firstName;
-  document.getElementById("summary-middle-name").textContent = middleName;
-  document.getElementById("summary-last-name").textContent = lastName;
-  document.getElementById("summary-birth-date").textContent = birthDate;
-  document.getElementById("summary-gender").textContent = gender;
-  document.getElementById("summary-marital-status").textContent = maritalStatus;
-  document.getElementById("summary-alt-phone").textContent = altPhone;
-  document.getElementById("summary-email").textContent = email;
-  document.getElementById("summary-postal-address").textContent = postalAddress;
-  document.getElementById("summary-official-email").textContent = officialEmail;
-  document.getElementById("summary-residential-address").textContent = residentialAddress;
-  document.getElementById("summary-landmark").textContent = landmark;
+function formatSummaryDate(value) {
+  if (!value) return "—";
+  const [year, month, day] = value.split("-");
+  return `${day}/${month}/${year}`;
+}
+
+function selectedSummaryText(selector) {
+  const option = document.querySelector(selector)?.selectedOptions[0];
+  return option?.value ? option.text : "";
+}
+
+function populatePersonalDemographics() {
+  setSummaryValue("summary-first-name", document.querySelector("input[name='person[first_name]']")?.value.trim());
+  setSummaryValue("summary-middle-name", document.querySelector("input[name='person[middle_name]']")?.value.trim());
+  setSummaryValue("summary-last-name", document.querySelector("input[name='person[last_name]']")?.value.trim());
+  setSummaryValue("summary-birth-date", formatSummaryDate(document.querySelector("input[name='person[birth_date]']")?.value));
+  setSummaryValue("summary-gender", selectedSummaryText("select[name='person[gender]']"));
+  setSummaryValue("summary-marital-status", selectedSummaryText("select[name='person[marital_status]']"));
+  setSummaryValue("summary-primary-phone", document.querySelector("input[name='person[primary_phone]']")?.value.trim());
+  setSummaryValue("summary-alt-phone", document.querySelector("input[name='person[alt_phone]']")?.value.trim());
+  setSummaryValue("summary-email", document.querySelector("input[name='person[email_address]']")?.value.trim());
+  setSummaryValue("summary-postal-address", document.querySelector("input[name='person[postal_address]']")?.value.trim());
+  setSummaryValue("summary-official-email", document.querySelector("input[name='person[official_email]']")?.value.trim());
+  setSummaryValue("summary-residential-address", document.querySelector("input[name='person[residential_address]']")?.value.trim());
+  setSummaryValue("summary-landmark", document.querySelector("input[name='person[landmark]']")?.value.trim());
 }
 
 function populateEmployeeDetails() {
-    const employmentDate = document.querySelector("input[name='employee[employment_date]']")?.value || "--";
-    const designatedRole = document.querySelector("select[name='employee[designated_role]']")?.value || "--";
-    const designationStartDate = document.querySelector("input[name='employee[designation_start_date]']")?.value || "--"; 
-    const branchSelect = document.querySelector("select[name='employee[branch]']");
-    const branch = branchSelect ? branchSelect.options[branchSelect.selectedIndex].text : "--";
-    const department = document.querySelector("select[name='employee[departments]']")?.value || "--";
+    const employmentDate = formatSummaryDate(document.querySelector("input[name='employee[employment_date]']")?.value);
+    const designatedRole = selectedSummaryText("select[name='employee[designated_role]']");
+    const designationStartDate = formatSummaryDate(document.querySelector("input[name='employee[designation_start_date]']")?.value);
+    const branch = selectedSummaryText("select[name='employee[branch]']");
+    const department = selectedSummaryText("select[name='employee[departments]']");
 
-    document.getElementById("summary-employment-date").textContent = employmentDate;
-    document.getElementById("summary-designated-role").textContent = designatedRole;
-    document.getElementById("summary-designated-start-date").textContent = designationStartDate;
-    document.getElementById("summary-branch").textContent = branch;
-    document.getElementById("summary-department").textContent = department;
+    setSummaryValue("summary-employment-date", employmentDate);
+    setSummaryValue("summary-designated-role", designatedRole);
+    setSummaryValue("summary-designated-start-date", designationStartDate);
+    setSummaryValue("summary-branch", branch);
+    setSummaryValue("summary-department", department);
 }
 
 function populateLevelOfEffort() {
   const projectSelects = document.querySelectorAll("select[name='projects[][project]']");
   const effortInputs = document.querySelectorAll("input[name='projects[][allocated_effort]']");
 
-  let projectSummary = "";
-  let effortSummary = "";
+  const projects = [];
+  const efforts = [];
 
   projectSelects.forEach((select, index) => {
-    const projectValue = select.value || "--";
-    const effortValue = (effortInputs[index] && effortInputs[index].value) || "--";
-    
-    projectSummary += projectValue + ",";
-    effortSummary += effortValue + ",";
+    if (select.value) {
+      projects.push(select.selectedOptions[0]?.text || select.value);
+      efforts.push(effortInputs[index]?.value ? `${effortInputs[index].value}%` : "—");
+    }
   });
 
-  document.getElementById("summary-project").textContent = projectSummary;
-  document.getElementById("summary-allocated-effort").textContent = effortSummary;
+  setSummaryValue("summary-project", projects.join(", "));
+  setSummaryValue("summary-allocated-effort", efforts.join(", "));
 }
 
 
 function populateSupervision() {
-    const supervisor = document.querySelector("select[name='supervision[supervisor]']")?.value || "--";
-    const startedOn = document.querySelector("input[name='supervision[started_on]']")?.value || "--";
+    const supervisor = selectedSummaryText("select[name='supervision[supervisor]']");
+    const startedOn = formatSummaryDate(document.querySelector("input[name='supervision[started_on]']")?.value);
 
-    document.getElementById("summary-supervisor").textContent = supervisor;
-    document.getElementById("summary-started-on").textContent = startedOn;
+    setSummaryValue("summary-supervisor", supervisor);
+    setSummaryValue("summary-started-on", startedOn);
 }
 
-populatePersonalDemographics();
-populateEmployeeDetails();
-populateLevelOfEffort();
-populateSupervision();
+function populateSummary() {
+  populatePersonalDemographics();
+  populateEmployeeDetails();
+  populateLevelOfEffort();
+  populateSupervision();
+}
 
+populateSummary();
 
-const formElements = document.querySelectorAll("input[name^='person['], select[name^='person['], input[name^='employee['], select[name^='employee['], select[name^='supervision['], input[name^='supervision['], select[name^='projects['], input[name^='projects[']");
-formElements.forEach(element => {
-    element.addEventListener("change", () => {
-        populatePersonalDemographics();
-        populateEmployeeDetails();
-        populateLevelOfEffort();
-        populateSupervision();
+const employeeForm = document.querySelector("form");
+if (employeeForm) {
+  ["input", "change"].forEach(eventName => {
+    employeeForm.addEventListener(eventName, event => {
+      if (event.target.matches("input[name^='person['], select[name^='person['], input[name^='employee['], select[name^='employee['], select[name^='supervision['], input[name^='supervision['], select[name^='projects['], input[name^='projects[']")) {
+        populateSummary();
+      }
     });
-});
+  });
+}
 
 function flashMessage(message, type = "success") {
     let flashContainer = document.getElementById("flash-container");
