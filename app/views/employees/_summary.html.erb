@@ -52,7 +52,7 @@
         <dl class="row mb-0">
           <dt class="col-sm-5">Employment date</dt>
           <dd class="col-sm-7" id="summary-employment-date">—</dd>
-          <dt class="col-sm-5">Role</dt>
+          <dt class="col-sm-5">Designated role</dt>
           <dd class="col-sm-7" id="summary-designated-role">—</dd>
           <dt class="col-sm-5">Role start date</dt>
           <dd class="col-sm-7" id="summary-designated-start-date">—</dd>
@@ -82,13 +82,22 @@
   <div class="col-12">
     <div class="card">
       <div class="card-header bg-light text-dark">Levels of effort</div>
-      <div class="card-body">
-        <dl class="row mb-0">
-          <dt class="col-sm-3">Projects</dt>
-          <dd class="col-sm-9" id="summary-project">—</dd>
-          <dt class="col-sm-3">Allocated effort</dt>
-          <dd class="col-sm-9" id="summary-allocated-effort">—</dd>
-        </dl>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th scope="col">Project</th>
+                <th scope="col">Allocated effort</th>
+              </tr>
+            </thead>
+            <tbody id="summary-levels-of-effort">
+              <tr>
+                <td colspan="2" class="text-muted">No levels of effort added.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
