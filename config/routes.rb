@@ -11,6 +11,8 @@ Rails.application.routes.draw do
       patch :update_employment_details
       patch :update_level_of_effort
       patch :update_supervision
+      patch :record_departure
+      patch :void_record
     end
   end
   resources :timesheets

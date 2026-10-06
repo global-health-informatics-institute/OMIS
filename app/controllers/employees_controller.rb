@@ -2,11 +2,11 @@
 
 class EmployeesController < ApplicationController # rubocop:disable Style/Documentation
   before_action :can_access?, only: %i[create edit update show index update_personal_demographics update_employment_details
-                                       update_level_of_effort update_supervision]
+                                       update_level_of_effort update_supervision record_departure void_record]
   before_action :set_employee, only: %i[update update_personal_demographics update_employment_details update_level_of_effort
-                                        update_supervision]
+                                        update_supervision record_departure void_record]
   def index
-    @list_employees = Employee.where(still_employed: true).collect { |x| x.person }
+    @list_employees = Employee.where(still_employed: true)
   end
 
   def show
@@ -44,7 +44,7 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
     # supervision
     supervisor_name = params[:supervision][:supervisor]
     first_name, last_name = supervisor_name.split(' ', 2)
-    supervision_params[:supervisor] = Person.where(first_name: first_name, last_name: last_name) # rubocop:disable Style/HashSyntax
+    supervision_params[:supervisor] = Person.where(first_name: first_name, last_name: last_name)
                                             .pluck(:person_id).first
     supervision_params[:started_on] = params[:supervision][:started_on]
 
@@ -110,10 +110,32 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
     redirect_to edit_employee_path(@employee), alert: e.message
   end
 
+  def record_departure
+    if current_user.employee_id == @employee.employee_id
+      redirect_to employees_path, alert: 'You cannot terminate your own employee record.' and return
+    end
+
+    Employee::RecordDepartureService.call(@employee.employee_id, separation_params[:departure_date])
+    redirect_to employees_path, notice: 'Employee departure recorded successfully.'
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound, ArgumentError => e
+    redirect_to employees_path, alert: e.message
+  end
+
+  def void_record
+    if current_user.employee_id == @employee.employee_id
+      redirect_to employees_path, alert: 'You cannot void your own employee record.' and return
+    end
+
+    Employee::VoidEmployeeService.call(@employee.employee_id)
+    redirect_to employees_path, notice: 'Employee record voided successfully.'
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound, ArgumentError => e
+    redirect_to employees_path, alert: e.message
+  end
+
   def can_access?
     permitted_users = Designation.where(designated_role: ['Executive Director', 'Administration Officer',
                                                           'Administraton & HR Officer', 'Human Resources Officer', 'Informatics Product Developer']).pluck(:designation_id) # rubocop:disable Layout/LineLength
-    current_designation = EmployeeDesignation.where(employee_id: @current_user.id).pluck(:designation_id)
+    current_designation = EmployeeDesignation.where(employee_id: @current_user.employee_id).pluck(:designation_id)
     return unless (current_designation & permitted_users).empty?
 
     flash[:error] = 'You do not have permission to access this page.'
@@ -130,7 +152,7 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
   private
 
   def set_employee
-    @employee = Employee.find(params[:id])
+    @employee = Employee.find_by!(employee_id: params[:id])
   end
 
   def personal_demographics_params
@@ -150,5 +172,9 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
 
   def supervision_params
     params.require(:supervision).permit(:supervisor, :started_on)
+  end
+
+  def separation_params
+    params.require(:employee).permit(:departure_date)
   end
 end
