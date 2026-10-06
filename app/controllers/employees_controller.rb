@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 class EmployeesController < ApplicationController # rubocop:disable Style/Documentation
-  before_action :can_access?, only: %i[create edit update show index]
+  before_action :can_access?, only: %i[create edit update show index update_personal_demographics update_employment_details
+                                       update_level_of_effort update_supervision]
+  before_action :set_employee, only: %i[update update_personal_demographics update_employment_details update_level_of_effort
+                                        update_supervision]
   def index
     @list_employees = Employee.where(still_employed: true).collect { |x| x.person }
   end
@@ -27,7 +30,7 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
     person_params[:primary_phone] = person_params[:primary_phone].strip.gsub(/[^0-9]/, '')
     person_params[:alt_phone] = person_params[:alt_phone].strip.gsub(/[^0-9]/, '')
     person_params[:email_address] = person_params[:email_address].strip
-    person_params[:official_email] = person_params[:official_email].strip
+    person_params[:official_email] = person_params[:official_email].to_s.strip.presence
     person_params[:postal_address] = person_params[:postal_address].strip.gsub(/\n/, ',')
     person_params[:residential_address] = person_params[:residential_address].strip.gsub(/\n/, ',')
     person_params[:landmark] = person_params[:landmark].strip.gsub(/\n/, ',')
@@ -73,28 +76,38 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
 
   def edit
     @user = @current_user
-    @person = Person.find(params[:id])
     @employee = Employee.find(params[:id])
+    @person = @employee.person
     @project = Project.all.collect { |x| [x.project_name, x.id] }
+    render :update
   end
 
-  def update
-    @person = Person.find(params[:id])
-    @employee = Employee.find(params[:id])
-    @designated_role = Designation.where(designated_role: employee_params[:designated_role])
-    if @person.update(first_name: params[:person][:first_name], middle_name: params[:person][:middle_name],
-                      last_name: params[:person][:last_name],
-                      primary_phone: params[:person][:primary_phone], alt_phone: params[:person][:alt_phone],
-                      marital_status: params[:person][:marital_status], residential_address: params[:person][:residential_address])
-      if @employee.update(employment_date: params[:person][:employment_date])
-        if @designated_role.update(designated_role: params[:designated_role])
-          redirect_to '/employees'
-          flash[:notice] = 'Successfully updated designation.'
-        end
-        flash[:notice] = 'Successfully updated employee.'
-      end
-      flash[:notice] = 'Successfully updated person.'
-    end
+  def update_personal_demographics
+    Employee::PersonalDemographicsUpdateService.call(@employee, personal_demographics_params)
+    redirect_to edit_employee_path(@employee), notice: 'Personal demographics updated successfully.'
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to edit_employee_path(@employee), alert: e.record.errors.full_messages.to_sentence
+  end
+
+  def update_employment_details
+    Employee::EmploymentDetailsUpdateService.call(@employee, employment_details_params)
+    redirect_to edit_employee_path(@employee), notice: 'Employment details updated successfully.'
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound, ArgumentError => e
+    redirect_to edit_employee_path(@employee), alert: e.message
+  end
+
+  def update_level_of_effort
+    Employee::LevelOfEffortUpdateService.call(@employee, level_of_effort_params)
+    redirect_to edit_employee_path(@employee), notice: 'Levels of effort updated successfully.'
+  rescue ActiveRecord::RecordInvalid, ArgumentError, ActiveRecord::RecordNotFound => e
+    redirect_to edit_employee_path(@employee), alert: e.message
+  end
+
+  def update_supervision
+    Employee::SupervisionUpdateService.call(@employee, supervision_params)
+    redirect_to edit_employee_path(@employee), notice: 'Supervision updated successfully.'
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound, ArgumentError => e
+    redirect_to edit_employee_path(@employee), alert: e.message
   end
 
   def can_access?
@@ -112,5 +125,30 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
                   :primary_phone, :alt_phone, :email_address, :postal_address, :official_email,
                   :residential_address, :landmark, :employment_date, :designated_role, :supervisor, :started_on,
                   :project, :allocated_effort)
+  end
+
+  private
+
+  def set_employee
+    @employee = Employee.find(params[:id])
+  end
+
+  def personal_demographics_params
+    params.require(:person).permit(:first_name, :middle_name, :last_name, :birth_date, :gender, :marital_status,
+                                   :primary_phone, :alt_phone, :email_address, :official_email, :postal_address,
+                                   :residential_address, :landmark)
+  end
+
+  def employment_details_params
+    params.require(:employee).permit(:employment_date, :designated_role, :designation_start_date, :branch,
+                                     :departments)
+  end
+
+  def level_of_effort_params
+    params.require(:projects).map { |project| project.permit(:project, :allocated_effort) }
+  end
+
+  def supervision_params
+    params.require(:supervision).permit(:supervisor, :started_on)
   end
 end
