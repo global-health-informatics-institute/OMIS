@@ -1,3 +1,7 @@
+<% department_icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktcGVvcGxlLWZpbGwiIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTcgMTRzLTEgMC0xLTEgMS00IDUtNCA1IDMgNSA0LTEgMS0xIDF6bTQtNmEzIDMgMCAxIDAgMC02IDMgMyAwIDAgMCAwIDZtLTUuNzg0IDZBMi4yNCAyLjI0IDAgMCAxIDUgMTNjMC0xLjM1NS42OC0yLjc1IDEuOTM2LTMuNzJBNi4zIDYuMyAwIDAgMCA1IDljLTQgMC01IDMtNSA0czEgMSAxIDF6TTQuNSA4YTIuNSAyLjUgMCAxIDAgMC01IDIuNSAyLjUgMCAwIDAgMCA1Ii8+Cjwvc3ZnPg==' %>
+<% location_icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktZ2VvLWFsdC1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik04IDE2czYtNS42ODYgNi0xMEE2IDYgMCAwIDAgMiA2YzAgNC4zMTQgNiAxMCA2IDEwbTAtN2EzIDMgMCAxIDEgMC02IDMgMyAwIDAgMSAwIDYiLz4KPC9zdmc+' %>
+<% status_dot_icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iI2ZmZiIgY2xhc3M9ImJpIGJpLWNpcmNsZS1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxjaXJjbGUgY3g9IjgiIGN5PSI4IiByPSI4Ii8+Cjwvc3ZnPgo=' %>
+
 <div class="row">
   <div class="col">
     <p class="h4">Personal Dashboard</p>
@@ -20,11 +24,11 @@
           <p class="fs-6 fst-italic mb-2" id="role"><%= @employee.current_position.presence || 'Position not recorded' %></p>
           <div class="d-flex flex-wrap align-items-center gap-3 fs-6 mb-1">
             <span class="d-inline-flex align-items-center gap-2">
-              <%= image_tag 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktcGVvcGxlLWZpbGwiIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTcgMTRzLTEgMC0xLTEgMS00IDUtNCA1IDMgNSA0LTEgMS0xIDF6bTQtNmEzIDMgMCAxIDAgMC02IDMgMyAwIDAgMCAwIDZtLTUuNzg0IDZBMi4yNCAyLjI0IDAgMCAxIDUgMTNjMC0xLjM1NS42OC0yLjc1IDEuOTM2LTMuNzJBNi4zIDYuMyAwIDAgMCA1IDljLTQgMC01IDMtNSA0czEgMSAxIDF6TTQuNSA4YTIuNSAyLjUgMCAxIDAgMC01IDIuNSAyLjUgMCAwIDAgMCA1Ii8+Cjwvc3ZnPg==', width: 16, height: 16, alt: '' %>
+              <%= image_tag department_icon, width: 16, height: 16, alt: '' %>
               <span><%= @employee.current_department.presence || 'Department not recorded' %></span>
             </span>
             <span class="d-inline-flex align-items-center gap-2">
-              <%= image_tag 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktZ2VvLWFsdC1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik04IDE2czYtNS42ODYgNi0xMEE2IDYgMCAwIDAgMiA2YzAgNC4zMTQgNiAxMCA2IDEwbTAtN2EzIDMgMCAxIDEgMC02IDMgMyAwIDAgMSAwIDYiLz4KPC9zdmc+', width: 13, height: 14, alt: '' %>
+              <%= image_tag location_icon, width: 13, height: 14, alt: '' %>
               <span><%= @employee.current_branches.presence || 'Location not recorded' %></span>
             </span>
           </div>
@@ -39,7 +43,7 @@
             <dt class="fw-bold text-muted me-auto">Contract</dt>
             <dd class="mb-0 ms-auto text-end text-muted">Not recorded</dd>
             <dd class="mb-0 badge rounded-pill text-bg-secondary d-inline-flex align-items-center justify-content-center gap-2 px-3">
-              <%= image_tag 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iI2ZmZiIgY2xhc3M9ImJpIGJpLWNpcmNsZS1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxjaXJjbGUgY3g9IjgiIGN5PSI4IiByPSI4Ii8+Cjwvc3ZnPgo=', alt: '', width: 7, height: 7 %>
+              <%= image_tag status_dot_icon, alt: '', width: 7, height: 7 %>
               No dates
             </dd>
           </div>
@@ -47,7 +51,7 @@
             <dt class="fw-bold text-muted me-auto">Next appraisal</dt>
             <dd class="mb-0 ms-auto text-end text-muted">Not scheduled</dd>
             <dd class="mb-0 badge rounded-pill text-bg-secondary d-inline-flex align-items-center justify-content-center gap-2 px-3">
-              <%= image_tag 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iI2ZmZiIgY2xhc3M9ImJpIGJpLWNpcmNsZS1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxjaXJjbGUgY3g9IjgiIGN5PSI4IiByPSI4Ii8+Cjwvc3ZnPgo=', alt: '', width: 7, height: 7 %>
+              <%= image_tag status_dot_icon, alt: '', width: 7, height: 7 %>
               No date
             </dd>
           </div>
