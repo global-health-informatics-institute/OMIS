@@ -141,7 +141,7 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
 
   def employment_details_params
     params.require(:employee).permit(:employment_date, :designated_role, :designation_start_date, :branch,
-                                     :departments)
+                                     :departments, :departure_date)
   end
 
   def level_of_effort_params

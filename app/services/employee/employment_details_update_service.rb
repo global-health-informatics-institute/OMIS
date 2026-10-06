@@ -7,7 +7,7 @@ class Employee::EmploymentDetailsUpdateService
       department = Department.find_by!(department_name: attributes.fetch(:departments))
 
       validate_branch!(department, attributes[:branch])
-      employee.update!(employment_date: employment_date)
+      employee.update!(employment_date: employment_date, departure_date: attributes[:departure_date])
       update_affiliation!(employee, department, employment_date)
       update_designation!(
         employee,

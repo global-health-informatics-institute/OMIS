@@ -56,6 +56,8 @@
           <dl class="row mb-0">
             <dt class="col-sm-5">Employment date</dt>
             <dd class="col-sm-7"><%= display_value.call(employee.employment_date&.strftime("%d %B %Y")) %></dd>
+            <dt class="col-sm-5">Departure date</dt>
+            <dd class="col-sm-7"><%= display_value.call(employee.departure_date&.strftime("%d %B %Y")) %></dd>
             <dt class="col-sm-5">Current role<%= "s" if designations.many? %></dt>
             <dd class="col-sm-7"><%= display_value.call(designations.map { |designation| designation.designation.designated_role }.join(", ")) %></dd>
             <dt class="col-sm-5">Role start date<%= "s" if designations.many? %></dt>
