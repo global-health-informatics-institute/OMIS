@@ -1,0 +1,70 @@
+<div class="tab-pane fade show active" id="nav-personal-demographics" role="tabpanel" aria-labelledby="nav-personal-demographics-tab">
+  <%= form_with url: update_personal_demographics_employee_path(employee), method: :patch, local: true, data: { action: "submit->update-confirmation#confirm" } do |form| %>
+    <% person = employee.person %>
+    <div class="row">
+      <div class="col-4">
+        <%= form.label :first_name, class: "form-label" %>
+        <%= form.text_field "person[first_name]", value: person.first_name, class: "form-control", required: true %>
+      </div>
+      <div class="col">
+        <%= form.label :middle_name, class: "form-label" %>
+        <%= form.text_field "person[middle_name]", value: person.middle_name, class: "form-control" %>
+      </div>
+      <div class="col-4">
+        <%= form.label :last_name, class: "form-label" %>
+        <%= form.text_field "person[last_name]", value: person.last_name, class: "form-control", required: true %>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-4">
+        <%= form.label :birth_date, class: "form-label" %>
+        <%= form.date_field "person[birth_date]", value: person.birth_date, class: "form-control", required: true %>
+      </div>
+      <div class="col-4">
+        <%= form.label :gender, class: "form-label" %>
+        <%= form.select "person[gender]", options_for_select(gender_options, person.gender), { include_blank: "Select gender" }, class: "form-select", required: true %>
+      </div>
+      <div class="col-4">
+        <%= form.label :marital_status, class: "form-label" %>
+        <%= form.select "person[marital_status]", options_for_select(marital_options, person.marital_status), { include_blank: "Select marital status" }, class: "form-select", required: true %>
+      </div>
+    </div>
+    <hr>
+    <div class="row mt-3">
+      <div class="col-3">
+        <%= form.label :primary_phone, class: "form-label" %>
+        <%= form.telephone_field "person[primary_phone]", value: person.primary_phone, class: "form-control", required: true %>
+      </div>
+      <div class="col-3">
+        <%= form.label :alt_phone, class: "form-label" %>
+        <%= form.telephone_field "person[alt_phone]", value: person.alt_phone, class: "form-control" %>
+      </div>
+      <div class="col">
+        <%= form.label :email_address, class: "form-label" %>
+        <%= form.email_field "person[email_address]", value: person.email_address, class: "form-control", required: true %>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col">
+        <%= form.label :postal_address, class: "form-label" %>
+        <%= form.text_field "person[postal_address]", value: person.postal_address, class: "form-control", required: true %>
+      </div>
+      <div class="col">
+        <%= form.label :official_email, class: "form-label" %>
+        <%= form.email_field "person[official_email]", value: person.official_email, class: "form-control" %>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col">
+        <%= form.label :residential_address, class: "form-label" %>
+        <%= form.text_field "person[residential_address]", value: person.residential_address, class: "form-control", required: true %>
+      </div>
+      <div class="col">
+        <%= form.label :landmark, class: "form-label" %>
+        <%= form.text_field "person[landmark]", value: person.landmark, class: "form-control", required: true %>
+      </div>
+    </div>
+
+    <%= form.submit "Update Personal Demographics", class: "btn btn-primary mt-3", disabled: true, data: { confirm_section: "Personal Demographics" } %>
+  <% end %>
+</div>

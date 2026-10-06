@@ -1,0 +1,29 @@
+<div data-controller="update-confirmation" data-action="input->update-confirmation#updateButtonState change->update-confirmation#updateButtonState">
+  <div class="card w-100 mt-1">
+    <div class="card-header card-header-dark">
+      <h4 class="mb-3 fw-bold">UPDATE EMPLOYEE</h4>
+
+      <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <button class="nav-link active" id="nav-personal-demographics-tab" data-bs-toggle="tab" data-bs-target="#nav-personal-demographics" type="button" role="tab" aria-controls="nav-personal-demographics" aria-selected="true">1. Personal Demographics</button>
+          <button class="nav-link" id="nav-employment-details-tab" data-bs-toggle="tab" data-bs-target="#nav-employment-details" type="button" role="tab" aria-controls="nav-employment-details" aria-selected="false">2. Employment Details</button>
+          <button class="nav-link" id="nav-level-effort-tab" data-bs-toggle="tab" data-bs-target="#nav-level-effort" type="button" role="tab" aria-controls="nav-level-effort" aria-selected="false">3. Levels of Effort</button>
+          <button class="nav-link" id="nav-supervision-tab" data-bs-toggle="tab" data-bs-target="#nav-supervision" type="button" role="tab" aria-controls="nav-supervision" aria-selected="false">4. Supervision</button>
+          <button class="nav-link" id="nav-summary-tab" data-bs-toggle="tab" data-bs-target="#nav-summary" type="button" role="tab" aria-controls="nav-summary" aria-selected="false">5. Summary</button>
+        </div>
+      </nav>
+    </div>
+
+    <div class="card-body">
+      <div class="tab-content" id="nav-tabContent">
+        <%= render "employees/update/personal_demographics", employee: @employee %>
+        <%= render "employees/update/employment_details", employee: @employee %>
+        <%= render "employees/update/level_of_effort", employee: @employee %>
+        <%= render "employees/update/supervision", employee: @employee %>
+        <%= render "employees/update/summary_section", employee: @employee %>
+      </div>
+    </div>
+  </div>
+
+  <%= render "employees/update/confirmation_modal" %>
+</div>
