@@ -1,3 +1,118 @@
+<% person = employee.person %>
+<% affiliations = employee.current_affiliations.includes(department: :branch) %>
+<% designations = employee.current_designations.includes(:designation) %>
+<% project_teams = employee.current_projects.includes(:project) %>
+<% supervision = employee.received_supervision %>
+<% display_value = ->(value) { value.presence || "—" } %>
+
 <div class="tab-pane fade" id="nav-summary" role="tabpanel" aria-labelledby="nav-summary-tab">
-  <p class="mb-0">Update each section independently. Changes are applied as soon as that section is updated.</p>
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header bg-light text-dark">Personal details</div>
+        <div class="card-body">
+          <dl class="row mb-0">
+            <dt class="col-sm-5">Full name</dt>
+            <dd class="col-sm-7"><%= display_value.call(person.full_name) %></dd>
+            <dt class="col-sm-5">Birth date</dt>
+            <dd class="col-sm-7"><%= display_value.call(person.birth_date&.strftime("%d %B %Y")) %></dd>
+            <dt class="col-sm-5">Gender</dt>
+            <dd class="col-sm-7"><%= display_value.call(person.gender) %></dd>
+            <dt class="col-sm-5">Marital status</dt>
+            <dd class="col-sm-7"><%= display_value.call(person.marital_status) %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header bg-light text-dark">Contact details</div>
+        <div class="card-body">
+          <dl class="row mb-0">
+            <dt class="col-sm-5">Primary phone</dt>
+            <dd class="col-sm-7"><%= display_value.call(person.primary_phone) %></dd>
+            <dt class="col-sm-5">Alternative phone</dt>
+            <dd class="col-sm-7"><%= display_value.call(person.alt_phone) %></dd>
+            <dt class="col-sm-5">Personal email</dt>
+            <dd class="col-sm-7"><%= display_value.call(person.email_address) %></dd>
+            <dt class="col-sm-5">Official email</dt>
+            <dd class="col-sm-7"><%= display_value.call(person.official_email) %></dd>
+            <dt class="col-sm-5">Postal address</dt>
+            <dd class="col-sm-7"><%= display_value.call(person.postal_address) %></dd>
+            <dt class="col-sm-5">Residential address</dt>
+            <dd class="col-sm-7"><%= display_value.call(person.residential_address) %></dd>
+            <dt class="col-sm-5">Landmark</dt>
+            <dd class="col-sm-7"><%= display_value.call(person.landmark) %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header bg-light text-dark">Employment details</div>
+        <div class="card-body">
+          <dl class="row mb-0">
+            <dt class="col-sm-5">Employment date</dt>
+            <dd class="col-sm-7"><%= display_value.call(employee.employment_date&.strftime("%d %B %Y")) %></dd>
+            <dt class="col-sm-5">Current role<%= "s" if designations.many? %></dt>
+            <dd class="col-sm-7"><%= display_value.call(designations.map { |designation| designation.designation.designated_role }.join(", ")) %></dd>
+            <dt class="col-sm-5">Role start date<%= "s" if designations.many? %></dt>
+            <dd class="col-sm-7"><%= display_value.call(designations.map { |designation| designation.start_date&.strftime("%d %B %Y") }.compact.join(", ")) %></dd>
+            <dt class="col-sm-5">Branch<%= "es" if affiliations.many? %></dt>
+            <dd class="col-sm-7"><%= display_value.call(affiliations.map { |affiliation| affiliation.department.branch.branch_name }.join(", ")) %></dd>
+            <dt class="col-sm-5">Department<%= "s" if affiliations.many? %></dt>
+            <dd class="col-sm-7"><%= display_value.call(affiliations.map { |affiliation| affiliation.department.department_name }.join(", ")) %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header bg-light text-dark">Supervision</div>
+        <div class="card-body">
+          <dl class="row mb-0">
+            <dt class="col-sm-5">Supervisor</dt>
+            <dd class="col-sm-7"><%= display_value.call(supervision&.supervisor_employee&.person&.full_name) %></dd>
+            <dt class="col-sm-5">Started on</dt>
+            <dd class="col-sm-7"><%= display_value.call(supervision&.started_on&.strftime("%d %B %Y")) %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-light text-dark">Current levels of effort</div>
+        <div class="card-body p-0">
+          <% if project_teams.any? %>
+            <div class="table-responsive">
+              <table class="table mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col">Project</th>
+                    <th scope="col">Allocated effort</th>
+                    <th scope="col">Start date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% project_teams.each do |project_team| %>
+                    <tr>
+                      <td><%= display_value.call(project_team.project.short_name) %></td>
+                      <td><%= number_to_percentage(project_team.allocated_effort, precision: 0) %></td>
+                      <td><%= display_value.call(project_team.start_date&.strftime("%d %B %Y")) %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <p class="mb-0 p-3 text-muted">No current levels of effort are recorded.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
