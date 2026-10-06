@@ -5,7 +5,14 @@ Rails.application.routes.draw do
   resources :users #, only: [:index, show]
   resources :projects
   resources :branches
-  resources :employees
+  resources :employees do
+    member do
+      patch :update_personal_demographics
+      patch :update_employment_details
+      patch :update_level_of_effort
+      patch :update_supervision
+    end
+  end
   resources :timesheets
   #resources :requisitions
   resources :leave_requests

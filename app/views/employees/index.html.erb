@@ -46,7 +46,7 @@
         <td><abbr title="Alt. #"><%= person.alt_phone rescue " "%></abbr></td>
         <th>
           <%= link_to image_tag("/assets/info.png"), "employees/#{person.id}", data: { turbo_frame: "remote_model"}%>
-          <%= link_to image_tag("/assets/edit.png"), "employees/#{person.id}/edit", data: { turbo_frame: "remote_model"} %>
+          <%= link_to image_tag("/assets/edit.png"), edit_employee_path(person.employee), data: { turbo_frame: "remote_model"} %>
           <%= link_to image_tag("/assets/delete.png"), "business_assets/#{person.id}", data: { turbo_frame: "remote_model"} %>
         </th>
       </tr>
