@@ -1,123 +1,95 @@
-<style>
-.snackbar {
-  visibility: hidden;
-  min-width: 250px;
-  background-color: #333;
-  color: #fff;
-  text-align: center;
-  border-radius: 5px;
-  padding: 16px;
-  position: fixed;
-  z-index: 1000;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 16px;
-}
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-light text-dark">Personal details</div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-5">First name</dt>
+          <dd class="col-sm-7" id="summary-first-name">—</dd>
+          <dt class="col-sm-5">Middle name</dt>
+          <dd class="col-sm-7" id="summary-middle-name">—</dd>
+          <dt class="col-sm-5">Last name</dt>
+          <dd class="col-sm-7" id="summary-last-name">—</dd>
+          <dt class="col-sm-5">Birth date</dt>
+          <dd class="col-sm-7" id="summary-birth-date">—</dd>
+          <dt class="col-sm-5">Gender</dt>
+          <dd class="col-sm-7" id="summary-gender">—</dd>
+          <dt class="col-sm-5">Marital status</dt>
+          <dd class="col-sm-7" id="summary-marital-status">—</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
 
-.snackbar.show {
-  visibility: visible;
-  animation: fadein 0.5s, fadeout 0.5s 2.5s;
-}
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-light text-dark">Contact details</div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-5">Primary phone</dt>
+          <dd class="col-sm-7" id="summary-primary-phone">—</dd>
+          <dt class="col-sm-5">Alternative phone</dt>
+          <dd class="col-sm-7" id="summary-alt-phone">—</dd>
+          <dt class="col-sm-5">Personal email</dt>
+          <dd class="col-sm-7" id="summary-email">—</dd>
+          <dt class="col-sm-5">Official email</dt>
+          <dd class="col-sm-7" id="summary-official-email">—</dd>
+          <dt class="col-sm-5">Postal address</dt>
+          <dd class="col-sm-7" id="summary-postal-address">—</dd>
+          <dt class="col-sm-5">Residential address</dt>
+          <dd class="col-sm-7" id="summary-residential-address">—</dd>
+          <dt class="col-sm-5">Landmark</dt>
+          <dd class="col-sm-7" id="summary-landmark">—</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
 
-@keyframes fadein {
-  from { bottom: 0; opacity: 0; }
-  to { bottom: 30px; opacity: 1; }
-}
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-light text-dark">Employment details</div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-5">Employment date</dt>
+          <dd class="col-sm-7" id="summary-employment-date">—</dd>
+          <dt class="col-sm-5">Role</dt>
+          <dd class="col-sm-7" id="summary-designated-role">—</dd>
+          <dt class="col-sm-5">Role start date</dt>
+          <dd class="col-sm-7" id="summary-designated-start-date">—</dd>
+          <dt class="col-sm-5">Branch</dt>
+          <dd class="col-sm-7" id="summary-branch">—</dd>
+          <dt class="col-sm-5">Department</dt>
+          <dd class="col-sm-7" id="summary-department">—</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
 
-@keyframes fadeout {
-  from { bottom: 30px; opacity: 1; }
-  to { bottom: 0; opacity: 0; }
-}
-</style>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-light text-dark">Supervision</div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-5">Supervisor</dt>
+          <dd class="col-sm-7" id="summary-supervisor">—</dd>
+          <dt class="col-sm-5">Started on</dt>
+          <dd class="col-sm-7" id="summary-started-on">—</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
 
-<%# personal demographics %>
-<div class="container mt-2">
-  <div class="card shadow-lg p-3 mb-3 bg-white rounded">
-    <div class="card-body">
-      <h5 class="card-title">Personal Demographics</h5>
-      <hr>
-      <div class="row">
-        <div class="col-md-4">  <p class="card-text"><strong>First Name:</strong> <span id="summary-first-name">---</span></p>
-          <p class="card-text"><strong>Middle Name:</strong> <span id="summary-middle-name">--</span></p>
-          <p class="card-text"><strong>Last Name:</strong> <span id="summary-last-name">--</span></p>
-          <p class="card-text"><strong>Birthdate:</strong> <span id="summary-birth-date">--</span></p>
-          <p class="card-text"><strong>Gender:</strong> <span id="summary-gender">--</span></p>
-          <p class="card-text"><strong>Marital Status:</strong> <span id="summary-marital-status">--</span></p>
-        </div>
-        <div class="col-md-4">  <p class="card-text"><strong>Alternative Number:</strong> <span id="summary-alt-phone">--</span></p>
-          <p class="card-text"><strong>Email:</strong> <span id="summary-email">--</span></p>
-          <p class="card-text"><strong>Postal Address:</strong> <span id="summary-postal-address">--</span></p>
-          <p class="card-text"><strong>Official Email:</strong> <span id="summary-official-email">--</span></p>
-        </div>
-        <div class="col-md-4">  <p class="card-text"><strong>Residential:</strong> <span id="summary-residential-address">--</span></p>
-          <p class="card-text"><strong>Landmark:</strong> <span id="summary-landmark">--</span></p>
-        </div>
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header bg-light text-dark">Levels of effort</div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-3">Projects</dt>
+          <dd class="col-sm-9" id="summary-project">—</dd>
+          <dt class="col-sm-3">Allocated effort</dt>
+          <dd class="col-sm-9" id="summary-allocated-effort">—</dd>
+        </dl>
       </div>
     </div>
   </div>
 </div>
-
-<%# employee details %>
-<div class="container mt-2">
-  <div class="card shadow-lg p-3 mb-3 bg-white rounded">
-    <div class="card-body">
-      <h5 class="card-title">Employee Details</h5>
-      <hr>
-      <div class="row">
-        <div class="col-md-4">  <p class="card-text"><strong>Employment Date:</strong> <span id="summary-employment-date">---</span></p>
-          <p class="card-text"><strong>Designated Role:</strong> <span id="summary-designated-role">--</span></p>
-          <p class="card-text"><strong>Disignated Start Date:</strong> <span id="summary-designated-start-date">--</span></p>
-        </div>
-        <div class="col-md-4">  <p class="card-text"><strong>Branch:</strong> <span id="summary-branch">---</span></p>
-            <p class="card-text"><strong>Department:</strong> <span id="summary-department">--</span></p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<%# level of effort %>
-<div class="container mt-2">
-  <div class="card shadow-lg p-3 mb-3 bg-white rounded">
-    <div class="card-body">
-      <h5 class="card-title">Level of Effort</h5>
-      <hr>
-      <div class="row">
-          <p class="card-text"><strong>Project:</strong> <span id="summary-project">--</span></p>
-          <p class="card-text"><strong>Allocated Effort:</strong> <span id="summary-allocated-effort">--</span></p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<%# supervision %>
-<div class="container mt-2">
-  <div class="card shadow-lg p-3 mb-3 bg-white rounded">
-    <div class="card-body">
-      <h5 class="card-title">Supervion</h5>
-      <hr>
-      <div class="row">
-          <p class="card-text"><strong>supervisor:</strong> <span id="summary-supervisor">--</span></p>
-          <p class="card-text"><strong>Started on:</strong> <span id="summary-started-on">--</span></p>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div id="snackbar" class="snackbar">
-  <%= flash[:notice] || flash[:alert] %>
-</div>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-  var snackbar = document.getElementById("snackbar");
-  if (snackbar.textContent.trim() !== "") {
-    snackbar.classList.add("show");
-    setTimeout(function () {
-      snackbar.classList.remove("show");
-    }, 3000);
-  }
-});
-</script>
