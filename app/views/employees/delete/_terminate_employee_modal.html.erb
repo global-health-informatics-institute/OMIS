@@ -6,6 +6,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+        <% unless can_remove_employee %>
+          <p class="alert alert-warning">You cannot terminate or void your own employee record.</p>
+        <% end %>
         <div class="border rounded p-3 mb-3">
           <h6>Employee is departing</h6>
           <p class="small text-muted">Records the departure date, marks the employee as no longer employed, deactivates their user account, and closes active assignments.</p>
@@ -14,14 +17,14 @@
               <%= form.label :departure_date, "Departure date", class: "form-label" %>
               <%= form.date_field :departure_date, class: "form-control", required: true, min: employee.employment_date, max: Date.current %>
             </div>
-            <%= form.submit "Record departure", class: "btn btn-primary" %>
+            <%= form.submit "Record departure", class: "btn btn-primary", disabled: !can_remove_employee %>
           <% end %>
         </div>
 
         <div class="border border-danger rounded p-3">
           <h6 class="text-danger">Void employee record</h6>
           <p class="small mb-3">Use only for an erroneous entry. This voids the person record, deactivates the user account, marks the employee as no longer employed, and voids active project assignments.</p>
-          <%= button_to "Void employee record", void_record_employee_path(employee.employee_id), method: :patch, class: "btn btn-danger", form: { data: { turbo: false } } %>
+          <%= button_to "Void employee record", void_record_employee_path(employee.employee_id), method: :patch, class: "btn btn-danger", disabled: !can_remove_employee, form: { data: { turbo: false } } %>
         </div>
       </div>
       <div class="modal-footer">
