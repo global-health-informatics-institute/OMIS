@@ -1,3 +1,7 @@
+<% department_icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktcGVvcGxlLWZpbGwiIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTcgMTRzLTEgMC0xLTEgMS00IDUtNCA1IDMgNSA0LTEgMS0xIDF6bTQtNmEzIDMgMCAxIDAgMC02IDMgMyAwIDAgMCAwIDZtLTUuNzg0IDZBMi4yNCAyLjI0IDAgMCAxIDUgMTNjMC0xLjM1NS42OC0yLjc1IDEuOTM2LTMuNzJBNi4zIDYuMyAwIDAgMCA1IDljLTQgMC01IDMtNSA0czEgMSAxIDF6TTQuNSA4YTIuNSAyLjUgMCAxIDAgMC01IDIuNSAyLjUgMCAwIDAgMCA1Ii8+Cjwvc3ZnPg==' %>
+<% location_icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktZ2VvLWFsdC1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik04IDE2czYtNS42ODYgNi0xMEE2IDYgMCAwIDAgMiA2YzAgNC4zMTQgNiAxMCA2IDEwbTAtN2EzIDMgMCAxIDEgMC02IDMgMyAwIDAgMSAwIDYiLz4KPC9zdmc+' %>
+<% status_dot_icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iI2ZmZiIgY2xhc3M9ImJpIGJpLWNpcmNsZS1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxjaXJjbGUgY3g9IjgiIGN5PSI4IiByPSI4Ii8+Cjwvc3ZnPgo=' %>
+
 <div class="row">
   <div class="col">
     <p class="h4">Personal Dashboard</p>
@@ -12,19 +16,51 @@
 </div>
 
 <div class="row">
-  <div class="col-sm-3">
-    <div class="card h-100">
+  <div class="col-sm-4 d-flex">
+    <section class="card flex-fill border-secondary-subtle rounded-3" aria-labelledby="empName">
       <div class="card-body p-2">
-        <h5 class="card-title text-dark" id="empName"><%= @person.full_name %></h5>
-        <p><small class="fs-6 fst-italic" id="role"><%= @employee.current_position %></small></p>
-        <p><%= @employee.current_department %></p>
-        <p><%= @employee.current_branches %></p>
-        <p><%= @employee.employment_date.strftime('%d %b, %Y') %> - </p>
+        <header class="px-4 pt-1">
+          <h5 class="card-title text-dark mb-0" id="empName"><%= @person.full_name %></h5>
+          <p class="fs-6 fst-italic mb-2" id="role"><%= @employee.current_position.presence || 'Position not recorded' %></p>
+          <div class="d-flex flex-wrap align-items-center gap-3 fs-6 mb-1">
+            <span class="d-inline-flex align-items-center gap-2">
+              <%= image_tag department_icon, width: 16, height: 16, alt: '' %>
+              <span><%= @employee.current_department.presence || 'Department not recorded' %></span>
+            </span>
+            <span class="d-inline-flex align-items-center gap-2">
+              <%= image_tag location_icon, width: 13, height: 14, alt: '' %>
+              <span><%= @employee.current_branches.presence || 'Location not recorded' %></span>
+            </span>
+          </div>
+        </header>
+
+        <dl class="fs-6 mb-0">
+          <div class="d-flex flex-wrap align-items-center gap-2 border-top border-bottom py-2 ps-4 pe-3">
+            <dt class="fw-bold text-muted me-auto">Year joined</dt>
+            <dd class="mb-0 ms-auto text-end fw-normal text-muted"><time datetime="<%= @employee.employment_date.iso8601 %>"><%= @employee.employment_date.strftime('%d %b %Y') %></time></dd>
+          </div>
+          <div class="d-flex flex-wrap align-items-center gap-2 border-bottom py-2 ps-4 pe-1">
+            <dt class="fw-bold text-muted me-auto">Contract</dt>
+            <dd class="mb-0 ms-auto text-end text-muted">Not recorded</dd>
+            <dd class="mb-0 badge rounded-pill text-bg-secondary d-inline-flex align-items-center justify-content-center gap-2 px-2">
+              <%= image_tag status_dot_icon, alt: '', width: 7, height: 7 %>
+              No dates
+            </dd>
+          </div>
+          <div class="d-flex flex-wrap align-items-center gap-2 border-bottom py-2 ps-4 pe-1">
+            <dt class="fw-bold text-muted me-auto">Next appraisal</dt>
+            <dd class="mb-0 ms-auto text-end text-muted">Not scheduled</dd>
+            <dd class="mb-0 badge rounded-pill text-bg-secondary d-inline-flex align-items-center justify-content-center gap-2 px-2">
+              <%= image_tag status_dot_icon, alt: '', width: 7, height: 7 %>
+              No date
+            </dd>
+          </div>
+        </dl>
       </div>
-    </div>
+    </section>
   </div>
-  <div class="col-sm-5">
-    <div class="card">
+  <div class="col-sm-4 d-flex">
+    <div class="card flex-fill">
       <div class="card-body p-2">
         <div class="row">
           <div class="col">
@@ -48,50 +84,107 @@
   </div>
 
 
-  <%# RECOGNITION PANE %>
+  <% assigned_task_ids = ProjectTaskAssignment.where(assigned_to: @employee.id).select(:project_task_id) %>
+  <% managed_project_ids = Project.where(manager: @employee.id).select(:project_id) %>
+  <% upcoming_tasks = ProjectTask.where(task_status: 'open').where.not(deadline: nil)
+       .where('project_task_id IN (?) OR project_id IN (?) OR performed_by = ?', assigned_task_ids, managed_project_ids, @employee.id)
+       .order(:deadline) %>
+  <% upcoming_activities = upcoming_tasks.map do |task|
+       { id: task.id, date: task.deadline.to_date, description: task.task_description,
+         url: (task.reference_url? ? task.reference : nil),
+         evaluation: task.task_description.match?(/evaluat|appraisal/i) }
+     end %>
+  <% LeaveRequest.where(employee_id: @employee.id).where.not(approved_by: nil)
+       .where('start_on > ?', Time.current).each do |leave_request| %>
+    <% upcoming_activities << { date: leave_request.start_on.to_date,
+         description: "#{leave_request.leave_type} starting #{leave_request.start_on.strftime('%d %b, %Y %H:%M')}" } %>
+  <% end %>
+  <% upcoming_activities.sort_by! { |activity| activity[:date] } %>
 
-  <div class="col-sm-4">
-    <div class="card h-100" style="max-height: 280px; overflow-y: auto;">
-      <div class="card-body p-2">
-        <h6 class="card-title" style= "font-size: 18px">Upcoming Deadlines & Activities</h6>
-          <table class="table m-0">
-            <thead style= "font-size: 14px">
-              <tr>
-                <th style="width:20%">Date</th>
-                <th>Task</th>
-              </tr>
-            </thead>
-            <tbody class="fs-6">
-            <% (@upcoming_deadlines.keys.sort || []).each do |key| %>
-              <tr>
-                <td rowspan="<%= @upcoming_deadlines[key].length %>">
-                  <%= Time.at(key).strftime('%d %b,%Y')%>
-                </td>
-                <% (@upcoming_deadlines[key] || []).each do |activity| %>
-                  <td><%= activity %></td></tr><tr>
-                <% end %>
-              </tr>
+
+  <div class="col-sm-4 d-flex">
+    <section class="card flex-fill border-secondary-subtle rounded-3" aria-labelledby="upcomingActivitiesTitle">
+      <header class="d-flex align-items-center gap-2 px-4 py-2">
+        <h5 class="card-title text-dark flex-grow-1 mb-0" id="upcomingActivitiesTitle">Upcoming Tasks &amp; Activities</h5>
+        <span class="fs-6 text-body-secondary text-nowrap"><%= pluralize(upcoming_activities.length, 'item') %></span>
+      </header>
+      <div class="overflow-y-auto px-3" id="upcomingActivitiesViewport" tabindex="0" role="region" aria-label="Upcoming tasks and activities">
+        <% if upcoming_activities.empty? %>
+          <p class="fw-normal text-body-secondary text-center py-4 mb-0">No upcoming tasks or activities</p>
+        <% else %>
+          <ul class="list-unstyled mb-0">
+            <% upcoming_activities.each do |activity| %>
+              <% days_remaining = (activity[:date] - Date.current).to_i %>
+              <% status_color = days_remaining < 0 ? 'danger' : (days_remaining <= 7 ? 'warning' : 'success') %>
+              <% status_label = if days_remaining < 0
+                   'Overdue'
+                 elsif days_remaining == 0
+                   'Today'
+                 elsif days_remaining == 1
+                   'Tomorrow'
+                 elsif days_remaining < 7
+                   pluralize(days_remaining, 'day')
+                 else
+                   pluralize((days_remaining / 7.0).ceil, 'week')
+                 end %>
+              <li class="border border-secondary-subtle rounded-3 overflow-hidden mb-2">
+                <div class="border-start border-4 border-<%= status_color %> py-2 ps-4 pe-3">
+                  <div class="w-100 text-break">
+                    <p class="fs-6 fw-normal mb-1"><%= activity[:description] %></p>
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                      <span class="small text-body-secondary"><time datetime="<%= activity[:date].iso8601 %>"><%= activity[:date].strftime('%d %b %Y') %></time></span>
+                      <% if activity[:evaluation] %>
+                        <button type="button" class="btn btn-primary text-white btn-sm fw-semibold rounded-pill px-1 py-0" data-bs-toggle="modal" data-bs-target="#activityEvaluationModal<%= activity[:id] %>" aria-label="Evaluate: <%= activity[:description] %>"><span class="small">Evaluate</span></button>
+                      <% elsif activity[:url].present? %>
+                        <%= link_to 'View', activity[:url], class: 'badge rounded-pill text-bg-primary text-decoration-none px-2' %>
+                      <% end %>
+                      <span class="badge rounded-pill text-bg-<%= status_color %> d-inline-flex align-items-center justify-content-center gap-2 px-2 flex-shrink-0 ms-auto">
+                        <span class="rounded-circle <%= status_color == 'warning' ? 'bg-dark' : 'bg-white' %> p-1" aria-hidden="true"></span>
+                        <%= status_label %>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </li>
             <% end %>
-              <%# project tasks %>
-            <% if @direct_project_tasks.present? %>
-              <% @direct_project_tasks.each do |task| %>
-                <tr>
-                  <td>
-                    <%= Time.parse(task["deadline"]).strftime('%d %b,%Y') %>
-                  </td>
-                  <td>
-                    <%= task["task_description"] %>
-                  </td>
-                </tr>
-              <% end %>
-            <% end %>
-          </tbody>
-        </table>
+          </ul>
+        <% end %>
+      </div>
+      <footer class="d-flex flex-wrap align-items-center justify-content-center gap-4 px-2 py-2 mt-auto fs-6 fw-normal text-body-secondary">
+        <span class="d-inline-flex align-items-center gap-2"><span class="rounded-circle bg-danger p-1" aria-hidden="true"></span>Overdue</span>
+        <span class="d-inline-flex align-items-center gap-2"><span class="rounded-circle bg-warning p-1" aria-hidden="true"></span>Due soon</span>
+        <span class="d-inline-flex align-items-center gap-2"><span class="rounded-circle bg-success p-1" aria-hidden="true"></span>On track</span>
+      </footer>
+    </section>
+  </div>
+</div>
+<% upcoming_activities.select { |activity| activity[:evaluation] }.each do |activity| %>
+  <div class="modal fade" id="activityEvaluationModal<%= activity[:id] %>" tabindex="-1" aria-labelledby="activityEvaluationLabel<%= activity[:id] %>" aria-describedby="activityEvaluationTask<%= activity[:id] %>" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-3 border-0">
+        <form novalidate data-evaluation-attachment-form data-activity-description="<%= activity[:description] %>">
+          <div class="modal-body px-4 ps-sm-5 pt-5 pb-4">
+            <h2 class="visually-hidden" id="activityEvaluationTask<%= activity[:id] %>"><%= activity[:description] %></h2>
+            <div class="d-flex flex-wrap flex-sm-nowrap align-items-center justify-content-between gap-3 gap-sm-2 small">
+              <label class="small mb-0" id="activityEvaluationLabel<%= activity[:id] %>" for="activityEvaluationFile<%= activity[:id] %>">Please attach the completed Evaluation Appraisal Excel file</label>
+              <div class="flex-shrink-0">
+                <input type="file" class="visually-hidden" id="activityEvaluationFile<%= activity[:id] %>" name="evaluation_file" accept=".xlsx,.xls" tabindex="-1" aria-describedby="activityEvaluationFilename<%= activity[:id] %>" data-evaluation-file>
+                <button type="button" class="btn btn-primary bg-primary bg-opacity-75 rounded-pill btn-sm fw-semibold text-dark px-4 py-0" data-evaluation-browse aria-controls="activityEvaluationFile<%= activity[:id] %>"><span class="small">Browse</span></button>
+              </div>
+            </div>
+            <p class="small text-muted text-break mb-0 mt-2 d-none" id="activityEvaluationFilename<%= activity[:id] %>" data-evaluation-filename aria-live="polite"></p>
+          </div>
+          <div class="modal-footer border-0 justify-content-between px-4 pt-3 pb-2">
+            <button type="button" class="btn btn-danger rounded-pill btn-sm fw-semibold px-4 py-0" data-bs-dismiss="modal"><span class="small">Cancel</span></button>
+            <button type="submit" class="btn btn-success rounded-pill btn-sm fw-semibold px-4 py-0"><span class="small">Done</span></button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
-<%# END OF PANE %>
-</div>
+<% end %>
+<p class="small text-body-secondary mt-2 mb-0 d-none" id="activityEvaluationSelectionStatus" role="status"></p>
+
 <div class="row mt-4">
   <div class="col-sm-4">
     <div class="card h-100">
@@ -264,6 +357,62 @@
 
 
 <script>
+
+// Keep file selection local until an attachment upload endpoint is available.
+(() => {
+  const forms = document.querySelectorAll('[data-evaluation-attachment-form]');
+  forms.forEach(form => {
+    const input = form.querySelector('[data-evaluation-file]');
+    const filename = form.querySelector('[data-evaluation-filename]');
+    form.querySelector('[data-evaluation-browse]').addEventListener('click', () => input.click());
+    input.addEventListener('change', () => {
+      const file = input.files[0];
+      input.setCustomValidity(file && !/\.(xlsx|xls)$/i.test(file.name) ? 'Please choose an Excel file (.xlsx or .xls).' : '');
+      filename.textContent = file ? file.name : '';
+      filename.classList.toggle('d-none', !file);
+    });
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!input.files[0] || !input.checkValidity()) {
+        filename.textContent = input.files[0] ? input.validationMessage : 'Please choose an Excel file (.xlsx or .xls).';
+        filename.classList.remove('d-none');
+        form.querySelector('[data-evaluation-browse]').focus();
+        return;
+      }
+      const status = document.getElementById('activityEvaluationSelectionStatus');
+      status.textContent = `Selected ${input.files[0].name} for ${form.dataset.activityDescription}.`;
+      status.classList.remove('d-none');
+      form.querySelector('[data-bs-dismiss="modal"]').click();
+    });
+  });
+  document.addEventListener('turbo:before-cache', () => {
+    forms.forEach(form => {
+      form.reset();
+      form.querySelector('[data-evaluation-file]').setCustomValidity('');
+      form.querySelector('[data-evaluation-filename]').classList.add('d-none');
+      if (form.closest('.modal').classList.contains('show')) form.querySelector('[data-bs-dismiss="modal"]').click();
+    });
+  }, { once: true });
+})();
+
+// Size the scroll area to the first two cards, including wrapped activity text.
+(() => {
+  const viewport = document.getElementById('upcomingActivitiesViewport');
+  const cards = viewport ? Array.from(viewport.querySelectorAll('li')) : [];
+  if (cards.length <= 2) return;
+
+  const observer = new ResizeObserver(() => {
+    if (!viewport.isConnected) {
+      observer.disconnect();
+      return;
+    }
+    const first = cards[0].getBoundingClientRect();
+    const second = cards[1].getBoundingClientRect();
+    viewport.style.maxHeight = `${Math.ceil(second.bottom - first.top)}px`;
+  });
+  cards.slice(0, 2).forEach(card => observer.observe(card));
+  document.addEventListener('turbo:before-cache', () => observer.disconnect(), { once: true });
+})();
 
 var labels = <%= raw((@projects_with_effort.map(&:short_name) + ['Unallocated']).to_json) %>;
 var data   = <%= raw((@projects_with_effort.map(&:allocated_effort) + [@unallocated_loe]).to_json) %>;
