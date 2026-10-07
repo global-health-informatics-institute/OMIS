@@ -42,7 +42,7 @@
           <div class="d-flex flex-wrap align-items-center gap-2 border-bottom py-2 ps-4 pe-1">
             <dt class="fw-bold text-muted me-auto">Contract</dt>
             <dd class="mb-0 ms-auto text-end text-muted">Not recorded</dd>
-            <dd class="mb-0 badge rounded-pill text-bg-secondary d-inline-flex align-items-center justify-content-center gap-2 px-3">
+            <dd class="mb-0 badge rounded-pill text-bg-secondary d-inline-flex align-items-center justify-content-center gap-2 px-2">
               <%= image_tag status_dot_icon, alt: '', width: 7, height: 7 %>
               No dates
             </dd>
@@ -50,7 +50,7 @@
           <div class="d-flex flex-wrap align-items-center gap-2 border-bottom py-2 ps-4 pe-1">
             <dt class="fw-bold text-muted me-auto">Next appraisal</dt>
             <dd class="mb-0 ms-auto text-end text-muted">Not scheduled</dd>
-            <dd class="mb-0 badge rounded-pill text-bg-secondary d-inline-flex align-items-center justify-content-center gap-2 px-3">
+            <dd class="mb-0 badge rounded-pill text-bg-secondary d-inline-flex align-items-center justify-content-center gap-2 px-2">
               <%= image_tag status_dot_icon, alt: '', width: 7, height: 7 %>
               No date
             </dd>
@@ -84,16 +84,21 @@
   </div>
 
 
-  <% upcoming_activities = [] %>
-  <% (@upcoming_deadlines || {}).each do |timestamp, activities| %>
-    <% activities.each do |description| %>
-      <% upcoming_activities << { date: Time.at(timestamp).to_date, description: description, url: nil } %>
-    <% end %>
+  <% assigned_task_ids = ProjectTaskAssignment.where(assigned_to: @employee.id).select(:project_task_id) %>
+  <% managed_project_ids = Project.where(manager: @employee.id).select(:project_id) %>
+  <% upcoming_tasks = ProjectTask.where(task_status: 'open').where.not(deadline: nil)
+       .where('project_task_id IN (?) OR project_id IN (?) OR performed_by = ?', assigned_task_ids, managed_project_ids, @employee.id)
+       .order(:deadline) %>
+  <% upcoming_activities = upcoming_tasks.map do |task|
+       { id: task.id, date: task.deadline.to_date, description: task.task_description,
+         url: (task.reference_url? ? task.reference : nil),
+         evaluation: task.task_description.match?(/evaluat|appraisal/i) }
+     end %>
+  <% LeaveRequest.where(employee_id: @employee.id).where.not(approved_by: nil)
+       .where('start_on > ?', Time.current).each do |leave_request| %>
+    <% upcoming_activities << { date: leave_request.start_on.to_date,
+         description: "#{leave_request.leave_type} starting #{leave_request.start_on.strftime('%d %b, %Y %H:%M')}" } %>
   <% end %>
-  <% (@direct_project_tasks || []).each do |task| %>
-    <% upcoming_activities << { date: Time.parse(task['deadline']).to_date, description: task['task_description'], url: (task['reference_url?'] ? task['reference'] : nil) } %>
-  <% end %>
-  <% upcoming_activities.uniq! { |activity| [activity[:date], activity[:description]] } %>
   <% upcoming_activities.sort_by! { |activity| activity[:date] } %>
 
 
@@ -123,20 +128,22 @@
                    pluralize((days_remaining / 7.0).ceil, 'week')
                  end %>
               <li class="border border-secondary-subtle rounded-3 overflow-hidden mb-2">
-                <div class="border-start border-4 border-<%= status_color %> d-flex align-items-center justify-content-between gap-2 py-2 ps-4 pe-3">
-                  <div class="flex-grow-1 text-break">
+                <div class="border-start border-4 border-<%= status_color %> py-2 ps-4 pe-3">
+                  <div class="w-100 text-break">
                     <p class="fs-6 fw-normal mb-1"><%= activity[:description] %></p>
                     <div class="d-flex flex-wrap align-items-center gap-3">
-                      <span class="fs-6 text-body-secondary"><time datetime="<%= activity[:date].iso8601 %>"><%= activity[:date].strftime('%d %b %Y') %></time></span>
-                      <% if activity[:url].present? %>
+                      <span class="small text-body-secondary"><time datetime="<%= activity[:date].iso8601 %>"><%= activity[:date].strftime('%d %b %Y') %></time></span>
+                      <% if activity[:evaluation] %>
+                        <button type="button" class="btn btn-primary text-white btn-sm fw-semibold rounded-pill px-1 py-0" data-bs-toggle="modal" data-bs-target="#activityEvaluationModal<%= activity[:id] %>" aria-label="Evaluate: <%= activity[:description] %>"><span class="small">Evaluate</span></button>
+                      <% elsif activity[:url].present? %>
                         <%= link_to 'View', activity[:url], class: 'badge rounded-pill text-bg-primary text-decoration-none px-2' %>
                       <% end %>
+                      <span class="badge rounded-pill text-bg-<%= status_color %> d-inline-flex align-items-center justify-content-center gap-2 px-2 flex-shrink-0 ms-auto">
+                        <span class="rounded-circle <%= status_color == 'warning' ? 'bg-dark' : 'bg-white' %> p-1" aria-hidden="true"></span>
+                        <%= status_label %>
+                      </span>
                     </div>
                   </div>
-                  <span class="badge rounded-pill text-bg-<%= status_color %> d-inline-flex align-items-center justify-content-center gap-2 px-3 flex-shrink-0">
-                    <span class="rounded-circle <%= status_color == 'warning' ? 'bg-dark' : 'bg-white' %> p-1" aria-hidden="true"></span>
-                    <%= status_label %>
-                  </span>
                 </div>
               </li>
             <% end %>
@@ -151,6 +158,33 @@
     </section>
   </div>
 </div>
+<% upcoming_activities.select { |activity| activity[:evaluation] }.each do |activity| %>
+  <div class="modal fade" id="activityEvaluationModal<%= activity[:id] %>" tabindex="-1" aria-labelledby="activityEvaluationLabel<%= activity[:id] %>" aria-describedby="activityEvaluationTask<%= activity[:id] %>" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-3 border-0">
+        <form novalidate data-evaluation-attachment-form data-activity-description="<%= activity[:description] %>">
+          <div class="modal-body px-4 ps-sm-5 pt-5 pb-4">
+            <h2 class="visually-hidden" id="activityEvaluationTask<%= activity[:id] %>"><%= activity[:description] %></h2>
+            <div class="d-flex flex-wrap flex-sm-nowrap align-items-center justify-content-between gap-3 gap-sm-2 small">
+              <label class="small mb-0" id="activityEvaluationLabel<%= activity[:id] %>" for="activityEvaluationFile<%= activity[:id] %>">Please attach the completed Evaluation Appraisal Excel file</label>
+              <div class="flex-shrink-0">
+                <input type="file" class="visually-hidden" id="activityEvaluationFile<%= activity[:id] %>" name="evaluation_file" accept=".xlsx,.xls" tabindex="-1" aria-describedby="activityEvaluationFilename<%= activity[:id] %>" data-evaluation-file>
+                <button type="button" class="btn btn-primary bg-primary bg-opacity-75 rounded-pill btn-sm fw-semibold text-dark px-4 py-0" data-evaluation-browse aria-controls="activityEvaluationFile<%= activity[:id] %>"><span class="small">Browse</span></button>
+              </div>
+            </div>
+            <p class="small text-muted text-break mb-0 mt-2 d-none" id="activityEvaluationFilename<%= activity[:id] %>" data-evaluation-filename aria-live="polite"></p>
+          </div>
+          <div class="modal-footer border-0 justify-content-between px-4 pt-3 pb-2">
+            <button type="button" class="btn btn-danger rounded-pill btn-sm fw-semibold px-4 py-0" data-bs-dismiss="modal"><span class="small">Cancel</span></button>
+            <button type="submit" class="btn btn-success rounded-pill btn-sm fw-semibold px-4 py-0"><span class="small">Done</span></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+<% end %>
+<p class="small text-body-secondary mt-2 mb-0 d-none" id="activityEvaluationSelectionStatus" role="status"></p>
+
 <div class="row mt-4">
   <div class="col-sm-4">
     <div class="card h-100">
@@ -323,6 +357,43 @@
 
 
 <script>
+
+// Keep file selection local until an attachment upload endpoint is available.
+(() => {
+  const forms = document.querySelectorAll('[data-evaluation-attachment-form]');
+  forms.forEach(form => {
+    const input = form.querySelector('[data-evaluation-file]');
+    const filename = form.querySelector('[data-evaluation-filename]');
+    form.querySelector('[data-evaluation-browse]').addEventListener('click', () => input.click());
+    input.addEventListener('change', () => {
+      const file = input.files[0];
+      input.setCustomValidity(file && !/\.(xlsx|xls)$/i.test(file.name) ? 'Please choose an Excel file (.xlsx or .xls).' : '');
+      filename.textContent = file ? file.name : '';
+      filename.classList.toggle('d-none', !file);
+    });
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!input.files[0] || !input.checkValidity()) {
+        filename.textContent = input.files[0] ? input.validationMessage : 'Please choose an Excel file (.xlsx or .xls).';
+        filename.classList.remove('d-none');
+        form.querySelector('[data-evaluation-browse]').focus();
+        return;
+      }
+      const status = document.getElementById('activityEvaluationSelectionStatus');
+      status.textContent = `Selected ${input.files[0].name} for ${form.dataset.activityDescription}.`;
+      status.classList.remove('d-none');
+      form.querySelector('[data-bs-dismiss="modal"]').click();
+    });
+  });
+  document.addEventListener('turbo:before-cache', () => {
+    forms.forEach(form => {
+      form.reset();
+      form.querySelector('[data-evaluation-file]').setCustomValidity('');
+      form.querySelector('[data-evaluation-filename]').classList.add('d-none');
+      if (form.closest('.modal').classList.contains('show')) form.querySelector('[data-bs-dismiss="modal"]').click();
+    });
+  }, { once: true });
+})();
 
 // Size the scroll area to the first two cards, including wrapped activity text.
 (() => {
