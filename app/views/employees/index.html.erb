@@ -21,16 +21,16 @@
 </div>
 
 <div class="border p-2 mt-2 fs-6">
-  <table class="table table-stripped table-sm" id="empTable">
+  <table class="table table-striped table-sm" id="empTable">
     <thead class="thead-light">
     <tr>
-      <th><abbr title="fName">First Name</abbr></th>
-      <th><abbr title="mName">Middle Name</abbr></th>
-      <th><abbr title="lName">Last Name</abbr></th>
-      <th><abbr title="Post">Position</abbr></th>
-      <th><abbr title="Emp. Date">Date Employed</abbr></th>
-      <th><abbr title="Prim. #">Primary Phone</abbr></th>
-      <th><abbr title="Alt. #">Alternative Phone</abbr></th>
+      <th>First Name</th>
+      <th>Middle Name</th>
+      <th>Last Name</th>
+      <th>Position</th>
+      <th>Date Employed</th>
+      <th>Primary Phone</th>
+      <th>Alternative Phone</th>
       <th>Action</th>
     </tr>
     </thead>
@@ -39,18 +39,31 @@
       <% person = employee.person %>
       <% can_remove_employee = employee.employee_id != current_user.employee_id %>
       <tr>
-        <td><abbr title="fName"><%= person.first_name %></abbr></td>
-        <td><abbr title="mName"><%= person.middle_name %></abbr></td>
-        <td><abbr title="lName"><%= person.last_name %></abbr></td>
-        <td><abbr title="Post"><%= employee.current_position rescue " " %></abbr></td>
-        <td><abbr title="Emp. Date"><%= employee.employment_date.strftime('%d %b, %Y') rescue " "%></abbr></td>
-        <td><abbr title="Prim. #"><%= person.primary_phone rescue " "%></abbr></td>
-        <td><abbr title="Alt. #"><%= person.alt_phone rescue " "%></abbr></td>
-        <th>
-          <%= link_to image_tag("/assets/info.png"), employee_path(employee.employee_id), data: { turbo_frame: "remote_model"}%>
-          <%= link_to image_tag("/assets/edit.png"), edit_employee_path(employee.employee_id), data: { turbo_frame: "remote_model"} %>
-          <button type="button" class="btn btn-link border-0 p-0 align-baseline" title="<%= can_remove_employee ? 'Remove employee' : 'You cannot remove your own employee record' %>" data-bs-toggle="modal" data-bs-target="#terminate-employee-modal-<%= employee.employee_id %>" <%= 'disabled aria-disabled="true"' unless can_remove_employee %>>
-            <%= image_tag("/assets/delete.png", alt: "Remove employee") %>
+        <td><%= person.first_name %></td>
+        <td><%= person.middle_name %></td>
+        <td><%= person.last_name %></td>
+        <td><%= employee.current_position rescue " " %></td>
+        <td><%= employee.employment_date.strftime('%d %b, %Y') rescue " " %></td>
+        <td><%= person.primary_phone rescue " " %></td>
+        <td><%= person.alt_phone rescue " " %></td>
+        <th class="text-nowrap">
+          <%= link_to image_tag("/assets/info.png", alt: "View employee", width: 20, height: 20),
+                      employee_path(employee.employee_id),
+                      class: "btn btn-outline-secondary btn-sm p-1 d-inline-flex align-items-center justify-content-center",
+                      title: "View employee",
+                      data: { turbo_frame: "remote_model" } %>
+          <%= link_to image_tag("/assets/edit.png", alt: "Edit employee", width: 20, height: 20),
+                      edit_employee_path(employee.employee_id),
+                      class: "btn btn-outline-secondary btn-sm p-1 d-inline-flex align-items-center justify-content-center",
+                      title: "Edit employee",
+                      data: { turbo_frame: "remote_model" } %>
+          <button type="button"
+                  class="btn btn-outline-secondary btn-sm p-1 d-inline-flex align-items-center justify-content-center"
+                  title="<%= can_remove_employee ? 'Remove employee' : 'You cannot remove your own employee record' %>"
+                  data-bs-toggle="modal"
+                  data-bs-target="#terminate-employee-modal-<%= employee.employee_id %>"
+                  <%= 'disabled aria-disabled="true"' unless can_remove_employee %>>
+            <%= image_tag("/assets/delete.png", alt: "Remove employee", width: 20, height: 20) %>
           </button>
         </th>
       </tr>
