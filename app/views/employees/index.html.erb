@@ -51,12 +51,12 @@
                       employee_path(employee.employee_id),
                       class: "btn btn-outline-secondary btn-sm p-1 d-inline-flex align-items-center justify-content-center",
                       title: "View employee",
-                      data: { turbo_frame: "remote_model" } %>
+                      data: { turbo_frame: "remote_modal" } %>
           <%= link_to image_tag("/assets/edit.png", alt: "Edit employee", width: 20, height: 20),
                       edit_employee_path(employee.employee_id),
                       class: "btn btn-outline-secondary btn-sm p-1 d-inline-flex align-items-center justify-content-center",
                       title: "Edit employee",
-                      data: { turbo_frame: "remote_model" } %>
+                      data: { turbo_frame: "remote_modal" } %>
           <button type="button"
                   class="btn btn-outline-secondary btn-sm p-1 d-inline-flex align-items-center justify-content-center"
                   title="<%= can_remove_employee ? 'Remove employee' : 'You cannot remove your own employee record' %>"

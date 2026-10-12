@@ -1,5 +1,5 @@
 <div class="tab-pane fade" id="nav-supervision" role="tabpanel" aria-labelledby="nav-supervision-tab">
-  <%= form_with url: update_supervision_employee_path(employee), method: :patch, local: true, data: { action: "submit->update-confirmation#confirm" } do |form| %>
+  <%= form_with url: update_supervision_employee_path(employee), method: :patch, local: true, data: { turbo_frame: "_top", action: "submit->update-confirmation#confirm" } do |form| %>
     <% supervision = employee.received_supervision %>
     <% supervisors = Employee.includes(:person).map { |supervisor| [supervisor.person.full_name, supervisor.id] }.sort_by(&:first) %>
     <div class="row">

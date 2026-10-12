@@ -1,0 +1,28 @@
+<div class="card h-100">
+  <div class="card-header bg-light fw-bold">Current project allocations</div>
+  <div class="card-body p-0">
+    <% projects = employee.current_projects.includes(:project) %>
+    <% if projects.any? %>
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th scope="col">Project</th>
+              <th scope="col">Allocated effort</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% projects.each do |project_team| %>
+              <tr>
+                <td><%= project_team.project.project_name %></td>
+                <td><%= number_to_percentage(project_team.allocated_effort, precision: 0) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="text-muted mb-0 p-3">No current project allocations.</p>
+    <% end %>
+  </div>
+</div>

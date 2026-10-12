@@ -1,5 +1,5 @@
 <div class="tab-pane fade" id="nav-level-effort" role="tabpanel" aria-labelledby="nav-level-effort-tab">
-  <%= form_with url: update_level_of_effort_employee_path(employee), method: :patch, local: true, data: { action: "submit->update-confirmation#confirm", controller: "level-of-effort", level_of_effort_projects_value: projects.to_json, level_of_effort_max_rows_value: 4 } do |form| %>
+  <%= form_with url: update_level_of_effort_employee_path(employee), method: :patch, local: true, data: { turbo_frame: "_top", action: "submit->update-confirmation#confirm", controller: "level-of-effort", level_of_effort_projects_value: projects.to_json, level_of_effort_max_rows_value: 4 } do |form| %>
     <div data-level-of-effort-target="rows">
       <% project_teams = employee.current_projects.to_a.presence || [nil] %>
       <% project_teams.each do |project_team| %>

@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 class EmployeesController < ApplicationController # rubocop:disable Style/Documentation
-  before_action :can_access?, only: %i[create edit update show index update_personal_demographics update_employment_details
-                                       update_level_of_effort update_supervision record_departure void_record]
-  before_action :set_employee, only: %i[update update_personal_demographics update_employment_details update_level_of_effort
-                                        update_supervision record_departure void_record]
+  before_action :can_access?, only: %i[create edit update show index update_personal_demographics
+                                       update_employment_details update_level_of_effort update_supervision
+                                       record_departure void_record]
+  before_action :set_employee,
+                only: %i[update update_personal_demographics update_employment_details update_level_of_effort
+                         update_supervision record_departure void_record show]
   def index
     @list_employees = Employee.where(still_employed: true)
   end
@@ -84,28 +86,28 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
 
   def update_personal_demographics
     Employee::PersonalDemographicsUpdateService.call(@employee, personal_demographics_params)
-    redirect_to edit_employee_path(@employee), notice: 'Personal demographics updated successfully.'
+    redirect_to employees_path, notice: 'Personal demographics updated successfully.'
   rescue ActiveRecord::RecordInvalid => e
     redirect_to edit_employee_path(@employee), alert: e.record.errors.full_messages.to_sentence
   end
 
   def update_employment_details
     Employee::EmploymentDetailsUpdateService.call(@employee, employment_details_params)
-    redirect_to edit_employee_path(@employee), notice: 'Employment details updated successfully.'
+    redirect_to employees_path, notice: 'Employment details updated successfully.'
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound, ArgumentError => e
     redirect_to edit_employee_path(@employee), alert: e.message
   end
 
   def update_level_of_effort
     Employee::LevelOfEffortUpdateService.call(@employee, level_of_effort_params)
-    redirect_to edit_employee_path(@employee), notice: 'Levels of effort updated successfully.'
+    redirect_to employees_path, notice: 'Levels of effort updated successfully.'
   rescue ActiveRecord::RecordInvalid, ArgumentError, ActiveRecord::RecordNotFound => e
     redirect_to edit_employee_path(@employee), alert: e.message
   end
 
   def update_supervision
     Employee::SupervisionUpdateService.call(@employee, supervision_params)
-    redirect_to edit_employee_path(@employee), notice: 'Supervision updated successfully.'
+    redirect_to employees_path, notice: 'Supervision updated successfully.'
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound, ArgumentError => e
     redirect_to edit_employee_path(@employee), alert: e.message
   end

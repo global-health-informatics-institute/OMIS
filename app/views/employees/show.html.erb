@@ -1,0 +1,16 @@
+<%= render "remote_model", title: @employee.person.full_name do %>
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <%= render "employees/show/personal_details", employee: @employee %>
+    </div>
+    <div class="col-lg-6">
+      <%= render "employees/show/employment_details", employee: @employee %>
+    </div>
+    <div class="col-lg-6">
+      <%= render "employees/show/supervision", employee: @employee %>
+    </div>
+    <div class="col-lg-6">
+      <%= render "employees/show/project_allocations", employee: @employee %>
+    </div>
+  </div>
+<% end %>

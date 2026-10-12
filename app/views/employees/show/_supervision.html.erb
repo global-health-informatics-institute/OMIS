@@ -1,0 +1,12 @@
+<% supervision = employee.received_supervision %>
+<div class="card h-100">
+  <div class="card-header bg-light fw-bold">Supervision</div>
+  <div class="card-body">
+    <dl class="row mb-0">
+      <dt class="col-sm-5">Supervisor</dt>
+      <dd class="col-sm-7"><%= supervision&.supervisor_employee&.person&.full_name.presence || "—" %></dd>
+      <dt class="col-sm-5">Started on</dt>
+      <dd class="col-sm-7"><%= supervision&.started_on&.strftime("%d %b, %Y") || "—" %></dd>
+    </dl>
+  </div>
+</div>

@@ -1,5 +1,5 @@
 <div class="tab-pane fade" id="nav-employment-details" role="tabpanel" aria-labelledby="nav-employment-details-tab">
-  <%= form_with url: update_employment_details_employee_path(employee), method: :patch, local: true, data: { action: "submit->update-confirmation#confirm" } do |form| %>
+  <%= form_with url: update_employment_details_employee_path(employee), method: :patch, local: true, data: { turbo_frame: "_top", action: "submit->update-confirmation#confirm" } do |form| %>
     <% affiliation = employee.current_affiliations.first %>
     <% designation = employee.current_designations.first %>
     <div class="row">

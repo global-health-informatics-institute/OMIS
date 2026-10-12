@@ -1,3 +1,4 @@
+<%= render "remote_model", title: "Edit Employee Details" do %>
 <div data-controller="update-confirmation" data-action="input->update-confirmation#updateButtonState change->update-confirmation#updateButtonState">
   <div class="card w-100 mt-1">
     <div class="card-header card-header-dark">
@@ -27,3 +28,4 @@
 
   <%= render "employees/update/confirmation_modal" %>
 </div>
+<% end %>

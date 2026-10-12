@@ -1,0 +1,23 @@
+<% affiliation = employee.current_affiliations.first %>
+<% designation = employee.current_designations.first %>
+<div class="card h-100">
+  <div class="card-header bg-light fw-bold">Employment details</div>
+  <div class="card-body">
+    <dl class="row mb-0">
+      <dt class="col-sm-5">Employment date</dt>
+      <dd class="col-sm-7"><%= employee.employment_date&.strftime("%d %b, %Y") || "—" %></dd>
+      <dt class="col-sm-5">Employment status</dt>
+      <dd class="col-sm-7"><%= employee.still_employed? ? "Currently employed" : "Former employee" %></dd>
+      <dt class="col-sm-5">Position</dt>
+      <dd class="col-sm-7"><%= designation&.designation&.designated_role.presence || "—" %></dd>
+      <dt class="col-sm-5">Role start date</dt>
+      <dd class="col-sm-7"><%= designation&.start_date&.strftime("%d %b, %Y") || "—" %></dd>
+      <dt class="col-sm-5">Department</dt>
+      <dd class="col-sm-7"><%= affiliation&.department&.department_name.presence || "—" %></dd>
+      <dt class="col-sm-5">Branch</dt>
+      <dd class="col-sm-7"><%= affiliation&.department&.branch&.branch_name.presence || "—" %></dd>
+      <dt class="col-sm-5">Departure date</dt>
+      <dd class="col-sm-7"><%= employee.departure_date&.strftime("%d %b, %Y") || "—" %></dd>
+    </dl>
+  </div>
+</div>
