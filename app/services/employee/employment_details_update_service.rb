@@ -4,16 +4,21 @@ class Employee::EmploymentDetailsUpdateService
   def self.call(employee, attributes)
     ActiveRecord::Base.transaction do
       employment_date = attributes.fetch(:employment_date)
-      department = Department.find_by!(department_name: attributes.fetch(:departments))
+      department = Department.find_by!(
+        department_name: attributes.fetch(:departments),
+        branch_id: attributes.fetch(:branch)
+      )
 
       validate_branch!(department, attributes[:branch])
+      current_affiliation = employee.current_affiliations.first
       employee.update!(employment_date: employment_date, departure_date: attributes[:departure_date])
       update_affiliation!(employee, department, employment_date)
       update_designation!(
         employee,
         department,
         attributes.fetch(:designated_role),
-        attributes.fetch(:designation_start_date)
+        attributes.fetch(:designation_start_date),
+        preserve_current_designation: current_affiliation&.department_id == department.id
       )
     end
   end
@@ -31,9 +36,21 @@ class Employee::EmploymentDetailsUpdateService
   end
   private_class_method :update_affiliation!
 
-  def self.update_designation!(employee, department, role, start_date)
-    designation = Designation.find_by!(department: department, designated_role: role)
-    employee.current_designations.first_or_initialize.update!(designation: designation, start_date: start_date)
+  def self.update_designation!(employee, department, role, start_date, preserve_current_designation:)
+    employee_designation = employee.current_designations.first
+    designation = Designation.find_by(department: department, designated_role: role)
+
+    if designation.nil? && preserve_current_designation &&
+       employee_designation&.designation&.designated_role == role
+      designation = employee_designation.designation
+    end
+
+    unless designation
+      raise ArgumentError, "The role '#{role}' is not available in the selected department."
+    end
+
+    employee_designation ||= employee.current_designations.build
+    employee_designation.update!(designation: designation, start_date: start_date)
   end
   private_class_method :update_designation!
 end
