@@ -8,7 +8,7 @@ class EmployeesController < ApplicationController # rubocop:disable Style/Docume
                 only: %i[update update_personal_demographics update_employment_details update_level_of_effort
                          update_supervision record_departure void_record show]
   def index
-    @list_employees = Employee.where(still_employed: true)
+    @list_employees = Employee.where(still_employed: true).order(:employee_id)
   end
 
   def show
