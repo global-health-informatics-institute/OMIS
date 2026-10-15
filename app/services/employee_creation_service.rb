@@ -8,7 +8,7 @@ class EmployeeCreationService # rubocop:disable Style/Documentation
       person = Person.create!(data[:person])
 
       employee = Employee.create!(
-        person_id: person.id,
+        person: person,
         employment_date: data[:employee][:employment_date],
         still_employed: true
       )
