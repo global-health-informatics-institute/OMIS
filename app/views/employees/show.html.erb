@@ -1,4 +1,4 @@
-<%= render "remote_model", title: @employee.person.full_name do %>
+<%= render "employees/shared/remote_model", title: @employee.person.full_name do %>
   <div class="row g-3">
     <div class="col-lg-6">
       <%= render "employees/show/personal_details", employee: @employee %>
