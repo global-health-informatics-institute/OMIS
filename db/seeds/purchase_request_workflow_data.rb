@@ -36,12 +36,12 @@ WORKFLOW_STATE = [
   },
   # ON: Pending Sourcing Quotation - after supervisor approval, sourcing quotation should direct the method to use for purchasing: IPC or LPO
   {
-    state: 'Pending IPC',
+    state: 'Pending IPC - Vendor Analysis',
     description: 'State indicating that the items estimated or sourced price will require the internal committee to select a vendor' # rubocop:disable Layout/LineLength
   },
   {
     state: 'Pending Vendor Analysis',
-    description: 'State indicating vn9Efthat the items estimated or sourced price will require the internal committee to select a vendor' # rubocop:disable Layout/LineLength
+    description: 'State indicating that the items estimated or sourced price will require the internal committee to select a vendor' # rubocop:disable Layout/LineLength
   },
   # --
   {
@@ -106,7 +106,7 @@ WORKFLOW_STATE_TRANSITIONS = [
   # by finance team
   {
     workflow_state_id: 'Pending Sourcing Quotation',
-    next_state: 'Pending IPC',
+    next_state: 'Pending IPC - Vendor Analysis',
     action: 'Route to IPC',
     by_owner: false,
     by_supervisor: false
