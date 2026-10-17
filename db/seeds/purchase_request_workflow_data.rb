@@ -18,7 +18,7 @@ WORKFLOW_STATE = [
   {
     # state: 'Declined',
     state: 'Purchase Request Declined',
-    description: 'State indicating that the purchase request has been declined by the supervisor'
+    description: 'State indicating that the purchase request has been declined by the supervisor/finance/any authorized person' # rubocop:disable Layout/LineLength
   },
   {
     # state: 'Rescinded',
