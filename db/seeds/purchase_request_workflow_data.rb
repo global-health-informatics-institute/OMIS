@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-# TODO: replace with actual data
+# seed script for populating the logical workflow
+
 # db/seeds/workflow_processes.rb
 WORKFLOW_PROCESS = {
   workflow: 'Purchase Request',
@@ -125,7 +126,6 @@ WORKFLOW_STATE_TRANSITIONS = [
     by_owner: false,
     by_supervisor: false
   },
-  # TODO: revise all next states
   # on Pending IPC
   # by finance team
   {
