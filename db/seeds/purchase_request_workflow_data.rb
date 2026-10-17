@@ -44,14 +44,27 @@ WORKFLOW_STATE = [
     state: 'Pending Vendor Analysis',
     description: 'State indicating that the items estimated or sourced price will require the internal committee to select a vendor' # rubocop:disable Layout/LineLength
   },
-  # --
+  # after a vendor is selected (IPC or vendor analysis), finance decides: LPO or direct purchase
   {
-    state: 'Pending LPO',
-    description: 'State indicating that the sourced quotations do not exceed the threshold and items can be procured using the LPO document' # rubocop:disable Layout/LineLength
+    state: 'Pending LPO Check',
+    description: 'State indicating that a vendor has been selected (via IPC or vendor analysis) and finance is checking whether an LPO is required or the item can be bought and paid for directly' # rubocop:disable Layout/LineLength
+  },
+  {
+    state: 'Pending LPO Request Submission',
+    description: 'State indicating that an LPO request is required for the selected vendor and is being reviewed, approved and sent' # rubocop:disable Layout/LineLength
+  },
+  {
+    state: 'Pending Delivery Confirmation',
+    description: 'State indicating that the LPO was sent and finance is waiting to confirm item delivery and the delivery note' # rubocop:disable Layout/LineLength
+  },
+  {
+    # on item rejection: reroutes to pending delivery
+    state: 'Pending Item Acceptance',
+    description: 'State indicating that delivery was confirmed and the purchase request owner must accept or decline the item' # rubocop:disable Layout/LineLength
   },
   {
     state: 'Pending Payment Request',
-    description: 'State indicating that a vendor analysis was done and the vendor name and qoutation has taken place'
+    description: 'State indicating that a vendor was selected and the item was either accepted (LPO path) or can be paid for directly, so a payment request can be prepared' # rubocop:disable Layout/LineLength
   }
 ].freeze
 
@@ -105,6 +118,10 @@ WORKFLOW_STATE_TRANSITIONS = [
   },
   # on pending sourcing qoutation
   # by finance team
+
+  # extra qoutation on 500K value does not triger further step
+  # 3M cap does not trigger a new step so available options are IPC, vendor analysis, and purchase request termination
+
   {
     workflow_state_id: 'Pending Sourcing Quotation',
     next_state: 'Pending IPC - Vendor Analysis',
@@ -126,74 +143,110 @@ WORKFLOW_STATE_TRANSITIONS = [
     by_owner: false,
     by_supervisor: false
   },
-  # on Pending IPC
+  # on Pending IPC - Vendor Analysis
   # by finance team
   {
-    workflow_state_id: 'Pending IPC',
-    next_state: 'Pending Payment Request',
+    # alias for pending vendor analysis
+    workflow_state_id: 'Pending IPC - Vendor Analysis',
+    next_state: 'Pending LPO Check',
     action: 'Save Qoutation',
     by_owner: false,
     by_supervisor: false
   },
   {
-    workflow_state_id: 'Pending IPC',
+    workflow_state_id: 'Pending IPC - Vendor Analysis',
     next_state: 'Purchase Request Declined',
     action: 'Mark Sourcing as Failed',
     by_owner: false,
     by_supervisor: false
   },
-  # on Pending LP)
+
+  # Pending vendor analysis
   # by finance team
   {
-    workflow_state_id: 'Pending LPO',
-    next_state: 'Pending Payment Request',
+    workflow_state_id: 'Pending Vendor Analysis',
+    next_state: 'Pending LPO Check',
     action: 'Save Qoutation',
     by_owner: false,
     by_supervisor: false
   },
+
+  # on Pending LPO Check (vendor already selected)
+  # by finance team
   {
-    workflow_state_id: 'Pending IPC',
-    next_state: 'Purchase Request Declined',
-    action: 'Mark Sourcing as Failed',
+    workflow_state_id: 'Pending LPO Check',
+    next_state: 'Pending LPO Request Submission',
+    action: 'Route to LPO Request',
     by_owner: false,
+    by_supervisor: false
+  },
+  {
+    # direct purchase: no LPO, the item is bought and paid for directly
+    workflow_state_id: 'Pending LPO Check',
+    next_state: 'Pending Payment Request',
+    action: 'Forward to Payment Request',
+    by_owner: false,
+    by_supervisor: false
+  },
+
+  # on Pending LPO
+  # by finance team (review -> finance lead -> download LPO)
+  {
+    workflow_state_id: 'Pending LPO Request Submission',
+    next_state: 'Pending Delivery Confirmation',
+    action: 'Send LPO',
+    by_owner: false,
+    by_supervisor: false
+  },
+
+  # on Pending Delivery Confirmation
+  # by finance team
+  {
+    workflow_state_id: 'Pending Delivery Confirmation',
+    next_state: 'Pending Item Acceptance',
+    action: 'Confirm Delivery',
+    by_owner: false,
+    by_supervisor: false
+  },
+
+  # on Pending Item Acceptance
+  # by owner (PR initiator)
+  {
+    workflow_state_id: 'Pending Item Acceptance',
+    next_state: 'Pending Payment Request',
+    action: 'Accept Item',
+    by_owner: true,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Item Acceptance',
+    next_state: 'Pending Delivery Confirmation',
+    action: 'Decline Item',
+    by_owner: true,
     by_supervisor: false
   }
 ].freeze
 
 # TODO: add to workflow_state_actors
-WORKFLOW_STATE_TRANSITIONS_ACTORS = [
-  {
-    state_to_act_on: 'Pending Sourcing Quotation',
-    designations: [
-      'Director of Finance and Administration',
-      'Finance & Administration Lead',
-      'Finance Lead',
-      'Administration Lead',
-      'Finance Officer'
-    ]
-  },
-  {
-    state_to_act_on: 'Pending IPC',
-    designations: [
-      'Director of Finance and Administration',
-      'Finance & Administration Lead',
-      'Finance Lead',
-      'Administration Lead',
-      'Finance Officer'
-    ]
-  },
-  {
-    state_to_act_on: 'Pending LPO',
-    designations: [
-      'Director of Finance and Administration',
-      'Finance & Administration Lead',
-      'Finance Lead',
-      'Administration Lead',
-      'Finance Officer'
-    ]
-  }
+FINANCE_TEAM_DESIGNATIONS = [
+  'Director of Finance and Administration',
+  'Finance & Administration Lead',
+  'Finance Lead',
+  'Administration Lead',
+  'Finance Officer'
+].freeze
 
-]
+# states the finance team acts on
+WORKFLOW_STATE_TRANSITIONS_ACTORS = [
+  'Pending Sourcing Quotation',
+  'Pending IPC - Vendor Analysis',
+  'Pending Vendor Analysis',
+  'Pending LPO Check',
+  'Pending LPO - Request Submission',
+  'Pending Delivery Confirmation'
+].map do |state|
+  { state_to_act_on: state, designations: FINANCE_TEAM_DESIGNATIONS }
+end
 
 # IPC threshhold
 GLOBAL_PROPERTIES = [
