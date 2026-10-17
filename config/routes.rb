@@ -69,10 +69,10 @@ Rails.application.routes.draw do
         patch 'decline'
         patch 'resubmit'
         patch 'route_to_ipc'
+        patch 'forward_to_vendor_analysis'
         patch 'route_to_lpo'
         patch 'mark_sourcing_as_failed'
         patch 'save_qoutation'
-        # Define custom routes for purchase_requests here
       end
     end
   end
