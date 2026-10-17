@@ -19,7 +19,7 @@
 
         <%# dynamic rendering %>
         <% if current_user.employee&.employee_id.equal?(@purchase_request.initiated_by) %>
-            <%= render "pending_supervisor_review" %>
+            <%= render "workflow_form"%> 
         <%else%>
             <%= render "#{(@purchase_request.current_state).downcase.gsub(' ', '_')}" %>
         <% end %>
