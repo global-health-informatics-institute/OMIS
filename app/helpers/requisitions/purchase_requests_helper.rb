@@ -46,8 +46,22 @@ module Requisitions
       }
     end
 
-    def show_section?(purchase_request, section) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/MethodLength
+    def show_section?(purchase_request, section) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/AbcSize
       case section.to_sym
+      when :request_details
+        purchase_request.current_state.in? [
+          'Pending Sourcing Quotation',
+          'Pending IPC - Vendor Analysis',
+          'Pending Vendor Analysis',
+          'Pending LPO Check',
+          'Pending LPO Request Submission',
+          'Pending Delivery Confirmation',
+          'Pending Item Acceptance',
+          'Pending Payment Request',
+          'Pending Supervisor Review',
+          'Purchase Request Recalled',
+          'Purchase Request Declined'
+        ]
       when :approval
         # Visible once an approver or approval timestamp is attached
         purchase_request.approved_by.present? || purchase_request.approved_on.present?
