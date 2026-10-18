@@ -170,7 +170,13 @@ WORKFLOW_STATE_TRANSITIONS = [
     by_owner: false,
     by_supervisor: false
   },
-
+  {
+    workflow_state_id: 'Pending Vendor Analysis',
+    next_state: 'Purchase Request Declined',
+    action: 'Mark Sourcing as Failed',
+    by_owner: false,
+    by_supervisor: false
+  },
   # on Pending LPO Check (vendor already selected)
   # by finance team
   {
