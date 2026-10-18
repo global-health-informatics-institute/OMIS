@@ -87,6 +87,16 @@ module Requisitions
             .delete_suffix('_')
     end
 
+    def form_validation_bypass_actions
+      # Actions that change or reverse workflow state without saving form fields.
+      [
+        'decline purchase request',
+        'mark sourcing as failed',
+        'recall purchase request',
+        'rescind purchase request'
+      ]
+    end
+
     def cap_limit(route_type) # rubocop:disable Metrics/MethodLength
       threshold = PurchaseRequest.ipc_threshold
 
