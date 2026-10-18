@@ -90,7 +90,7 @@ module Requisitions
     def cap_limit(route_type) # rubocop:disable Metrics/MethodLength
       threshold = PurchaseRequest.ipc_threshold
 
-      if route_type.to_s.downcase == 'pending ipc'
+      if route_type.to_s.downcase == 'pending ipc - vendor analysis'
         {
           min: threshold,
           placeholder: "value not less than #{threshold}"

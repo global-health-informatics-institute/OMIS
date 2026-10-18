@@ -157,7 +157,7 @@
             <%= form.fields_for :requisition_items do |item_form| %>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label class="form-label fw-normal">Total Item Cost</label>
+                        <label class="form-label fw-normal">Total Item Cost (Including Tax)</label>
                         <%# ONLY SOURCING OPTS APPLIED HERE %>
                         <%= item_form.number_field :value,
                                                    **cap_attr,
