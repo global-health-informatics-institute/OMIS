@@ -1,7 +1,7 @@
 <% 
   # Determine which sections the current user is allowed to edit
   core_opts     = { disabled: !@purchase_request.core_editable_by?(current_user) }
-  sourcing_opts = { disabled: !@purchase_request.sourcing_editable_by?(current_user) }
+  sourcing_qoutations_opts = { disabled: !@purchase_request.sourcing_qoutations_editable_by?(current_user) }
   cap_attr = cap_limit(@purchase_request.current_state)
 %>
 
@@ -140,7 +140,7 @@
     <% end %>
 
     <%# Sourcing Section %>
-    <%= render_section_if(@purchase_request, :sourcing) do %>
+    <%= render_section_if(@purchase_request, :sourcing_qoutations) do %>
         <hr>
         <div class="row mt-3">
             <div class="col-md-6">
@@ -150,7 +150,7 @@
                     <%= form.text_field :vendor_name, 
                                         class: 'form-control', 
                                         required: true, 
-                                        **sourcing_opts %>
+                                        **sourcing_qoutations_opts %>
                 </div>
             </div>
 
@@ -163,7 +163,7 @@
                                                    **cap_attr,
                                                    class: 'form-control', 
                                                    required: true, 
-                                                   **sourcing_opts %>
+                                                   **sourcing_qoutations_opts %>
                     </div>
                 </div>
             <% end %>

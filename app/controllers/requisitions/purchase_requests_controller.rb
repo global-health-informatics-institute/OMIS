@@ -91,8 +91,14 @@ module Requisitions
       redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
     end
 
-    def route_to_ipc
+    def route_to_ipc_vendor_analysis
       @purchase_request = PurchaseRequestIpcRouteService.route_to_ipc(params[:id])
+      flash[:notice] = 'Purchase request successfully updated'
+      redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
+    end
+
+    def forward_to_vendor_analysis
+      @purchase_request = PurchaseRequestVendorAnalysisRouteService.forward(params[:id])
       flash[:notice] = 'Purchase request successfully updated'
       redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
     end

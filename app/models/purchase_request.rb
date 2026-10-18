@@ -94,14 +94,14 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
     ['purchase request recalled', 'purchase request rejected'].include?(current_state.to_s.downcase) && is_owner
   end
 
-  def sourcing_editable_by?(user)
+  def sourcing_qoutations_editable_by?(user)
     return false unless user
 
-    ['pending ipc', 'pending lpo'].include?(current_state.to_s.downcase) && actor?(user)
+    ['pending ipc - vendor analysis', 'pending vendor analysis'].include?(current_state.to_s.downcase) && actor?(user)
   end
 
   def editable_by?(user)
-    core_editable_by?(user) || sourcing_editable_by?(user)
+    core_editable_by?(user) || sourcing_qoutations_editable_by?(user)
   end
 
   def self.ipc_threshold

@@ -21,7 +21,7 @@
         <% if current_user.employee&.employee_id.equal?(@purchase_request.initiated_by) %>
             <%= render "workflow_form"%> 
         <%else%>
-            <%= render "#{(@purchase_request.current_state).downcase.gsub(' ', '_')}" %>
+            <%= render @purchase_request.current_state.parameterize.tr('-', '_') %>
         <% end %>
         <%# end of dynamic rendering %>
 

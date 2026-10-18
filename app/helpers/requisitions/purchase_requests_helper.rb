@@ -29,7 +29,8 @@ module Requisitions
         'bg-warning text-dark'
       when 'rescind purchase request', 'decline purchase request', 'mark sourcing as failed'
         'bg-danger text-white'
-      when 'resubmit purchase request', 'route to ipc', 'route to lpo', 'save qoutation'
+      when 'resubmit purchase request',
+        'route to ipc - vendor analysis', 'route to lpo', 'save qoutation', 'forward to vendor analysis'
         'bg-primary text-white'
       else
         'bg-secondary text-white'
@@ -54,9 +55,9 @@ module Requisitions
       when :review
         # Visible once reviewed by a supervisor
         purchase_request.reviewed_by.present? || purchase_request.reviewed_on.present?
-      when :sourcing
+      when :sourcing_qoutations
         # Reserved for finance metadata (quotes/vendors)
-        (purchase_request.current_state.in? ['Pending IPC', 'Pending IPO', 'Pending Payment Request']) &&
+        (purchase_request.current_state.in? ['Pending IPC - Vendor Analysis', 'Pending Payment Request']) &&
           (current_user&.employee_id != purchase_request&.initiated_by)
       else
         true
@@ -77,7 +78,13 @@ module Requisitions
       # "Recall Purchase Request"  -> "recall"
       # "Request IPC"              -> "request_ipc"
       # "Request LPO"              -> "request_lpo"
-      action.gsub(/Purchase Request/i, '').strip.parameterize(separator: '_')
+      action.gsub(/Purchase Request/i, '')
+            .strip
+            .gsub(/[^a-zA-Z0-9]+/, '_')
+            .downcase
+            .squeeze('_')
+            .delete_prefix('_')
+            .delete_suffix('_')
     end
 
     def cap_limit(route_type) # rubocop:disable Metrics/MethodLength

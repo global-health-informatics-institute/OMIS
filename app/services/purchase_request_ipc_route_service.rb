@@ -10,7 +10,7 @@ class PurchaseRequestIpcRouteService # rubocop:disable Style/Documentation
       # 2. Find the transition for the recall action
       transition = WorkflowStateTransition.find_by!(
         workflow_state_id: purchase_request.workflow_state_id,
-        action: 'Route to IPC'
+        action: 'Route to IPC - Vendor Analysis'
       )
 
       # 3. Update to the next state

@@ -68,7 +68,7 @@ Rails.application.routes.draw do
         patch 'approve'
         patch 'decline'
         patch 'resubmit'
-        patch 'route_to_ipc'
+        patch 'route_to_ipc_vendor_analysis'
         patch 'forward_to_vendor_analysis'
         patch 'route_to_lpo'
         patch 'mark_sourcing_as_failed'
