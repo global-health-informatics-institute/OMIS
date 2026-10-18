@@ -2,7 +2,7 @@
 
 # app/helpers/requisitions/purchase_requests_helper.rb
 module Requisitions
-  module PurchaseRequestsHelper # rubocop:disable Style/Documentation
+  module PurchaseRequestsHelper # rubocop:disable Style/Documentation,Metrics/ModuleLength
     def purchase_request_state_badge_class(state) # rubocop:disable Metrics/MethodLength
       case state.to_s.downcase
       when 'requested', 'pending approval', 'pending supervisor approval'
@@ -48,13 +48,19 @@ module Requisitions
 
     def show_section?(purchase_request, section) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/AbcSize
       case section.to_sym
+      when :item_details
+        purchase_request.current_state.in? [
+          'Pending LPO Check'
+        ]
+      when :requester_details
+        purchase_request.current_state.in? []
       when :request_details
         purchase_request.current_state.in? [
           'Pending Sourcing Quotation',
           'Pending IPC - Vendor Analysis',
           'Pending Vendor Analysis',
-          'Pending LPO Check',
           'Pending LPO Request Submission',
+          'Pending LPO Check',
           'Pending Delivery Confirmation',
           'Pending Item Acceptance',
           'Pending Payment Request',
@@ -64,15 +70,28 @@ module Requisitions
         ]
       when :approval
         # Visible once an approver or approval timestamp is attached
-        purchase_request.approved_by.present? || purchase_request.approved_on.present?
+        (purchase_request.approved_by.present? || purchase_request.approved_on.present?) && (
+          !purchase_request.current_state.in? ['Pending LPO Check']
+        )
 
       when :review
         # Visible once reviewed by a supervisor
         purchase_request.reviewed_by.present? || purchase_request.reviewed_on.present?
       when :sourcing_qoutations
         # Reserved for finance metadata (quotes/vendors)
-        (purchase_request.current_state.in? ['Pending IPC - Vendor Analysis', 'Pending Vendor Analysis', 'Pending Payment Request']) &&
+        (
+          purchase_request.current_state.in? [
+            'Pending IPC - Vendor Analysis', 'Pending Vendor Analysis', 'Pending Payment Request',
+            'Pending LPO Check'
+          ]
+        ) &&
           (current_user&.employee_id != purchase_request&.initiated_by)
+      when :action_items
+        if purchase_request.current_state.in? [
+          'Pending LPO Check'
+        ]
+          false
+        end
       else
         true
       end
