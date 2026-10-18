@@ -123,14 +123,15 @@ module Requisitions
         params: safe_params
       )
 
+      flash[:notice] = 'Quotation saved successfully'
       redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
     rescue ActiveRecord::RecordInvalid => e
       # If they tried to resubmit but left a required field blank
       @purchase_request = e.record
       @possible_actions = @purchase_request.available_actions(user: current_user)
 
-      flash.now[:alert] = 'Please make sure all fields are filled before resubmitting.'
-      render :edit, status: :unprocessable_entity
+      flash.now[:alert] = 'Enter a supplier and a positive total cost for every item.'
+      render :show, status: :unprocessable_entity
     end
 
     def destroy; end
