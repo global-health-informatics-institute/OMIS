@@ -57,7 +57,7 @@ module Requisitions
         purchase_request.reviewed_by.present? || purchase_request.reviewed_on.present?
       when :sourcing_qoutations
         # Reserved for finance metadata (quotes/vendors)
-        (purchase_request.current_state.in? ['Pending IPC - Vendor Analysis', 'Pending Payment Request']) &&
+        (purchase_request.current_state.in? ['Pending IPC - Vendor Analysis', 'Pending Vendor Analysis', 'Pending Payment Request']) &&
           (current_user&.employee_id != purchase_request&.initiated_by)
       else
         true
