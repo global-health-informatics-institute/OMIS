@@ -92,6 +92,8 @@ module Requisitions
         ]
           false
         end
+      when :lpo_check
+        (current_user&.employee_id != purchase_request&.initiated_by)
       else
         true
       end
