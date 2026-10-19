@@ -161,6 +161,7 @@ module Requisitions
         requisition_items_attributes: %i[id item_description quantity value _destroy],
         requisition_budget_line_attributes: %i[id budget_line_id _destroy],
         requisition_donor_attributes: %i[id donor_id _destroy],
+        purchase_request_detail_attributes: %i[id department_id]
       )
     end
   end

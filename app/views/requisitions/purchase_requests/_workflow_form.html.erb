@@ -109,7 +109,7 @@
                 <% end %>
         </div>
 
-        <%# Row 5: Project %>
+        <%# Row 5: Project and Department %>
         <div class="row mt-3">
                 <div class="col-md-6">
                     <div class="mb-3">
@@ -119,6 +119,17 @@
                                         { class: 'form-control form-select', required: true, **core_opts }) %>
                     </div>
                 </div>
+
+                <%= form.fields_for :purchase_request_detail do |detail_form| %>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-normal">Department</label>
+                            <%= detail_form.select(:department_id, purchase_request_departments,
+                                                   { include_blank: 'Select Department' },
+                                                   { class: 'form-control form-select', required: true, **core_opts }) %>
+                        </div>
+                    </div>
+                <% end %>
         </div>
     <% end %>
 

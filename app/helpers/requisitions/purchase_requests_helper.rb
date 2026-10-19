@@ -65,6 +65,10 @@ module Requisitions
       }
     end
 
+    def purchase_request_departments
+      Department.order(:department_name).pluck(:department_name, :department_id)
+    end
+
     def show_section?(purchase_request, section) # rubocop:disable Metrics/CyclomaticComplexity
       state = purchase_request.current_state
 

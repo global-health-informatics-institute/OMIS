@@ -31,7 +31,8 @@ class PurchaseRequestCreateService # rubocop:disable Style/Documentation
       )
 
       PurchaseRequestDetail.create!(
-        requisition_id: requisition.id
+        requisition_id: requisition.id,
+        department_id: data[:purchase_request_detail][:department_id]
       )
 
       requisition
@@ -60,6 +61,7 @@ class PurchaseRequestCreateService # rubocop:disable Style/Documentation
 
       budget_attrs = req_params[:requisition_budget_line_attributes] || {}
       donor_attrs = req_params[:requisition_donor_attributes] || {}
+      purchase_request_detail_attrs = req_params[:purchase_request_detail_attributes] || {}
 
       {
         requisition: {
@@ -82,6 +84,9 @@ class PurchaseRequestCreateService # rubocop:disable Style/Documentation
         },
         donor: {
           donor_id: donor_attrs[:donor_id] || donor_attrs['donor_id']
+        },
+        purchase_request_detail: {
+          department_id: purchase_request_detail_attrs[:department_id] || purchase_request_detail_attrs['department_id']
         }
       }
     end

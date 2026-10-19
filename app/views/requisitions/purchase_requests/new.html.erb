@@ -85,19 +85,32 @@
       </div>
 
       <div class="row mt-3">
-        <%# FIX 3: Changed to singular :requisition_donor %>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label fw-normal">Project</label>
+            <%= form.select(
+              :project_id,
+              requisition_projects,
+              { include_blank: 'Select Project' },
+              { class: 'form-control form-select', required: true }
+            ) %>
+          </div>
+        </div>
+
+        <%= form.fields_for :purchase_request_detail do |detail_form| %>
           <div class="col-md-6">
             <div class="mb-3">
-              <label class="form-label fw-normal">Project</label>
-              <%# FIX 4: Changed field from :id to :donor_id %>
-              <%= form.select(
-                :project_id, 
-                requisition_projects,
-                { include_blank: 'Select Project' },
+              <label class="form-label fw-normal">Department</label>
+              <%= detail_form.select(
+                :department_id,
+                purchase_request_departments,
+                { include_blank: 'Select Department' },
                 { class: 'form-control form-select', required: true }
-              )%>
+              ) %>
             </div>
           </div>
+        <% end %>
+      </div>
 
       <div class="row mt-3">
         <div class="col-md-6">

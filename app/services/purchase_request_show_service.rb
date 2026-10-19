@@ -22,7 +22,8 @@ class PurchaseRequestShowService # rubocop:disable Style/Documentation
         :requisition_budget_line,
         :requisition_donor,
         :initiator,
-        :approver
+        :approver,
+        { purchase_request_detail: :department }
       ).find(requisition_id)
     end
   end
