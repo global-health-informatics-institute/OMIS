@@ -91,9 +91,12 @@ module Requisitions
           'Pending LPO Check'
         ]
           false
+        else
+          true
         end
       when :lpo_check
-        (current_user&.employee_id != purchase_request&.initiated_by)
+        purchase_request.current_state == 'Pending LPO Check' &&
+          purchase_request.actor?(current_user)
       else
         true
       end
