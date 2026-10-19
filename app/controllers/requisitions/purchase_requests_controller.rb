@@ -134,6 +134,18 @@ module Requisitions
       render :show, status: :unprocessable_entity
     end
 
+    def route_to_lpo_request
+      @purchase_request = PurchaseRequestLpoRequestRouteService.route_to_lpo_request(params[:id])
+      flash[:notice] = 'Purchase request routed for LPO submission'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
+    def forward_to_payment_request
+      @purchase_request = PurchaseRequestPaymentRequestForwardService.forward_to_payment_request(params[:id])
+      flash[:notice] = 'Purchase request forwarded to payment request'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
     def destroy; end
 
     private

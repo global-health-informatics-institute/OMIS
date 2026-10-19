@@ -73,6 +73,8 @@ Rails.application.routes.draw do
         patch 'route_to_lpo'
         patch 'mark_sourcing_as_failed'
         patch 'save_qoutation'
+        patch 'route_to_lpo_request'
+        patch 'forward_to_payment_request'
       end
     end
   end

@@ -195,24 +195,23 @@
 
         <div class="row mb-4 justify-content-center">
             <div class="col-md-10">
-                <div class="col-md-6">
-                </div>
                 <div class="d-flex justify-content-center gap-4 flex-wrap">
-                    <!-- Option 1: Can be procured locally -->
                     <div class="flex-fill text-center">
-                        <input type="radio" class="btn-check" name="fulfillment_option" id="local_procurement" value="local" autocomplete="off">
-                        <!-- Disabbled if ordered through ipc -->
-                        <label class="btn btn-outline-primary w-100 py-4 fs-5 fw-semibold" for="local_procurement">
-                            Yes, Item can be Procured through LPO
-                        </label>
+                        <%= button_tag 'Yes, Item can be Procured through LPO',
+                                       type: :submit,
+                                       formaction: route_to_lpo_request_requisitions_purchase_request_path(@purchase_request),
+                                       formnovalidate: true,
+                                       class: 'btn btn-outline-primary w-100 py-4 fs-5 fw-semibold',
+                                       data: { turbo_confirm: 'Route this purchase request for LPO submission?' } %>
                     </div>
 
-                    <!-- Option 2: Confirm Delivery Through IPC -->
                     <div class="flex-fill text-center">
-                        <input type="radio" class="btn-check" name="fulfillment_option" id="ipc_delivery" value="ipc" autocomplete="off">
-                        <label class="btn btn-outline-primary w-100 py-4 fs-5 fw-semibold" for="ipc_delivery">
-                            No, Continue to Payment Request
-                        </label>
+                        <%= button_tag 'No, Continue to Payment Request',
+                                       type: :submit,
+                                       formaction: forward_to_payment_request_requisitions_purchase_request_path(@purchase_request),
+                                       formnovalidate: true,
+                                       class: 'btn btn-outline-primary w-100 py-4 fs-5 fw-semibold',
+                                       data: { turbo_confirm: 'Forward this purchase request to payment request?' } %>
                     </div>
                 </div>
             </div>
