@@ -5,6 +5,7 @@ module Requisitions
   module PurchaseRequestsHelper # rubocop:disable Style/Documentation,Metrics/ModuleLength
     REQUEST_DETAIL_STATES = [
       'Pending Supervisor Review',
+      'Purchase Request Declined',
       'Pending Sourcing Quotation',
       'Pending IPC - Vendor Analysis',
       'Pending Vendor Analysis',
