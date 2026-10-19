@@ -3,6 +3,25 @@
 # app/helpers/requisitions/purchase_requests_helper.rb
 module Requisitions
   module PurchaseRequestsHelper # rubocop:disable Style/Documentation,Metrics/ModuleLength
+    REQUEST_DETAIL_STATES = [
+      'Pending Supervisor Review',
+      'Pending Sourcing Quotation',
+      'Pending IPC - Vendor Analysis',
+      'Pending Vendor Analysis',
+      'Purchase Request Recalled'
+    ].freeze
+
+    ITEM_DETAIL_STATES = (REQUEST_DETAIL_STATES + [
+      'Pending LPO Check',
+      'Pending Payment Request'
+    ]).freeze
+
+    SOURCING_QOUTATION_STATES = [
+      'Pending IPC - Vendor Analysis',
+      'Pending Vendor Analysis',
+      'Pending LPO Check'
+    ].freeze
+
     def purchase_request_state_badge_class(state) # rubocop:disable Metrics/MethodLength
       case state.to_s.downcase
       when 'requested', 'pending approval', 'pending supervisor approval'
@@ -46,57 +65,24 @@ module Requisitions
       }
     end
 
-    def show_section?(purchase_request, section) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/AbcSize
-      case section.to_sym
-      when :item_details
-        purchase_request.current_state.in? [
-          'Pending LPO Check'
-        ]
-      when :requester_details
-        purchase_request.current_state.in? []
-      when :request_details
-        purchase_request.current_state.in? [
-          'Pending Sourcing Quotation',
-          'Pending IPC - Vendor Analysis',
-          'Pending Vendor Analysis',
-          'Pending LPO Request Submission',
-          'Pending LPO Check',
-          'Pending Delivery Confirmation',
-          'Pending Item Acceptance',
-          'Pending Payment Request',
-          'Pending Supervisor Review',
-          'Purchase Request Recalled',
-          'Purchase Request Declined'
-        ]
-      when :approval
-        # Visible once an approver or approval timestamp is attached
-        (purchase_request.approved_by.present? || purchase_request.approved_on.present?) && (
-          !purchase_request.current_state.in? ['Pending LPO Check']
-        )
+    def show_section?(purchase_request, section) # rubocop:disable Metrics/CyclomaticComplexity
+      state = purchase_request.current_state
 
+      case section.to_sym
+      when :request_details
+        state.in?(REQUEST_DETAIL_STATES)
+      when :item_details
+        state.in?(ITEM_DETAIL_STATES)
+      when :approval
+        (purchase_request.approved_by.present? || purchase_request.approved_on.present?) && state != 'Pending LPO Check'
       when :review
-        # Visible once reviewed by a supervisor
         purchase_request.reviewed_by.present? || purchase_request.reviewed_on.present?
       when :sourcing_qoutations
-        # Reserved for finance metadata (quotes/vendors)
-        (
-          purchase_request.current_state.in? [
-            'Pending IPC - Vendor Analysis', 'Pending Vendor Analysis', 'Pending Payment Request',
-            'Pending LPO Check'
-          ]
-        ) &&
-          (current_user&.employee_id != purchase_request&.initiated_by)
+        state.in?(SOURCING_QOUTATION_STATES) && current_user&.employee_id != purchase_request.initiated_by
       when :action_items
-        if purchase_request.current_state.in? [
-          'Pending LPO Check'
-        ]
-          false
-        else
-          true
-        end
+        state != 'Pending LPO Check'
       when :lpo_check
-        purchase_request.current_state == 'Pending LPO Check' &&
-          purchase_request.actor?(current_user)
+        state == 'Pending LPO Check' && purchase_request.actor?(current_user)
       else
         true
       end
