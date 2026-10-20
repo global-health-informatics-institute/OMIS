@@ -312,6 +312,16 @@ GLOBAL_PROPERTIES = [
     property: 'MRA rate',
     property_value: '17.5',
     description: 'Current MRA rate for all purchases, expressed as a percentage. For example, a 17.5% MRA rate is represented as 17.5.' # rubocop:disable Layout/LineLength
+  },
+  {
+    property: 'LPO validity period (days)',
+    property_value: '7',
+    description: 'The number of days an LPO is valid for after it has been issued. After this period, the LPO will expire and may require re-issuance or renewal.' # rubocop:disable Layout/LineLength
+  },
+  {
+    property: 'Office Address',
+    property_value: 'GHIII Offices, area 3/719',
+    description: 'The address of the office where purchases are managed.'
   }
 ]
 
