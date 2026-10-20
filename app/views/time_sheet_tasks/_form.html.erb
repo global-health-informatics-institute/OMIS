@@ -3,7 +3,7 @@
   <div class="row">
     <div class="col mb-3">
       <%= form.label :project_id, "Select Project" %>
-      <%= form.select :project_id, options_for_select(@project_options),
+      <%= form.select :project_id, options_for_select(@project_options,(@selected_project.id rescue nil)),
                       { prompt: "Select project" },
                       { class: 'form-select', required: true } %>
     </div>
