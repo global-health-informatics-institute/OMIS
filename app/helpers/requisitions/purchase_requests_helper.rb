@@ -12,9 +12,14 @@ module Requisitions
       'Purchase Request Recalled'
     ].freeze
 
+    REQUEST_APPROVE_STATE = [
+      'Pending Sourcing Quotation'
+    ].freeze
+
     ITEM_DETAIL_STATES = (REQUEST_DETAIL_STATES + [
       'Pending LPO Check',
-      'Pending Payment Request'
+      'Pending Payment Request',
+      'Payment Request'
     ]).freeze
 
     SOURCING_QOUTATION_STATES = [
