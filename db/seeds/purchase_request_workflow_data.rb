@@ -53,6 +53,16 @@ WORKFLOW_STATE = [
     state: 'Pending LPO Request Submission',
     description: 'State indicating that an LPO request is required for the selected vendor and is being reviewed, approved and sent' # rubocop:disable Layout/LineLength
   },
+  # ON: Pending LPO Request Submission - requires approval from the finance lead and ED
+  {
+    state: 'Pending LPO Review - Finance Team',
+    description: 'State indicating that the LPO request is being reviewed by the finance team and will be sent to the ED for approval' # rubocop:disable Layout/LineLength
+  },
+  {
+    state: 'Pending LPO Review - ED',
+    description: 'State indicating that the LPO request is being reviewed by the Executive Director and will be approved or rejected' # rubocop:disable Layout/LineLength
+  },
+
   {
     state: 'Pending Delivery Confirmation',
     description: 'State indicating that the LPO was sent and finance is waiting to confirm item delivery and the delivery note' # rubocop:disable Layout/LineLength
@@ -199,8 +209,40 @@ WORKFLOW_STATE_TRANSITIONS = [
   # by finance team (review -> finance lead -> download LPO)
   {
     workflow_state_id: 'Pending LPO Request Submission',
-    next_state: 'Pending Delivery Confirmation',
-    action: 'Send LPO',
+    next_state: 'Pending LPO Review - Finance Team',
+    action: 'Prepare LPO Request',
+    by_owner: false,
+    by_supervisor: false
+  },
+
+  # on Pending LPO Review - Finance Team
+  {
+    workflow_state_id: 'Pending LPO Review - Finance Team',
+    next_state: 'Pending LPO Review - ED',
+    action: 'Approve LPO Request',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending LPO Review - Finance Team',
+    next_state: 'Pending Sourcing Quotation',
+    action: 'Choose Other Vendor',
+    by_owner: false,
+    by_supervisor: false
+  },
+
+  # on Pending LPO Review - ED
+  {
+    workflow_state_id: 'Pending LPO Review - ED',
+    next_state: 'Pending Delivery Comfirmation',
+    action: 'Approve LPO Request',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending LPO Review - ED',
+    next_state: 'Pending Sourcing Quotation',
+    action: 'Choose Other Vendor',
     by_owner: false,
     by_supervisor: false
   },

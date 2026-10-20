@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram name="Page-1" id="F6q0zWo0p0fou0u2Rc1e">
-        <mxGraphModel dx="2233" dy="3152" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="2488" dy="3002" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -320,10 +320,13 @@
                     <mxGeometry height="100" width="50" x="-710" y="-390" as="geometry"/>
                 </mxCell>
                 <mxCell id="37" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;align=left;pointerEvents=1;fontSize=14;" value="&lt;div&gt;&lt;font color=&quot;#000000&quot;&gt;Pemding LPO&lt;br&gt;&lt;/font&gt;(request reviewer from finance team -&amp;gt;&lt;/div&gt;&lt;div&gt;then finance lead -&amp;gt;&lt;br&gt;download LPO,&amp;nbsp;&lt;/div&gt;" vertex="1">
-                    <mxGeometry height="100" width="140" x="-720" y="-240" as="geometry"/>
+                    <mxGeometry height="100" width="140" x="-760" y="-240" as="geometry"/>
                 </mxCell>
                 <mxCell id="38" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;align=left;pointerEvents=1;fontSize=14;" value="Comfirm Delivery&lt;div&gt;&lt;font color=&quot;#000000&quot;&gt;- triggers requster item acceptance&lt;br&gt;&lt;/font&gt;&lt;div&gt;(accept item, decline item)&lt;/div&gt;&lt;/div&gt;" vertex="1">
-                    <mxGeometry height="100" width="190" x="-455" y="-240" as="geometry"/>
+                    <mxGeometry height="100" width="190" x="-500" y="-240" as="geometry"/>
+                </mxCell>
+                <mxCell id="vfh1QMR06K8ftDsdavSW-38" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;align=left;pointerEvents=1;fontSize=14;" value="&lt;div&gt;&lt;font color=&quot;#000000&quot;&gt;Require Approval&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font color=&quot;#000000&quot;&gt;- from the finance lead &amp;amp; ED&lt;br&gt;&lt;/font&gt;&lt;div&gt;(pending LPO approval - Finance Team;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;&amp;nbsp;pending LPOapproval - ED)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;(Approve LPO, Approve LPO, Decline LPO)&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+                    <mxGeometry height="100" width="190" x="-250" y="-240" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
