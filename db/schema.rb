@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_10_20_133000) do
+ActiveRecord::Schema[7.0].define(version: 2026_10_20_134500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -322,6 +322,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_10_20_133000) do
     t.decimal "unit_price", precision: 12, scale: 2
     t.boolean "attracts_levy"
     t.boolean "attracts_mra"
+    t.string "vendor_mobile_number"
+    t.string "vendor_email"
   end
 
   create_table "report_statistics", primary_key: "statistic_id", force: :cascade do |t|

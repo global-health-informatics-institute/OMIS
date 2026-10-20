@@ -29,6 +29,7 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
 
       detail = purchase_request.purchase_request_detail
       validate_detail_pricing(detail, purchase_request)
+      validate_vendor_contact(detail, purchase_request)
       assign_quotation_total!(purchase_request, detail) if purchase_request.errors.empty?
 
       validate_total_for_routing(purchase_request) if purchase_request.errors.empty?
@@ -44,7 +45,25 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
 
     def add_detail_error(detail, purchase_request, attribute, message)
       detail.errors.add(attribute, message)
-      purchase_request.errors.add(:base, 'A quotation needs a unit price and tax selections')
+      purchase_request.errors.add(:base, "#{attribute.to_s.humanize} #{message}")
+    end
+
+    def validate_vendor_contact(detail, purchase_request)
+      if detail.vendor_mobile_number.blank?
+        add_detail_error(detail, purchase_request, :vendor_mobile_number, "can't be blank")
+      elsif !valid_phone_number?(detail.vendor_mobile_number)
+        add_detail_error(detail, purchase_request, :vendor_mobile_number, 'must be a valid phone number')
+      end
+
+      return if detail.vendor_email&.match?(URI::MailTo::EMAIL_REGEXP)
+
+      add_detail_error(detail, purchase_request, :vendor_email, 'must be a valid email address')
+    end
+
+    def valid_phone_number?(phone_number)
+      digits = phone_number.scan(/\d/)
+
+      phone_number.match?(/\A\+?\d[\d\s().-]*\z/) && digits.length.between?(7, 15)
     end
 
     def assign_quotation_total!(purchase_request, detail)

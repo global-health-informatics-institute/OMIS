@@ -182,19 +182,48 @@
             </div>
 
             <%= form.fields_for :purchase_request_detail do |detail_form| %>
-                <%# This total is calculated by the quotation-pricing controller, never entered manually. %>
-                <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label fw-normal">Unit Price (MWK)</label>
-                            <%= detail_form.number_field :unit_price,
-                                                        min: 0.01,
-                                                        step: 0.01,
-                                                        class: 'form-control',
-                                                        required: true,
-                                                        data: { quotation_pricing_target: 'unitPrice', action: 'input->quotation-pricing#refresh' },
-                                                        **sourcing_qoutations_opts %>
-                        </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-normal">Supplier Mobile Number</label>
+                    <%= detail_form.telephone_field :vendor_mobile_number,
+                                class: 'form-control',
+                                autocomplete: 'tel',
+                                inputmode: 'tel',
+                                pattern: '^[0-9+\(\) \-]{7,20}$',
+                                title: 'Enter a valid phone number with 7 to 20 characters.',
+                                required: true,
+                                **sourcing_qoutations_opts %>
                 </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-normal">Supplier Email</label>
+                    <%= detail_form.email_field :vendor_email,
+                                                class: 'form-control',
+                                                autocomplete: 'email',
+                                                required: true,
+                                                **sourcing_qoutations_opts %>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-normal">Unit Price (MWK)</label>
+                    <%= detail_form.number_field :unit_price,
+                                                 min: 0.01,
+                                                 step: 0.01,
+                                                 class: 'form-control',
+                                                 required: true,
+                                                 data: { quotation_pricing_target: 'unitPrice', action: 'input->quotation-pricing#refresh' },
+                                                 **sourcing_qoutations_opts %>
+                </div>
+            </div>
         </div>
 
         <div class="row mt-3">
