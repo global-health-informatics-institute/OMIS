@@ -75,7 +75,7 @@ module Requisitions
       Department.order(:department_name).pluck(:department_name, :department_id)
     end
 
-    def show_section?(purchase_request, section) # rubocop:disable Metrics/CyclomaticComplexity
+    def show_section?(purchase_request, section) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/AbcSize,Metrics/MethodLength,Metrics/PerceivedComplexity
       state = purchase_request.current_state
 
       case section.to_sym
@@ -84,7 +84,7 @@ module Requisitions
       when :item_details
         state.in?(ITEM_DETAIL_STATES)
       when :approval
-        (purchase_request.approved_by.present? || purchase_request.approved_on.present?) && state != 'Pending LPO Check'
+        state.in?(REQUEST_APPROVE_STATE) && (purchase_request.approved_by.present? || purchase_request.approved_on.present?) # rubocop:disable Layout/LineLength
       when :review
         purchase_request.reviewed_by.present? || purchase_request.reviewed_on.present?
       when :sourcing_qoutations
