@@ -2,12 +2,16 @@
   # Determine which sections the current user is allowed to edit
   core_opts     = { disabled: !@purchase_request.core_editable_by?(current_user) }
   sourcing_qoutations_opts = { disabled: !@purchase_request.sourcing_qoutations_editable_by?(current_user) }
-  cap_attr = cap_limit(@purchase_request.current_state)
   no_validation_actions = form_validation_bypass_actions
 %>
 
 <%= form_with model: [:requisitions, @purchase_request] do |form| %>
-<div class="p-3">
+<div class="p-3"
+     data-controller="quotation-pricing"
+     data-quotation-pricing-levy-rate-value="<%= GlobalProperty.levy_rate %>"
+     data-quotation-pricing-mra-rate-value="<%= GlobalProperty.mra_rate %>"
+     data-quotation-pricing-threshold-value="<%= PurchaseRequest.ipc_threshold %>"
+     data-quotation-pricing-cap-rule-value="<%= quotation_cap_rule(@purchase_request) %>">
     <%= render_section_if @purchase_request, :request_details do %>
 
 
@@ -163,6 +167,8 @@
     <%# Sourcing Section %>
     <%= render_section_if @purchase_request, :sourcing_qoutations do %>
         <hr>
+        <div data-quotation-pricing-target="item"
+             data-quotation-pricing-quantity="<%= @purchase_request.purchase_request_detail.quotation_quantity %>">
         <div class="row mt-3">
             <div class="col-md-6">
                 <div class="mb-3">
@@ -175,20 +181,71 @@
                 </div>
             </div>
 
-            <%= form.fields_for :requisition_items do |item_form| %>
+            <%= form.fields_for :purchase_request_detail do |detail_form| %>
+                <%# This total is calculated by the quotation-pricing controller, never entered manually. %>
+                <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-normal">Unit Price (MWK)</label>
+                            <%= detail_form.number_field :unit_price,
+                                                        min: 0.01,
+                                                        step: 0.01,
+                                                        class: 'form-control',
+                                                        required: true,
+                                                        data: { quotation_pricing_target: 'unitPrice', action: 'input->quotation-pricing#refresh' },
+                                                        **sourcing_qoutations_opts %>
+                        </div>
+                </div>
+        </div>
+
+        <div class="row mt-3">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label class="form-label fw-normal">Total Item Cost (Including Tax)</label>
-                        <%# ONLY SOURCING OPTS APPLIED HERE %>
-                        <%= item_form.number_field :value,
-                                                   min: 0.01,
-                                                   step: :any,
-                                                   **cap_attr,
-                                                   class: 'form-control', 
-                                                   required: true, 
-                                                   **sourcing_qoutations_opts %>
+                        <label class="form-label fw-normal d-block">Attracts Levy? (<%= number_to_percentage(GlobalProperty.levy_rate * 100, precision: 2, strip_insignificant_zeros: true) %>)</label>
+                        <div class="btn-group" role="group" aria-label="Attracts levy">
+                            <%= detail_form.radio_button :attracts_levy, true,
+                                                        required: true,
+                                                        class: 'btn-check',
+                                                        data: { quotation_pricing_target: 'levy', action: 'change->quotation-pricing#refresh' },
+                                                        disabled: sourcing_qoutations_opts[:disabled] %>
+                            <%= detail_form.label :attracts_levy_true, 'Yes', class: 'btn btn-outline-primary px-4' %>
+                            <%= detail_form.radio_button :attracts_levy, false,
+                                                        class: 'btn-check',
+                                                        data: { quotation_pricing_target: 'levy', action: 'change->quotation-pricing#refresh' },
+                                                        disabled: sourcing_qoutations_opts[:disabled] %>
+                            <%= detail_form.label :attracts_levy_false, 'No', class: 'btn btn-outline-danger px-4' %>
+                        </div>
                     </div>
                 </div>
+
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-normal d-block">Attracts MRA? (<%= number_to_percentage(GlobalProperty.mra_rate * 100, precision: 2, strip_insignificant_zeros: true) %>)</label>
+                        <div class="btn-group" role="group" aria-label="Attracts MRA">
+                            <%= detail_form.radio_button :attracts_mra, true,
+                                                        required: true,
+                                                        class: 'btn-check',
+                                                        data: { quotation_pricing_target: 'mra', action: 'change->quotation-pricing#refresh' },
+                                                        disabled: sourcing_qoutations_opts[:disabled] %>
+                            <%= detail_form.label :attracts_mra_true, 'Yes', class: 'btn btn-outline-primary px-4' %>
+                            <%= detail_form.radio_button :attracts_mra, false,
+                                                        class: 'btn-check',
+                                                        data: { quotation_pricing_target: 'mra', action: 'change->quotation-pricing#refresh' },
+                                                        disabled: sourcing_qoutations_opts[:disabled] %>
+                            <%= detail_form.label :attracts_mra_false, 'No', class: 'btn btn-outline-danger px-4' %>
+                        </div>
+                    </div>
+                </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-normal">Calculated Total Cost (MWK)</label>
+                    <output class="form-control bg-light" aria-live="polite" data-quotation-pricing-target="lineTotal">0.00</output>
+                    <div class="small mt-1" aria-live="polite" data-quotation-pricing-target="capMessage"></div>
+                </div>
+            </div>
+        </div>
             <% end %>
         </div>
     <% end %>
@@ -229,6 +286,11 @@
         </div>
     <% end %>
 
+    <%# purchase request %>
+    <%= render_section_if @purchase_request, :payment_request do %>
+
+    <% end %>
+
 
     <%= render_section_if @purchase_request, :action_items do %>
         <% if @possible_actions.present? %>
@@ -244,12 +306,14 @@
                             button_tag with type="submit" and "formaction" tells the browser to submit 
                             the form data, but push it to the custom URL instead of the default form URL.
                         %>
+                        <% button_data = { turbo_confirm: "Are you sure you want to #{action.downcase}?" } %>
+                        <% button_data[:quotation_pricing_target] = 'saveAction' if action.casecmp?('Save Qoutation') %>
                         <%= button_tag action, 
                                         type: :submit, 
                                         formaction: dynamic_path, 
                                         formnovalidate: no_validation_actions.include?(action.downcase),
                                         class: "btn #{available_actions_badge_class(action)}",
-                                        data: { turbo_confirm: "Are you sure you want to #{action.downcase}?" } %>
+                                        data: button_data %>
                     <% end %>
                 </div>
             </div>

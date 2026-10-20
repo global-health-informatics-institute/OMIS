@@ -131,6 +131,15 @@ module Requisitions
       ]
     end
 
+    def quotation_cap_rule(purchase_request)
+      case purchase_request.current_state.to_s.downcase
+      when 'pending ipc - vendor analysis'
+        'at_least'
+      when 'pending vendor analysis'
+        'less_than'
+      end
+    end
+
     def cap_limit(route_type) # rubocop:disable Metrics/MethodLength
       threshold = PurchaseRequest.ipc_threshold
 

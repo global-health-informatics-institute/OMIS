@@ -260,6 +260,16 @@ GLOBAL_PROPERTIES = [
     property: 'IPC threshold',
     property_value: '3000000',
     description: 'The IPC threshold cap is the maximum amount that can be approved for procurement without requiring an (IPC) review.' # rubocop:disable Layout/LineLength
+  },
+  {
+    property: 'Levy rate',
+    property_value: '0.05',
+    description: 'Current levy rate for all purchases, expressed as a decimal. For example, a 5% levy rate is represented as 0.05.' # rubocop:disable Layout/LineLength
+  },
+  {
+    property: 'MRA rate',
+    property_value: '17.5',
+    description: 'Current MRA rate for all purchases, expressed as a percentage. For example, a 17.5% MRA rate is represented as 17.5.' # rubocop:disable Layout/LineLength
   }
 ]
 

@@ -8,7 +8,7 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
 
       ActiveRecord::Base.transaction do
         purchase_request.assign_attributes(params) if params.present?
-        validate_quotation!(purchase_request)
+        validate_and_calculate_quotation!(purchase_request)
         purchase_request.save!
 
         transition = WorkflowStateTransition.find_by!(
@@ -24,17 +24,45 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
 
     private
 
-    def validate_quotation!(purchase_request) # rubocop:disable Metrics/AbcSize
+    def validate_and_calculate_quotation!(purchase_request) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       purchase_request.errors.add(:vendor_name, "can't be blank") if purchase_request.vendor_name.blank?
 
-      purchase_request.requisition_items.each do |item|
-        next if item.value.present? && item.value.positive?
+      detail = purchase_request.purchase_request_detail
+      validate_detail_pricing(detail, purchase_request)
+      assign_quotation_total!(purchase_request, detail) if purchase_request.errors.empty?
 
-        item.errors.add(:value, 'must be greater than 0')
-        purchase_request.errors.add(:base, 'Each item must have a positive total cost')
-      end
+      validate_total_for_routing(purchase_request) if purchase_request.errors.empty?
 
       raise ActiveRecord::RecordInvalid, purchase_request if purchase_request.errors.any?
+    end
+
+    def validate_detail_pricing(detail, purchase_request)
+      add_detail_error(detail, purchase_request, :unit_price, 'must be greater than 0') unless detail.unit_price&.positive?
+      add_detail_error(detail, purchase_request, :attracts_levy, 'must be selected') if detail.attracts_levy.nil?
+      add_detail_error(detail, purchase_request, :attracts_mra, 'must be selected') if detail.attracts_mra.nil?
+    end
+
+    def add_detail_error(detail, purchase_request, attribute, message)
+      detail.errors.add(attribute, message)
+      purchase_request.errors.add(:base, 'A quotation needs a unit price and tax selections')
+    end
+
+    def assign_quotation_total!(purchase_request, detail)
+      purchase_request.requisition_items.each_with_index do |item, index|
+        item.value = index.zero? ? detail.quotation_total.round(2) : nil
+      end
+    end
+
+    def validate_total_for_routing(purchase_request)
+      threshold = PurchaseRequest.ipc_threshold
+      total = purchase_request.purchase_request_detail.quotation_total
+
+      case purchase_request.current_state.to_s.downcase
+      when 'pending ipc - vendor analysis'
+        purchase_request.errors.add(:base, "Total must be at least #{threshold}") if total < threshold
+      when 'pending vendor analysis'
+        purchase_request.errors.add(:base, "Total must be less than #{threshold}") if total >= threshold
+      end
     end
   end
 end

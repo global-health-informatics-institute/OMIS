@@ -5,5 +5,22 @@ class GlobalProperty < ApplicationRecord
       record = find_by(property: 'petty.cash.limit')
       record ? record.property_value.to_f : 40_000
     end
-end
+  end
+
+  def self.levy_rate
+    quotation_rate('Levy rate')
+  end
+
+  def self.mra_rate
+    quotation_rate('MRA rate')
+  end
+
+  def self.quotation_rate(property)
+    property_value = find_by(property: property)&.property_value
+    return 0.to_d if property_value.blank?
+
+    rate = property_value.to_d
+    rate > 1 ? rate / 100 : rate
+  end
+  private_class_method :quotation_rate
 end
