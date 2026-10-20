@@ -7,7 +7,7 @@
         <div class="card-header card-header-dark">
             <div class="row align-items-center">
                 <div class="col">
-                    <h5 class="mb-0">Purchase Request</h5>
+                    <h5 class="mb-0">Purchase Request #<%= @purchase_request.requisition_id %></h5>
                 </div>
                 <div class="col text-end">
                     <span class="badge <%= purchase_request_state_badge_class(@purchase_request.current_state) %> p-3 fs-6">
