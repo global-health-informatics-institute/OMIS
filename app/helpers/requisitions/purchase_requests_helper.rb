@@ -21,7 +21,9 @@ module Requisitions
       'Pending Payment Request',
       'Payment Request',
       'Pending LPO Request Submission',
-      'Pending LPO Review - Finance Team'
+      'Pending LPO Review - Finance Team',
+      'Pending LPO Review - ED',
+      'Pending Delivery Confirmation'
     ]).freeze
 
     SOURCING_QOUTATION_STATES = [
@@ -29,7 +31,9 @@ module Requisitions
       'Pending Vendor Analysis',
       'Pending LPO Check',
       'Pending LPO Request Submission',
-      'Pending LPO Review - Finance Team'
+      'Pending LPO Review - Finance Team',
+      'Pending LPO Review - ED',
+      'Pending Delivery Confirmation'
     ].freeze
 
     def purchase_request_state_badge_class(state) # rubocop:disable Metrics/MethodLength

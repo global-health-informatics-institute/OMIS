@@ -148,6 +148,18 @@ module Requisitions
       redirect_to requisitions_purchase_request_path(@purchase_request)
     end
 
+    def approve_lpo_request
+      @purchase_request = PurchaseRequestApproveLpoService.approve_lpo_request(params[:id])
+      flash[:notice] = 'LPO request approved'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
+    def choose_other_vendor
+      @purchase_request = PurchaseRequestChooseOtherVendorService.choose_other_vendor(params[:id])
+      flash[:notice] = 'Purchase request returned for another vendor selection'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
     def destroy; end
 
     private
