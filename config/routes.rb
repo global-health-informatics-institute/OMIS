@@ -75,6 +75,9 @@ Rails.application.routes.draw do
         patch 'save_qoutation'
         patch 'route_to_lpo_request'
         patch 'forward_to_payment_request'
+        patch 'prepare_lpo_request'
+        patch 'approve_lpo_request'
+        patch 'choose_other_vendor'
       end
     end
   end

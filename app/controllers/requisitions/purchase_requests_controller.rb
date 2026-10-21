@@ -146,6 +146,12 @@ module Requisitions
       redirect_to requisitions_purchase_request_path(@purchase_request)
     end
 
+    def prepare_lpo_request
+      @purchase_request = PurchaseRequestPrepareLpoService.prepare_lpo_request(params[:id])
+      flash[:notice] = "Purchase request's LPO has been prepared"
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
     def destroy; end
 
     private

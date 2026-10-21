@@ -19,13 +19,17 @@ module Requisitions
     ITEM_DETAIL_STATES = (REQUEST_DETAIL_STATES + [
       'Pending LPO Check',
       'Pending Payment Request',
-      'Payment Request'
+      'Payment Request',
+      'Pending LPO Request Submission',
+      'Pending LPO Review - Finance Team'
     ]).freeze
 
     SOURCING_QOUTATION_STATES = [
       'Pending IPC - Vendor Analysis',
       'Pending Vendor Analysis',
-      'Pending LPO Check'
+      'Pending LPO Check',
+      'Pending LPO Request Submission',
+      'Pending LPO Review - Finance Team'
     ].freeze
 
     def purchase_request_state_badge_class(state) # rubocop:disable Metrics/MethodLength
@@ -50,12 +54,14 @@ module Requisitions
       # actions when state "Pending Supervisor Review"
       when 'approve purchase request'
         'bg-success text-white'
-      when 'recall purchase request'
+      when 'recall purchase request', 'choose other vendor'
         'bg-warning text-dark'
       when 'rescind purchase request', 'decline purchase request', 'mark sourcing as failed'
         'bg-danger text-white'
       when 'resubmit purchase request',
-        'route to ipc - vendor analysis', 'route to lpo', 'save qoutation', 'forward to vendor analysis'
+        'route to ipc - vendor analysis', 'route to lpo', 'save qoutation',
+        'forward to vendor analysis', 'prepare lpo request',
+        'approve lpo request'
         'bg-primary text-white'
       else
         'bg-secondary text-white'
