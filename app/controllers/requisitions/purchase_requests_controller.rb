@@ -20,11 +20,7 @@ module Requisitions
 
     def show
       @purchase_request = PurchaseRequestShowService.show(params[:id])
-      @possible_actions = @purchase_request.available_actions(
-        user: current_user,
-        is_owner: @purchase_request.initiated_by == current_user.id,
-        is_supervisor: current_user.employee&.current_supervisees&.pluck(:supervisee)&.include?(@purchase_request.initiated_by) # rubocop:disable Layout/LineLength
-      )
+      load_possible_actions
     end
 
     # State: Pending Supervisor Approval
@@ -55,7 +51,7 @@ module Requisitions
     rescue ActiveRecord::RecordInvalid => e
       # If they tried to resubmit but left a required field blank
       @purchase_request = e.record
-      @possible_actions = @purchase_request.available_actions(user: current_user)
+      load_possible_actions
 
       flash.now[:alert] = 'Please fix the errors before resubmitting.'
       render :edit, status: :unprocessable_entity
@@ -170,6 +166,18 @@ module Requisitions
         purchase_request_detail_attributes: %i[
           id department_id unit_price attracts_levy attracts_mra vendor_mobile_number vendor_email
         ]
+      )
+    end
+
+    def load_possible_actions
+      is_requester = @purchase_request.requester?(current_user)
+      is_supervisor = current_user.employee&.current_supervisees&.pluck(:supervisee)&.include?(@purchase_request.initiated_by) # rubocop:disable Layout/LineLength
+
+      @possible_actions = @purchase_request.available_actions(
+        user: current_user,
+        is_owner: is_requester,
+        is_supervisor: is_supervisor,
+        owner_only: is_requester
       )
     end
   end

@@ -41,13 +41,14 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
   end
 
   # TODO: move to refactored 'posible_actions'
-  def available_actions(user:, is_owner: false, is_supervisor: false) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
+  def available_actions(user:, is_owner: false, is_supervisor: false, owner_only: false) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
     state_id = workflow_state_id
     return [] unless state_id
 
     actions = []
 
     actions += WorkflowStateTransition.where(workflow_state_id: state_id, by_owner: true).pluck(:action) if is_owner
+    return actions.compact.uniq if owner_only
 
     if is_supervisor
       actions += WorkflowStateTransition.where(workflow_state_id: state_id,
@@ -74,6 +75,12 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
     actions.compact.uniq
   end
 
+  def requester?(user)
+    return false unless user && initiated_by
+
+    [user.employee_id, user.employee&.employee_id, user.id].compact.include?(initiated_by)
+  end
+
   def actor?(user)
     return false unless user
 
@@ -89,7 +96,7 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
   def core_editable_by?(user)
     return false unless user
 
-    is_owner = initiated_by == user.employee&.id || initiated_by == user.id
+    is_owner = requester?(user)
 
     ['purchase request recalled', 'purchase request rejected'].include?(current_state.to_s.downcase) && is_owner
   end

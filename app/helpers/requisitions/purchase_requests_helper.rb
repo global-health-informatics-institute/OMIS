@@ -86,11 +86,13 @@ module Requisitions
 
       case section.to_sym
       when :request_details
-        state.in?(REQUEST_DETAIL_STATES)
+        purchase_request.requester?(current_user) || state.in?(REQUEST_DETAIL_STATES)
       when :item_details
         state.in?(ITEM_DETAIL_STATES)
       when :approval
-        state.in?(REQUEST_APPROVE_STATE) && (purchase_request.approved_by.present? || purchase_request.approved_on.present?) # rubocop:disable Layout/LineLength
+        purchase_request.requester?(current_user) || (
+          state.in?(REQUEST_APPROVE_STATE) && (purchase_request.approved_by.present? || purchase_request.approved_on.present?)
+        )
       when :review
         purchase_request.reviewed_by.present? || purchase_request.reviewed_on.present?
       when :sourcing_qoutations
