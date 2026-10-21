@@ -1,10 +1,11 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["item", "total", "capMessage", "saveAction"]
+  static targets = ["unitPrice", "levy", "mra", "lineTotal", "capMessage", "saveAction"]
   static values = {
     levyRate: Number,
     mraRate: Number,
+    quantity: Number,
     threshold: Number,
     capRule: String
   }
@@ -14,20 +15,19 @@ export default class extends Controller {
   }
 
   refresh() {
-    const total = this.itemTargets.reduce((sum, item) => sum + this.updateItemTotal(item), 0)
-    this.totalTargets.forEach((target) => { target.textContent = this.formatMoney(total) })
+    if (!this.hasUnitPriceTarget) return
+
+    const total = this.calculateTotal()
+    this.lineTotalTargets.forEach((target) => { target.textContent = this.formatMoney(total) })
     this.validateCap(total)
   }
 
-  updateItemTotal(item) {
-    const quantity = Number(item.dataset.quotationPricingQuantity) || 0
-    const unitPrice = Number(item.querySelector('[data-quotation-pricing-target="unitPrice"]')?.value) || 0
-    const attractsLevy = item.querySelector('[data-quotation-pricing-target="levy"]:checked')?.value === "true"
-    const attractsMra = item.querySelector('[data-quotation-pricing-target="mra"]:checked')?.value === "true"
-    const subtotal = quantity * unitPrice
+  calculateTotal() {
+    const unitPrice = Number(this.unitPriceTarget.value) || 0
+    const attractsLevy = this.levyTargets.find((input) => input.checked)?.value === "true"
+    const attractsMra = this.mraTargets.find((input) => input.checked)?.value === "true"
+    const subtotal = this.quantityValue * unitPrice
     const total = subtotal + (attractsLevy ? subtotal * this.levyRateValue : 0) + (attractsMra ? subtotal * this.mraRateValue : 0)
-
-    item.querySelector('[data-quotation-pricing-target="lineTotal"]').textContent = this.formatMoney(total)
     return total
   }
 

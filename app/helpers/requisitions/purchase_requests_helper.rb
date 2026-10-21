@@ -36,6 +36,16 @@ module Requisitions
       'Pending Delivery Confirmation'
     ].freeze
 
+    TAX_RATE_STATES = [
+      'Pending IPC - Vendor Analysis',
+      'Pending Vendor Analysis',
+      'Pending LPO Check',
+      'Pending LPO Request Submission',
+      'Pending LPO Review - Finance Team',
+      'Pending LPO Review - ED',
+      'Pending Delivery Confirmation'
+    ].freeze
+
     def purchase_request_state_badge_class(state) # rubocop:disable Metrics/MethodLength
       case state.to_s.downcase
       when 'requested', 'pending approval', 'pending supervisor approval'
@@ -101,6 +111,8 @@ module Requisitions
         purchase_request.reviewed_by.present? || purchase_request.reviewed_on.present?
       when :sourcing_qoutations
         state.in?(SOURCING_QOUTATION_STATES) && current_user&.employee_id != purchase_request.initiated_by
+      when :tax_rates
+        state.in?(TAX_RATE_STATES) && current_user&.employee_id != purchase_request.initiated_by
       when :action_items
         state != 'Pending LPO Check'
       when :lpo_check
