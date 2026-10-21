@@ -1,7 +1,3 @@
-<% department_icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktcGVvcGxlLWZpbGwiIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTcgMTRzLTEgMC0xLTEgMS00IDUtNCA1IDMgNSA0LTEgMS0xIDF6bTQtNmEzIDMgMCAxIDAgMC02IDMgMyAwIDAgMCAwIDZtLTUuNzg0IDZBMi4yNCAyLjI0IDAgMCAxIDUgMTNjMC0xLjM1NS42OC0yLjc1IDEuOTM2LTMuNzJBNi4zIDYuMyAwIDAgMCA1IDljLTQgMC01IDMtNSA0czEgMSAxIDF6TTQuNSA4YTIuNSAyLjUgMCAxIDAgMC01IDIuNSAyLjUgMCAwIDAgMCA1Ii8+Cjwvc3ZnPg==' %>
-<% location_icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktZ2VvLWFsdC1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGQ9Ik04IDE2czYtNS42ODYgNi0xMEE2IDYgMCAwIDAgMiA2YzAgNC4zMTQgNiAxMCA2IDEwbTAtN2EzIDMgMCAxIDEgMC02IDMgMyAwIDAgMSAwIDYiLz4KPC9zdmc+' %>
-<% status_dot_icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iI2ZmZiIgY2xhc3M9ImJpIGJpLWNpcmNsZS1maWxsIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxjaXJjbGUgY3g9IjgiIGN5PSI4IiByPSI4Ii8+Cjwvc3ZnPgo=' %>
-
 <div class="row">
   <div class="col">
     <p class="h4">Personal Dashboard</p>
@@ -24,11 +20,11 @@
           <p class="fs-6 fst-italic mb-2" id="role"><%= @employee.current_position.presence || 'Position not recorded' %></p>
           <div class="d-flex flex-wrap align-items-center gap-3 fs-6 mb-1">
             <span class="d-inline-flex align-items-center gap-2">
-              <%= image_tag department_icon, width: 16, height: 16, alt: '' %>
+              <%= image_tag 'person.png', width: 24, height: 24, class: 'flex-shrink-0', alt: '' %>
               <span><%= @employee.current_department.presence || 'Department not recorded' %></span>
             </span>
             <span class="d-inline-flex align-items-center gap-2">
-              <%= image_tag location_icon, width: 13, height: 14, alt: '' %>
+              <%= image_tag 'location.png', width: 24, height: 24, class: 'flex-shrink-0', alt: '' %>
               <span><%= @employee.current_branches.presence || 'Location not recorded' %></span>
             </span>
           </div>
@@ -43,7 +39,7 @@
             <dt class="fw-bold text-muted me-auto">Contract</dt>
             <dd class="mb-0 ms-auto text-end text-muted">Not recorded</dd>
             <dd class="mb-0 badge rounded-pill text-bg-secondary d-inline-flex align-items-center justify-content-center gap-2 px-2">
-              <%= image_tag status_dot_icon, alt: '', width: 7, height: 7 %>
+              <div class="rounded-circle bg-white flex-shrink-0 p-1" aria-hidden="true"></div>
               No dates
             </dd>
           </div>
@@ -51,7 +47,7 @@
             <dt class="fw-bold text-muted me-auto">Next appraisal</dt>
             <dd class="mb-0 ms-auto text-end text-muted">Not scheduled</dd>
             <dd class="mb-0 badge rounded-pill text-bg-secondary d-inline-flex align-items-center justify-content-center gap-2 px-2">
-              <%= image_tag status_dot_icon, alt: '', width: 7, height: 7 %>
+              <div class="rounded-circle bg-white flex-shrink-0 p-1" aria-hidden="true"></div>
               No date
             </dd>
           </div>
@@ -71,11 +67,11 @@
          <tr>
           <td>
             Target
-            <canvas id="loeTargetPie" style="height: 20vh !important; width: 10vw;margin-left: auto; margin-right: auto;"></canvas>
+            <canvas id="loeTargetPie" class="d-block w-100 h-auto mx-auto"></canvas>
           </td>
           <td>
             Current
-            <canvas id="loeActualPie" style="height: 20vh !important; width: 10vw;margin-left: auto; margin-right: auto;"></canvas>
+            <canvas id="loeActualPie" class="d-block w-100 h-auto mx-auto"></canvas>
           </td>
         </tr>
         </table>
@@ -150,11 +146,6 @@
           </ul>
         <% end %>
       </div>
-      <footer class="d-flex flex-wrap align-items-center justify-content-center gap-4 px-2 py-2 mt-auto fs-6 fw-normal text-body-secondary">
-        <span class="d-inline-flex align-items-center gap-2"><span class="rounded-circle bg-danger p-1" aria-hidden="true"></span>Overdue</span>
-        <span class="d-inline-flex align-items-center gap-2"><span class="rounded-circle bg-warning p-1" aria-hidden="true"></span>Due soon</span>
-        <span class="d-inline-flex align-items-center gap-2"><span class="rounded-circle bg-success p-1" aria-hidden="true"></span>On track</span>
-      </footer>
     </section>
   </div>
 </div>
@@ -162,28 +153,27 @@
   <div class="modal fade" id="activityEvaluationModal<%= activity[:id] %>" tabindex="-1" aria-labelledby="activityEvaluationLabel<%= activity[:id] %>" aria-describedby="activityEvaluationTask<%= activity[:id] %>" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content rounded-3 border-0">
-        <form novalidate data-evaluation-attachment-form data-activity-description="<%= activity[:description] %>">
+        <div>
           <div class="modal-body px-4 ps-sm-5 pt-5 pb-4">
             <h2 class="visually-hidden" id="activityEvaluationTask<%= activity[:id] %>"><%= activity[:description] %></h2>
             <div class="d-flex flex-wrap flex-sm-nowrap align-items-center justify-content-between gap-3 gap-sm-2 small">
               <label class="small mb-0" id="activityEvaluationLabel<%= activity[:id] %>" for="activityEvaluationFile<%= activity[:id] %>">Please attach the completed Evaluation Appraisal Excel file</label>
               <div class="flex-shrink-0">
-                <input type="file" class="visually-hidden" id="activityEvaluationFile<%= activity[:id] %>" name="evaluation_file" accept=".xlsx,.xls" tabindex="-1" aria-describedby="activityEvaluationFilename<%= activity[:id] %>" data-evaluation-file>
-                <button type="button" class="btn btn-primary bg-primary bg-opacity-75 rounded-pill btn-sm fw-semibold text-dark px-4 py-0" data-evaluation-browse aria-controls="activityEvaluationFile<%= activity[:id] %>"><span class="small">Browse</span></button>
+                <input type="file" class="visually-hidden" id="activityEvaluationFile<%= activity[:id] %>" name="evaluation_file" accept=".xlsx,.xls" tabindex="-1" disabled>
+                <button type="button" class="btn btn-primary bg-primary bg-opacity-75 rounded-pill btn-sm fw-semibold text-dark px-4 py-0" disabled aria-controls="activityEvaluationFile<%= activity[:id] %>"><span class="small">Browse</span></button>
               </div>
             </div>
-            <p class="small text-muted text-break mb-0 mt-2 d-none" id="activityEvaluationFilename<%= activity[:id] %>" data-evaluation-filename aria-live="polite"></p>
+            <p class="small text-muted mb-0 mt-2">Evaluation uploads are not available yet.</p>
           </div>
           <div class="modal-footer border-0 justify-content-between px-4 pt-3 pb-2">
             <button type="button" class="btn btn-danger rounded-pill btn-sm fw-semibold px-4 py-0" data-bs-dismiss="modal"><span class="small">Cancel</span></button>
-            <button type="submit" class="btn btn-success rounded-pill btn-sm fw-semibold px-4 py-0"><span class="small">Done</span></button>
+            <button type="button" class="btn btn-success rounded-pill btn-sm fw-semibold px-4 py-0" disabled><span class="small">Done</span></button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   </div>
 <% end %>
-<p class="small text-body-secondary mt-2 mb-0 d-none" id="activityEvaluationSelectionStatus" role="status"></p>
 
 <div class="row mt-4">
   <div class="col-sm-4">
@@ -358,48 +348,12 @@
 
 <script>
 
-// Keep file selection local until an attachment upload endpoint is available.
+// Size the scroll area to the visible cards, including wrapped activity text.
 (() => {
-  const forms = document.querySelectorAll('[data-evaluation-attachment-form]');
-  forms.forEach(form => {
-    const input = form.querySelector('[data-evaluation-file]');
-    const filename = form.querySelector('[data-evaluation-filename]');
-    form.querySelector('[data-evaluation-browse]').addEventListener('click', () => input.click());
-    input.addEventListener('change', () => {
-      const file = input.files[0];
-      input.setCustomValidity(file && !/\.(xlsx|xls)$/i.test(file.name) ? 'Please choose an Excel file (.xlsx or .xls).' : '');
-      filename.textContent = file ? file.name : '';
-      filename.classList.toggle('d-none', !file);
-    });
-    form.addEventListener('submit', event => {
-      event.preventDefault();
-      if (!input.files[0] || !input.checkValidity()) {
-        filename.textContent = input.files[0] ? input.validationMessage : 'Please choose an Excel file (.xlsx or .xls).';
-        filename.classList.remove('d-none');
-        form.querySelector('[data-evaluation-browse]').focus();
-        return;
-      }
-      const status = document.getElementById('activityEvaluationSelectionStatus');
-      status.textContent = `Selected ${input.files[0].name} for ${form.dataset.activityDescription}.`;
-      status.classList.remove('d-none');
-      form.querySelector('[data-bs-dismiss="modal"]').click();
-    });
-  });
-  document.addEventListener('turbo:before-cache', () => {
-    forms.forEach(form => {
-      form.reset();
-      form.querySelector('[data-evaluation-file]').setCustomValidity('');
-      form.querySelector('[data-evaluation-filename]').classList.add('d-none');
-      if (form.closest('.modal').classList.contains('show')) form.querySelector('[data-bs-dismiss="modal"]').click();
-    });
-  }, { once: true });
-})();
-
-// Size the scroll area to the first two cards, including wrapped activity text.
-(() => {
+  const visibleCardCount = 3;
   const viewport = document.getElementById('upcomingActivitiesViewport');
   const cards = viewport ? Array.from(viewport.querySelectorAll('li')) : [];
-  if (cards.length <= 2) return;
+  if (cards.length <= visibleCardCount) return;
 
   const observer = new ResizeObserver(() => {
     if (!viewport.isConnected) {
@@ -407,10 +361,10 @@
       return;
     }
     const first = cards[0].getBoundingClientRect();
-    const second = cards[1].getBoundingClientRect();
-    viewport.style.maxHeight = `${Math.ceil(second.bottom - first.top)}px`;
+    const lastVisible = cards[visibleCardCount - 1].getBoundingClientRect();
+    viewport.style.maxHeight = `${Math.ceil(lastVisible.bottom - first.top)}px`;
   });
-  cards.slice(0, 2).forEach(card => observer.observe(card));
+  cards.slice(0, visibleCardCount).forEach(card => observer.observe(card));
   document.addEventListener('turbo:before-cache', () => observer.disconnect(), { once: true });
 })();
 
