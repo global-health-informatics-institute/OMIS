@@ -205,7 +205,7 @@ WORKFLOW_STATE_TRANSITIONS = [
     by_supervisor: false
   },
 
-  # on Pending LPO
+  # on Pending LPO Request Submission
   # by finance team (review -> finance lead -> download LPO)
   {
     workflow_state_id: 'Pending LPO Request Submission',
@@ -234,7 +234,7 @@ WORKFLOW_STATE_TRANSITIONS = [
   # on Pending LPO Review - ED
   {
     workflow_state_id: 'Pending LPO Review - ED',
-    next_state: 'Pending Delivery Comfirmation',
+    next_state: 'Pending Delivery Confirmation',
     action: 'Approve LPO Request',
     by_owner: false,
     by_supervisor: false
@@ -284,17 +284,32 @@ FINANCE_TEAM_DESIGNATIONS = [
   'Finance Officer'
 ].freeze
 
-# states the finance team acts on
-WORKFLOW_STATE_TRANSITIONS_ACTORS = [
-  'Pending Sourcing Quotation',
-  'Pending IPC - Vendor Analysis',
-  'Pending Vendor Analysis',
-  'Pending LPO Check',
-  'Pending LPO - Request Submission',
-  'Pending Delivery Confirmation'
-].map do |state|
-  { state_to_act_on: state, designations: FINANCE_TEAM_DESIGNATIONS }
-end
+# who can act on the LPO review states
+LPO_FT_DESIGNATION = [
+  'Administration Lead',
+  'Finance Officer',
+  'Receptionist'
+].freeze
+
+LPO_ED_DESIGNATION = [
+  'Director'
+].freeze
+
+# states the finance team acts on, plus the two LPO review states
+# (Pending Item Acceptance is acted on by the request owner, so it has no actors)
+WORKFLOW_STATE_TRANSITIONS_ACTORS = (
+  [
+    'Pending Sourcing Quotation',
+    'Pending IPC - Vendor Analysis',
+    'Pending Vendor Analysis',
+    'Pending LPO Check',
+    'Pending LPO Request Submission',
+    'Pending Delivery Confirmation'
+  ].map { |state| { state_to_act_on: state, designations: FINANCE_TEAM_DESIGNATIONS } } + [
+    { state_to_act_on: 'Pending LPO Review - Finance Team', designations: LPO_FT_DESIGNATION },
+    { state_to_act_on: 'Pending LPO Review - ED', designations: LPO_ED_DESIGNATION }
+  ]
+).freeze
 
 # IPC threshhold
 GLOBAL_PROPERTIES = [
@@ -323,7 +338,7 @@ GLOBAL_PROPERTIES = [
     property_value: 'GHIII Offices, area 3/719',
     description: 'The address of the office where purchases are managed.'
   }
-]
+].freeze
 
 def _get_workflow_process_id(workflow_process_name)
   WorkflowProcess.find_by(workflow: workflow_process_name)&.workflow_process_id
@@ -371,6 +386,12 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
     from_state_id = _get_workflow_state_id(process_id, transition_data[:workflow_state_id])
     to_state_id   = _get_workflow_state_id(process_id, transition_data[:next_state])
 
+    # fail loudly on a state name typo instead of inserting a row with a nil id
+    unless from_state_id && to_state_id
+      raise "Unknown state in transition '#{transition_data[:action]}': " \
+            "#{transition_data[:workflow_state_id]} -> #{transition_data[:next_state]}"
+    end
+
     transition = WorkflowStateTransition.find_or_initialize_by(
       workflow_state_id: from_state_id,
       next_state: to_state_id,
@@ -385,11 +406,14 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
   # 4. Upsert Actors
   WORKFLOW_STATE_TRANSITIONS_ACTORS.each do |workflow_state_actor|
     workflow_state_id = _get_workflow_state_id(process_id, workflow_state_actor[:state_to_act_on])
-    next unless workflow_state_id
+    raise "Unknown state in actors: #{workflow_state_actor[:state_to_act_on]}" unless workflow_state_id
 
     workflow_state_actor[:designations].each do |designation|
       designation_id = _get_designation_role_id(designation)
-      next unless designation_id
+      unless designation_id
+        warn "Designation not found (skipped): '#{designation}' for '#{workflow_state_actor[:state_to_act_on]}'"
+        next
+      end
 
       wsa = WorkflowStateActor.find_or_initialize_by(
         workflow_state_id:,
