@@ -160,6 +160,30 @@ module Requisitions
       redirect_to requisitions_purchase_request_path(@purchase_request)
     end
 
+    def confirm_delivery
+      @purchase_request = PurchaseRequestConfirmDeliveryService.confirm_delivery(params[:id])
+      flash[:notice] = 'Delivery confirmed and awaiting requester acceptance'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
+    def mark_delivery_as_failed
+      @purchase_request = PurchaseRequestMarkDeliveryAsFailedService.mark_delivery_as_failed(params[:id])
+      flash[:notice] = 'Delivery marked as failed'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
+    def accept_item
+      @purchase_request = PurchaseRequestAcceptItemService.accept_item(params[:id])
+      flash[:notice] = 'Item accepted and forwarded for payment request'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
+    def decline_item
+      @purchase_request = PurchaseRequestDeclineItemService.decline_item(params[:id])
+      flash[:notice] = 'Item declined and returned for delivery confirmation'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
     def destroy; end
 
     private

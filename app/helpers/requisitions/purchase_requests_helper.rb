@@ -9,7 +9,8 @@ module Requisitions
       'Pending Sourcing Quotation',
       'Pending IPC - Vendor Analysis',
       'Pending Vendor Analysis',
-      'Purchase Request Recalled'
+      'Purchase Request Recalled',
+      'Pending Item Acceptance'
     ].freeze
 
     REQUEST_APPROVE_STATE = [
@@ -23,7 +24,9 @@ module Requisitions
       'Pending LPO Request Submission',
       'Pending LPO Review - Finance Team',
       'Pending LPO Review - ED',
-      'Pending Delivery Confirmation'
+      'Pending Delivery Confirmation',
+      'Pending Item Acceptance',
+      'Item Delivery Failed'
     ]).freeze
 
     SOURCING_QOUTATION_STATES = [
@@ -33,7 +36,9 @@ module Requisitions
       'Pending LPO Request Submission',
       'Pending LPO Review - Finance Team',
       'Pending LPO Review - ED',
-      'Pending Delivery Confirmation'
+      'Pending Delivery Confirmation',
+      'Item Delivery Failed',
+      'Pending Payment Request'
     ].freeze
 
     TAX_RATE_STATES = [
@@ -43,7 +48,9 @@ module Requisitions
       'Pending LPO Request Submission',
       'Pending LPO Review - Finance Team',
       'Pending LPO Review - ED',
-      'Pending Delivery Confirmation'
+      'Pending Delivery Confirmation',
+      'Pending Item Acceptance',
+      'Pending Payment Request'
     ].freeze
 
     def purchase_request_state_badge_class(state) # rubocop:disable Metrics/MethodLength
@@ -52,12 +59,13 @@ module Requisitions
         'bg-secondary text-white'
       when 'approved'
         'bg-success text-white'
-      when 'purchase request rescinded', 'purchase request declined', 'voided'
+      when 'purchase request rescinded', 'purchase request declined', 'voided', 'item delivery failed'
         'bg-danger text-white'
       when 'purchase request recalled', 'draft', 'pending submission'
         'bg-warning text-dark'
-      when 'under review', 'pending review'
-        'bg-info text-white'
+      when 'under review', 'pending review', 'pending sourcing quotation', 'pending ipc - vendor analysis', 'pending vendor analysis',
+           'pending lpo check', 'pending lpo request submission', 'pending lpo review - finance team', 'pending lpo review - ed', 'pending delivery confirmation', 'pending item acceptance', 'pending payment request'
+        'bg-info text-black'
       else
         'bg-secondary text-white'
       end
@@ -66,11 +74,11 @@ module Requisitions
     def available_actions_badge_class(action) # rubocop:disable Metrics/MethodLength
       case action.to_s.downcase
       # actions when state "Pending Supervisor Review"
-      when 'approve purchase request'
+      when 'approve purchase request', 'confirm delivery', 'approve lpo request', 'accept item'
         'bg-success text-white'
       when 'recall purchase request', 'choose other vendor'
         'bg-warning text-dark'
-      when 'rescind purchase request', 'decline purchase request', 'mark sourcing as failed'
+      when 'rescind purchase request', 'decline purchase request', 'mark sourcing as failed', 'mark delivery as failed', 'decline item'
         'bg-danger text-white'
       when 'resubmit purchase request',
         'route to ipc - vendor analysis', 'route to lpo', 'save qoutation',
@@ -150,6 +158,11 @@ module Requisitions
       [
         'decline purchase request',
         'mark sourcing as failed',
+        'mark delivery as failed',
+        'choose other vendor',
+        'confirm delivery',
+        'accept item',
+        'decline item',
         'recall purchase request',
         'rescind purchase request'
       ]

@@ -62,10 +62,13 @@ WORKFLOW_STATE = [
     state: 'Pending LPO Review - ED',
     description: 'State indicating that the LPO request is being reviewed by the Executive Director and will be approved or rejected' # rubocop:disable Layout/LineLength
   },
-
   {
     state: 'Pending Delivery Confirmation',
     description: 'State indicating that the LPO was sent and finance is waiting to confirm item delivery and the delivery note' # rubocop:disable Layout/LineLength
+  },
+  {
+    state: 'Item Delivery Failed',
+    description: 'State indicating that the supplier did not deliver the item and within the required timeframe' # rubocop:disable Layout/LineLength
   },
   {
     # on item rejection: reroutes to pending delivery
@@ -253,6 +256,20 @@ WORKFLOW_STATE_TRANSITIONS = [
     workflow_state_id: 'Pending Delivery Confirmation',
     next_state: 'Pending Item Acceptance',
     action: 'Confirm Delivery',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Delivery Confirmation',
+    next_state: 'Item Delivery Failed',
+    action: 'Mark Delivery as Failed',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Delivery Confirmation',
+    next_state: 'Pending Sourcing Quotation',
+    action: 'Choose Other Vendor',
     by_owner: false,
     by_supervisor: false
   },

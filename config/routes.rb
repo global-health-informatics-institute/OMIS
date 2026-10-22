@@ -78,6 +78,10 @@ Rails.application.routes.draw do
         patch 'prepare_lpo_request'
         patch 'approve_lpo_request'
         patch 'choose_other_vendor'
+        patch 'confirm_delivery'
+        patch 'mark_delivery_as_failed'
+        patch 'accept_item'
+        patch 'decline_item'
       end
     end
   end
