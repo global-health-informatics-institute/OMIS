@@ -103,7 +103,7 @@ class LeaveRequestsController < ApplicationController
       'Program Director'
     ].freeze
 
-    broadcast_types = ['Annual Leave']
+    broadcast_types = ['Annual Leave', 'Study Leave']
 
     if @leave_request.update(
       reviewed_by: current_user.user_id,
