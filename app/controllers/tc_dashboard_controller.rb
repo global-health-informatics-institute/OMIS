@@ -3,6 +3,16 @@ require 'yaml'
 class TcDashboardController < ApplicationController # rubocop:disable Metrics/ClassLength,Style/Documentation
   def index
     @common_data, @gender_age, @tenure, @project, @project_metadata = prepare_dashboard_data
+
+    return unless params[:json] == 'true'
+
+    render json: {
+      common_data: @common_data,
+      gender_age: @gender_age,
+      tenure: @tenure,
+      project: @project,
+      project_metadata: @project_metadata
+    }
   end
 
   def gender_age
@@ -30,7 +40,7 @@ class TcDashboardController < ApplicationController # rubocop:disable Metrics/Cl
     @gender_age = {
       title: 'WORKFORCE',
       card_title_1: 'Workforce Distribution by Age', # rubocop:disable Naming/VariableNumber
-      card_title_2: 'Gender Distribution', # rubocop:disable Naming/VariableNumber
+      card_title_2: 'Workforce Distribution by Sex', # rubocop:disable Naming/VariableNumber
 
       past_four_months:,
       past_four_months_trend: past_four_months_headcount,
@@ -64,7 +74,7 @@ class TcDashboardController < ApplicationController # rubocop:disable Metrics/Cl
     @tenure = {
       title: 'GROWTH',
 
-      card_title_1: 'Retention Trend', # rubocop:disable Naming/VariableNumber
+      card_title_1: 'Retention Trend - Internship Inclusive', # rubocop:disable Naming/VariableNumber
       past_four_year_quarters:,
       past_four_year_quarter_trend: past_four_year_quarters_trend,
 
