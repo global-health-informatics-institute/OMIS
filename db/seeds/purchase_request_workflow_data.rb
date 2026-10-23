@@ -68,7 +68,7 @@ WORKFLOW_STATE = [
   },
   {
     state: 'Item Delivery Failed',
-    description: 'State indicating that the supplier did not deliver the item and within the required timeframe'
+    description: 'State indicating that the supplier did not deliver the item within the required timeframe'
   },
   {
     # on item rejection: reroutes to pending delivery
