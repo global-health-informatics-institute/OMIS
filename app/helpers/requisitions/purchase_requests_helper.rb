@@ -134,7 +134,10 @@ module Requisitions
         description: workflow_state.description.presence || "The request is currently at #{workflow_state.state}.",
         actors: workflow_step_actors(workflow_state.workflow_state_id, transitions),
         next_steps: transitions.map do |transition|
-          "#{transition.action} moves the request to #{next_states[transition.next_state] || 'the next workflow step'}"
+          {
+            action: transition.action,
+            description: "Moves the request to #{next_states[transition.next_state] || 'the next workflow step'}."
+          }
         end
       }
     end

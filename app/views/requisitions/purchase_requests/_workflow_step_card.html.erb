@@ -10,9 +10,17 @@
                 <strong>Expected to act:</strong> <%= workflow_step[:actors].to_sentence %>.
             <% end %>
         </p>
-        <p class="mb-0">
+        <div>
             <strong>Possible actions:</strong>
-            <%= workflow_step[:next_steps].present? ? workflow_step[:next_steps].to_sentence : 'No further workflow action is required.' %>
-        </p>
+            <% if workflow_step[:next_steps].present? %>
+                <ul class="mb-0 ps-3">
+                    <% workflow_step[:next_steps].each do |next_step| %>
+                        <li><em>'<%= next_step[:action] %>'</em> - <%= next_step[:description] %></li>
+                    <% end %>
+                </ul>
+            <% else %>
+                No further workflow action is required.
+            <% end %>
+        </div>
     </div>
 </div>
