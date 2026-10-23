@@ -356,38 +356,50 @@ WORKFLOW_STATE_TRANSITIONS = [
 ].freeze
 
 # TODO: add to workflow_state_actors
-FINANCE_TEAM_DESIGNATIONS = [
+FT_DESIGNATIONS = [
   'Director of Finance and Administration',
   'Finance & Administration Lead',
   'Finance Lead',
-  'Administration Lead',
-  'Finance Officer'
-].freeze
-
-# who can act on the LPO review states
-LPO_FT_DESIGNATION = [
   'Administration Lead',
   'Finance Officer',
   'Receptionist'
 ].freeze
 
-LPO_ED_DESIGNATION = [
+FT_STATES = [
+  'Pending Sourcing Quotation',
+  'Pending IPC - Vendor Analysis',
+  'Pending Vendor Analysis',
+  'Pending LPO Check',
+  'Pending LPO Request Submission',
+  'Pending Delivery Confirmation',
+  'Pending Payment Request'
+].freeze
+
+# who can act on the review states
+JNR_FT_DESIGNATION = [
+  'Administration Lead',
+  'Finance Officer',
+  'Receptionist'
+].freeze
+
+SNR_FT_DESIGNATION = [
+  'Director of Finance and Administration',
+  'Finance & Administration Lead',
+  'Finance Lead'
+].freeze
+
+ED_DESIGNATION = [
   'Director'
 ].freeze
 
-# states the finance team acts on, plus the two LPO review states
+# states the finance team acts on, plus the review states
 # (Pending Item Acceptance is acted on by the request owner, so it has no actors)
 WORKFLOW_STATE_TRANSITIONS_ACTORS = (
-  [
-    'Pending Sourcing Quotation',
-    'Pending IPC - Vendor Analysis',
-    'Pending Vendor Analysis',
-    'Pending LPO Check',
-    'Pending LPO Request Submission',
-    'Pending Delivery Confirmation'
-  ].map { |state| { state_to_act_on: state, designations: FINANCE_TEAM_DESIGNATIONS } } + [
-    { state_to_act_on: 'Pending LPO Review - Finance Team', designations: LPO_FT_DESIGNATION },
-    { state_to_act_on: 'Pending LPO Review - ED', designations: LPO_ED_DESIGNATION }
+  FT_STATES.map { |state| { state_to_act_on: state, designations: FT_DESIGNATIONS } } + [
+    { state_to_act_on: 'Pending LPO Review - Finance Team', designations: SNR_FT_DESIGNATION },
+    { state_to_act_on: 'Pending LPO Review - ED', designations: ED_DESIGNATION },
+    { state_to_act_on: 'Pending Payment Request Review - Finance Team', designations: SNR_FT_DESIGNATION },
+    { state_to_act_on: 'Pending Payment Request Review - ED', designations: ED_DESIGNATION }
   ]
 ).freeze
 
@@ -439,6 +451,21 @@ def _get_designation_role_id(designated_role)
   )&.designation_id
 end
 
+# DRY_RUN=1 runs everything inside the transaction, prints the counts, then rolls back
+dry_run = ENV['DRY_RUN'] == '1'
+
+# counts for the summary printed at the end
+stats = {
+  states: { created: 0, updated: 0 },
+  transitions: { created: 0, updated: 0 },
+  actors: { created: 0, updated: 0, skipped: 0 },
+  global_properties: { created: 0, updated: 0 },
+  stale: {}
+}
+touched = { states: [], transitions: [] }
+
+puts dry_run ? 'Previewing Purchase Request workflow (DRY_RUN)' : 'Seeding Purchase Request workflow'
+
 ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
   # Reset PK sequence
   ActiveRecord::Base.connection.reset_pk_sequence!('workflow_states')
@@ -458,7 +485,9 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
       workflow_process_id: process_id,
       state: state_data[:state]
     )
+    stats[:states][state.new_record? ? :created : :updated] += 1
     state.update!(description: state_data[:description])
+    touched[:states] << state.workflow_state_id
   end
 
   # 3. Upsert Transitions
@@ -477,10 +506,12 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
       next_state: to_state_id,
       action: transition_data[:action]
     )
+    stats[:transitions][transition.new_record? ? :created : :updated] += 1
     transition.update!(
       by_owner: transition_data[:by_owner],
       by_supervisor: transition_data[:by_supervisor]
     )
+    touched[:transitions] << [from_state_id, to_state_id, transition_data[:action]]
   end
 
   # 4. Upsert Actors
@@ -492,6 +523,7 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
       designation_id = _get_designation_role_id(designation)
       unless designation_id
         warn "Designation not found (skipped): '#{designation}' for '#{workflow_state_actor[:state_to_act_on]}'"
+        stats[:actors][:skipped] += 1
         next
       end
 
@@ -501,6 +533,7 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
         voided: false
       )
 
+      stats[:actors][wsa.new_record? ? :created : :updated] += 1
       wsa.update!(
         workflow_state_id:,
         employee_designation_id: designation_id
@@ -514,6 +547,7 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
       global_property
     )
 
+    stats[:global_properties][gp.new_record? ? :created : :updated] += 1
     gp.update!(
       global_property
     )
@@ -523,4 +557,33 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
   first_state_id = _get_workflow_state_id(process_id, WORKFLOW_STATE.first[:state])
   initial_state = InitialState.find_or_initialize_by(workflow_process_id: process_id)
   initial_state.update!(workflow_state_id: first_state_id)
+
+  # 7. Find rows from earlier runs that are no longer in this seed (reported, never deleted)
+  state_names = WorkflowState.where(workflow_process_id: process_id).pluck(:workflow_state_id, :state).to_h
+  stats[:stale][:states] = state_names.reject { |id, _| touched[:states].include?(id) }.values
+  stats[:stale][:transitions] =
+    WorkflowStateTransition.where(workflow_state_id: state_names.keys).filter_map do |t|
+      next if touched[:transitions].include?([t.workflow_state_id, t.next_state, t.action])
+
+      "#{state_names[t.workflow_state_id]} -> #{state_names[t.next_state]} (#{t.action})"
+    end
+
+  raise ActiveRecord::Rollback if dry_run
+end
+
+# summary (not reached if anything above raised)
+format_counts = lambda do |counts|
+  "#{counts[:created] + counts[:updated]} (#{counts[:created]} new, #{counts[:updated]} existing)"
+end
+
+puts(dry_run ? 'DRY RUN - nothing was saved. A real run would do this:' : 'Completed seeding Purchase Request workflow:')
+puts "  States:            #{format_counts.call(stats[:states])}"
+puts "  Transitions:       #{format_counts.call(stats[:transitions])}"
+puts "  Actors:            #{format_counts.call(stats[:actors])}, #{stats[:actors][:skipped]} designation(s) not found"
+puts "  Global properties: #{format_counts.call(stats[:global_properties])}"
+
+unless stats[:stale][:states].empty? && stats[:stale][:transitions].empty?
+  puts '  Left over from earlier runs (not in this seed, not deleted):'
+  stats[:stale][:states].each { |name| puts "    state: #{name}" }
+  stats[:stale][:transitions].each { |label| puts "    transition: #{label}" }
 end
