@@ -127,6 +127,23 @@ module Requisitions
       Department.order(:department_name).pluck(:department_name, :department_id)
     end
 
+    def workflow_step_information(purchase_request)
+      workflow_state = purchase_request.workflow_state
+      return { description: 'Workflow information is unavailable.', actors: [], next_steps: [] } unless workflow_state
+
+      transitions = WorkflowStateTransition.where(workflow_state_id: workflow_state.workflow_state_id).to_a
+      next_states = WorkflowState.where(workflow_state_id: transitions.map(&:next_state))
+                                 .pluck(:workflow_state_id, :state).to_h
+
+      {
+        description: workflow_state.description.presence || "The request is currently at #{workflow_state.state}.",
+        actors: workflow_step_actors(workflow_state.workflow_state_id, transitions),
+        next_steps: transitions.map do |transition|
+          "#{transition.action} moves the request to #{next_states[transition.next_state] || 'the next workflow step'}"
+        end
+      }
+    end
+
     def show_section?(purchase_request, section) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/AbcSize,Metrics/MethodLength,Metrics/PerceivedComplexity
       state = purchase_request.current_state
 
@@ -218,6 +235,22 @@ module Requisitions
           placeholder: "value not more or equal to #{threshold}"
         }
       end
+    end
+
+    private
+
+    def workflow_step_actors(workflow_state_id, transitions)
+      actors = []
+      actors << 'the requester' if transitions.any?(&:by_owner?)
+      actors << "the requester's supervisor" if transitions.any?(&:by_supervisor?)
+
+      if transitions.any? { |transition| !transition.by_owner? && !transition.by_supervisor? }
+        designation_ids = WorkflowStateActor.where(workflow_state_id: workflow_state_id)
+                                             .pluck(:employee_designation_id)
+        actors.concat(Designation.where(designation_id: designation_ids).order(:designated_role).pluck(:designated_role))
+      end
+
+      actors.uniq
     end
   end
 end

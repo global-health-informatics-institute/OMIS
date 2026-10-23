@@ -1,0 +1,18 @@
+<% workflow_step = workflow_step_information(purchase_request) %>
+
+<div class="card border-primary mt-3">
+    <div class="card-body py-3">
+        <p class="mb-2">
+            <strong>Current step:</strong> <%= workflow_step[:description] %>
+        </p>
+        <p class="mb-2">
+            <% if workflow_step[:actors].present? %>
+                <strong>Expected to act:</strong> <%= workflow_step[:actors].to_sentence %>.
+            <% end %>
+        </p>
+        <p class="mb-0">
+            <strong>Possible actions:</strong>
+            <%= workflow_step[:next_steps].present? ? workflow_step[:next_steps].to_sentence : 'No further workflow action is required.' %>
+        </p>
+    </div>
+</div>
