@@ -370,9 +370,7 @@ FT_STATES = [
   'Pending IPC - Vendor Analysis',
   'Pending Vendor Analysis',
   'Pending LPO Check',
-  'Pending LPO Request Submission',
-  'Pending Delivery Confirmation',
-  'Pending Payment Request'
+  'Pending Delivery Confirmation'
 ].freeze
 
 # who can act on the review states
@@ -382,26 +380,52 @@ JNR_FT_DESIGNATION = [
   'Receptionist'
 ].freeze
 
+JNR_FT_STATES = [
+  'Pending LPO Request Submission',
+  'Pending Payment Request',
+  'Pending Payment Voucher'
+].freeze
+
 SNR_FT_DESIGNATION = [
   'Director of Finance and Administration',
   'Finance & Administration Lead',
   'Finance Lead'
 ].freeze
 
+SNR_FT_STATES = [
+  'Pending LPO Review - Finance Team',
+  'Pending Payment Request Review - Finance Team'
+].freeze
+
 ED_DESIGNATION = [
   'Director'
+].freeze
+
+ED_STATES = [
+  'Pending LPO Review - ED',
+  'Pending Payment Request Review - ED'
 ].freeze
 
 # states the finance team acts on, plus the review states
 # (Pending Item Acceptance is acted on by the request owner, so it has no actors)
 WORKFLOW_STATE_TRANSITIONS_ACTORS = (
-  FT_STATES.map { |state| { state_to_act_on: state, designations: FT_DESIGNATIONS } } + [
-    { state_to_act_on: 'Pending LPO Review - Finance Team', designations: SNR_FT_DESIGNATION },
-    { state_to_act_on: 'Pending LPO Review - ED', designations: ED_DESIGNATION },
-    { state_to_act_on: 'Pending Payment Request Review - Finance Team', designations: SNR_FT_DESIGNATION },
-    { state_to_act_on: 'Pending Payment Request Review - ED', designations: ED_DESIGNATION }
-  ]
+  FT_STATES.map { |state| { state_to_act_on: state, designations: FT_DESIGNATIONS } } +
+  JNR_FT_STATES.map { |state| { state_to_act_on: state, designations: JNR_FT_DESIGNATION } } +
+  SNR_FT_STATES.map { |state| { state_to_act_on: state, designations: SNR_FT_DESIGNATION } } +
+  ED_STATES.map { |state| { state_to_act_on: state, designations: ED_DESIGNATION } }
 ).freeze
+
+# every state with a "Prepare ..." action must be a junior FT state
+prepare_states = WORKFLOW_STATE_TRANSITIONS.select { |t| t[:action].start_with?('Prepare') }
+                                           .map { |t| t[:workflow_state_id] }.uniq
+not_junior = prepare_states - JNR_FT_STATES
+unless not_junior.empty?
+  raise "Prepare actions must come from junior FT states, but these are not in JNR_FT_STATES: #{not_junior.join(', ')}"
+end
+
+# a state must be in only one actor group, otherwise it collects the designations of every group it is in
+duplicate_states = WORKFLOW_STATE_TRANSITIONS_ACTORS.map { |a| a[:state_to_act_on] }.tally.select { |_, n| n > 1 }.keys
+raise "State listed in more than one actor group: #{duplicate_states.join(', ')}" unless duplicate_states.empty?
 
 # IPC threshhold
 GLOBAL_PROPERTIES = [

@@ -26,7 +26,10 @@ module Requisitions
       'Pending LPO Review - ED',
       'Pending Delivery Confirmation',
       'Pending Item Acceptance',
-      'Item Delivery Failed'
+      'Item Delivery Failed',
+      'Pending Payment Request Review - Finance Team',
+      'Pending Payment Request Review - ED',
+      'Pending Payment Voucher'
     ]).freeze
 
     SOURCING_QOUTATION_STATES = [
@@ -38,7 +41,10 @@ module Requisitions
       'Pending LPO Review - ED',
       'Pending Delivery Confirmation',
       'Item Delivery Failed',
-      'Pending Payment Request'
+      'Pending Payment Request',
+      'Pending Payment Request Review - Finance Team',
+      'Pending Payment Request Review - ED',
+      'Pending Payment Voucher'
     ].freeze
 
     TAX_RATE_STATES = [
@@ -50,7 +56,9 @@ module Requisitions
       'Pending LPO Review - ED',
       'Pending Delivery Confirmation',
       'Pending Item Acceptance',
-      'Pending Payment Request'
+      'Pending Payment Request',
+      'Pending Payment Request Review - Finance Team',
+      'Pending Payment Request Review - ED'
     ].freeze
 
     def purchase_request_state_badge_class(state) # rubocop:disable Metrics/MethodLength
@@ -66,7 +74,8 @@ module Requisitions
       when 'under review', 'pending review', 'pending sourcing quotation', 'pending ipc - vendor analysis',
         'pending vendor analysis', 'pending lpo check', 'pending lpo request submission',
         'pending lpo review - finance team', 'pending lpo review - ed', 'pending delivery confirmation',
-        'pending item acceptance', 'pending payment request'
+        'pending item acceptance', 'pending payment request', 'pending payment request review - finance team',
+        'pending payment request review - ed'
         'bg-secondary text-white'
       else
         'bg-info text-black'
@@ -76,7 +85,7 @@ module Requisitions
     def available_actions_badge_class(action) # rubocop:disable Metrics/MethodLength
       case action.to_s.downcase
       # actions when state "Pending Supervisor Review"
-      when 'approve purchase request', 'confirm delivery', 'approve lpo request', 'accept item'
+      when 'approve purchase request', 'confirm delivery', 'approve lpo request', 'accept item', 'approve payment request'
         'bg-success text-white'
       when 'recall purchase request', 'choose other vendor'
         'bg-warning text-dark'
@@ -166,6 +175,7 @@ module Requisitions
         'confirm delivery',
         'accept item',
         'decline item',
+        'terminate payment request',
         'recall purchase request',
         'rescind purchase request'
       ]

@@ -82,6 +82,9 @@ Rails.application.routes.draw do
         patch 'mark_delivery_as_failed'
         patch 'accept_item'
         patch 'decline_item'
+        patch 'prepare_payment_request'
+        patch 'approve_payment_request'
+        patch 'terminate_payment_request'
       end
     end
   end

@@ -184,6 +184,24 @@ module Requisitions
       redirect_to requisitions_purchase_request_path(@purchase_request)
     end
 
+    def prepare_payment_request
+      @purchase_request = PurchaseRequestPreparePaymentRequestService.prepare_payment_request(params[:id])
+      flash[:notice] = 'Payment request prepared and sent for finance review'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
+    def approve_payment_request
+      @purchase_request = PurchaseRequestApprovePaymentRequestService.approve_payment_request(params[:id])
+      flash[:notice] = 'Payment request approved'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
+    def terminate_payment_request
+      @purchase_request = PurchaseRequestTerminatePaymentRequestService.terminate_payment_request(params[:id])
+      flash[:notice] = 'Payment request terminated'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
     def destroy; end
 
     private
