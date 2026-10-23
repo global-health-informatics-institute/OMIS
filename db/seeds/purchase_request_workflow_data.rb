@@ -35,7 +35,7 @@ WORKFLOW_STATE = [
     state: 'Pending Sourcing Quotation',
     description: 'State indicating that the purchase request has been approved by the supervisor and the request has been moved to the finance team for sourcing quotations from vendors' # rubocop:disable Layout/LineLength
   },
-  # ON: Pending Sourcing Quotation - after supervisor approval, sourcing quotation should direct the method to use for purchasing: IPC or LPO
+  # ON: Pending Sourcing Quotation - after supervisor approval, sourcing quotation should direct the method to use for purchasing: IPC or LPO # rubocop:disable Layout/LineLength
   {
     state: 'Pending IPC - Vendor Analysis',
     description: 'State indicating that the items estimated or sourced price will require the internal committee to select a vendor' # rubocop:disable Layout/LineLength
@@ -68,7 +68,7 @@ WORKFLOW_STATE = [
   },
   {
     state: 'Item Delivery Failed',
-    description: 'State indicating that the supplier did not deliver the item and within the required timeframe' # rubocop:disable Layout/LineLength
+    description: 'State indicating that the supplier did not deliver the item and within the required timeframe'
   },
   {
     # on item rejection: reroutes to pending delivery
