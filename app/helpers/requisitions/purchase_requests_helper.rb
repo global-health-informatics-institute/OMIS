@@ -14,11 +14,6 @@ module Requisitions
       'Purchase Request Complete'
     ].freeze
 
-    REQUEST_APPROVE_STATE = [
-      'Pending Sourcing Quotation',
-      'Purchase Request Complete'
-    ].freeze
-
     ITEM_DETAIL_STATES = (REQUEST_DETAIL_STATES + [
       'Pending LPO Check',
       'Pending Payment Request',
@@ -153,10 +148,7 @@ module Requisitions
       when :item_details
         state.in?(ITEM_DETAIL_STATES)
       when :approval
-        purchase_request.requester?(current_user) || (
-          state.in?(REQUEST_APPROVE_STATE) &&
-          (purchase_request.approved_by.present? || purchase_request.approved_on.present?)
-        )
+        purchase_request.approved_by.present? || purchase_request.approved_on.present?
       when :review
         purchase_request.reviewed_by.present? || purchase_request.reviewed_on.present?
       when :sourcing_qoutations
