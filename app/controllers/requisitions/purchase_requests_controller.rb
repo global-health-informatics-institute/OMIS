@@ -202,6 +202,24 @@ module Requisitions
       redirect_to requisitions_purchase_request_path(@purchase_request)
     end
 
+    def prepare_payment_voucher
+      @purchase_request = PurchaseRequestPreparePaymentVoucherService.prepare_payment_voucher(params[:id])
+      flash[:notice] = 'Payment voucher prepared and sent for finance review'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
+    def approve_payment_voucher
+      @purchase_request = PurchaseRequestApprovePaymentVoucherService.approve_payment_voucher(params[:id])
+      flash[:notice] = 'Payment voucher approved'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
+    def terminate_payment_voucher
+      @purchase_request = PurchaseRequestTerminatePaymentVoucherService.terminate_payment_voucher(params[:id])
+      flash[:notice] = 'Payment voucher terminated'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
     def destroy; end
 
     private

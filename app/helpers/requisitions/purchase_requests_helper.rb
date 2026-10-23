@@ -10,11 +10,13 @@ module Requisitions
       'Pending IPC - Vendor Analysis',
       'Pending Vendor Analysis',
       'Purchase Request Recalled',
-      'Pending Item Acceptance'
+      'Pending Item Acceptance',
+      'Purchase Request Complete'
     ].freeze
 
     REQUEST_APPROVE_STATE = [
-      'Pending Sourcing Quotation'
+      'Pending Sourcing Quotation',
+      'Purchase Request Complete'
     ].freeze
 
     ITEM_DETAIL_STATES = (REQUEST_DETAIL_STATES + [
@@ -29,7 +31,9 @@ module Requisitions
       'Item Delivery Failed',
       'Pending Payment Request Review - Finance Team',
       'Pending Payment Request Review - ED',
-      'Pending Payment Voucher'
+      'Pending Payment Voucher',
+      'Pending Payment Voucher Review - Finance Team',
+      'Pending Payment Voucher Review - ED'
     ]).freeze
 
     SOURCING_QOUTATION_STATES = [
@@ -44,7 +48,10 @@ module Requisitions
       'Pending Payment Request',
       'Pending Payment Request Review - Finance Team',
       'Pending Payment Request Review - ED',
-      'Pending Payment Voucher'
+      'Pending Payment Voucher',
+      'Pending Payment Voucher Review - Finance Team',
+      'Pending Payment Voucher Review - ED',
+      'Purchase Request Complete'
     ].freeze
 
     TAX_RATE_STATES = [
@@ -58,14 +65,18 @@ module Requisitions
       'Pending Item Acceptance',
       'Pending Payment Request',
       'Pending Payment Request Review - Finance Team',
-      'Pending Payment Request Review - ED'
+      'Pending Payment Request Review - ED',
+      'Pending Payment Voucher',
+      'Pending Payment Voucher Review - Finance Team',
+      'Pending Payment Voucher Review - ED',
+      'Purchase Request Complete'
     ].freeze
 
     def purchase_request_state_badge_class(state) # rubocop:disable Metrics/MethodLength
       case state.to_s.downcase
       when 'requested', 'pending approval', 'pending supervisor approval'
         'bg-secondary text-white'
-      when 'approved'
+      when 'approved', 'purchase request complete'
         'bg-success text-white'
       when 'purchase request rescinded', 'purchase request declined', 'voided', 'item delivery failed'
         'bg-danger text-white'
@@ -75,7 +86,8 @@ module Requisitions
         'pending vendor analysis', 'pending lpo check', 'pending lpo request submission',
         'pending lpo review - finance team', 'pending lpo review - ed', 'pending delivery confirmation',
         'pending item acceptance', 'pending payment request', 'pending payment request review - finance team',
-        'pending payment request review - ed'
+        'pending payment request review - ed', 'pending payment voucher', 'pending payment voucher review - finance team',
+        'pending payment voucher review - ed'
         'bg-secondary text-white'
       else
         'bg-info text-black'
@@ -85,16 +97,17 @@ module Requisitions
     def available_actions_badge_class(action) # rubocop:disable Metrics/MethodLength
       case action.to_s.downcase
       # actions when state "Pending Supervisor Review"
-      when 'approve purchase request', 'confirm delivery', 'approve lpo request', 'accept item', 'approve payment request'
+      when 'approve purchase request', 'confirm delivery', 'approve lpo request', 'accept item',
+        'approve payment request', 'approve payment voucher'
         'bg-success text-white'
       when 'recall purchase request', 'choose other vendor'
         'bg-warning text-dark'
       when 'rescind purchase request', 'decline purchase request', 'mark sourcing as failed', 'mark delivery as failed',
-        'decline item', 'terminate payment request'
+        'decline item', 'terminate payment request', 'terminate payment voucher'
         'bg-danger text-white'
       when 'resubmit purchase request',
         'route to ipc - vendor analysis', 'route to lpo', 'save qoutation',
-        'forward to vendor analysis', 'prepare lpo request', 'prepare payment request'
+        'forward to vendor analysis', 'prepare lpo request', 'prepare payment request', 'prepare payment voucher'
         'bg-primary text-white'
       else
         'bg-secondary text-white'
@@ -176,6 +189,7 @@ module Requisitions
         'accept item',
         'decline item',
         'terminate payment request',
+        'terminate payment voucher',
         'recall purchase request',
         'rescind purchase request'
       ]

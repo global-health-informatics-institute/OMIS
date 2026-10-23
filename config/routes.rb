@@ -85,6 +85,9 @@ Rails.application.routes.draw do
         patch 'prepare_payment_request'
         patch 'approve_payment_request'
         patch 'terminate_payment_request'
+        patch 'prepare_payment_voucher'
+        patch 'approve_payment_voucher'
+        patch 'terminate_payment_voucher'
       end
     end
   end

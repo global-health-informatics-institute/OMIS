@@ -90,6 +90,18 @@ WORKFLOW_STATE = [
   {
     state: 'Pending Payment Voucher',
     description: 'State indicating that the payment request has been approved by the ED and a payment voucher is pending' # rubocop:disable Layout/LineLength
+  },
+  {
+    state: 'Pending Payment Voucher Review - Finance Team',
+    description: 'State indicating that the payment voucher is being reviewed by the finance team'
+  },
+  {
+    state: 'Pending Payment Voucher Review - ED',
+    description: 'State indicating that the payment voucher is being reviewed by the Executive Director and will be approved or rejected' # rubocop:disable Layout/LineLength
+  },
+  {
+    state: 'Purchase Request Complete',
+    description: 'State indicating that the purchase request has been completed and the item has been paid for'
   }
 ].freeze
 
@@ -352,6 +364,57 @@ WORKFLOW_STATE_TRANSITIONS = [
     action: 'Terminate Payment Request',
     by_owner: false,
     by_supervisor: false
+  },
+
+  # on Pending Payment Voucher
+  # by finance team
+  {
+    workflow_state_id: 'Pending Payment Voucher',
+    next_state: 'Pending Payment Voucher Review - Finance Team',
+    action: 'Prepare Payment Voucher',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Payment Voucher',
+    next_state: 'Purchase Request Declined',
+    action: 'Terminate Payment Voucher',
+    by_owner: false,
+    by_supervisor: false
+  },
+
+  # on Pending Payment Voucher Review - Finance Team
+  # by finance team
+  {
+    workflow_state_id: 'Pending Payment Voucher Review - Finance Team',
+    next_state: 'Pending Payment Voucher Review - ED',
+    action: 'Approve Payment Voucher',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Payment Voucher Review - Finance Team',
+    next_state: 'Purchase Request Declined',
+    action: 'Terminate Payment Voucher',
+    by_owner: false,
+    by_supervisor: false
+  },
+
+  # on Pending Payment Voucher Review - ED
+  # by ED
+  {
+    workflow_state_id: 'Pending Payment Voucher Review - ED',
+    next_state: 'Purchase Request Complete',
+    action: 'Approve Payment Voucher',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Payment Voucher Review - ED',
+    next_state: 'Purchase Request Declined',
+    action: 'Terminate Payment Voucher',
+    by_owner: false,
+    by_supervisor: false
   }
 ].freeze
 
@@ -394,7 +457,8 @@ SNR_FT_DESIGNATION = [
 
 SNR_FT_STATES = [
   'Pending LPO Review - Finance Team',
-  'Pending Payment Request Review - Finance Team'
+  'Pending Payment Request Review - Finance Team',
+  'Pending Payment Voucher Review - Finance Team'
 ].freeze
 
 ED_DESIGNATION = [
@@ -403,7 +467,8 @@ ED_DESIGNATION = [
 
 ED_STATES = [
   'Pending LPO Review - ED',
-  'Pending Payment Request Review - ED'
+  'Pending Payment Request Review - ED',
+  'Pending Payment Voucher Review - ED'
 ].freeze
 
 # states the finance team acts on, plus the review states
@@ -600,7 +665,7 @@ format_counts = lambda do |counts|
   "#{counts[:created] + counts[:updated]} (#{counts[:created]} new, #{counts[:updated]} existing)"
 end
 
-puts(dry_run ? 'DRY RUN - nothing was saved. A real run would do this:' : 'Completed seeding Purchase Request workflow:')
+puts(dry_run ? 'DRY RUN - nothing was saved. A real run would do this:' : 'Completed seeding Purchase Request workflow:') # rubocop:disable Layout/LineLength
 puts "  States:            #{format_counts.call(stats[:states])}"
 puts "  Transitions:       #{format_counts.call(stats[:transitions])}"
 puts "  Actors:            #{format_counts.call(stats[:actors])}, #{stats[:actors][:skipped]} designation(s) not found"
