@@ -78,6 +78,18 @@ WORKFLOW_STATE = [
   {
     state: 'Pending Payment Request',
     description: 'State indicating that a vendor was selected and the item was either accepted (LPO path) or can be paid for directly, so a payment request can be prepared' # rubocop:disable Layout/LineLength
+  },
+  {
+    state: 'Pending Payment Request Review - Finance Team',
+    description: 'State indicating that the payment request is being reviewed by the finance team and will be sent to the ED for approval' # rubocop:disable Layout/LineLength
+  },
+  {
+    state: 'Pending Payment Request Review - ED',
+    description: 'State indicating that the payment request is being reviewed by the Executive Director and will be approved or rejected' # rubocop:disable Layout/LineLength
+  },
+  {
+    state: 'Pending Payment Voucher',
+    description: 'State indicating that the payment request has been approved by the ED and a payment voucher is pending' # rubocop:disable Layout/LineLength
   }
 ].freeze
 
@@ -288,6 +300,57 @@ WORKFLOW_STATE_TRANSITIONS = [
     next_state: 'Pending Delivery Confirmation',
     action: 'Decline Item',
     by_owner: true,
+    by_supervisor: false
+  },
+
+  # on Pending Payment Request
+  # by finance team
+  {
+    workflow_state_id: 'Pending Payment Request',
+    next_state: 'Pending Payment Request Review - Finance Team',
+    action: 'Prepare Payment Request',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Payment Request',
+    next_state: 'Purchase Request Declined',
+    action: 'Terminate Payment Request',
+    by_owner: false,
+    by_supervisor: false
+  },
+
+  # on Pending Payment Request Review - Finance Team
+  # by finance team
+  {
+    workflow_state_id: 'Pending Payment Request Review - Finance Team',
+    next_state: 'Pending Payment Request Review - ED',
+    action: 'Approve Payment Request',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Payment Request Review - Finance Team',
+    next_state: 'Purchase Request Declined',
+    action: 'Terminate Payment Request',
+    by_owner: false,
+    by_supervisor: false
+  },
+
+  # on Pending Payment Request Review - ED
+  # by ED
+  {
+    workflow_state_id: 'Pending Payment Request Review - ED',
+    next_state: 'Pending Payment Voucher',
+    action: 'Approve Payment Request',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Payment Request Review - ED',
+    next_state: 'Purchase Request Declined',
+    action: 'Terminate Payment Request',
+    by_owner: false,
     by_supervisor: false
   }
 ].freeze
