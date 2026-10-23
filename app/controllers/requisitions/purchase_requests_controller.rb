@@ -25,20 +25,18 @@ module Requisitions
 
     # State: Pending Supervisor Approval
     def recall
-      # TODO: Implement recall logic in the service layer
       @purchase_request = PurchaseRequestRecallService.recall(params[:id])
       flash[:notice] = 'Purchase request successfully recalled'
       redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
     end
 
     def rescind
-      # TODO: Implement rescind logic in the service layer
       @purchase_request = PurchaseRequestRescindService.rescind(params[:id])
       flash[:notice] = 'Purchase request successfully rescinded'
       redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
     end
 
-    def resubmit # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+    def resubmit # rubocop:disable Metrics/MethodLength
       # Pass the permitted parameters to the service, or an empty hash if none were sent
       safe_params = params[:purchase_request].present? ? permit_purchase_request_params : {}
 
@@ -71,7 +69,6 @@ module Requisitions
     end
 
     def decline
-      # TODO: Implement decline logic in the service layer
       @purchase_request = PurchaseRequestDeclineService.decline(
         requisition_id: params[:id],
         reviewed_by: current_user&.employee&.employee_id || current_user&.id
