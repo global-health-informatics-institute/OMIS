@@ -140,13 +140,17 @@ module Requisitions
     end
 
     def prepare_lpo_request
-      @purchase_request = PurchaseRequestPrepareLpoService.prepare_lpo_request(params[:id])
+      @purchase_request = PurchaseRequestPrepareLpoService.prepare_lpo_request(
+        params[:id], prepared_by: workflow_actor_id
+      )
       flash[:notice] = "Purchase request's LPO has been prepared"
       redirect_to requisitions_purchase_request_path(@purchase_request)
     end
 
     def approve_lpo_request
-      @purchase_request = PurchaseRequestApproveLpoService.approve_lpo_request(params[:id])
+      @purchase_request = PurchaseRequestApproveLpoService.approve_lpo_request(
+        params[:id], approved_by: workflow_actor_id
+      )
       flash[:notice] = 'LPO request approved'
       redirect_to requisitions_purchase_request_path(@purchase_request)
     end
@@ -182,13 +186,17 @@ module Requisitions
     end
 
     def prepare_payment_request
-      @purchase_request = PurchaseRequestPreparePaymentRequestService.prepare_payment_request(params[:id])
+      @purchase_request = PurchaseRequestPreparePaymentRequestService.prepare_payment_request(
+        params[:id], prepared_by: workflow_actor_id
+      )
       flash[:notice] = 'Payment request prepared and sent for finance review'
       redirect_to requisitions_purchase_request_path(@purchase_request)
     end
 
     def approve_payment_request
-      @purchase_request = PurchaseRequestApprovePaymentRequestService.approve_payment_request(params[:id])
+      @purchase_request = PurchaseRequestApprovePaymentRequestService.approve_payment_request(
+        params[:id], approved_by: workflow_actor_id
+      )
       flash[:notice] = 'Payment request approved'
       redirect_to requisitions_purchase_request_path(@purchase_request)
     end
@@ -200,13 +208,17 @@ module Requisitions
     end
 
     def prepare_payment_voucher
-      @purchase_request = PurchaseRequestPreparePaymentVoucherService.prepare_payment_voucher(params[:id])
+      @purchase_request = PurchaseRequestPreparePaymentVoucherService.prepare_payment_voucher(
+        params[:id], prepared_by: workflow_actor_id
+      )
       flash[:notice] = 'Payment voucher prepared and sent for finance review'
       redirect_to requisitions_purchase_request_path(@purchase_request)
     end
 
     def approve_payment_voucher
-      @purchase_request = PurchaseRequestApprovePaymentVoucherService.approve_payment_voucher(params[:id])
+      @purchase_request = PurchaseRequestApprovePaymentVoucherService.approve_payment_voucher(
+        params[:id], approved_by: workflow_actor_id
+      )
       flash[:notice] = 'Payment voucher approved'
       redirect_to requisitions_purchase_request_path(@purchase_request)
     end
@@ -248,6 +260,10 @@ module Requisitions
         is_supervisor: is_supervisor,
         owner_only: is_requester
       )
+    end
+
+    def workflow_actor_id
+      current_user&.employee&.employee_id || current_user&.id
     end
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_10_20_134500) do
+ActiveRecord::Schema[7.0].define(version: 2026_10_24_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -324,6 +324,24 @@ ActiveRecord::Schema[7.0].define(version: 2026_10_20_134500) do
     t.boolean "attracts_mra"
     t.string "vendor_mobile_number"
     t.string "vendor_email"
+    t.integer "lpo_prepared_by"
+    t.datetime "lpo_prepared_on"
+    t.integer "lpo_finance_approved_by"
+    t.datetime "lpo_finance_approved_on"
+    t.integer "lpo_ed_approved_by"
+    t.datetime "lpo_ed_approved_on"
+    t.integer "payment_request_prepared_by"
+    t.datetime "payment_request_prepared_on"
+    t.integer "payment_request_finance_approved_by"
+    t.datetime "payment_request_finance_approved_on"
+    t.integer "payment_request_ed_approved_by"
+    t.datetime "payment_request_ed_approved_on"
+    t.integer "payment_voucher_prepared_by"
+    t.datetime "payment_voucher_prepared_on"
+    t.integer "payment_voucher_finance_approved_by"
+    t.datetime "payment_voucher_finance_approved_on"
+    t.integer "payment_voucher_ed_approved_by"
+    t.datetime "payment_voucher_ed_approved_on"
   end
 
   create_table "report_statistics", primary_key: "statistic_id", force: :cascade do |t|
