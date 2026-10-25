@@ -19,15 +19,19 @@
         is now <strong><%= @current_state %></strong> and is pending your review or action.
       </p>
 
+      <p style="margin-top: 30px;">Please contact the Informatics Team if you need support.</p>
+
       <div style="margin-top: 20px; text-align: center;">
         <a href="<%= "#{Rails.application.config.omis_url}/requisitions/purchase_requests/#{@purchase_request.requisition_id}" %>"
            style="display: inline-block; padding: 12px 24px; background-color: #002130; color: #E3E4E7; text-decoration: none; border-radius: 5px; font-weight: bold;">
           Review Purchase Request
         </a>
       </div>
-
-      <p style="margin-top: 30px;">Please contact the Informatics Team if you need support.</p>
     </div>
+  </div>
+
+  <div style="margin-top: 30px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+    <p>Informatics Team. <%= Time.current.year %></p>
   </div>
 </body>
 </html>
