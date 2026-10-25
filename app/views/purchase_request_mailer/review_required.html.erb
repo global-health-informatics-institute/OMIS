@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <style>body { font-family: 'Trebuchet MS', sans-serif; }</style>
+</head>
+<body style="background-color: #F3F4F6; padding: 20px;">
+  <div style="border: 1px solid #002130; width: 100%; margin: 0 auto;">
+    <div style="background-color: #002130; font-weight: bold; color: #E3E4E7; padding: 20px; text-align: center; font-size: 1.5rem;">
+      Purchase Request Requires Your Action
+    </div>
+
+    <div style="padding: 30px; font-size: 1.2rem;">
+      <p>Dear <%= @actor_name %>,</p>
+
+      <p>
+        Please be informed that purchase request ID: <strong><%= @purchase_request.requisition_id %></strong>,
+        submitted by <strong><%= @requester_name %></strong> for <em>"<%= @purchase_request.purpose %>"</em>,
+        is now <strong><%= @current_state %></strong> and is pending your review or action.
+      </p>
+
+      <div style="margin-top: 20px; text-align: center;">
+        <a href="<%= "#{Rails.application.config.omis_url}/requisitions/purchase_requests/#{@purchase_request.requisition_id}" %>"
+           style="display: inline-block; padding: 12px 24px; background-color: #002130; color: #E3E4E7; text-decoration: none; border-radius: 5px; font-weight: bold;">
+          Review Purchase Request
+        </a>
+      </div>
+
+      <p style="margin-top: 30px;">Please contact the Informatics Team if you need support.</p>
+    </div>
+  </div>
+</body>
+</html>

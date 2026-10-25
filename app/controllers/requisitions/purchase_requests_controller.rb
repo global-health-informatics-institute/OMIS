@@ -2,6 +2,37 @@
 
 module Requisitions
   class PurchaseRequestsController < ApplicationController # rubocop:disable Style/Documentation,Metrics/ClassLength
+    TRANSITION_ACTIONS = {
+      create: 'submitted',
+      recall: 'recalled',
+      rescind: 'rescinded',
+      resubmit: 'resubmitted',
+      approve: 'approved',
+      decline: 'declined',
+      route_to_ipc_vendor_analysis: 'routed to IPC vendor analysis',
+      forward_to_vendor_analysis: 'forwarded to vendor analysis',
+      route_to_lpo: 'routed to LPO processing',
+      mark_sourcing_as_failed: 'marked as sourcing unsuccessful',
+      save_qoutation: 'updated with a supplier quotation',
+      route_to_lpo_request: 'routed for LPO preparation',
+      forward_to_payment_request: 'forwarded for payment request preparation',
+      prepare_lpo_request: 'prepared for LPO review',
+      approve_lpo_request: 'approved at the LPO review stage',
+      choose_other_vendor: 'returned for another vendor selection',
+      confirm_delivery: 'confirmed as delivered',
+      mark_delivery_as_failed: 'marked as delivery unsuccessful',
+      accept_item: 'accepted',
+      decline_item: 'declined',
+      prepare_payment_request: 'prepared for payment request review',
+      approve_payment_request: 'approved at the payment request review stage',
+      terminate_payment_request: 'terminated',
+      prepare_payment_voucher: 'prepared for payment voucher review',
+      approve_payment_voucher: 'approved at the payment voucher review stage',
+      terminate_payment_voucher: 'terminated'
+    }.freeze
+
+    after_action :notify_transition_recipients, only: TRANSITION_ACTIONS.keys
+
     def index
       @purchase_requests = Requisition.where(
         request_type: 'purchase request'
@@ -49,6 +80,7 @@ module Requisitions
     rescue ActiveRecord::RecordInvalid => e
       # If they tried to resubmit but left a required field blank
       @purchase_request = e.record
+      @skip_state_transition_notification = true
       load_possible_actions
 
       flash.now[:alert] = 'Please fix the errors before resubmitting.'
@@ -121,6 +153,7 @@ module Requisitions
     rescue ActiveRecord::RecordInvalid => e
       # If they tried to resubmit but left a required field blank
       @purchase_request = e.record
+      @skip_state_transition_notification = true
       @possible_actions = @purchase_request.available_actions(user: current_user)
 
       flash.now[:alert] = 'Enter a supplier and a positive total cost for every item.'
@@ -264,6 +297,15 @@ module Requisitions
 
     def workflow_actor_id
       current_user&.employee&.employee_id || current_user&.id
+    end
+
+    def notify_transition_recipients
+      return if @skip_state_transition_notification || @purchase_request.blank?
+
+      PurchaseRequestStateTransitionNotificationService.call(
+        @purchase_request,
+        action_description: TRANSITION_ACTIONS.fetch(action_name.to_sym)
+      )
     end
   end
 end
