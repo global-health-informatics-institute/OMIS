@@ -14,8 +14,8 @@
       <p>Dear <%= @requester_name %>,</p>
 
       <p>
-        Please be informed that your purchase request with ID: <strong><%= @purchase_request.requisition_id %></strong>
-        for <em>"<%= @purchase_request.purpose %>"</em> has been <%= @action_description %> and is now
+        Please be informed that your purchase request for <em>"<%= @purchase_request.purpose %>"</em>
+        has been <%= @action_description %> and is now
         <strong><%= @current_state %></strong>.
       </p>
 
@@ -23,7 +23,7 @@
 
       <p style="margin-top: 30px;">Please contact the Informatics Team if you need support.</p>
 
-      <div style="margin-top: 20px; text-align: center;">
+      <div style="margin-top: 20px; text-align: left;">
         <a href="<%= "#{Rails.application.config.omis_url}/requisitions/purchase_requests/#{@purchase_request.requisition_id}" %>"
            style="display: inline-block; padding: 12px 24px; background-color: #002130; color: #E3E4E7; text-decoration: none; border-radius: 5px; font-weight: bold;">
           View Purchase Request
