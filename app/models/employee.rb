@@ -3,6 +3,8 @@ class Employee < ApplicationRecord
   has_one :user, foreign_key: :employee_id
   has_many :affiliations, foreign_key: :employee_id
   has_many :employee_designations, foreign_key: :employee_id
+  has_many :committee_memberships, foreign_key: :employee_id, dependent: :restrict_with_error
+  has_many :committees, through: :committee_memberships
   has_many :project_teams, foreign_key: :project_id
   # supervisor
   has_many :given_supervisions, foreign_key: 'supervisor', class_name: 'Supervision'
