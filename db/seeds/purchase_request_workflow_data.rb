@@ -8,6 +8,23 @@ WORKFLOW_PROCESS = {
   active: true
 }.freeze
 
+COMMITTEES = [
+  {
+    name: 'Internal Procurement Committee',
+    short_name: 'IPC',
+    active: true,
+    memberships: [
+      { employee_id: 33, role: 'Member' },
+      { employee_id: 80, role: 'Member' },
+      { employee_id: 77, role: 'Member' },
+      { employee_id: 45, role: 'Member' },
+      { employee_id: 73, role: 'Chair' }
+    ]
+  }
+].freeze
+
+COMMITTEE_MEMBERSHIP_START_DATE = Date.new(2026, 1, 1)
+
 WORKFLOW_STATE = [
   # name a state after an active bottleneck
   {
@@ -548,6 +565,8 @@ stats = {
   states: { created: 0, updated: 0 },
   transitions: { created: 0, updated: 0 },
   actors: { created: 0, updated: 0, skipped: 0 },
+  committees: { created: 0, updated: 0 },
+  committee_memberships: { created: 0, updated: 0 },
   global_properties: { created: 0, updated: 0 },
   stale: {}
 }
@@ -642,12 +661,33 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
     )
   end
 
-  # 6. Upsert Initial State
+  # 6. Upsert committees and their members
+  COMMITTEES.each do |committee_data|
+    committee = Committee.find_or_initialize_by(short_name: committee_data[:short_name])
+    stats[:committees][committee.new_record? ? :created : :updated] += 1
+    committee.update!(committee_data.except(:memberships))
+
+    committee_data[:memberships].each do |membership_data|
+      employee_id = membership_data[:employee_id]
+      raise "Committee member employee not found: #{employee_id}" unless Employee.exists?(employee_id: employee_id)
+
+      membership = CommitteeMembership.find_or_initialize_by(
+        committee_id: committee.committee_id,
+        employee_id: employee_id,
+        role: membership_data[:role],
+        started_on: COMMITTEE_MEMBERSHIP_START_DATE
+      )
+      stats[:committee_memberships][membership.new_record? ? :created : :updated] += 1
+      membership.update!(ended_on: nil)
+    end
+  end
+
+  # 7. Upsert Initial State
   first_state_id = _get_workflow_state_id(process_id, WORKFLOW_STATE.first[:state])
   initial_state = InitialState.find_or_initialize_by(workflow_process_id: process_id)
   initial_state.update!(workflow_state_id: first_state_id)
 
-  # 7. Find rows from earlier runs that are no longer in this seed (reported, never deleted)
+  # 8. Find rows from earlier runs that are no longer in this seed (reported, never deleted)
   state_names = WorkflowState.where(workflow_process_id: process_id).pluck(:workflow_state_id, :state).to_h
   stats[:stale][:states] = state_names.reject { |id, _| touched[:states].include?(id) }.values
   stats[:stale][:transitions] =
@@ -669,6 +709,8 @@ puts(dry_run ? 'DRY RUN - nothing was saved. A real run would do this:' : 'Compl
 puts "  States:            #{format_counts.call(stats[:states])}"
 puts "  Transitions:       #{format_counts.call(stats[:transitions])}"
 puts "  Actors:            #{format_counts.call(stats[:actors])}, #{stats[:actors][:skipped]} designation(s) not found"
+puts "  Committees:        #{format_counts.call(stats[:committees])}"
+puts "  Committee members: #{format_counts.call(stats[:committee_memberships])}"
 puts "  Global properties: #{format_counts.call(stats[:global_properties])}"
 
 unless stats[:stale][:states].empty? && stats[:stale][:transitions].empty?
