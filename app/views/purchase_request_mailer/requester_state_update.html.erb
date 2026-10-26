@@ -13,13 +13,25 @@
     <div style="padding: 30px; font-size: 1.2rem;">
       <p>Dear <%= @requester_name %>,</p>
 
-      <p>
-        Please be informed that your purchase request for <em>"<%= @purchase_request.purpose %>"</em>
-        has been <%= @action_description %> and is now
-        <strong><%= @current_state %></strong>.
-      </p>
+      <% if @current_state == 'Purchase Request Complete' %>
+        <p>
+          Please be informed that your purchase request for <em>"<%= @purchase_request.purpose %>"</em>
+          has been completed.
+        </p>
 
-      <p>You will receive another update when the status of your purchase request changes.</p>
+        <p>
+          If this purchase did not go through an LPO and you have not collected the item already,
+          please arrange to collect it from the Finance and Administration Department.
+        </p>
+      <% else %>
+        <p>
+          Please be informed that your purchase request for <em>"<%= @purchase_request.purpose %>"</em>
+          has been <%= @action_description %> and is now
+          <strong><%= @current_state %></strong>.
+        </p>
+
+        <p>You will receive another update when the status of your purchase request changes.</p>
+      <% end %>
 
       <p style="margin-top: 30px;">Please contact the Informatics Team if you need support.</p>
 
