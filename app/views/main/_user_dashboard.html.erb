@@ -12,19 +12,51 @@
 </div>
 
 <div class="row">
-  <div class="col-sm-3">
-    <div class="card h-100">
+  <div class="col-sm-4 d-flex">
+    <section class="card flex-fill border-secondary-subtle rounded-3" aria-labelledby="empName">
       <div class="card-body p-2">
-        <h5 class="card-title text-dark" id="empName"><%= @person.full_name %></h5>
-        <p><small class="fs-6 fst-italic" id="role"><%= @employee.current_position %></small></p>
-        <p><%= @employee.current_department %></p>
-        <p><%= @employee.current_branches %></p>
-        <p><%= @employee.employment_date.strftime('%d %b, %Y') %> - </p>
+        <header class="px-4 pt-1">
+          <h5 class="card-title text-dark mb-0" id="empName"><%= @person.full_name %></h5>
+          <p class="fs-6 fst-italic mb-2" id="role"><%= @employee.current_position.presence || 'Position not recorded' %></p>
+          <div class="d-flex flex-wrap align-items-center gap-3 fs-6 mb-1">
+            <span class="d-inline-flex align-items-center gap-2">
+              <%= image_tag 'person.png', width: 24, height: 24, class: 'flex-shrink-0', alt: '' %>
+              <span><%= @employee.current_department.presence || 'Department not recorded' %></span>
+            </span>
+            <span class="d-inline-flex align-items-center gap-2">
+              <%= image_tag 'location.png', width: 24, height: 24, class: 'flex-shrink-0', alt: '' %>
+              <span><%= @employee.current_branches.presence || 'Location not recorded' %></span>
+            </span>
+          </div>
+        </header>
+
+        <dl class="fs-6 mb-0">
+          <div class="d-flex flex-wrap align-items-center gap-2 border-top border-bottom py-2 ps-4 pe-3">
+            <dt class="fw-bold text-muted me-auto">Year joined</dt>
+            <dd class="mb-0 ms-auto text-end fw-normal text-muted"><time datetime="<%= @employee.employment_date.iso8601 %>"><%= @employee.employment_date.strftime('%d %b %Y') %></time></dd>
+          </div>
+          <div class="d-flex flex-wrap align-items-center gap-2 border-bottom py-2 ps-4 pe-1">
+            <dt class="fw-bold text-muted me-auto">Contract</dt>
+            <dd class="mb-0 ms-auto text-end text-muted">Not recorded</dd>
+            <dd class="mb-0 badge rounded-pill text-bg-secondary d-inline-flex align-items-center justify-content-center gap-2 px-2">
+              <div class="rounded-circle bg-white flex-shrink-0 p-1" aria-hidden="true"></div>
+              No dates
+            </dd>
+          </div>
+          <div class="d-flex flex-wrap align-items-center gap-2 border-bottom py-2 ps-4 pe-1">
+            <dt class="fw-bold text-muted me-auto">Next appraisal</dt>
+            <dd class="mb-0 ms-auto text-end text-muted">Not scheduled</dd>
+            <dd class="mb-0 badge rounded-pill text-bg-secondary d-inline-flex align-items-center justify-content-center gap-2 px-2">
+              <div class="rounded-circle bg-white flex-shrink-0 p-1" aria-hidden="true"></div>
+              No date
+            </dd>
+          </div>
+        </dl>
       </div>
-    </div>
+    </section>
   </div>
-  <div class="col-sm-5">
-    <div class="card">
+  <div class="col-sm-4 d-flex">
+    <div class="card flex-fill">
       <div class="card-body p-2">
         <div class="row">
           <div class="col">
@@ -35,11 +67,11 @@
          <tr>
           <td>
             Target
-            <canvas id="loeTargetPie" style="height: 20vh !important; width: 10vw;margin-left: auto; margin-right: auto;"></canvas>
+            <canvas id="loeTargetPie" class="d-block w-100 h-auto mx-auto"></canvas>
           </td>
           <td>
             Current
-            <canvas id="loeActualPie" style="height: 20vh !important; width: 10vw;margin-left: auto; margin-right: auto;"></canvas>
+            <canvas id="loeActualPie" class="d-block w-100 h-auto mx-auto"></canvas>
           </td>
         </tr>
         </table>
@@ -48,50 +80,101 @@
   </div>
 
 
-  <%# RECOGNITION PANE %>
+  <% assigned_task_ids = ProjectTaskAssignment.where(assigned_to: @employee.id).select(:project_task_id) %>
+  <% managed_project_ids = Project.where(manager: @employee.id).select(:project_id) %>
+  <% upcoming_tasks = ProjectTask.where(task_status: 'open').where.not(deadline: nil)
+       .where('project_task_id IN (?) OR project_id IN (?) OR performed_by = ?', assigned_task_ids, managed_project_ids, @employee.id)
+       .order(:deadline) %>
+  <% upcoming_activities = upcoming_tasks.map do |task|
+       { id: task.id, date: task.deadline.to_date, description: task.task_description,
+         url: (task.reference_url? ? task.reference : nil),
+         evaluation: task.task_description.match?(/evaluat|appraisal/i) }
+     end %>
+  <% LeaveRequest.where(employee_id: @employee.id).where.not(approved_by: nil)
+       .where('start_on > ?', Time.current).each do |leave_request| %>
+    <% upcoming_activities << { date: leave_request.start_on.to_date,
+         description: "#{leave_request.leave_type} starting #{leave_request.start_on.strftime('%d %b, %Y %H:%M')}" } %>
+  <% end %>
+  <% upcoming_activities.sort_by! { |activity| activity[:date] } %>
 
-  <div class="col-sm-4">
-    <div class="card h-100" style="max-height: 280px; overflow-y: auto;">
-      <div class="card-body p-2">
-        <h6 class="card-title" style= "font-size: 18px">Upcoming Deadlines & Activities</h6>
-          <table class="table m-0">
-            <thead style= "font-size: 14px">
-              <tr>
-                <th style="width:20%">Date</th>
-                <th>Task</th>
-              </tr>
-            </thead>
-            <tbody class="fs-6">
-            <% (@upcoming_deadlines.keys.sort || []).each do |key| %>
-              <tr>
-                <td rowspan="<%= @upcoming_deadlines[key].length %>">
-                  <%= Time.at(key).strftime('%d %b,%Y')%>
-                </td>
-                <% (@upcoming_deadlines[key] || []).each do |activity| %>
-                  <td><%= activity %></td></tr><tr>
-                <% end %>
-              </tr>
+
+  <div class="col-sm-4 d-flex">
+    <section class="card flex-fill border-secondary-subtle rounded-3" aria-labelledby="upcomingActivitiesTitle">
+      <header class="d-flex align-items-center gap-2 px-4 py-2">
+        <h5 class="card-title text-dark flex-grow-1 mb-0" id="upcomingActivitiesTitle">Upcoming Tasks &amp; Activities</h5>
+        <span class="fs-6 text-body-secondary text-nowrap"><%= pluralize(upcoming_activities.length, 'item') %></span>
+      </header>
+      <div class="overflow-y-auto px-3" id="upcomingActivitiesViewport" tabindex="0" role="region" aria-label="Upcoming tasks and activities">
+        <% if upcoming_activities.empty? %>
+          <p class="fw-normal text-body-secondary text-center py-4 mb-0">No upcoming tasks or activities</p>
+        <% else %>
+          <ul class="list-unstyled mb-0">
+            <% upcoming_activities.each do |activity| %>
+              <% days_remaining = (activity[:date] - Date.current).to_i %>
+              <% status_color = days_remaining < 0 ? 'danger' : (days_remaining <= 7 ? 'warning' : 'success') %>
+              <% status_label = if days_remaining < 0
+                   'Overdue'
+                 elsif days_remaining == 0
+                   'Today'
+                 elsif days_remaining == 1
+                   'Tomorrow'
+                 elsif days_remaining < 7
+                   pluralize(days_remaining, 'day')
+                 else
+                   pluralize((days_remaining / 7.0).ceil, 'week')
+                 end %>
+              <li class="border border-secondary-subtle rounded-3 overflow-hidden mb-2">
+                <div class="border-start border-4 border-<%= status_color %> py-2 ps-4 pe-3">
+                  <div class="w-100 text-break">
+                    <p class="fs-6 fw-normal mb-1"><%= activity[:description] %></p>
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                      <span class="small text-body-secondary"><time datetime="<%= activity[:date].iso8601 %>"><%= activity[:date].strftime('%d %b %Y') %></time></span>
+                      <% if activity[:evaluation] %>
+                        <button type="button" class="btn btn-primary text-white btn-sm fw-semibold rounded-pill px-1 py-0" data-bs-toggle="modal" data-bs-target="#activityEvaluationModal<%= activity[:id] %>" aria-label="Evaluate: <%= activity[:description] %>"><span class="small">Evaluate</span></button>
+                      <% elsif activity[:url].present? %>
+                        <%= link_to 'View', activity[:url], class: 'badge rounded-pill text-bg-primary text-decoration-none px-2' %>
+                      <% end %>
+                      <span class="badge rounded-pill text-bg-<%= status_color %> d-inline-flex align-items-center justify-content-center gap-2 px-2 flex-shrink-0 ms-auto">
+                        <span class="rounded-circle <%= status_color == 'warning' ? 'bg-dark' : 'bg-white' %> p-1" aria-hidden="true"></span>
+                        <%= status_label %>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </li>
             <% end %>
-              <%# project tasks %>
-            <% if @direct_project_tasks.present? %>
-              <% @direct_project_tasks.each do |task| %>
-                <tr>
-                  <td>
-                    <%= Time.parse(task["deadline"]).strftime('%d %b,%Y') %>
-                  </td>
-                  <td>
-                    <%= task["task_description"] %>
-                  </td>
-                </tr>
-              <% end %>
-            <% end %>
-          </tbody>
-        </table>
+          </ul>
+        <% end %>
+      </div>
+    </section>
+  </div>
+</div>
+<% upcoming_activities.select { |activity| activity[:evaluation] }.each do |activity| %>
+  <div class="modal fade" id="activityEvaluationModal<%= activity[:id] %>" tabindex="-1" aria-labelledby="activityEvaluationLabel<%= activity[:id] %>" aria-describedby="activityEvaluationTask<%= activity[:id] %>" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-3 border-0">
+        <div>
+          <div class="modal-body px-4 ps-sm-5 pt-5 pb-4">
+            <h2 class="visually-hidden" id="activityEvaluationTask<%= activity[:id] %>"><%= activity[:description] %></h2>
+            <div class="d-flex flex-wrap flex-sm-nowrap align-items-center justify-content-between gap-3 gap-sm-2 small">
+              <label class="small mb-0" id="activityEvaluationLabel<%= activity[:id] %>" for="activityEvaluationFile<%= activity[:id] %>">Please attach the completed Evaluation Appraisal Excel file</label>
+              <div class="flex-shrink-0">
+                <input type="file" class="visually-hidden" id="activityEvaluationFile<%= activity[:id] %>" name="evaluation_file" accept=".xlsx,.xls" tabindex="-1" disabled>
+                <button type="button" class="btn btn-primary bg-primary bg-opacity-75 rounded-pill btn-sm fw-semibold text-dark px-4 py-0" disabled aria-controls="activityEvaluationFile<%= activity[:id] %>"><span class="small">Browse</span></button>
+              </div>
+            </div>
+            <p class="small text-muted mb-0 mt-2">Evaluation uploads are not available yet.</p>
+          </div>
+          <div class="modal-footer border-0 justify-content-between px-4 pt-3 pb-2">
+            <button type="button" class="btn btn-danger rounded-pill btn-sm fw-semibold px-4 py-0" data-bs-dismiss="modal"><span class="small">Cancel</span></button>
+            <button type="button" class="btn btn-success rounded-pill btn-sm fw-semibold px-4 py-0" disabled><span class="small">Done</span></button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-<%# END OF PANE %>
-</div>
+<% end %>
+
 <div class="row mt-4">
   <div class="col-sm-4">
     <div class="card h-100">
@@ -264,6 +347,26 @@
 
 
 <script>
+
+// Size the scroll area to the visible cards, including wrapped activity text.
+(() => {
+  const visibleCardCount = 3;
+  const viewport = document.getElementById('upcomingActivitiesViewport');
+  const cards = viewport ? Array.from(viewport.querySelectorAll('li')) : [];
+  if (cards.length <= visibleCardCount) return;
+
+  const observer = new ResizeObserver(() => {
+    if (!viewport.isConnected) {
+      observer.disconnect();
+      return;
+    }
+    const first = cards[0].getBoundingClientRect();
+    const lastVisible = cards[visibleCardCount - 1].getBoundingClientRect();
+    viewport.style.maxHeight = `${Math.ceil(lastVisible.bottom - first.top)}px`;
+  });
+  cards.slice(0, visibleCardCount).forEach(card => observer.observe(card));
+  document.addEventListener('turbo:before-cache', () => observer.disconnect(), { once: true });
+})();
 
 var labels = <%= raw((@projects_with_effort.map(&:short_name) + ['Unallocated']).to_json) %>;
 var data   = <%= raw((@projects_with_effort.map(&:allocated_effort) + [@unallocated_loe]).to_json) %>;
