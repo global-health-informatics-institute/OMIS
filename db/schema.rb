@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_10_26_090000) do
+ActiveRecord::Schema[7.0].define(version: 2026_10_26_093000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -65,6 +65,17 @@ ActiveRecord::Schema[7.0].define(version: 2026_10_26_090000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "description"
+  end
+
+  create_table "committee_meetings", primary_key: "committee_meeting_id", force: :cascade do |t|
+    t.integer "requisition_id", null: false
+    t.integer "committee_id", null: false
+    t.date "scheduled_on", null: false
+    t.integer "scheduled_by", null: false
+    t.string "status", default: "Scheduled", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["requisition_id", "status"], name: "index_committee_meetings_on_requisition_id_and_status"
   end
 
   create_table "committee_memberships", primary_key: "committee_membership_id", force: :cascade do |t|
@@ -526,6 +537,9 @@ ActiveRecord::Schema[7.0].define(version: 2026_10_26_090000) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "committee_meetings", "committees", primary_key: "committee_id"
+  add_foreign_key "committee_meetings", "employees", column: "scheduled_by", primary_key: "employee_id"
+  add_foreign_key "committee_meetings", "requisitions", primary_key: "requisition_id"
   add_foreign_key "committee_memberships", "committees", primary_key: "committee_id"
   add_foreign_key "committee_memberships", "employees", primary_key: "employee_id"
   add_foreign_key "departments", "branches", primary_key: "branch_id"

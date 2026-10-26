@@ -3,6 +3,7 @@
 class Committee < ApplicationRecord # rubocop:disable Style/Documentation
   has_many :committee_memberships, foreign_key: :committee_id, dependent: :restrict_with_error
   has_many :members, through: :committee_memberships, source: :employee
+  has_many :committee_meetings, foreign_key: :committee_id, dependent: :restrict_with_error
 
   scope :active, -> { where(active: true) }
 

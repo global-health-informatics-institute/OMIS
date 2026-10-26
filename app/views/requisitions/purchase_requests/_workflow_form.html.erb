@@ -313,23 +313,23 @@
             <div class="row p-3">
                 <div class="col gap-2 d-flex">
                     <% @possible_actions.each do |action| %>
-                        <% 
-                            route_verb = action_route_verb(action)
-                            dynamic_path = send("#{route_verb}_requisitions_purchase_request_path", @purchase_request)
-                        %>
-                        
-                        <%# 
-                            button_tag with type="submit" and "formaction" tells the browser to submit 
-                            the form data, but push it to the custom URL instead of the default form URL.
-                        %>
-                        <% button_data = { turbo_confirm: "Are you sure you want to #{action.downcase}?" } %>
-                        <% button_data[:quotation_pricing_target] = 'saveAction' if action.casecmp?('Save Qoutation') %>
-                        <%= button_tag action, 
-                                        type: :submit, 
-                                        formaction: dynamic_path, 
-                                        formnovalidate: no_validation_actions.include?(action.downcase),
+                        <% if action == 'Route to IPC - Vendor Analysis' %>
+                            <%= link_to action,
+                                        schedule_ipc_meeting_requisitions_purchase_request_path(@purchase_request),
                                         class: "btn #{available_actions_badge_class(action)}",
-                                        data: button_data %>
+                                        data: { turbo_frame: 'remote_modal' } %>
+                        <% else %>
+                            <% route_verb = action_route_verb(action) %>
+                            <% dynamic_path = send("#{route_verb}_requisitions_purchase_request_path", @purchase_request) %>
+                            <% button_data = { turbo_confirm: "Are you sure you want to #{action.downcase}?" } %>
+                            <% button_data[:quotation_pricing_target] = 'saveAction' if action.casecmp?('Save Qoutation') %>
+                            <%= button_tag action,
+                                            type: :submit,
+                                            formaction: dynamic_path,
+                                            formnovalidate: no_validation_actions.include?(action.downcase),
+                                            class: "btn #{available_actions_badge_class(action)}",
+                                            data: button_data %>
+                        <% end %>
                     <% end %>
                 </div>
             </div>

@@ -8,6 +8,8 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
           autosave: true
   has_one :requisition_budget_line, foreign_key: :requisition_id, dependent: :delete
   has_one :requisition_donor, foreign_key: :requisition_id, dependent: :delete
+  has_many :committee_meetings, foreign_key: :requisition_id, primary_key: :requisition_id,
+                                dependent: :restrict_with_error
 
   belongs_to :initiator, class_name: 'Employee', foreign_key: 'initiated_by', optional: true
   belongs_to :approver,  class_name: 'Employee', foreign_key: 'approved_by',  optional: true

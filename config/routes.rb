@@ -68,6 +68,7 @@ Rails.application.routes.draw do
         patch 'approve'
         patch 'decline'
         patch 'resubmit'
+        get 'schedule_ipc_meeting'
         patch 'route_to_ipc_vendor_analysis'
         patch 'forward_to_vendor_analysis'
         patch 'route_to_lpo'

@@ -35,7 +35,7 @@ class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/
     end
   end
 
-  def notify_actor(actor)
+  def notify_actor(actor) # rubocop:disable Metrics/MethodLength
     recipient_email = email_for(actor)
     return false if recipient_email.blank?
 
@@ -44,7 +44,8 @@ class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/
         @purchase_request,
         requester,
         actor,
-        recipient_email
+        recipient_email,
+        committee_meeting: committee_meeting
       ).deliver_now
     end
   end
@@ -84,6 +85,8 @@ class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/
   end
 
   def designated_actors
+    return committee_members if @purchase_request.current_state == 'Pending IPC - Vendor Analysis'
+
     designation_ids = WorkflowStateActor.where(workflow_state_id: @purchase_request.workflow_state_id)
                                          .pluck(:employee_designation_id)
     return [] if designation_ids.empty?
@@ -91,6 +94,18 @@ class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/
     Employee.joins(:employee_designations)
             .where(still_employed: true, employee_designations: { designation_id: designation_ids, end_date: nil })
             .distinct
+  end
+
+  def committee_members
+    return [] unless committee_meeting
+
+    committee_meeting.committee.active_memberships.includes(:employee).map(&:employee)
+  end
+
+  def committee_meeting
+    return unless @purchase_request.current_state == 'Pending IPC - Vendor Analysis'
+
+    @committee_meeting ||= @purchase_request.committee_meetings.scheduled.order(scheduled_on: :desc).first
   end
 
   def email_for(employee)

@@ -19,14 +19,24 @@
         is now <strong><%= @current_state %></strong> and is pending your review or action.
       </p>
 
+      <% if @committee_meeting %>
+        <p>
+          An <%= @committee_meeting.committee.name %> meeting has been scheduled for
+          <strong><%= @committee_meeting.scheduled_on.strftime('%d %B %Y') %></strong>.
+        </p>
+      <% end %>
+
       <p style="margin-top: 30px;">Please contact the Informatics Team if you need support.</p>
 
+
+      <% if not @committee_meeting %>
       <div style="margin-top: 20px; text-align: left;">
         <a href="<%= "#{Rails.application.config.omis_url}/requisitions/purchase_requests/#{@purchase_request.requisition_id}" %>"
            style="display: inline-block; padding: 12px 24px; background-color: #002130; color: #E3E4E7; text-decoration: none; border-radius: 5px; font-weight: bold;">
           Review Purchase Request
         </a>
       </div>
+      <% end %>
     </div>
   </div>
 

@@ -116,10 +116,28 @@ module Requisitions
       redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
     end
 
-    def route_to_ipc_vendor_analysis
-      @purchase_request = PurchaseRequestIpcRouteService.route_to_ipc(params[:id])
-      flash[:notice] = 'Purchase request successfully updated'
+    def schedule_ipc_meeting
+      @purchase_request = PurchaseRequestShowService.show(params[:id])
+      @committee_meeting = @purchase_request.committee_meetings.build(scheduled_on: Date.current)
+      @committees = Committee.active.order(:name)
+    end
+
+    def route_to_ipc_vendor_analysis # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+      @purchase_request = PurchaseRequestIpcRouteService.route_to_ipc(
+        params[:id],
+        committee_id: committee_meeting_params[:committee_id],
+        meeting_on: committee_meeting_params[:scheduled_on],
+        scheduled_by: workflow_actor_id
+      )
+      flash[:notice] = 'Committee meeting scheduled and members notified'
       redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
+    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
+      @skip_state_transition_notification = true
+      @purchase_request = PurchaseRequestShowService.show(params[:id])
+      @committee_meeting = e.is_a?(ActiveRecord::RecordInvalid) ? e.record : @purchase_request.committee_meetings.build
+      @committee_meeting.errors.add(:base, e.message) if e.is_a?(ActiveRecord::RecordNotFound)
+      @committees = Committee.active.order(:name)
+      render :schedule_ipc_meeting, status: :unprocessable_entity
     end
 
     def forward_to_vendor_analysis
@@ -281,6 +299,10 @@ module Requisitions
           id department_id unit_price attracts_levy attracts_mra vendor_mobile_number vendor_email
         ]
       )
+    end
+
+    def committee_meeting_params
+      params.require(:committee_meeting).permit(:committee_id, :scheduled_on)
     end
 
     def load_possible_actions
