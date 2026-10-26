@@ -11,10 +11,6 @@ class Committee < ApplicationRecord # rubocop:disable Style/Documentation
 
   before_validation :normalize_short_name
 
-  def self.ipc
-    find_by(short_name: 'IPC')
-  end
-
   def active_memberships(on: Date.current)
     committee_memberships.active_on(on)
   end
