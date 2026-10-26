@@ -215,6 +215,7 @@ class Employee < ApplicationRecord
       end
     # requisition finance reviews
     actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
+                          .where.not(requisition_type: 'Purchase Request')
                           .collect do |x|
       if x.workflow_state_id == 29
         ["Liquidate Funds for #{x.requisition_type} request: #{x.purpose}",
@@ -230,6 +231,7 @@ class Employee < ApplicationRecord
     owner_actionable_states << 24 # Explicitly include the "Approved" state (ID 24)
 
     actions += Requisition.where('workflow_state_id in (?) and initiated_by = ?', owner_actionable_states.uniq, id) # Use .uniq to avoid duplicates
+                          .where.not(requisition_type: 'Purchase Request')
                           .collect do |x|
       if x.workflow_state_id == 28
         ["Collect Funds for #{x.requisition_type} request: #{x.purpose}",
@@ -242,6 +244,7 @@ class Employee < ApplicationRecord
 
  actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
                       .where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
+                      .where.not(requisition_type: 'Purchase Request')
                       .collect do |x|
   ["Review #{x.user.person.first_name}'s #{x.requisition_type} requisition for #{x.purpose}",
   "/requisitions/#{x.id}"]
@@ -262,7 +265,7 @@ end
        "/leave_requests/#{x.id}"]
     end
     
-    # raise actions.inspect
-    actions
+    actions.concat(PurchaseRequestPendingActionsService.for(self))
+    actions.uniq { |action| action[1] }
   end
 end

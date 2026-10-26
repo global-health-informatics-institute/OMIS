@@ -96,7 +96,7 @@
         <div>
           <select class="form-select form-select-sm" id="actionFilter">
             <option data-options="all">All Actions</option>
-            <% (@pending_actions || []).map { |action| action[1].split('/')[1] }.uniq.each do |type| %>
+            <% (@pending_actions || []).map { |action| action[2] || action[1].split('/')[1] }.uniq.each do |type| %>
               <option data-options="<%= type %>">
                 <%= type.gsub(/[_-]/, ' ').titleize %>
               </option>
@@ -108,12 +108,12 @@
         <% if (@pending_actions || []).empty? %>
           <span class="fw-normal">No tasks assigned</span>
         <% else%>
-          <ul class="list-group list-group-flush">
+          <ul class="list-group list-group-flush" id="pending-actions-list">
             <% (@pending_actions || []).each do |action| %>
               <a
               href="<%= action[1] %>"
               class="list-group-item list-group-item-action"
-              data-item="<%=action[1].split('/')[1]%>"
+              data-item="<%= action[2] || action[1].split('/')[1] %>"
               >
                 <%= action[0] %>
               </a>
@@ -258,7 +258,7 @@ new Chart(document.getElementById("loeTargetPie"), {
 // Use Turbo's event to ensure the script runs after every page load/navigation
 document.addEventListener('turbo:load', function() {
   const actionFilter = document.getElementById('actionFilter');
-  const listItems = document.querySelectorAll('.list-group-item');
+  const listItems = document.querySelectorAll('#pending-actions-list .list-group-item');
 
   function filterItems(selectedOption) {
     listItems.forEach(item => {
@@ -272,14 +272,14 @@ document.addEventListener('turbo:load', function() {
     const savedOption = sessionStorage.getItem('actionFilterSelection');
 
     if (savedOption) {
-      // Set the value of the select element
-      actionFilter.value = savedOption;
-      // Find the correct option and set its 'selected' attribute
       const optionToSelect = actionFilter.querySelector(`option[data-options="${savedOption}"]`);
       if (optionToSelect) {
         optionToSelect.selected = true;
+        filterItems(savedOption);
+      } else {
+        sessionStorage.removeItem('actionFilterSelection');
+        filterItems('all');
       }
-      filterItems(savedOption);
     }
 
     actionFilter.addEventListener('change', function() {
