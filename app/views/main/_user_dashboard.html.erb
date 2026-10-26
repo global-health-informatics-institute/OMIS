@@ -72,6 +72,12 @@
                 <% end %>
               </tr>
             <% end %>
+            <% (@direct_project_tasks || []).each do |task| %>
+              <tr>
+                <td><%= Time.zone.parse(task.fetch('deadline')).strftime('%d %b,%Y') %></td>
+                <td><%= task.fetch('task_description') %></td>
+              </tr>
+            <% end %>
             </tbody>
         </table>
       </div>
@@ -166,18 +172,55 @@
   </div>
   <div class="col-sm-3">
     <div class="card h-100">
-      <div class="card-header">
-        <h5 class="card-title text-dark">Assigned Tasks
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title text-dark mb-0">Assigned Tasks
           <span class="badge rounded-pill bg-danger">
-            <%= (@approvals || []).length %>
+            <%= (@direct_project_tasks || []).length +
+                (@delegated_project_tasks || []).sum { |task| task.fetch('project_task_assignments', []).length } %>
             <span class="visually-hidden">actions to perform</span>
           </span>
         </h5>
       </div>
-      <div class="card-body p-2">
-        <% if (@approvals || []).empty? %>
+
+      <div class="card-body p-2 overflow-y-scroll" style="height:25vh;">
+        <% if (@direct_project_tasks || []).empty? && (@delegated_project_tasks || []).empty? %>
           <span class="fw-normal">No tasks assigned</span>
-        <% else%>
+        <% else %>
+          <% if @direct_project_tasks.present? %>
+            <ul class="list-group list-group-flush">
+              <% @direct_project_tasks.each do |task| %>
+                <% if task['reference_url?'] %>
+                  <a href="<%= task['reference'] %>" class="list-group-item list-group-item-action">
+                    <%= task['task_description'] %>
+                  </a>
+                <% else %>
+                  <li class="list-group-item"><%= task['task_description'] %></li>
+                <% end %>
+              <% end %>
+            </ul>
+          <% end %>
+
+          <% if @delegated_project_tasks.present? %>
+            <ul class="list-group list-group-flush">
+              <% @delegated_project_tasks.each do |task| %>
+                <% task.fetch('project_task_assignments', []).each do |assignment| %>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                      Review task for: <strong><%= assignment['employee_name'] %></strong>
+                      <br>
+                      <span class="text-muted"><%= task['task_description'] %></span>
+                    </div>
+                    <%= button_to 'Dismiss',
+                                  revoke_project_task_assignment_path(assignment['project_task_assignment_id']),
+                                  method: :patch,
+                                  class: 'btn btn-outline-danger btn-sm',
+                                  data: { turbo_confirm: 'Are you sure you want to dismiss this task assignment?' },
+                                  form_class: 'm-0' %>
+                  </li>
+                <% end %>
+              <% end %>
+            </ul>
+          <% end %>
         <% end %>
       </div>
     </div>
