@@ -46,7 +46,8 @@ module Requisitions
       'Pending Payment Voucher',
       'Pending Payment Voucher Review - Finance Team',
       'Pending Payment Voucher Review - ED',
-      'Purchase Request Complete'
+      'Purchase Request Complete',
+      'Pending Item Acceptance'
     ].freeze
 
     TAX_RATE_STATES = [
@@ -81,7 +82,7 @@ module Requisitions
         'pending vendor analysis', 'pending lpo check', 'pending lpo request submission',
         'pending lpo review - finance team', 'pending lpo review - ed', 'pending delivery confirmation',
         'pending item acceptance', 'pending payment request', 'pending payment request review - finance team',
-        'pending payment request review - ed', 'pending payment voucher', 'pending payment voucher review - finance team',
+        'pending payment request review - ed', 'pending payment voucher', 'pending payment voucher review - finance team', # rubocop:disable Layout/LineLength
         'pending payment voucher review - ed'
         'bg-secondary text-white'
       else
