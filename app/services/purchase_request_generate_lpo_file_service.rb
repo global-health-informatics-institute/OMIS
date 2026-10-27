@@ -8,7 +8,6 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
   NBSP = Prawn::Text::NBSP
   SIGNOFF_GAP = 300
   SIGNATURE_GAP = 30 # space left above the signature line for signing
-  TOKEN_LABEL = 'OMIS generated token' # only shown on the signed LPO
   STAMP_Y = 160
   STAMP_WIDTH = 180
 
@@ -31,23 +30,24 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
 
     def _build_lpo(purchase_request:, output_path:, signed:, token: nil) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       data = _lpo_data(purchase_request, token:)
-      info_rows = signed ? data[:info] : data[:info].reject { |label, _value| label == TOKEN_LABEL }
+      text = data[:text]
+      info_rows = signed ? data[:info] : data[:info].reject { |label, _value| label == text[:token_label] }
 
       Prawn::Document.generate(output_path, page_size: 'A4', page_layout: :portrait,
                                             left_margin: 40, right_margin: 40) do |pdf|
         pdf.image LETTERHEAD, width: pdf.bounds.width
         pdf.move_down 20
-        pdf.text 'Local Purchase Order', size: 18, style: :bold, align: :center
+        pdf.text text[:title], size: 18, style: :bold, align: :center
         pdf.move_down 20
 
         _add_info_table(pdf:, rows: info_rows)
-        _add_agreement(pdf:, validity_days: data[:validity_days])
-        _add_items_table(pdf:, item: data[:item])
+        _add_agreement(pdf:, text:)
+        _add_items_table(pdf:, item: data[:item], text:)
 
         if signed
-          _add_signoff_section(pdf:, signoffs: data[:signoffs])
+          _add_signoff_section(pdf:, signoffs: data[:signoffs], text:)
         else
-          _add_unsigned_signoff_section(pdf:, signoffs: data[:signoffs])
+          _add_unsigned_signoff_section(pdf:, signoffs: data[:signoffs], text:)
         end
 
         _add_footer(pdf:)
@@ -81,13 +81,9 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
         pdf.stroke_horizontal_rule
       end
       pdf.move_down 8
-      pdf.text 'This document constitutes an agreement between the vendor and the Global Health ' \
-               'Informatics Institute (the buyer) for the provision of the services/items specified below:',
-               align: :justify, size: 9
+      pdf.text text[:agreement], align: :justify, size: 9
       pdf.move_down 5
-      pdf.text "<b>Note:</b> This LPO is valid for a period of #{validity_days} days after approval date"\
-                "And payment must be made within #{lpo_payment_period} days after the item has been delivered.",
-               inline_format: true, size: 9
+      pdf.text text[:validity_note], inline_format: true, size: 9
       pdf.move_down 20
     end
 
@@ -96,7 +92,7 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
       ensure_space(pdf:, required_height: 120)
       pdf.move_down 8
 
-      pdf.table(_items_table_data(item), column_widths: [38, 125, 72, 55, 65, 65, 95], header: true,
+      pdf.table(_items_table_data(item, text[:item_headers]), column_widths: [38, 125, 72, 55, 65, 65, 95], header: true,
                                          cell_style: { size: 9 }) do
         row(0).font_style = :bold
         row(0).background_color = 'EEEEEE'
@@ -108,9 +104,9 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
       pdf.move_down 30
     end
 
-    def _items_table_data(item) # rubocop:disable Metrics/MethodLength
+    def _items_table_data(item, headers) # rubocop:disable Metrics/MethodLength
       [
-        ['Item No', 'Description', 'Unit Price', 'Quantity', 'MRA Fee (MWK)', 'Levy Fee (MWK)', 'Total (MWK)'],
+        headers,
         [
           item[:number].to_s,
           item[:description].to_s,
@@ -138,17 +134,18 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
     # Names stay; each person gets a blank date line and a signature line to fill in by hand.
     #   Prepared By:  Name              Date Prepared: ____________
     #   Signature: ______________
-    def _add_unsigned_signoff_section(pdf:, signoffs:)
+    def _add_unsigned_signoff_section(pdf:, signoffs:, text:)
       signoffs.each do |label, name, date_label, _date|
         ensure_space(pdf:, required_height: 30) # a block is ~60pt tall but ensure_space already keeps a footer zone free # rubocop:disable Layout/LineLength
 
         name_baseline = pdf.cursor - pdf.font.ascender
-        pdf.draw_text "#{label}: #{NBSP}#{name || '--'}", at: [0, name_baseline]
+        pdf.draw_text "#{label}: #{NBSP}#{name || text[:unavailable_value]}", at: [0, name_baseline]
         _blank_field(pdf:, label: "#{date_label}:", x: SIGNOFF_GAP, baseline: name_baseline,
                      line_end: pdf.bounds.width)
 
         signature_baseline = name_baseline - SIGNATURE_GAP
-        _blank_field(pdf:, label: 'Signature:', x: 0, baseline: signature_baseline, line_end: SIGNOFF_GAP - 40)
+        _blank_field(pdf:, label: "#{text[:signature_label]}:", x: 0, baseline: signature_baseline,
+                     line_end: SIGNOFF_GAP - 40)
 
         pdf.move_cursor_to signature_baseline - 22
       end
@@ -168,16 +165,16 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
       ActiveSupport::NumberHelper.number_to_currency(amount || 0, unit: '', precision: 2)
     end
 
-    def _fmt_date(date)
-      date&.strftime('%d %B %Y') || '--'
+    def _fmt_date(date, text:)
+      date&.strftime('%d %B %Y') || text[:unavailable_value]
     end
 
     # 312000.0 -> "Three hundred and twelve thousand Malawi Kwacha only"
-    def _amount_in_words(amount)
+    def _amount_in_words(amount, text:)
       kwacha, tambala = (amount.to_d * 100).round.to_i.divmod(100)
-      text = "#{_number_to_words(kwacha)} Malawi Kwacha"
-      text += " and #{_number_to_words(tambala)} Tambala" if tambala.positive?
-      "#{text} only".sub(/\A./, &:upcase)
+      amount_text = "#{_number_to_words(kwacha)} #{text[:currency_name]}"
+      amount_text += " #{text[:conjunction]} #{_number_to_words(tambala)} #{text[:subunit_name]}" if tambala.positive?
+      "#{amount_text} #{text[:only_label]}".sub(/\A./, &:upcase)
     end
 
     def _number_to_words(number) # rubocop:disable Metrics/MethodLength
@@ -215,20 +212,42 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
     def _lpo_data(purchase_request, token:) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
       detail = purchase_request.purchase_request_detail
       item = purchase_request.requisition_items.first
+      validity_days = lpo_validity_days
+      payment_period = lpo_payment_period
+      text = {
+        title: 'Local Purchase Order',
+        token_label: 'OMIS generated token',
+        agreement: 'This document constitutes an agreement between the vendor and the Global Health ' \
+                   'Informatics Institute (the buyer) for the provision of the services/items specified below:',
+        validity_note: "<b>Note:</b> This LPO is valid for a period of #{validity_days} days after approval date " \
+                       "and payment must be made within #{payment_period} days after the item has been delivered.",
+        item_headers: ['Item No', 'Description', 'Unit Price', 'Quantity', 'MRA Fee (MWK)', 'Levy Fee (MWK)',
+                       'Total (MWK)'],
+        amount_in_words_label: 'Amount in words',
+        signature_label: 'Signature',
+        unavailable_value: '--',
+        currency_name: 'Malawi Kwacha',
+        subunit_name: 'Tambala',
+        conjunction: 'and',
+        only_label: 'only'
+      }
+      office_address = GlobalProperty.find_by(property: 'office.address')&.property_value ||
+                       'Global Health Informatics Institute'
+
       {
+        text:,
         info: [
           ['LPO No', "LPO-#{detail.id}-#{purchase_request.requisition_id}"],
           ['Purchase Request No', purchase_request.requisition_id.to_s],
-          ['OMIS generated token', token],
+          [text[:token_label], token],
           ['Vendor Name', detail.vendor_name],
           ['Vendors Mobile', detail.vendor_mobile_number],
           ['Vendor Email', detail.vendor_email],
-          ['Delivery Due Date', detail.lpo_ed_approved_on.to_date + lpo_validity_days],
+          ['Delivery Due Date', detail.lpo_ed_approved_on.to_date + validity_days],
           ['Delivery Point', office_address],
           ['Project', project_name(purchase_request)],
-          ['Order Date', _fmt_date(detail.lpo_ed_approved_on)]
+          ['Order Date', _fmt_date(detail.lpo_ed_approved_on, text:)]
         ],
-        validity_days: lpo_validity_days,
         item: {
           number: 1,
           description: item.item_description,
@@ -248,10 +267,6 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
 
     def lpo_validity_days
       GlobalProperty.find_by(property: 'lpo.validity.period.in.days')&.property_value.to_i
-    end
-
-    def office_address
-      GlobalProperty.find_by(property: 'office.address')&.property_value || 'Global Health Informatics Institute'
     end
 
     def lpo_payment_period
