@@ -7,6 +7,8 @@ class PurchaseRequestGenerateLpoFile # rubocop:disable Metrics/ClassLength
   LETTERHEAD = 'app/assets/images/GHII-Letterhead.png'
   NBSP = Prawn::Text::NBSP
   SIGNOFF_GAP = 300
+  SIGNATURE_GAP = 30 # space left above the signature line for signing
+  TOKEN_LABEL = 'OMIS generated token' # only shown on the signed LPO
   STAMP_Y = 160
   STAMP_WIDTH = 180
 
@@ -17,8 +19,20 @@ class PurchaseRequestGenerateLpoFile # rubocop:disable Metrics/ClassLength
 
   class << self
     # Placeholder data only, so the layout can be previewed. Returns the path of the generated PDF.
-    def generate_signed_lpo(output_path = 'tmp/signed_lpo_preview.pdf') # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+    def generate_signed_lpo(output_path = 'tmp/signed_lpo_preview.pdf')
+      _build_lpo(output_path:, signed: true)
+    end
+
+    # Same document without the token and stamp, with signature lines and blank date lines to fill in by hand.
+    def generate_unsigned_lpo(output_path = 'tmp/unsigned_lpo_preview.pdf')
+      _build_lpo(output_path:, signed: false)
+    end
+
+    private
+
+    def _build_lpo(output_path:, signed:) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       data = _placeholder_data
+      info_rows = signed ? data[:info] : data[:info].reject { |label, _value| label == TOKEN_LABEL }
 
       Prawn::Document.generate(output_path, page_size: 'A4', page_layout: :portrait,
                                             left_margin: 40, right_margin: 40) do |pdf|
@@ -27,19 +41,22 @@ class PurchaseRequestGenerateLpoFile # rubocop:disable Metrics/ClassLength
         pdf.text 'Local Purchase Order', size: 18, style: :bold, align: :center
         pdf.move_down 20
 
-        _add_info_table(pdf:, rows: data[:info])
+        _add_info_table(pdf:, rows: info_rows)
         _add_agreement(pdf:, validity_days: data[:validity_days])
         _add_items_table(pdf:, item: data[:item])
-        _add_signoff_section(pdf:, signoffs: data[:signoffs])
+
+        if signed
+          _add_signoff_section(pdf:, signoffs: data[:signoffs])
+        else
+          _add_unsigned_signoff_section(pdf:, signoffs: data[:signoffs])
+        end
 
         _add_footer(pdf:)
-        _add_stamp(pdf:, y: STAMP_Y, width: STAMP_WIDTH)
+        _add_stamp(pdf:, y: STAMP_Y, width: STAMP_WIDTH) if signed
       end
 
       output_path
     end
-
-    private
 
     # Label, colon and value are separate columns so every colon lines up.
     # The label column is kept wide on purpose: Prawn caches word widths without the font size, so after the
@@ -111,6 +128,35 @@ class PurchaseRequestGenerateLpoFile # rubocop:disable Metrics/ClassLength
           next_text: "#{date_label}: #{NBSP}#{_fmt_date(date)}",
           move_down: 20, target_width: SIGNOFF_GAP
         )
+      end
+    end
+
+    # Names stay; each person gets a blank date line and a signature line to fill in by hand.
+    #   Prepared By:  Name              Date Prepared: ____________
+    #   Signature: ______________
+    def _add_unsigned_signoff_section(pdf:, signoffs:) # rubocop:disable Metrics/MethodLength
+      signoffs.each do |label, name, date_label, _date|
+        ensure_space(pdf:, required_height: 30) # a block is ~60pt tall but ensure_space already keeps a footer zone free
+
+        name_baseline = pdf.cursor - pdf.font.ascender
+        pdf.draw_text "#{label}: #{NBSP}#{name || '--'}", at: [0, name_baseline]
+        _blank_field(pdf:, label: "#{date_label}:", x: SIGNOFF_GAP, baseline: name_baseline,
+                     line_end: pdf.bounds.width)
+
+        signature_baseline = name_baseline - SIGNATURE_GAP
+        _blank_field(pdf:, label: 'Signature:', x: 0, baseline: signature_baseline, line_end: SIGNOFF_GAP - 40)
+
+        pdf.move_cursor_to signature_baseline - 22
+      end
+    end
+
+    # A label followed by a ruled line to write on.
+    def _blank_field(pdf:, label:, x:, baseline:, line_end:)
+      pdf.draw_text label, at: [x, baseline]
+      pdf.mask(:line_width, :stroke_color) do
+        pdf.line_width = 0.75
+        pdf.stroke_color '000000'
+        pdf.stroke_horizontal_line(x + pdf.width_of(label) + 6, line_end, at: baseline - 2)
       end
     end
 
