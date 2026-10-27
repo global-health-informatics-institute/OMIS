@@ -74,6 +74,7 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
 
     # Thin rule to set the agreement terms apart from the order details, text slightly smaller than the body.
     def _add_agreement(pdf:, validity_days:) # rubocop:disable Metrics/MethodLength
+      pdf.move_down 20
       pdf.mask(:line_width, :stroke_color) do
         pdf.line_width = 0.5
         pdf.stroke_color '999999'
@@ -90,8 +91,10 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
       pdf.move_down 20
     end
 
-    def _add_items_table(pdf:, item:)
+    def _add_items_table(pdf:, item:) # rubocop:disable Metrics/MethodLength
+      pdf.move_down 20
       ensure_space(pdf:, required_height: 120)
+      pdf.move_down 8
 
       pdf.table(_items_table_data(item), column_widths: [38, 125, 72, 55, 65, 65, 95], header: true,
                                          cell_style: { size: 9 }) do
@@ -101,7 +104,7 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
       end
 
       pdf.move_down 12
-      pdf.text "<b>Amount in words:</b> #{_amount_in_words(item[:total])}", inline_format: true, size: 10
+      pdf.text "<b>Amount in words:</b> #{_amount_in_words(item[:total])}", inline_format: true, size: 9
       pdf.move_down 30
     end
 
@@ -121,12 +124,13 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
     end
 
     def _add_signoff_section(pdf:, signoffs:)
+      pdf.move_down 20
       signoffs.each do |label, name, date_label, date|
         _write_line(
           pdf:,
           previous_text: "#{label}: #{NBSP}#{name || '--'}",
           next_text: "#{date_label}: #{NBSP}#{_fmt_date(date)}",
-          move_down: 20, target_width: SIGNOFF_GAP
+          move_down: 15, target_width: SIGNOFF_GAP
         )
       end
     end
@@ -136,7 +140,7 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
     #   Signature: ______________
     def _add_unsigned_signoff_section(pdf:, signoffs:)
       signoffs.each do |label, name, date_label, _date|
-        ensure_space(pdf:, required_height: 30) # a block is ~60pt tall but ensure_space already keeps a footer zone free
+        ensure_space(pdf:, required_height: 30) # a block is ~60pt tall but ensure_space already keeps a footer zone free # rubocop:disable Layout/LineLength
 
         name_baseline = pdf.cursor - pdf.font.ascender
         pdf.draw_text "#{label}: #{NBSP}#{name || '--'}", at: [0, name_baseline]
@@ -151,7 +155,7 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
     end
 
     # A label followed by a ruled line to write on.
-    def _blank_field(pdf:, label:, x:, baseline:, line_end:)
+    def _blank_field(pdf:, label:, x:, baseline:, line_end:) # rubocop:disable Naming/MethodParameterName
       pdf.draw_text label, at: [x, baseline]
       pdf.mask(:line_width, :stroke_color) do
         pdf.line_width = 0.75
@@ -208,7 +212,7 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
       parts.join(' ')
     end
 
-    def _lpo_data(purchase_request, token:) # rubocop:disable Metrics/MethodLength
+    def _lpo_data(purchase_request, token:) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
       detail = purchase_request.purchase_request_detail
       item = purchase_request.requisition_items.first
       {
