@@ -25,4 +25,18 @@ class PurchaseRequestMailer < ApplicationMailer # rubocop:disable Style/Document
       subject: 'Purchase Request Requires Your Action'
     )
   end
+
+  def lpo_documents(purchase_request, recipient_email, cc_emails, signed_lpo_path, unsigned_lpo_path)
+    @purchase_request = purchase_request
+    @requester_name = purchase_request.initiator&.person&.full_name || 'the requester'
+
+    attachments["signed_lpo_#{purchase_request.requisition_id}.pdf"] = File.binread(signed_lpo_path)
+    attachments["unsigned_lpo_#{purchase_request.requisition_id}.pdf"] = File.binread(unsigned_lpo_path)
+
+    mail(
+      to: recipient_email,
+      cc: cc_emails,
+      subject: "LPO documents: #{purchase_request.purpose}"
+    )
+  end
 end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Generates an LPO file for a purchase request
-class PurchaseRequestGenerateLpoFile # rubocop:disable Metrics/ClassLength
+class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLength
   extend PdfHelper # gives us _write_line, _add_footer, _add_stamp, ensure_space as class methods
 
   LETTERHEAD = 'app/assets/images/GHII-Letterhead.png'
@@ -18,20 +18,19 @@ class PurchaseRequestGenerateLpoFile # rubocop:disable Metrics/ClassLength
   SCALES = [[1_000_000_000, 'billion'], [1_000_000, 'million'], [1_000, 'thousand']].freeze
 
   class << self
-    # Placeholder data only, so the layout can be previewed. Returns the path of the generated PDF.
-    def generate_signed_lpo(output_path = 'tmp/signed_lpo_preview.pdf')
-      _build_lpo(output_path:, signed: true)
+    def generate_signed_lpo(purchase_request:, token:, output_path:)
+      _build_lpo(purchase_request:, token:, output_path:, signed: true)
     end
 
     # Same document without the token and stamp, with signature lines and blank date lines to fill in by hand.
-    def generate_unsigned_lpo(output_path = 'tmp/unsigned_lpo_preview.pdf')
-      _build_lpo(output_path:, signed: false)
+    def generate_unsigned_lpo(purchase_request:, output_path:)
+      _build_lpo(purchase_request:, output_path:, signed: false)
     end
 
     private
 
-    def _build_lpo(output_path:, signed:) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-      data = _placeholder_data
+    def _build_lpo(purchase_request:, output_path:, signed:, token: nil) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+      data = _lpo_data(purchase_request, token:)
       info_rows = signed ? data[:info] : data[:info].reject { |label, _value| label == TOKEN_LABEL }
 
       Prawn::Document.generate(output_path, page_size: 'A4', page_layout: :portrait,
@@ -85,7 +84,8 @@ class PurchaseRequestGenerateLpoFile # rubocop:disable Metrics/ClassLength
                'Informatics Institute (the buyer) for the provision of the services/items specified below:',
                align: :justify, size: 9
       pdf.move_down 5
-      pdf.text "<b>Note:</b> This LPO is valid for a period of #{validity_days} days after approval date",
+      pdf.text "<b>Note:</b> This LPO is valid for a period of #{validity_days} days after approval date"\
+                "And payment must be made within #{lpo_payment_period} days after the item has been delivered.",
                inline_format: true, size: 9
       pdf.move_down 20
     end
@@ -134,7 +134,7 @@ class PurchaseRequestGenerateLpoFile # rubocop:disable Metrics/ClassLength
     # Names stay; each person gets a blank date line and a signature line to fill in by hand.
     #   Prepared By:  Name              Date Prepared: ____________
     #   Signature: ______________
-    def _add_unsigned_signoff_section(pdf:, signoffs:) # rubocop:disable Metrics/MethodLength
+    def _add_unsigned_signoff_section(pdf:, signoffs:)
       signoffs.each do |label, name, date_label, _date|
         ensure_space(pdf:, required_height: 30) # a block is ~60pt tall but ensure_space already keeps a footer zone free
 
@@ -208,34 +208,58 @@ class PurchaseRequestGenerateLpoFile # rubocop:disable Metrics/ClassLength
       parts.join(' ')
     end
 
-    def _placeholder_data # rubocop:disable Metrics/MethodLength
-      today = Date.current
-      lpo_number = 'LPO-2026-0001'
+    def _lpo_data(purchase_request, token:) # rubocop:disable Metrics/MethodLength
+      detail = purchase_request.purchase_request_detail
+      item = purchase_request.requisition_items.first
       {
         info: [
-          ['LPO No', lpo_number],
-          ['Purchase Request No', '142'],
-          ['OMIS generated token', '3ZVfxjuq9uOQgVMD'],
-          ['Vendor Name', 'Sample Vendor Ltd'],
-          ['Vendors Mobile', '+265 999 000 000'],
-          ['Vendor Email', 'vendor@example.com'],
-          ['Delivery Date', _fmt_date(today + 9)],
-          ['Terms of Payment', '30 days after delivery'],
-          ['Delivery Point', 'Global Health Informatics Institute, Main Office'],
-          ['Project', 'GHII'],
-          ['Order Date', _fmt_date(today)]
+          ['LPO No', "LPO-#{detail.id}-#{purchase_request.requisition_id}"],
+          ['Purchase Request No', purchase_request.requisition_id.to_s],
+          ['OMIS generated token', token],
+          ['Vendor Name', detail.vendor_name],
+          ['Vendors Mobile', detail.vendor_mobile_number],
+          ['Vendor Email', detail.vendor_email],
+          ['Delivery Due Date', detail.lpo_ed_approved_on.to_date + lpo_validity_days],
+          ['Delivery Point', office_address],
+          ['Project', project_name(purchase_request)],
+          ['Order Date', _fmt_date(detail.lpo_ed_approved_on)]
         ],
-        validity_days: 9,
+        validity_days: lpo_validity_days,
         item: {
-          number: 1, description: 'Sample item description (placeholder text)',
-          unit_price: 150_000, quantity: 2, mra_fee: 25_500, levy_fee: 7_500, total: 366_000
+          number: 1,
+          description: item.item_description,
+          unit_price: detail.unit_price,
+          quantity: item.quantity,
+          mra_fee: detail.quotation_mra,
+          levy_fee: detail.quotation_levy,
+          total: detail.quotation_total
         },
         signoffs: [
-          ['Prepared By', 'Preparer Full Name', 'Date Prepared', today],
-          ['Reviewed By', 'Reviewer Full Name', 'Date Reviewed', today],
-          ['Approved By', 'Approver Full Name', 'Date Approved', today]
+          ['Prepared By', employee_name(detail.lpo_preparer), 'Date Prepared', detail.lpo_prepared_on],
+          ['Reviewed By', employee_name(detail.lpo_finance_approver), 'Date Reviewed', detail.lpo_finance_approved_on],
+          ['Approved By', employee_name(detail.lpo_ed_approver), 'Date Approved', detail.lpo_ed_approved_on]
         ]
       }
+    end
+
+    def lpo_validity_days
+      GlobalProperty.find_by(property: 'lpo.validity.period.in.days')&.property_value.to_i
+    end
+
+    def office_address
+      GlobalProperty.find_by(property: 'office.address')&.property_value || 'Global Health Informatics Institute'
+    end
+
+    def lpo_payment_period
+      GlobalProperty.find_by(property: 'lpo.payment.period.in.days')&.property_value.to_i
+    end
+
+    def project_name(purchase_request)
+      purchase_request.project&.short_name.presence || purchase_request.project&.project_name
+    end
+
+    def employee_name(employee)
+      employee&.person&.full_name
     end
   end
 end

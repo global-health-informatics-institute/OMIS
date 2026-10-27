@@ -8,7 +8,7 @@ class PurchaseRequestApproveLpoService # rubocop:disable Style/Documentation
 
     private
 
-    def transition_purchase_request(id, action, approved_by)
+    def transition_purchase_request(id, action, approved_by) # rubocop:disable Metrics/MethodLength
       purchase_request = PurchaseRequest.find(id)
       transition = WorkflowStateTransition.find_by!(
         workflow_state_id: purchase_request.workflow_state_id,
@@ -28,6 +28,8 @@ class PurchaseRequestApproveLpoService # rubocop:disable Style/Documentation
         purchase_request.purchase_request_detail.update!(approval_attributes)
         purchase_request.update!(workflow_state_id: transition.next_state)
       end
+      PurchaseRequestSendLpoDocumentsService.call(purchase_request) if approval_attributes.key?(:lpo_ed_approved_by)
+
       purchase_request
     end
   end
