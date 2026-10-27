@@ -4,14 +4,27 @@
   <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
   <style>body { font-family: 'Trebuchet MS', sans-serif; }</style>
 </head>
-<body>
-  <p>Dear Executive Director,</p>
+<body style="background-color: #F3F4F6; padding: 10px;">
+  <div style="border: 1px solid #002130; width: 100%; margin: 0 auto;">
+    <div style="background-color: #002130; font-weight: bold; color: #E3E4E7; padding: 20px; text-align: center; font-size: 1.5rem;">
+      Local Purchase Order Documents
+    </div>
 
-  <p>
-    Please find attached the signed and unsigned LPOs for the purchase request made by
-    <strong><%= @requester_name %></strong> for <em>"<%= @purchase_request.purpose %>"</em>.
-  </p>
+    <div style="padding: 30px; font-size: 1.2rem;">
+      <p>Dear <%= @recipient_name %>,</p>
 
-  <p>Regards,<br>Informatics Team</p>
+      <p>
+        Please find attached the signed and unsigned LPOs for the purchase request made by
+        <strong><%= @requester_name %></strong> for <em>"<%= @purchase_request.purpose %>"</em>.
+      </p>
+
+
+    </div>
+  </div>
+
+  <div style="margin-top: 30px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+    <p> Please contact the Informatics Team if you need support.
+    OMIS. <%= Time.current.year %></p>
+  </div>
 </body>
 </html>

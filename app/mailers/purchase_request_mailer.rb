@@ -26,9 +26,10 @@ class PurchaseRequestMailer < ApplicationMailer # rubocop:disable Style/Document
     )
   end
 
-  def lpo_documents(purchase_request, recipient_email, cc_emails, signed_lpo_path, unsigned_lpo_path)
+  def lpo_documents(purchase_request, recipient_email, cc_emails, signed_lpo_path, unsigned_lpo_path) # rubocop:disable Metrics/AbcSize
     @purchase_request = purchase_request
     @requester_name = purchase_request.initiator&.person&.full_name || 'the requester'
+    @recipient_name = purchase_request.purchase_request_detail.lpo_ed_approver&.person&.full_name || 'Executive Director'
 
     attachments["signed_lpo_#{purchase_request.requisition_id}.pdf"] = File.binread(signed_lpo_path)
     attachments["unsigned_lpo_#{purchase_request.requisition_id}.pdf"] = File.binread(unsigned_lpo_path)
