@@ -9,13 +9,13 @@ class CommitteeMeeting < ApplicationRecord # rubocop:disable Style/Documentation
   scope :scheduled, -> { where(status: 'Scheduled') }
 
   validates :scheduled_on, :status, presence: true
-  validate :scheduled_on_is_today_or_later
+  validate :scheduled_on_is_in_the_future
 
   private
 
-  def scheduled_on_is_today_or_later
-    return if scheduled_on.blank? || scheduled_on >= Date.current
+  def scheduled_on_is_in_the_future
+    return if scheduled_on.blank? || scheduled_on >= DateTime.current
 
-    errors.add(:scheduled_on, 'cannot be earlier than today')
+    errors.add(:scheduled_on, 'must be in the future')
   end
 end

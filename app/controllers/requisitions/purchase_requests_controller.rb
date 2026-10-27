@@ -118,7 +118,9 @@ module Requisitions
 
     def schedule_ipc_meeting
       @purchase_request = PurchaseRequestShowService.show(params[:id])
-      @committee_meeting = @purchase_request.committee_meetings.build(scheduled_on: Date.current)
+      @committee_meeting = @purchase_request.committee_meetings.build(
+        scheduled_on: 1.hour.from_now.change(sec: 0)
+      )
       @committees = Committee.active.order(:name)
     end
 

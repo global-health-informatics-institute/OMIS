@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_10_26_093000) do
+ActiveRecord::Schema[7.0].define(version: 2026_10_26_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -70,7 +70,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_10_26_093000) do
   create_table "committee_meetings", primary_key: "committee_meeting_id", force: :cascade do |t|
     t.integer "requisition_id", null: false
     t.integer "committee_id", null: false
-    t.date "scheduled_on", null: false
+    t.datetime "scheduled_on", null: false
     t.integer "scheduled_by", null: false
     t.string "status", default: "Scheduled", null: false
     t.datetime "created_at", null: false

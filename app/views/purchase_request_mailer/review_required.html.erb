@@ -22,7 +22,7 @@
       <% if @committee_meeting %>
         <p>
           An <%= @committee_meeting.committee.name %> meeting has been scheduled for
-          <strong><%= @committee_meeting.scheduled_on.strftime('%d %B %Y') %></strong>.
+          <strong><%= @committee_meeting.scheduled_on.strftime('%d %B %Y at %H:%M') %></strong>.
         </p>
       <% end %>
 
