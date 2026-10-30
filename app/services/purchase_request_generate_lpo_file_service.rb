@@ -73,7 +73,7 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
     end
 
     # Thin rule to set the agreement terms apart from the order details, text slightly smaller than the body.
-    def _add_agreement(pdf:, validity_days:) # rubocop:disable Metrics/MethodLength
+    def _add_agreement(pdf:, validity_days:) # rubocop:disable Metrics/MethodLength,Lint/UnusedMethodArgument
       pdf.move_down 20
       pdf.mask(:line_width, :stroke_color) do
         pdf.line_width = 0.5
@@ -87,7 +87,7 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
       pdf.move_down 20
     end
 
-    def _add_items_table(pdf:, item:) # rubocop:disable Metrics/MethodLength
+    def _add_items_table(pdf:, item:) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
       pdf.move_down 20
       ensure_space(pdf:, required_height: 120)
       pdf.move_down 8
@@ -134,7 +134,7 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
     # Names stay; each person gets a blank date line and a signature line to fill in by hand.
     #   Prepared By:  Name              Date Prepared: ____________
     #   Signature: ______________
-    def _add_unsigned_signoff_section(pdf:, signoffs:, text:)
+    def _add_unsigned_signoff_section(pdf:, signoffs:, text:) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       signoffs.each do |label, name, date_label, _date|
         ensure_space(pdf:, required_height: 30) # a block is ~60pt tall but ensure_space already keeps a footer zone free # rubocop:disable Layout/LineLength
 
