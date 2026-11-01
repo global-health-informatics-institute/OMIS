@@ -28,6 +28,10 @@ class PurchaseRequestApprovePaymentVoucherService # rubocop:disable Style/Docume
         purchase_request.purchase_request_detail.update!(approval_attributes)
         purchase_request.update!(workflow_state_id: transition.next_state)
       end
+      if approval_attributes.key?(:payment_voucher_ed_approved_by)
+        PurchaseRequestSendPaymentVoucherDocumentsService.call(purchase_request)
+      end
+
       purchase_request
     end
   end

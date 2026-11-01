@@ -40,4 +40,25 @@ class PurchaseRequestMailer < ApplicationMailer # rubocop:disable Style/Document
       subject: "LPO documents: #{purchase_request.purpose}"
     )
   end
+
+  def payment_voucher_documents( # rubocop:disable Metrics/AbcSize
+    purchase_request,
+    recipient_email,
+    cc_emails,
+    signed_payment_voucher_path,
+    unsigned_payment_voucher_path
+  )
+    @purchase_request = purchase_request
+    @requester_name = purchase_request.initiator&.person&.full_name || 'the requester'
+    @recipient_name = purchase_request.purchase_request_detail.payment_voucher_ed_approver&.person&.full_name || 'Executive Director'
+
+    attachments["signed_payment_voucher_#{purchase_request.requisition_id}.pdf"] = File.binread(signed_payment_voucher_path)
+    attachments["unsigned_payment_voucher_#{purchase_request.requisition_id}.pdf"] = File.binread(unsigned_payment_voucher_path)
+
+    mail(
+      to: recipient_email,
+      cc: cc_emails,
+      subject: "Payment voucher documents: #{purchase_request.purpose}"
+    )
+  end
 end
