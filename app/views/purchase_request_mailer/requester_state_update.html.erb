@@ -15,7 +15,7 @@
 
       <% if @current_state == 'Purchase Request Complete' %>
         <p>
-          Please be informed that your purchase request for <em>"<%= @purchase_request.purpose %>"</em>
+          Please be informed that the purchase request you submitted for <em>"<%= @purchase_request.purpose %>"</em>
           has been completed.
         </p>
 
@@ -26,13 +26,11 @@
       <% else %>
         <p>
           Please be informed that your purchase request for <em>"<%= @purchase_request.purpose %>"</em>
-          has been <%= @action_description %> and is now
-          <strong><%= @current_state %></strong>.
+          has been <%= @action_description %> and is now marked as <strong><%= @current_state %></strong>.
         </p>
 
-        <p>You will receive another update when the status of your purchase request changes.</p>
+        <p>You can track the progress of your request at any time using the button below.</p>
       <% end %>
-
 
       <div style="margin-top: 20px; text-align: left;">
         <a href="<%= "#{Rails.application.config.omis_url}/requisitions/purchase_requests/#{@purchase_request.requisition_id}" %>"
@@ -44,8 +42,8 @@
   </div>
 
   <div style="margin-top: 30px; text-align: center; font-size: 0.9rem; color: #6c757d;">
-      <p>Please contact the Informatics Team if you need support.</p>
-      <p>OMIS. <%= Time.current.year %></p>
+    <p>Please contact the Informatics Team if you need support.</p>
+    <p>OMIS. <%= Time.current.year %></p>
   </div>
 </body>
 </html>
