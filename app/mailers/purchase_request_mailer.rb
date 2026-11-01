@@ -9,7 +9,7 @@ class PurchaseRequestMailer < ApplicationMailer # rubocop:disable Style/Document
 
     mail(
       to: recipient_email,
-      subject: "Purchase Request Update: #{@current_state}"
+      subject: "Purchase Request Status Update: #{@current_state}"
     )
   end
 

@@ -33,7 +33,6 @@
         <p>You will receive another update when the status of your purchase request changes.</p>
       <% end %>
 
-      <p style="margin-top: 30px;">Please contact the Informatics Team if you need support.</p>
 
       <div style="margin-top: 20px; text-align: left;">
         <a href="<%= "#{Rails.application.config.omis_url}/requisitions/purchase_requests/#{@purchase_request.requisition_id}" %>"
@@ -45,7 +44,8 @@
   </div>
 
   <div style="margin-top: 30px; text-align: center; font-size: 0.9rem; color: #6c757d;">
-    <p>Informatics Team. <%= Time.current.year %></p>
+      <p>Please contact the Informatics Team if you need support.</p>
+      <p>OMIS. <%= Time.current.year %></p>
   </div>
 </body>
 </html>
