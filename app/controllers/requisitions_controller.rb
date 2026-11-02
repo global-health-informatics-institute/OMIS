@@ -32,7 +32,7 @@ class RequisitionsController < ApplicationController
     end
   end
 
-  def new
+  def new # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength
     @requisition = Requisition.new
     @selected_request = params['request_type']
 
@@ -45,10 +45,14 @@ class RequisitionsController < ApplicationController
     when 'Asset Request'
       @asset_types = AssetCategory.all.collect { |x| x.category }
     when 'Purchase Request'
-
+      @purchase_request = PurchaseRequest.new
+      @purchase_request.requisition_items.build
+      @purchase_request.build_requisition_budget_line
+      @purchase_request.build_requisition_donor
+      @purchase_request.build_purchase_request_detail
     when 'Travel Request'
       @employees = Employee.where(still_employed: true).collect { |x| x.person.full_name }
-    when 'Personnel Requests'
+    when 'Personnel Requests' # rubocop:disable Lint/EmptyWhen
 
     when 'Token Request'
       @token = SecureRandom.alphanumeric

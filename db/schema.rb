@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_07_07_132251) do
+ActiveRecord::Schema[7.0].define(version: 2026_10_26_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -65,6 +65,35 @@ ActiveRecord::Schema[7.0].define(version: 2026_07_07_132251) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "description"
+  end
+
+  create_table "committee_meetings", primary_key: "committee_meeting_id", force: :cascade do |t|
+    t.integer "requisition_id", null: false
+    t.integer "committee_id", null: false
+    t.datetime "scheduled_on", null: false
+    t.integer "scheduled_by", null: false
+    t.string "status", default: "Scheduled", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["requisition_id", "status"], name: "index_committee_meetings_on_requisition_id_and_status"
+  end
+
+  create_table "committee_memberships", primary_key: "committee_membership_id", force: :cascade do |t|
+    t.integer "employee_id", null: false
+    t.integer "committee_id", null: false
+    t.string "role", null: false
+    t.date "started_on", null: false
+    t.date "ended_on"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "committees", primary_key: "committee_id", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "short_name", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "departments", primary_key: "department_id", force: :cascade do |t|
@@ -312,12 +341,36 @@ ActiveRecord::Schema[7.0].define(version: 2026_07_07_132251) do
   create_table "purchase_request_details", force: :cascade do |t|
     t.integer "requisition_id", null: false
     t.string "vendor_name"
-    t.integer "donor_id"
     t.integer "department_id"
     t.boolean "voided", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "item_name"
+    t.datetime "reviewed_on"
+    t.datetime "approved_on"
+    t.decimal "unit_price", precision: 12, scale: 2
+    t.boolean "attracts_levy"
+    t.boolean "attracts_mra"
+    t.string "vendor_mobile_number"
+    t.string "vendor_email"
+    t.integer "lpo_prepared_by"
+    t.datetime "lpo_prepared_on"
+    t.integer "lpo_finance_approved_by"
+    t.datetime "lpo_finance_approved_on"
+    t.integer "lpo_ed_approved_by"
+    t.datetime "lpo_ed_approved_on"
+    t.integer "payment_request_prepared_by"
+    t.datetime "payment_request_prepared_on"
+    t.integer "payment_request_finance_approved_by"
+    t.datetime "payment_request_finance_approved_on"
+    t.integer "payment_request_ed_approved_by"
+    t.datetime "payment_request_ed_approved_on"
+    t.integer "payment_voucher_prepared_by"
+    t.datetime "payment_voucher_prepared_on"
+    t.integer "payment_voucher_finance_approved_by"
+    t.datetime "payment_voucher_finance_approved_on"
+    t.integer "payment_voucher_ed_approved_by"
+    t.datetime "payment_voucher_ed_approved_on"
   end
 
   create_table "report_statistics", primary_key: "statistic_id", force: :cascade do |t|
@@ -484,6 +537,11 @@ ActiveRecord::Schema[7.0].define(version: 2026_07_07_132251) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "committee_meetings", "committees", primary_key: "committee_id"
+  add_foreign_key "committee_meetings", "employees", column: "scheduled_by", primary_key: "employee_id"
+  add_foreign_key "committee_meetings", "requisitions", primary_key: "requisition_id"
+  add_foreign_key "committee_memberships", "committees", primary_key: "committee_id"
+  add_foreign_key "committee_memberships", "employees", primary_key: "employee_id"
   add_foreign_key "departments", "branches", primary_key: "branch_id"
   add_foreign_key "donor_projects", "donors"
   add_foreign_key "donor_projects", "projects", primary_key: "project_id"

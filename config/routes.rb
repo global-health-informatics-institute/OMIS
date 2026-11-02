@@ -70,6 +70,37 @@ Rails.application.routes.draw do
   put 'requisitions/:id/disburse_funds', to: 'requisitions#disburse_funds'
   patch 'requisitions/:id/liquidate_funds', to: 'requisitions#liquidate_funds', as: :liquidate_funds_requisition
 
+  namespace :requisitions do
+    resources :purchase_requests do
+      member do
+        # note: # rubocop:disable Style/CommentAnnotation
+        # the helper method is recall_requisitions_purchase_request_path, which generates the browser URL
+        # url: /requisitions/purchase_requests/:id/recall
+        patch 'recall'
+        patch 'rescind'
+        patch 'approve'
+        patch 'decline'
+        patch 'resubmit'
+        get 'schedule_ipc_meeting'
+        patch 'route_to_ipc_vendor_analysis'
+        patch 'forward_to_vendor_analysis'
+        patch 'route_to_lpo'
+        patch 'mark_sourcing_as_failed'
+        patch 'save_qoutation'
+        patch 'route_to_lpo_request'
+        patch 'forward_to_payment_request'
+        patch 'prepare_lpo_request'
+        patch 'approve_lpo_request'
+        patch 'choose_other_vendor'
+        patch 'confirm_delivery'
+        patch 'mark_delivery_as_failed'
+        patch 'accept_item'
+        patch 'decline_item'
+        patch 'prepare_payment_request', 'approve_payment_request', 'terminate_payment_request'
+      end
+    end
+  end
+
   put 'leave_requests/:id/approve_leave', to: 'leave_requests#approve_leave'
   put 'leave_requests/:id/cancel_leave', to: 'leave_requests#cancel_leave'
   put 'leave_requests/:id/deny_leave', to: 'leave_requests#deny_leave'

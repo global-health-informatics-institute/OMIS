@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <style>body { font-family: 'Trebuchet MS', sans-serif; }</style>
+</head>
+<body style="background-color: #F3F4F6; padding: 20px;">
+  <div style="border: 1px solid #002130; width: 100%; margin: 0 auto;">
+    <div style="background-color: #002130; font-weight: bold; color: #E3E4E7; padding: 20px; text-align: center; font-size: 1.5rem;">
+      Purchase Request Status Update
+    </div>
+
+    <div style="padding: 30px; font-size: 1.2rem;">
+      <p>Dear <%= @requester_name %>,</p>
+
+      <% if @current_state == 'Purchase Request Complete' %>
+        <p>
+          Please be informed that the purchase request you submitted for <em>"<%= @purchase_request.purpose %>"</em>
+          has been completed.
+        </p>
+
+        <p>
+          If this purchase did not go through an LPO and you have not collected the item already,
+          please arrange to collect it from the Finance and Administration Department.
+        </p>
+      <% else %>
+        <p>
+          Please be informed that your purchase request for <em>"<%= @purchase_request.purpose %>"</em>
+          has been <%= @action_description %> and is now marked as <strong><%= @current_state %></strong>.
+        </p>
+
+        <p>You can track the progress of your request at any time using the button below.</p>
+      <% end %>
+
+      <div style="margin-top: 20px; text-align: left;">
+        <a href="<%= "#{Rails.application.config.omis_url}/requisitions/purchase_requests/#{@purchase_request.requisition_id}" %>"
+           style="display: inline-block; padding: 12px 24px; background-color: #002130; color: #E3E4E7; text-decoration: none; border-radius: 5px; font-weight: bold;">
+          View Purchase Request
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 30px; text-align: center; font-size: 0.9rem; color: #6c757d;">
+    <p>Please contact the Informatics Team if you need support.</p>
+    <p>OMIS. <%= Time.current.year %></p>
+  </div>
+</body>
+</html>

@@ -46,8 +46,6 @@ class MainController < ApplicationController
         end
       end
 
-      pp "DIRECT PROJECT TASKS: #{ProjectTask.direct_project_tasks_as_json(current_user).inspect}"
-      pp "DELEGATED PROJECT TASKS: #{ProjectTask.delegated_project_tasks_as_json(current_user).inspect}"
       @direct_project_tasks = ProjectTask.direct_project_tasks_as_json(current_user)
       @delegated_project_tasks = ProjectTask.delegated_project_tasks_as_json(current_user)
 

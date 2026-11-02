@@ -72,20 +72,15 @@
                 <% end %>
               </tr>
             <% end %>
-              <%# project tasks %>
-            <% if @direct_project_tasks.present? %>
-              <% @direct_project_tasks.each do |task| %>
-                <tr>
-                  <td>
-                    <%= Time.parse(task["deadline"]).strftime('%d %b,%Y') %>
-                  </td>
-                  <td>
-                    <%= task["task_description"] %>
-                  </td>
-                </tr>
-              <% end %>
+
+            <% (@direct_project_tasks || []).each do |task| %>
+              <tr>
+                <td><%= Time.zone.parse(task.fetch('deadline')).strftime('%d %b,%Y') %></td>
+                <td><%= task.fetch('task_description') %></td>
+              </tr>
             <% end %>
-          </tbody>
+            </tbody>
+
         </table>
       </div>
     </div>
@@ -108,7 +103,7 @@
         <div>
           <select class="form-select form-select-sm" id="actionFilter">
             <option data-options="all">All Actions</option>
-            <% (@pending_actions || []).map { |action| action[1].split('/')[1] }.uniq.each do |type| %>
+            <% (@pending_actions || []).map { |action| action[2] || action[1].split('/')[1] }.uniq.each do |type| %>
               <option data-options="<%= type %>">
                 <%= type.gsub(/[_-]/, ' ').titleize %>
               </option>
@@ -120,12 +115,12 @@
         <% if (@pending_actions || []).empty? %>
           <span class="fw-normal">No tasks assigned</span>
         <% else%>
-          <ul class="list-group list-group-flush">
+          <ul class="list-group list-group-flush" id="pending-actions-list">
             <% (@pending_actions || []).each do |action| %>
               <a
               href="<%= action[1] %>"
               class="list-group-item list-group-item-action"
-              data-item="<%=action[1].split('/')[1]%>"
+              data-item="<%= action[2] || action[1].split('/')[1] %>"
               >
                 <%= action[0] %>
               </a>
@@ -178,68 +173,57 @@
   </div>
   <div class="col-sm-3">
     <div class="card h-100">
-      <div class="card-header">
-        <h5 class="card-title text-dark">Assigned Tasks
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title text-dark mb-0">Assigned Tasks
           <span class="badge rounded-pill bg-danger">
-            <%#  (@approvals || []).length %>
-            <%= (@delegated_project_tasks || []).length + (@direct_project_tasks || []).length %>
+            <%= (@direct_project_tasks || []).length +
+                (@delegated_project_tasks || []).sum { |task| task.fetch('project_task_assignments', []).length } %>
             <span class="visually-hidden">actions to perform</span>
           </span>
         </h5>
       </div>
-          
-      <div class="overflow-y-scroll" style="height:25vh;">
-  
-  <%# direct project tasks %>
-  <% if @direct_project_tasks.present? %>
-    <ul class="list-group list-group-flush">
-      <% @direct_project_tasks.each do |task| %>
-        
-        <% if task["reference_url?"] %>
-          <a 
-            href="<%= task["reference"] %>" 
-            class="list-group-item list-group-item-action"
-          >
-            <%= task["task_description"] %>
-          </a>
+
+      <div class="card-body p-2 overflow-y-scroll" style="height:25vh;">
+        <% if (@direct_project_tasks || []).empty? && (@delegated_project_tasks || []).empty? %>
+          <span class="fw-normal">No tasks assigned</span>
         <% else %>
-          <div class="list-group-item list-group-item-action">
-            <%= task["task_description"] %>
-          </div>
+          <% if @direct_project_tasks.present? %>
+            <ul class="list-group list-group-flush">
+              <% @direct_project_tasks.each do |task| %>
+                <% if task['reference_url?'] %>
+                  <a href="<%= task['reference'] %>" class="list-group-item list-group-item-action">
+                    <%= task['task_description'] %>
+                  </a>
+                <% else %>
+                  <li class="list-group-item"><%= task['task_description'] %></li>
+                <% end %>
+              <% end %>
+            </ul>
+          <% end %>
+
+          <% if @delegated_project_tasks.present? %>
+            <ul class="list-group list-group-flush">
+              <% @delegated_project_tasks.each do |task| %>
+                <% task.fetch('project_task_assignments', []).each do |assignment| %>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                      Review task for: <strong><%= assignment['employee_name'] %></strong>
+                      <br>
+                      <span class="text-muted"><%= task['task_description'] %></span>
+                    </div>
+                    <%= button_to 'Dismiss',
+                                  revoke_project_task_assignment_path(assignment['project_task_assignment_id']),
+                                  method: :patch,
+                                  class: 'btn btn-outline-danger btn-sm',
+                                  data: { turbo_confirm: 'Are you sure you want to dismiss this task assignment?' },
+                                  form_class: 'm-0' %>
+                  </li>
+                <% end %>
+              <% end %>
+            </ul>
+          <% end %>
         <% end %>
-
-      <% end %>
-    </ul>
-  <% end %>
-
-  <%# delegated project tasks %>
-  <% if @delegated_project_tasks.present? %>
-    <ul class="list-group list-group-flush">
-      <% @delegated_project_tasks.each do |task| %>
-
-        <% task["project_task_assignments"].each do |assignment| %>
-          <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-            <div>
-              Review task for: <b><%= assignment["employee_name"] %></b>
-              <br/>
-              <span class="text-muted"><%= task["task_description"] %></span>
-            </div>
-
-            <%# Bootstrap Revoke Button %>
-            <%= button_to "Dismiss", 
-                          revoke_project_task_assignment_path(assignment["project_task_assignment_id"]), 
-                          method: :patch, 
-                          params: { project_task_id: assignment["project_task_assignment_id"] }, # Pass employee_id if your backend needs it
-                          class: "btn btn-outline-danger btn-sm",
-                          data: { confirm: "Are you sure you want to revoke this task assignment?" },
-                          form_class: "m-0" %>
-          </div>
-        <% end %>
-
-      <% end %>
-    </ul>
-  <% end %>
-</div>
+      </div>
     </div>
   </div>
   <div class="col-sm-2">
@@ -318,7 +302,7 @@ new Chart(document.getElementById("loeTargetPie"), {
 // Use Turbo's event to ensure the script runs after every page load/navigation
 document.addEventListener('turbo:load', function() {
   const actionFilter = document.getElementById('actionFilter');
-  const listItems = document.querySelectorAll('.list-group-item');
+  const listItems = document.querySelectorAll('#pending-actions-list .list-group-item');
 
   function filterItems(selectedOption) {
     listItems.forEach(item => {
@@ -332,14 +316,14 @@ document.addEventListener('turbo:load', function() {
     const savedOption = sessionStorage.getItem('actionFilterSelection');
 
     if (savedOption) {
-      // Set the value of the select element
-      actionFilter.value = savedOption;
-      // Find the correct option and set its 'selected' attribute
       const optionToSelect = actionFilter.querySelector(`option[data-options="${savedOption}"]`);
       if (optionToSelect) {
         optionToSelect.selected = true;
+        filterItems(savedOption);
+      } else {
+        sessionStorage.removeItem('actionFilterSelection');
+        filterItems('all');
       }
-      filterItems(savedOption);
     }
 
     actionFilter.addEventListener('change', function() {

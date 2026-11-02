@@ -1,0 +1,126 @@
+<h4 class="mb-4">Purchase Request</h4>
+
+<%= form_with model: [:requisitions, @purchase_request], url: requisitions_purchase_requests_path, method: :post do |form| %>
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+
+      <%# Row 1: Initiated By and Date %>
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label fw-normal">Initiated By</label>
+            <%= form.text_field :initiated_by, value: current_user.full_name, class: 'form-control', required: true, readonly: true %>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label fw-normal">Date</label>
+            <%= form.date_field :initiated_on, value: Date.today, class: 'form-control', required: true, readonly: true %>
+          </div>
+        </div>
+      </div>
+
+      <%# Row 2 & 3: Item Name, Quantity, and Description %>
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label fw-normal">Item Name</label>
+            <%= form.text_field :purpose, placeholder: "Enter item name", class: 'form-control', required: true %>
+          </div>
+        </div>
+
+        <%# FIX 1: Wrap BOTH quantity and description in ONE single fields_for block %>
+        <%= form.fields_for :requisition_items do |item_form| %>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label fw-normal">Quantity</label>
+              <%= item_form.number_field :quantity, value: 1, class: 'form-control', min: 1, step: 1, required: true %>
+            </div>
+          </div>
+        </div> <%# Closes the row early to cleanly drop description to its own line %>
+
+        <div class="row mt-3">
+          <div class="col-md-12">
+            <div class="mb-3">
+              <label class="form-label fw-normal">Description</label>
+              <%= item_form.text_area :item_description, placeholder: "Enter description", class: 'form-control', rows: 2, required: true %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <%# Row 4: Budget Line and Donor %>
+      <div class="row mt-3">
+        <%# FIX 2: Changed to singular :requisition_budget_line %>
+        <%= form.fields_for :requisition_budget_line do |rbl_form| %>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label fw-normal">Budget Line</label>
+              <%= rbl_form.select(
+                :budget_line_id,
+                budget_lines,
+                { include_blank: 'Select Budget Line' },
+                { class: 'form-control form-select', required: true }
+              )%>
+            </div>
+          </div>
+        <% end %>
+
+        <%# FIX 3: Changed to singular :requisition_donor %>
+        <%= form.fields_for :requisition_donor do |donor_form| %>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label fw-normal">Donor</label>
+              <%# FIX 4: Changed field from :id to :donor_id %>
+              <%= donor_form.select(
+                :donor_id, 
+                donors,
+                { include_blank: 'Select Donor' },
+                { class: 'form-control form-select', required: true }
+              )%>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label fw-normal">Project</label>
+            <%= form.select(
+              :project_id,
+              requisition_projects,
+              { include_blank: 'Select Project' },
+              { class: 'form-control form-select', required: true }
+            ) %>
+          </div>
+        </div>
+
+        <%= form.fields_for :purchase_request_detail do |detail_form| %>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label fw-normal">Department</label>
+              <%= detail_form.select(
+                :department_id,
+                purchase_request_departments,
+                { include_blank: 'Select Department' },
+                { class: 'form-control form-select', required: true }
+              ) %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <div class="col-md-3">
+            <%= form.submit "Submit Request", class: "btn btn-success" %>
+          </div>
+        </div>
+      </div>
+
+      </div>
+    </div>
+  </div>
+<% end %>

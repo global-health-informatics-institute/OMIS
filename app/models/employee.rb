@@ -3,6 +3,10 @@ class Employee < ApplicationRecord
   has_one :user, foreign_key: :employee_id
   has_many :affiliations, foreign_key: :employee_id
   has_many :employee_designations, foreign_key: :employee_id
+  has_many :committee_memberships, foreign_key: :employee_id, dependent: :restrict_with_error
+  has_many :committees, through: :committee_memberships
+  has_many :scheduled_committee_meetings, class_name: 'CommitteeMeeting', foreign_key: :scheduled_by,
+                                          dependent: :restrict_with_error
   has_many :project_teams, foreign_key: :project_id
   # supervisor
   has_many :given_supervisions, foreign_key: 'supervisor', class_name: 'Supervision'
@@ -217,6 +221,7 @@ class Employee < ApplicationRecord
 
     # requisition finance reviews
     actions += Requisition.where('workflow_state_id in (?)', allowed_transitions)
+                          .where.not(requisition_type: 'Purchase Request')
                           .collect do |x|
       if x.workflow_state_id == 29
         ["Liquidate Funds for #{x.requisition_type} request: #{x.purpose}",
@@ -231,7 +236,8 @@ class Employee < ApplicationRecord
     owner_actionable_states = WorkflowStateTransition.where(by_owner: true).pluck(:workflow_state_id)
     owner_actionable_states << 24 # Explicitly include the "Approved" state (ID 24)
 
-    actions += Requisition.where('workflow_state_id in (?) and initiated_by = ?', owner_actionable_states.uniq, id)
+    actions += Requisition.where('workflow_state_id in (?) and initiated_by = ?', owner_actionable_states.uniq, id) # Use .uniq to avoid duplicates
+                          .where.not(requisition_type: 'Purchase Request')
                           .collect do |x|
       if x.workflow_state_id == 28
         ["Collect Funds for #{x.requisition_type} request: #{x.purpose}",
@@ -242,33 +248,28 @@ class Employee < ApplicationRecord
       end
     end
 
-    # junior requisitions
-    actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
-                          .where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
-                          .collect do |x|
-      # Defensive check: Ensure user and person are present
-      if x.user&.person
-        ["Review #{x.user.person.first_name}'s #{x.requisition_type} requisition for #{x.purpose}",
-         "/requisitions/#{x.id}"]
-      end
-    end.compact
+ actions += Requisition.where('workflow_state_id in (?) and initiated_by in (?)', WorkflowStateTransition
+                      .where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
+                      .where.not(requisition_type: 'Purchase Request')
+                      .collect do |x|
+  ["Review #{x.user.person.first_name}'s #{x.requisition_type} requisition for #{x.purpose}",
+  "/requisitions/#{x.id}"]
+end
 
     # self leave requests
     actions += LeaveRequest.where('status in (?) and employee_id in (?)', WorkflowStateTransition
                            .where(by_owner: true).collect { |x| x.workflow_state_id }, id)
                            .collect { |x| ['Review leave request', "/leave_requests/#{x.id}"] }
 
-    actions += LeaveRequest.where('status in (?) and employee_id in (?) and approved_on is NULL', WorkflowStateTransition
-                           .where(by_supervisor: true).collect do |x|
-      x.workflow_state_id
-    end, jnrs)
+    actions += LeaveRequest.joins(employee: %i[user person])
+                           .where('status in (?) and leave_requests.employee_id in (?) and approved_on is NULL',
+                                  WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id), jnrs)
                            .collect do |x|
-      # Defensive check: Ensure deep associations are present
-      if x.employee&.user&.person
-        ["Review #{x.employee.user.person.first_name}'s #{x.leave_type} request",
-         "/leave_requests/#{x.id}"]
-      end
-    end.compact
-    actions
+      ["Review #{x.employee.user.person.first_name}'s #{x.leave_type} request",
+       "/leave_requests/#{x.id}"]
+    end
+    
+    actions.concat(PurchaseRequestPendingActionsService.for(self))
+    actions.uniq { |action| action[1] }
   end
 end

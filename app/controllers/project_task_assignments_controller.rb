@@ -1,15 +1,13 @@
-class ProjectTaskAssignmentsController < ApplicationController
-  def index
-  end
+# frozen_string_literal: true
 
-  def new
-  end
+class ProjectTaskAssignmentsController < ApplicationController # rubocop:disable Style/Documentation
+  def index; end
 
-  def create
-  end
+  def new; end
 
-  def edit
-  end
+  def create; end
+
+  def edit; end
 
   def revoke
     assignment = ProjectTaskAssignment.find(params[:id])
@@ -23,7 +21,6 @@ class ProjectTaskAssignmentsController < ApplicationController
       flash[:error] = 'Could not revoke assignment.'
     end
 
-    # Redirect back to the dashboard/previous page
     redirect_back fallback_location: root_path
   end
 end
