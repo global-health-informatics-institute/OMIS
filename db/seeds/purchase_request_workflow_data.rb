@@ -101,20 +101,8 @@ WORKFLOW_STATE = [
     description: 'State indicating that the payment request is being reviewed by the finance team and will be sent to the ED for approval' # rubocop:disable Layout/LineLength
   },
   {
-    state: 'Pending Payment Request Review - ED',
-    description: 'State indicating that the payment request is being reviewed by the Executive Director and will be approved or rejected' # rubocop:disable Layout/LineLength
-  },
-  {
-    state: 'Pending Payment Voucher',
-    description: 'State indicating that the payment request has been approved by the ED and a payment voucher is pending' # rubocop:disable Layout/LineLength
-  },
-  {
-    state: 'Pending Payment Voucher Review - Finance Team',
-    description: 'State indicating that the payment voucher is being reviewed by the finance team'
-  },
-  {
-    state: 'Pending Payment Voucher Review - ED',
-    description: 'State indicating that the payment voucher is being reviewed by the Executive Director and will be approved or rejected' # rubocop:disable Layout/LineLength
+    state: 'Pending Payment Request Review (Payment Voucher) - ED',
+    description: 'State indicating that the payment request is being reviewed by the Executive Director and will be approved or rejected; the approval action auto generates a payment voucher' # rubocop:disable Layout/LineLength
   },
   {
     state: 'Purchase Request Complete',
@@ -353,7 +341,7 @@ WORKFLOW_STATE_TRANSITIONS = [
   # by finance team
   {
     workflow_state_id: 'Pending Payment Request Review - Finance Team',
-    next_state: 'Pending Payment Request Review - ED',
+    next_state: 'Pending Payment Request Review (Payment Voucher) - ED',
     action: 'Approve Payment Request',
     by_owner: false,
     by_supervisor: false
@@ -366,70 +354,19 @@ WORKFLOW_STATE_TRANSITIONS = [
     by_supervisor: false
   },
 
-  # on Pending Payment Request Review - ED
+  # on Pending Payment Request Review (Payment Voucher) - ED
   # by ED
   {
-    workflow_state_id: 'Pending Payment Request Review - ED',
-    next_state: 'Pending Payment Voucher',
+    workflow_state_id: 'Pending Payment Request Review (Payment Voucher) - ED',
+    next_state: 'Purchase Request Complete',
     action: 'Approve Payment Request',
     by_owner: false,
     by_supervisor: false
   },
   {
-    workflow_state_id: 'Pending Payment Request Review - ED',
+    workflow_state_id: 'Pending Payment Request Review (Payment Voucher) - ED',
     next_state: 'Purchase Request Declined',
     action: 'Terminate Payment Request',
-    by_owner: false,
-    by_supervisor: false
-  },
-
-  # on Pending Payment Voucher
-  # by finance team
-  {
-    workflow_state_id: 'Pending Payment Voucher',
-    next_state: 'Pending Payment Voucher Review - Finance Team',
-    action: 'Prepare Payment Voucher',
-    by_owner: false,
-    by_supervisor: false
-  },
-  {
-    workflow_state_id: 'Pending Payment Voucher',
-    next_state: 'Purchase Request Declined',
-    action: 'Terminate Payment Voucher',
-    by_owner: false,
-    by_supervisor: false
-  },
-
-  # on Pending Payment Voucher Review - Finance Team
-  # by finance team
-  {
-    workflow_state_id: 'Pending Payment Voucher Review - Finance Team',
-    next_state: 'Pending Payment Voucher Review - ED',
-    action: 'Approve Payment Voucher',
-    by_owner: false,
-    by_supervisor: false
-  },
-  {
-    workflow_state_id: 'Pending Payment Voucher Review - Finance Team',
-    next_state: 'Purchase Request Declined',
-    action: 'Terminate Payment Voucher',
-    by_owner: false,
-    by_supervisor: false
-  },
-
-  # on Pending Payment Voucher Review - ED
-  # by ED
-  {
-    workflow_state_id: 'Pending Payment Voucher Review - ED',
-    next_state: 'Purchase Request Complete',
-    action: 'Approve Payment Voucher',
-    by_owner: false,
-    by_supervisor: false
-  },
-  {
-    workflow_state_id: 'Pending Payment Voucher Review - ED',
-    next_state: 'Purchase Request Declined',
-    action: 'Terminate Payment Voucher',
     by_owner: false,
     by_supervisor: false
   }
@@ -462,8 +399,7 @@ JNR_FT_DESIGNATION = [
 
 JNR_FT_STATES = [
   'Pending LPO Request Submission',
-  'Pending Payment Request',
-  'Pending Payment Voucher'
+  'Pending Payment Request'
 ].freeze
 
 SNR_FT_DESIGNATION = [
@@ -474,8 +410,7 @@ SNR_FT_DESIGNATION = [
 
 SNR_FT_STATES = [
   'Pending LPO Review - Finance Team',
-  'Pending Payment Request Review - Finance Team',
-  'Pending Payment Voucher Review - Finance Team'
+  'Pending Payment Request Review - Finance Team'
 ].freeze
 
 ED_DESIGNATION = [
@@ -484,8 +419,7 @@ ED_DESIGNATION = [
 
 ED_STATES = [
   'Pending LPO Review - ED',
-  'Pending Payment Request Review - ED',
-  'Pending Payment Voucher Review - ED'
+  'Pending Payment Request Review (Payment Voucher) - ED'
 ].freeze
 
 # states the finance team acts on, plus the review states
