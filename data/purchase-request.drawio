@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram name="Page-1" id="F6q0zWo0p0fou0u2Rc1e">
-        <mxGraphModel dx="2488" dy="3002" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="2264" dy="3003" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -241,31 +241,21 @@
                 <mxCell id="6tISSOz9F0gEN5QQDEY7-80" parent="1" style="whiteSpace=wrap;html=1;rounded=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=14;" value="request review from finance lead" vertex="1">
                     <mxGeometry height="60" width="120" x="730" y="10" as="geometry"/>
                 </mxCell>
-                <mxCell id="6tISSOz9F0gEN5QQDEY7-85" edge="1" parent="1" source="6tISSOz9F0gEN5QQDEY7-82" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=14;" target="6tISSOz9F0gEN5QQDEY7-84" value="">
+                <mxCell id="BhhVQ2QID_hTofRZ6jXs-38" edge="1" parent="1" source="6tISSOz9F0gEN5QQDEY7-82" style="edgeStyle=none;html=1;" target="9" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="6tISSOz9F0gEN5QQDEY7-82" parent="1" style="whiteSpace=wrap;html=1;rounded=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=14;shape=mxgraph.flowchart.annotation_1;align=left;pointerEvents=1;" value="creates Payment Voucher" vertex="1">
+                    <mxGeometry height="60" width="120" x="730" y="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="6tISSOz9F0gEN5QQDEY7-88" edge="1" parent="1" source="6tISSOz9F0gEN5QQDEY7-84" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=14;" value="">
                     <mxGeometry relative="1" as="geometry">
-                        <Array as="points">
-                            <mxPoint x="980" y="140"/>
-                            <mxPoint x="150" y="140"/>
-                        </Array>
+                        <mxPoint x="280" y="240" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="6tISSOz9F0gEN5QQDEY7-82" parent="1" style="whiteSpace=wrap;html=1;rounded=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=14;" value="create Payment Voucher" vertex="1">
-                    <mxGeometry height="60" width="120" x="930" y="10" as="geometry"/>
-                </mxCell>
-                <mxCell id="6tISSOz9F0gEN5QQDEY7-88" edge="1" parent="1" source="6tISSOz9F0gEN5QQDEY7-84" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=14;" target="6tISSOz9F0gEN5QQDEY7-87" value="">
-                    <mxGeometry relative="1" as="geometry"/>
-                </mxCell>
-                <mxCell id="6tISSOz9F0gEN5QQDEY7-84" parent="1" style="whiteSpace=wrap;html=1;rounded=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=14;" value="create Payment Voucher" vertex="1">
-                    <mxGeometry height="60" width="120" x="80" y="210" as="geometry"/>
-                </mxCell>
-                <mxCell id="6tISSOz9F0gEN5QQDEY7-90" edge="1" parent="1" source="6tISSOz9F0gEN5QQDEY7-87" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=14;" target="6tISSOz9F0gEN5QQDEY7-89" value="">
-                    <mxGeometry relative="1" as="geometry"/>
-                </mxCell>
-                <mxCell id="6tISSOz9F0gEN5QQDEY7-87" parent="1" style="whiteSpace=wrap;html=1;rounded=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=14;" value="Request approval from finance lead" vertex="1">
-                    <mxGeometry height="60" width="120" x="280" y="210" as="geometry"/>
-                </mxCell>
-                <mxCell id="6tISSOz9F0gEN5QQDEY7-89" parent="1" style="whiteSpace=wrap;html=1;rounded=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=14;" value="request approval from the D&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;irector&lt;/span&gt;" vertex="1">
-                    <mxGeometry height="60" width="120" x="480" y="210" as="geometry"/>
+                <mxCell id="6tISSOz9F0gEN5QQDEY7-90" edge="1" parent="1" source="6tISSOz9F0gEN5QQDEY7-87" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=14;" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="480" y="240" as="targetPoint"/>
+                    </mxGeometry>
                 </mxCell>
                 <mxCell id="5" parent="1" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.flowchart.or;fontSize=14;" value="" vertex="1">
                     <mxGeometry height="70" width="70" x="830" y="-920" as="geometry"/>
@@ -279,10 +269,7 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="9" parent="1" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.flowchart.or;fontSize=14;" value="" vertex="1">
-                    <mxGeometry height="70" width="70" x="820" y="205" as="geometry"/>
-                </mxCell>
-                <mxCell id="10" edge="1" parent="1" source="6tISSOz9F0gEN5QQDEY7-89" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;fontSize=14;" target="9">
-                    <mxGeometry relative="1" as="geometry"/>
+                    <mxGeometry height="70" width="70" x="760" y="220" as="geometry"/>
                 </mxCell>
                 <mxCell id="15" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.annotation_1;whiteSpace=wrap;size=0.25;align=left;labelPosition=right;pointerEvents=1;fontSize=14;" value="Requisition Declined" vertex="1">
                     <mxGeometry height="60" width="80" x="-120" y="-1170" as="geometry"/>
