@@ -53,7 +53,7 @@ class PurchaseRequestSendPaymentVoucherDocumentsService # rubocop:disable Style/
   attr_reader :purchase_request
 
   def ed_email
-    @ed_email ||= email_for(purchase_request.purchase_request_detail.payment_voucher_ed_approver)
+    @ed_email ||= email_for(purchase_request.purchase_request_detail.payment_request_ed_approver)
   end
 
   def senior_finance_emails

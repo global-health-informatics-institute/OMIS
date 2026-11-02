@@ -25,10 +25,7 @@ module Requisitions
       decline_item: 'declined',
       prepare_payment_request: 'prepared for payment request review',
       approve_payment_request: 'approved at the payment request review stage',
-      terminate_payment_request: 'terminated',
-      prepare_payment_voucher: 'prepared for payment voucher review',
-      approve_payment_voucher: 'approved at the payment voucher review stage',
-      terminate_payment_voucher: 'terminated'
+      terminate_payment_request: 'terminated'
     }.freeze
 
     after_action :notify_transition_recipients, only: TRANSITION_ACTIONS.keys
@@ -250,35 +247,17 @@ module Requisitions
       @purchase_request = PurchaseRequestApprovePaymentRequestService.approve_payment_request(
         params[:id], approved_by: workflow_actor_id
       )
-      flash[:notice] = 'Payment request approved'
+      flash[:notice] = if @purchase_request.current_state == 'Purchase Request Complete'
+                         'Payment request approved and payment voucher sent'
+                       else
+                         'Payment request approved'
+                       end
       redirect_to requisitions_purchase_request_path(@purchase_request)
     end
 
     def terminate_payment_request
       @purchase_request = PurchaseRequestTerminatePaymentRequestService.terminate_payment_request(params[:id])
       flash[:notice] = 'Payment request terminated'
-      redirect_to requisitions_purchase_request_path(@purchase_request)
-    end
-
-    def prepare_payment_voucher
-      @purchase_request = PurchaseRequestPreparePaymentVoucherService.prepare_payment_voucher(
-        params[:id], prepared_by: workflow_actor_id
-      )
-      flash[:notice] = 'Payment voucher prepared and sent for finance review'
-      redirect_to requisitions_purchase_request_path(@purchase_request)
-    end
-
-    def approve_payment_voucher
-      @purchase_request = PurchaseRequestApprovePaymentVoucherService.approve_payment_voucher(
-        params[:id], approved_by: workflow_actor_id
-      )
-      flash[:notice] = 'Payment voucher approved'
-      redirect_to requisitions_purchase_request_path(@purchase_request)
-    end
-
-    def terminate_payment_voucher
-      @purchase_request = PurchaseRequestTerminatePaymentVoucherService.terminate_payment_voucher(params[:id])
-      flash[:notice] = 'Payment voucher terminated'
       redirect_to requisitions_purchase_request_path(@purchase_request)
     end
 

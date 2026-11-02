@@ -87,12 +87,7 @@ Rails.application.routes.draw do
         patch 'mark_delivery_as_failed'
         patch 'accept_item'
         patch 'decline_item'
-        patch 'prepare_payment_request'
-        patch 'approve_payment_request'
-        patch 'terminate_payment_request'
-        patch 'prepare_payment_voucher'
-        patch 'approve_payment_voucher'
-        patch 'terminate_payment_voucher'
+        patch 'prepare_payment_request', 'approve_payment_request', 'terminate_payment_request'
       end
     end
   end

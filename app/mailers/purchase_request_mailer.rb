@@ -41,7 +41,7 @@ class PurchaseRequestMailer < ApplicationMailer # rubocop:disable Style/Document
     )
   end
 
-  def payment_voucher_documents( # rubocop:disable Metrics/AbcSize
+  def payment_voucher_documents( # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
     purchase_request,
     recipient_email,
     cc_emails,
@@ -50,10 +50,12 @@ class PurchaseRequestMailer < ApplicationMailer # rubocop:disable Style/Document
   )
     @purchase_request = purchase_request
     @requester_name = purchase_request.initiator&.person&.full_name || 'the requester'
-    @recipient_name = purchase_request.purchase_request_detail.payment_voucher_ed_approver&.person&.full_name || 'Executive Director'
+    @recipient_name = purchase_request.purchase_request_detail.payment_request_ed_approver&.person&.full_name || 'Executive Director' # rubocop:disable Layout/LineLength
 
-    attachments["signed_payment_voucher_#{purchase_request.requisition_id}.pdf"] = File.binread(signed_payment_voucher_path)
-    attachments["unsigned_payment_voucher_#{purchase_request.requisition_id}.pdf"] = File.binread(unsigned_payment_voucher_path)
+    attachments["signed_payment_voucher_#{purchase_request.requisition_id}.pdf"] =
+      File.binread(signed_payment_voucher_path)
+    attachments["unsigned_payment_voucher_#{purchase_request.requisition_id}.pdf"] =
+      File.binread(unsigned_payment_voucher_path)
 
     mail(
       to: recipient_email,

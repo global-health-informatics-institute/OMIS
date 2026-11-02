@@ -25,10 +25,7 @@ module Requisitions
       'Pending Item Acceptance',
       'Item Delivery Failed',
       'Pending Payment Request Review - Finance Team',
-      'Pending Payment Request Review - ED',
-      'Pending Payment Voucher',
-      'Pending Payment Voucher Review - Finance Team',
-      'Pending Payment Voucher Review - ED'
+      'Pending Payment Request Review (Payment Voucher) - ED'
     ]).freeze
 
     SOURCING_QOUTATION_STATES = [
@@ -42,10 +39,7 @@ module Requisitions
       'Item Delivery Failed',
       'Pending Payment Request',
       'Pending Payment Request Review - Finance Team',
-      'Pending Payment Request Review - ED',
-      'Pending Payment Voucher',
-      'Pending Payment Voucher Review - Finance Team',
-      'Pending Payment Voucher Review - ED',
+      'Pending Payment Request Review (Payment Voucher) - ED',
       'Purchase Request Complete',
       'Pending Item Acceptance'
     ].freeze
@@ -61,10 +55,7 @@ module Requisitions
       'Pending Item Acceptance',
       'Pending Payment Request',
       'Pending Payment Request Review - Finance Team',
-      'Pending Payment Request Review - ED',
-      'Pending Payment Voucher',
-      'Pending Payment Voucher Review - Finance Team',
-      'Pending Payment Voucher Review - ED',
+      'Pending Payment Request Review (Payment Voucher) - ED',
       'Purchase Request Complete'
     ].freeze
 
@@ -78,12 +69,12 @@ module Requisitions
         'bg-danger text-white'
       when 'purchase request recalled', 'draft', 'pending submission'
         'bg-warning text-dark'
-      when 'under review', 'pending review', 'pending sourcing quotation', 'pending ipc - vendor analysis',
+      when 'under review', 'pending review',
+        'pending sourcing quotation', 'pending ipc - vendor analysis',
         'pending vendor analysis', 'pending lpo check', 'pending lpo request submission',
         'pending lpo review - finance team', 'pending lpo review - ed', 'pending delivery confirmation',
         'pending item acceptance', 'pending payment request', 'pending payment request review - finance team',
-        'pending payment request review - ed', 'pending payment voucher', 'pending payment voucher review - finance team', # rubocop:disable Layout/LineLength
-        'pending payment voucher review - ed'
+        'pending payment request review (payment voucher) - ed'
         'bg-secondary text-white'
       else
         'bg-info text-black'
@@ -94,16 +85,16 @@ module Requisitions
       case action.to_s.downcase
       # actions when state "Pending Supervisor Review"
       when 'approve purchase request', 'confirm delivery', 'approve lpo request', 'accept item',
-        'approve payment request', 'approve payment voucher'
+        'approve payment request'
         'bg-success text-white'
       when 'recall purchase request', 'choose other vendor'
         'bg-warning text-dark'
       when 'rescind purchase request', 'decline purchase request', 'mark sourcing as failed', 'mark delivery as failed',
-        'decline item', 'terminate payment request', 'terminate payment voucher'
+        'decline item', 'terminate payment request'
         'bg-danger text-white'
       when 'resubmit purchase request',
         'route to ipc - vendor analysis', 'route to lpo', 'save qoutation',
-        'forward to vendor analysis', 'prepare lpo request', 'prepare payment request', 'prepare payment voucher'
+        'forward to vendor analysis', 'prepare lpo request', 'prepare payment request'
         'bg-primary text-white'
       else
         'bg-secondary text-white'
@@ -202,7 +193,6 @@ module Requisitions
         'accept item',
         'decline item',
         'terminate payment request',
-        'terminate payment voucher',
         'recall purchase request',
         'rescind purchase request'
       ]

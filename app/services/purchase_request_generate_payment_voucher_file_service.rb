@@ -236,12 +236,12 @@ class PurchaseRequestGeneratePaymentVoucherFileService # rubocop:disable Metrics
           total: detail.quotation_total
         },
         signoffs: [
-          ['Prepared By', employee_name(detail.payment_voucher_preparer), 'Date Prepared',
-           detail.payment_voucher_prepared_on],
-          ['Reviewed By', employee_name(detail.payment_voucher_finance_approver), 'Date Reviewed',
-           detail.payment_voucher_finance_approved_on],
-          ['Approved By', employee_name(detail.payment_voucher_ed_approver), 'Date Approved',
-           detail.payment_voucher_ed_approved_on]
+          ['Prepared By', employee_name(detail.payment_request_preparer), 'Date Prepared',
+           detail.payment_request_prepared_on],
+          ['Reviewed By', employee_name(detail.payment_request_finance_approver), 'Date Reviewed',
+           detail.payment_request_finance_approved_on],
+          ['Approved By', employee_name(detail.payment_request_ed_approver), 'Date Approved',
+           detail.payment_request_ed_approved_on]
         ]
       }
     end

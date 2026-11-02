@@ -73,7 +73,7 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
     end
 
     # Thin rule to set the agreement terms apart from the order details, text slightly smaller than the body.
-    def _add_agreement(pdf:, validity_days:) # rubocop:disable Metrics/MethodLength,Lint/UnusedMethodArgument
+    def _add_agreement(pdf:, text:) # rubocop:disable Metrics/MethodLength
       pdf.move_down 20
       pdf.mask(:line_width, :stroke_color) do
         pdf.line_width = 0.5
@@ -87,7 +87,7 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
       pdf.move_down 20
     end
 
-    def _add_items_table(pdf:, item:) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+    def _add_items_table(pdf:, item:, text:) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
       pdf.move_down 20
       ensure_space(pdf:, required_height: 120)
       pdf.move_down 8
@@ -100,7 +100,8 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
       end
 
       pdf.move_down 12
-      pdf.text "<b>Amount in words:</b> #{_amount_in_words(item[:total])}", inline_format: true, size: 9
+      pdf.text "<b>#{text[:amount_in_words_label]}:</b> #{_amount_in_words(item[:total], text:)}",
+               inline_format: true, size: 9
       pdf.move_down 30
     end
 
@@ -119,13 +120,13 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
       ]
     end
 
-    def _add_signoff_section(pdf:, signoffs:)
+    def _add_signoff_section(pdf:, signoffs:, text:)
       pdf.move_down 20
       signoffs.each do |label, name, date_label, date|
         _write_line(
           pdf:,
-          previous_text: "#{label}: #{NBSP}#{name || '--'}",
-          next_text: "#{date_label}: #{NBSP}#{_fmt_date(date)}",
+          previous_text: "#{label}: #{NBSP}#{name || text[:unavailable_value]}",
+          next_text: "#{date_label}: #{NBSP}#{_fmt_date(date, text:)}",
           move_down: 15, target_width: SIGNOFF_GAP
         )
       end
