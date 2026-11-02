@@ -8,11 +8,11 @@ class GlobalProperty < ApplicationRecord
   end
 
   def self.levy_rate
-    quotation_rate('Levy rate')
+    quotation_rate('levy.rate')
   end
 
   def self.mra_rate
-    quotation_rate('MRA rate')
+    quotation_rate('mra.rate')
   end
 
   def self.quotation_rate(property)

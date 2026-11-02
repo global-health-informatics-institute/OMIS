@@ -113,9 +113,10 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
     core_editable_by?(user) || sourcing_qoutations_editable_by?(user)
   end
 
+  # TODO: Move to GlobalProperty model
   def self.ipc_threshold
     GlobalProperty.find_by(
-      property: 'IPC threshold'
+      property: 'ipc.threshold'
     )&.property_value.to_i
   end
 end
