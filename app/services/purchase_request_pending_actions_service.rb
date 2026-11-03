@@ -21,7 +21,7 @@ class PurchaseRequestPendingActionsService # rubocop:disable Style/Documentation
   def call
     purchase_requests.where(requisition_id: pending_request_ids).order(created_at: :desc).map do |purchase_request|
       [
-        "Review purchase request for #{purchase_request.purpose}",
+        action_description(purchase_request),
         "/requisitions/purchase_requests/#{purchase_request.requisition_id}",
         'purchase_requests'
       ]
@@ -32,8 +32,28 @@ class PurchaseRequestPendingActionsService # rubocop:disable Style/Documentation
 
   attr_reader :employee
 
+  def action_description(purchase_request)
+    requester = if purchase_request.initiated_by == employee.id
+                  'your purchase request'
+                else
+                  "purchase request by #{purchase_request.initiated_by_full_name}"
+                end
+
+    "Review #{requester} for #{purchase_request.purpose}. Requested #{requested_on(purchase_request)}"
+  end
+
   def pending_request_ids
     actor_request_ids | requester_request_ids
+  end
+
+  def requested_on(purchase_request)
+    days_ago = (Date.current - purchase_request.created_at.to_date).to_i
+
+    case days_ago
+    when 0 then 'today'
+    when 1 then 'yesterday'
+    else "#{days_ago} days ago"
+    end
   end
 
   def actor_request_ids
