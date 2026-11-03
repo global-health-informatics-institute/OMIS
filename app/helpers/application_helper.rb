@@ -67,6 +67,9 @@ module ApplicationHelper
   end
 
   def requisition_projects
-    Project.all.collect { |x| [x.project_name, x.project_id] }
+    Project.all
+           .reject { |project|%w[Leave Holiday].any? { |term| project.project_name.include?(term) } }
+           .sort_by(&:project_name)
+           .collect { |project|[project.project_name, project.project_id] }
   end
 end
