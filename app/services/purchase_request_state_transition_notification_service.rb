@@ -31,7 +31,7 @@ class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/
         requester,
         recipient_email,
         @action_description
-      ).deliver_now
+      ).deliver_later
     end
   end
 
@@ -46,7 +46,7 @@ class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/
         actor,
         recipient_email,
         committee_meeting: committee_meeting
-      ).deliver_now
+      ).deliver_later
     end
   end
 
