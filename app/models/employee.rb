@@ -100,6 +100,30 @@ class Employee < ApplicationRecord
     ProjectTeam.where(employee_id: employee_id, voided: false, end_date: nil)
   end
 
+  def active_leave?
+    today = Date.current
+    LeaveRequest.where(
+      employee_id: employee_id,
+      status: WorkflowState.where(state: 'Approved').select(:workflow_state_id)
+    ).where('start_on <= ? AND end_on >= ?', today, today).exists?
+  end
+
+  def active_leave
+    today = Date.current
+    LeaveRequest.where(
+      employee_id: employee_id,
+      status: WorkflowState.where(state: 'Approved').select(:workflow_state_id)
+    ).where('start_on <= ? AND end_on >= ?', today, today).first
+  end
+
+  def active_leave_stand_in?
+    today = Date.current
+    LeaveRequest.where(
+      stand_in: employee_id,
+      status: WorkflowState.where(state: 'Approved').select(:workflow_state_id)
+    ).where('start_on <= ? AND end_on >= ?', today, today).exists?
+  end
+
   def current_supervisors
     people = Supervision.where(supervisee: employee_id, ended_on: nil)
   end

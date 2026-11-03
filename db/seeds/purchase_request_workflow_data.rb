@@ -374,11 +374,6 @@ WORKFLOW_STATE_TRANSITIONS = [
 
 # TODO: add to workflow_state_actors
 FT_DESIGNATIONS = [
-  'Director of Finance and Administration',
-  'Finance & Administration Lead',
-  'Finance Lead',
-  'Administration Lead',
-  'Finance Officer',
   'Receptionist'
 ].freeze
 
@@ -392,8 +387,6 @@ FT_STATES = [
 
 # who can act on the review states
 JNR_FT_DESIGNATION = [
-  'Administration Lead',
-  'Finance Officer',
   'Receptionist'
 ].freeze
 
@@ -403,8 +396,6 @@ JNR_FT_STATES = [
 ].freeze
 
 SNR_FT_DESIGNATION = [
-  'Director of Finance and Administration',
-  'Finance & Administration Lead',
   'Finance Lead'
 ].freeze
 

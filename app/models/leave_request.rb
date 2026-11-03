@@ -38,4 +38,8 @@ class LeaveRequest < ApplicationRecord
   rescue StandardError
     '-- --'
   end
+
+  def active_leave?
+    employee.active_leave?
+  end
 end
