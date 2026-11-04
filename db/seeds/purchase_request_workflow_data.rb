@@ -273,8 +273,8 @@ WORKFLOW_STATE_TRANSITIONS = [
   },
   {
     workflow_state_id: 'Pending LPO Review - ED',
-    next_state: 'Pending Sourcing Quotation',
-    action: 'Choose Other Vendor',
+    next_state: 'Purchase Request Declined',
+    action: 'Decline LPO Request',
     by_owner: false,
     by_supervisor: false
   },

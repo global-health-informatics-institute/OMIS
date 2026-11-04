@@ -18,6 +18,7 @@ module Requisitions
       forward_to_payment_request: 'forwarded for payment request preparation',
       prepare_lpo_request: 'prepared for LPO review',
       approve_lpo_request: 'approved at the LPO review stage',
+      decline_lpo_request: 'declined at the LPO review stage',
       choose_other_vendor: 'returned for another vendor selection',
       confirm_delivery: 'confirmed as delivered',
       mark_delivery_as_failed: 'marked as delivery unsuccessful',
@@ -202,6 +203,12 @@ module Requisitions
         params[:id], approved_by: workflow_actor_id
       )
       flash[:notice] = 'LPO request approved'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
+    def decline_lpo_request
+      @purchase_request = PurchaseRequestDeclineLpoService.decline_lpo_request(params[:id])
+      flash[:notice] = 'LPO request declined'
       redirect_to requisitions_purchase_request_path(@purchase_request)
     end
 

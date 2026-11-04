@@ -90,7 +90,7 @@ module Requisitions
       when 'recall purchase request', 'choose other vendor', 'route to ipc - vendor analysis'
         'bg-warning text-dark'
       when 'rescind purchase request', 'decline purchase request', 'mark sourcing as failed', 'mark delivery as failed',
-        'decline item', 'terminate payment request'
+        'decline item', 'terminate payment request', 'decline lpo request'
         'bg-danger text-white'
       when 'resubmit purchase request',
         'route to lpo', 'save qoutation',
