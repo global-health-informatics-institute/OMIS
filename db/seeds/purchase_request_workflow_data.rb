@@ -166,15 +166,15 @@ WORKFLOW_STATE_TRANSITIONS = [
 
   {
     workflow_state_id: 'Pending Sourcing Quotation',
-    next_state: 'Pending IPC - Vendor Analysis',
-    action: 'Route to IPC - Vendor Analysis',
+    next_state: 'Pending Vendor Analysis',
+    action: 'Forward to Vendor Analysis',
     by_owner: false,
     by_supervisor: false
   },
   {
     workflow_state_id: 'Pending Sourcing Quotation',
-    next_state: 'Pending Vendor Analysis',
-    action: 'Forward to Vendor Analysis',
+    next_state: 'Pending IPC - Vendor Analysis',
+    action: 'Route to IPC - Vendor Analysis',
     by_owner: false,
     by_supervisor: false
   },

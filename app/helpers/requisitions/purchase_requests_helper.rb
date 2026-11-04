@@ -87,18 +87,25 @@ module Requisitions
       when 'approve purchase request', 'confirm delivery', 'approve lpo request', 'accept item',
         'approve payment request'
         'bg-success text-white'
-      when 'recall purchase request', 'choose other vendor'
+      when 'recall purchase request', 'choose other vendor', 'route to ipc - vendor analysis'
         'bg-warning text-dark'
       when 'rescind purchase request', 'decline purchase request', 'mark sourcing as failed', 'mark delivery as failed',
         'decline item', 'terminate payment request'
         'bg-danger text-white'
       when 'resubmit purchase request',
-        'route to ipc - vendor analysis', 'route to lpo', 'save qoutation',
+        'route to lpo', 'save qoutation',
         'forward to vendor analysis', 'prepare lpo request', 'prepare payment request'
         'bg-primary text-white'
       else
         'bg-secondary text-white'
       end
+    end
+
+    def purchase_request_action_label(action)
+      {
+        'Route to IPC - Vendor Analysis' => 'Request IPC',
+        'Forward to Vendor Analysis' => 'Vendor Analysis'
+      }.fetch(action, action)
     end
 
     def field_edit_options(purchase_request, user)
