@@ -39,4 +39,8 @@ class PurchaseRequestDetail < ApplicationRecord
   def quotation_total
     quotation_subtotal + quotation_levy + quotation_mra
   end
+
+  def unit_price=(value)
+    super(value.is_a?(String) ? value.delete(',').strip : value)
+  end
 end

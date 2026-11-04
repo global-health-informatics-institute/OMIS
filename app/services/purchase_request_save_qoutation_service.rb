@@ -24,7 +24,7 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
 
     private
 
-    def validate_and_calculate_quotation!(purchase_request) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+    def validate_and_calculate_quotation!(purchase_request)
       purchase_request.errors.add(:vendor_name, "can't be blank") if purchase_request.vendor_name.blank?
 
       detail = purchase_request.purchase_request_detail
@@ -34,7 +34,9 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
 
       validate_total_for_routing(purchase_request) if purchase_request.errors.empty?
 
-      raise ActiveRecord::RecordInvalid, purchase_request if purchase_request.errors.any?
+      return unless purchase_request.errors.any?
+
+      raise ActiveRecord::RecordInvalid, purchase_request
     end
 
     def validate_detail_pricing(detail, purchase_request)
@@ -61,9 +63,7 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
     end
 
     def valid_phone_number?(phone_number)
-      digits = phone_number.scan(/\d/)
-
-      phone_number.match?(/\A\+?\d[\d\s().-]*\z/) && digits.length.between?(7, 15)
+      phone_number.match?(/\A\d{7,10}\z/)
     end
 
     def assign_quotation_total!(purchase_request, detail)
@@ -72,16 +72,19 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
       end
     end
 
-    def validate_total_for_routing(purchase_request)
-      threshold = PurchaseRequest.ipc_threshold
-      total = purchase_request.purchase_request_detail.quotation_total
+def validate_total_for_routing(purchase_request)
+  detail = purchase_request.purchase_request_detail
+  threshold = PurchaseRequest.ipc_threshold
+  total = detail.quotation_total
 
-      case purchase_request.current_state.to_s.downcase
-      when 'pending ipc - vendor analysis'
-        purchase_request.errors.add(:base, "Total must be at least #{threshold}") if total < threshold
-      when 'pending vendor analysis'
-        purchase_request.errors.add(:base, "Total must be less than #{threshold}") if total >= threshold
-      end
-    end
+  Rails.logger.info("unit_price=#{detail.unit_price.inspect} total=#{total.inspect} threshold=#{threshold}")
+
+  case purchase_request.current_state.to_s.downcase
+  when 'pending ipc - vendor analysis'
+    purchase_request.errors.add(:base, "Total must be at least #{threshold}") if total < threshold
+  when 'pending vendor analysis'
+    purchase_request.errors.add(:base, "Total must be less than #{threshold}") if total >= threshold
+  end
+end
   end
 end

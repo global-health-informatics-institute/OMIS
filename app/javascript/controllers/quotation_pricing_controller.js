@@ -14,6 +14,33 @@ export default class extends Controller {
     this.refresh()
   }
 
+  sanitizePhone({ target }) {
+    target.value = target.value.replace(/\D/g, "").slice(0, 10)
+  }
+
+sanitizeUnitPrice({ target }) {
+  const caret = target.selectionStart
+  const typedBeforeCaret = target.value.slice(0, caret).replace(/[^0-9.]/g, "").length
+
+  const cleaned = target.value.replace(/[^0-9.]/g, "")
+  const [whole, ...decimals] = cleaned.split(".")
+  const formattedWhole = whole.replace(/^0+(?=\d)/, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+  target.value = decimals.length > 0
+    ? `${formattedWhole}.${decimals.join("").slice(0, 2)}`
+    : formattedWhole
+
+  // keep the caret where the user was typing, ignoring commas
+  let position = 0
+  let count = 0
+  while (position < target.value.length && count < typedBeforeCaret) {
+    if (target.value[position] !== ",") count++
+    position++
+  }
+  target.setSelectionRange(position, position)
+}
+
+
   refresh() {
     if (!this.hasUnitPriceTarget) return
 
@@ -22,14 +49,14 @@ export default class extends Controller {
     this.validateCap(total)
   }
 
-  calculateTotal() {
-    const unitPrice = Number(this.unitPriceTarget.value) || 0
-    const attractsLevy = this.levyTargets.find((input) => input.checked)?.value === "true"
-    const attractsMra = this.mraTargets.find((input) => input.checked)?.value === "true"
-    const subtotal = this.quantityValue * unitPrice
-    const total = subtotal + (attractsLevy ? subtotal * this.levyRateValue : 0) + (attractsMra ? subtotal * this.mraRateValue : 0)
-    return total
-  }
+calculateTotal() {
+  const unitPrice = Number(this.unitPriceTarget.value.replace(/,/g, "")) || 0
+  const attractsLevy = this.levyTargets.find((input) => input.checked)?.value === "true"
+  const attractsMra = this.mraTargets.find((input) => input.checked)?.value === "true"
+  const subtotal = this.quantityValue * unitPrice
+  const total = subtotal + (attractsLevy ? subtotal * this.levyRateValue : 0) + (attractsMra ? subtotal * this.mraRateValue : 0)
+  return total
+}
 
   validateCap(total) {
     let message = ""

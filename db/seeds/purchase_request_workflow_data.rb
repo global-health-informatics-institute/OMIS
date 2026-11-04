@@ -443,8 +443,8 @@ GLOBAL_PROPERTIES = [
   },
   {
     property: 'levy.rate',
-    property_value: '0.05',
-    description: 'Current levy rate for all purchases, expressed as a decimal. For example, a 5% levy rate is represented as 0.05.' # rubocop:disable Layout/LineLength
+    property_value: '0.01',
+    description: 'Current levy rate for all purchases, expressed as a decimal. For example, a 1% levy rate is represented as 0.01.' # rubocop:disable Layout/LineLength
   },
   {
     property: 'mra.rate',
