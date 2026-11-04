@@ -13,6 +13,13 @@
     <div style="padding: 30px; font-size: 1.2rem;">
       <p>Dear <%= @actor_name %>,</p>
 
+      <% if @stand_in_for_name %>
+        <p>
+          You are receiving this email because you are the designated stand-in for
+          <strong><%= @stand_in_for_name %></strong>, who is currently on leave.
+        </p>
+      <% end %>
+
       <p>
         Please be informed that the purchase request submitted by <strong><%= @requester_name %></strong>
         for <em>"<%= @purchase_request.purpose %>"</em> is now marked as

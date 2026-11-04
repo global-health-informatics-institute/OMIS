@@ -100,28 +100,36 @@ class Employee < ApplicationRecord
     ProjectTeam.where(employee_id: employee_id, voided: false, end_date: nil)
   end
 
-  def active_leave?
-    today = Date.current
-    LeaveRequest.where(
-      employee_id: employee_id,
-      status: WorkflowState.where(state: 'Approved').select(:workflow_state_id)
-    ).where('start_on <= ? AND end_on >= ?', today, today).exists?
+  def active_leave
+    active_leave_requests.where(employee_id:).order(start_on: :desc).first
   end
 
-  def active_leave
-    today = Date.current
-    LeaveRequest.where(
-      employee_id: employee_id,
-      status: WorkflowState.where(state: 'Approved').select(:workflow_state_id)
-    ).where('start_on <= ? AND end_on >= ?', today, today).first
+  def active_leave?
+    active_leave.present?
   end
 
   def active_leave_stand_in?
+    active_leave_requests.where(stand_in: employee_id).exists?
+  end
+
+  def active_leave_stand_ins
+    active_leave_requests.where(stand_in: employee_id).includes(:employee).map(&:employee)
+  end
+
+  def active_leave_stand_in
+    Employee.find_by(employee_id: active_leave&.stand_in)
+  end
+
+  def active_leave_requests
+    approved_leave_state = WorkflowState.joins(:workflow_process).find_by(
+      state: 'Approved',
+      workflow_processes: { workflow: 'Leave Request' }
+    )
+    return LeaveRequest.none unless approved_leave_state
+
     today = Date.current
-    LeaveRequest.where(
-      stand_in: employee_id,
-      status: WorkflowState.where(state: 'Approved').select(:workflow_state_id)
-    ).where('start_on <= ? AND end_on >= ?', today, today).exists?
+    LeaveRequest.where(status: approved_leave_state.workflow_state_id)
+                .where('start_on <= ? AND end_on >= ?', today, today)
   end
 
   def current_supervisors

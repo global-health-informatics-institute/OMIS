@@ -13,12 +13,19 @@ class PurchaseRequestMailer < ApplicationMailer # rubocop:disable Style/Document
     )
   end
 
-  def review_required(purchase_request, requester, actor, recipient_email, committee_meeting: nil)
+  def review_required( # rubocop:disable Metrics/ParameterLists
+    purchase_request,
+    requester, actor,
+    recipient_email,
+    committee_meeting: nil,
+    stand_in_for: nil
+  )
     @purchase_request = purchase_request
     @requester_name = requester&.person&.full_name || 'the requester'
     @actor_name = actor.person.full_name
     @current_state = purchase_request.current_state
     @committee_meeting = committee_meeting
+    @stand_in_for_name = stand_in_for&.person&.full_name
 
     mail(
       to: recipient_email,

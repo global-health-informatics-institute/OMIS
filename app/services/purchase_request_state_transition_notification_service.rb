@@ -36,16 +36,28 @@ class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/
   end
 
   def notify_actor(actor) # rubocop:disable Metrics/MethodLength
-    recipient_email = email_for(actor)
+    sent = [notify_actor_recipient(actor)]
+    return sent.any? unless actor.active_leave?
+
+    stand_in = actor.active_leave_stand_in
+    return sent.any? unless stand_in && stand_in.employee_id != actor.employee_id
+
+    sent << notify_actor_recipient(stand_in, stand_in_for: actor)
+    sent.any?
+  end
+
+  def notify_actor_recipient(recipient, stand_in_for: nil)
+    recipient_email = email_for(recipient)
     return false if recipient_email.blank?
 
-    deliver_notification("actor update for employee ##{actor.employee_id}") do
+    deliver_notification("actor update for employee ##{recipient.employee_id}") do
       PurchaseRequestMailer.review_required(
         @purchase_request,
         requester,
-        actor,
+        recipient,
         recipient_email,
-        committee_meeting: committee_meeting
+        committee_meeting: committee_meeting,
+        stand_in_for:
       ).deliver_later
     end
   end

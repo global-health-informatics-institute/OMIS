@@ -43,7 +43,7 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
   end
 
   # TODO: move to refactored 'posible_actions'
-  def available_actions(user:, is_owner: false, is_supervisor: false, owner_only: false) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
+  def available_actions(user:, is_owner: false, is_supervisor: false, owner_only: false, acting_employees: []) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
     state_id = workflow_state_id
     return [] unless state_id
 
@@ -59,10 +59,8 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
 
     # TODO: Correct misleading field 'employee_designation_id' to 'designation_id' in the WorkflowStateTransition model
     # because the field is actually referencing the Designation model, not the EmployeeDesignation model.
-    designation_id = user&.employee&.employee_designations&.last&.designation_id
-
     is_actor = WorkflowStateActor.where(
-      employee_designation_id: designation_id, # TODO: migrate to reflect designation role not a specific employee role entry # rubocop:disable Layout/LineLength
+      employee_designation_id: action_designation_ids(user, acting_employees), # TODO: migrate to reflect designation role not a specific employee role entry # rubocop:disable Layout/LineLength
       workflow_state_id: state_id
     ).exists?
 
@@ -84,13 +82,8 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
   end
 
   def actor?(user)
-    return false unless user
-
-    designation_id = user.employee&.employee_designations&.last&.designation_id
-    return false unless designation_id
-
     WorkflowStateActor.exists?(
-      employee_designation_id: designation_id,
+      employee_designation_id: action_designation_ids(user, acting_employees_for(user)),
       workflow_state_id: workflow_state_id
     )
   end
@@ -118,5 +111,19 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
     GlobalProperty.find_by(
       property: 'ipc.threshold'
     )&.property_value.to_i
+  end
+
+  private
+
+  def acting_employees_for(user)
+    employee = user&.employee
+    return [] unless employee
+
+    [employee, *employee.active_leave_stand_ins].uniq(&:employee_id)
+  end
+
+  def action_designation_ids(user, acting_employees)
+    employees = [user&.employee, *acting_employees].compact.uniq(&:employee_id)
+    employees.flat_map { |employee| employee.current_designations.pluck(:designation_id) }.uniq
   end
 end

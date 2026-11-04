@@ -171,7 +171,7 @@ module Requisitions
       # If they tried to resubmit but left a required field blank
       @purchase_request = e.record
       @skip_state_transition_notification = true
-      @possible_actions = @purchase_request.available_actions(user: current_user)
+      load_possible_actions
 
       flash.now[:alert] = 'Enter a supplier and a positive total cost for every item.'
       render :show, status: :unprocessable_entity
@@ -286,15 +286,22 @@ module Requisitions
       params.require(:committee_meeting).permit(:committee_id, :scheduled_on)
     end
 
-    def load_possible_actions
+    def load_possible_actions # rubocop:disable Metrics/MethodLength
       is_requester = @purchase_request.requester?(current_user)
-      is_supervisor = current_user.employee&.current_supervisees&.pluck(:supervisee)&.include?(@purchase_request.initiated_by) # rubocop:disable Layout/LineLength
+      current_employee = current_user&.employee
+      acting_employees = [current_employee, *current_employee&.active_leave_stand_ins]
+                         .compact
+                         .uniq(&:employee_id)
+      is_supervisor = acting_employees.any? do |actor|
+        actor.current_supervisees.pluck(:supervisee).include?(@purchase_request.initiated_by)
+      end
 
       @possible_actions = @purchase_request.available_actions(
         user: current_user,
         is_owner: is_requester,
         is_supervisor: is_supervisor,
-        owner_only: is_requester
+        owner_only: is_requester && acting_employees.one?,
+        acting_employees: acting_employees
       )
     end
 

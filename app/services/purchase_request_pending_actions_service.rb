@@ -43,7 +43,7 @@ class PurchaseRequestPendingActionsService # rubocop:disable Style/Documentation
   end
 
   def pending_request_ids
-    actor_request_ids | requester_request_ids
+    actor_request_ids | requester_request_ids | stand_in_actor_request_ids
   end
 
   def requested_on(purchase_request)
@@ -57,19 +57,29 @@ class PurchaseRequestPendingActionsService # rubocop:disable Style/Documentation
   end
 
   def actor_request_ids
-    designation_request_ids | supervisor_request_ids
+    actor_request_ids_for(employee)
   end
 
-  def designation_request_ids
+  def stand_in_actor_request_ids
+    return [] unless employee.active_leave_stand_in?
+
+    employee.active_leave_stand_ins.flat_map { |actor| actor_request_ids_for(actor) }
+  end
+
+  def actor_request_ids_for(actor)
+    designation_request_ids_for(actor) | supervisor_request_ids_for(actor)
+  end
+
+  def designation_request_ids_for(actor)
     state_ids = WorkflowStateActor.where(
-      employee_designation_id: employee.current_designations.pluck(:designation_id)
+      employee_designation_id: actor.current_designations.pluck(:designation_id)
     ).pluck(:workflow_state_id)
 
     purchase_requests.where(workflow_state_id: state_ids).pluck(:requisition_id)
   end
 
-  def supervisor_request_ids
-    supervisee_ids = employee.current_supervisees.pluck(:supervisee)
+  def supervisor_request_ids_for(actor)
+    supervisee_ids = actor.current_supervisees.pluck(:supervisee)
     return [] if supervisee_ids.empty?
 
     supervisor_state_ids = WorkflowStateTransition.where(by_supervisor: true).pluck(:workflow_state_id)
