@@ -15,7 +15,12 @@ class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/
   def call
     sent = []
     sent << notify_requester
-    actor_recipients.each { |actor| sent << notify_actor(actor) }
+    if ipc_notification?
+      sent << notify_committee
+    else
+      actor_recipients.each { |actor| sent << notify_actor(actor) }
+    end
+
     sent.any?
   end
 
@@ -62,6 +67,27 @@ class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/
     end
   end
 
+  def notify_committee
+    recipient = committee_chair || committee_members.find { |member| email_for(member).present? }
+    recipient_email = email_for(recipient)
+    return false if recipient_email.blank?
+
+    cc_emails = committee_members.filter_map { |member| email_for(member) }
+                                .excluding(recipient_email)
+                                .uniq
+
+    deliver_notification("IPC committee update for employee ##{recipient.employee_id}") do
+      PurchaseRequestMailer.review_required(
+        @purchase_request,
+        requester,
+        recipient,
+        recipient_email,
+        committee_meeting: committee_meeting,
+        cc_emails: cc_emails
+      ).deliver_later
+    end
+  end
+
   def deliver_notification(label)
     yield
     true
@@ -97,8 +123,6 @@ class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/
   end
 
   def designated_actors
-    return committee_members if @purchase_request.current_state == 'Pending IPC - Vendor Analysis'
-
     designation_ids = WorkflowStateActor.where(workflow_state_id: @purchase_request.workflow_state_id)
                                          .pluck(:employee_designation_id)
     return [] if designation_ids.empty?
@@ -109,9 +133,21 @@ class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/
   end
 
   def committee_members
+    active_committee_memberships.map(&:employee)
+  end
+
+  def committee_chair
+    active_committee_memberships.find { |membership| membership.role.casecmp?('chair') }&.employee
+  end
+
+  def active_committee_memberships
     return [] unless committee_meeting
 
-    committee_meeting.committee.active_memberships.includes(:employee).map(&:employee)
+    @active_committee_memberships ||= committee_meeting.committee.active_memberships.includes(:employee).to_a
+  end
+
+  def ipc_notification?
+    @purchase_request.current_state == 'Pending IPC - Vendor Analysis' && committee_meeting.present?
   end
 
   def committee_meeting

@@ -19,7 +19,8 @@ class PurchaseRequestMailer < ApplicationMailer # rubocop:disable Style/Document
     requester, actor,
     recipient_email,
     committee_meeting: nil,
-    stand_in_for: nil
+    stand_in_for: nil,
+    cc_emails: []
   )
     @purchase_request = purchase_request
     @requester_name = requester&.person&.full_name || 'the requester'
@@ -31,6 +32,7 @@ class PurchaseRequestMailer < ApplicationMailer # rubocop:disable Style/Document
 
     mail(
       to: recipient_email,
+      cc: cc_emails,
       subject: 'Purchase Request Requires Your Action'
     )
   end
