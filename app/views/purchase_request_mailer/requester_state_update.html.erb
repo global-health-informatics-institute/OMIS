@@ -15,7 +15,8 @@
 
       <% if @current_state == 'Purchase Request Complete' %>
         <p>
-          Please be informed that the purchase request you submitted for <em>"<%= @purchase_request.purpose %>"</em>
+          Please be informed that the purchase request you submitted on <strong><%= @submitted_on.strftime('%d %B %Y') %></strong>
+          for <em>"<%= @purchase_request.purpose %>"</em>
           has been completed.
         </p>
 
@@ -25,7 +26,8 @@
         </p>
       <% else %>
         <p>
-          Please be informed that your purchase request for <em>"<%= @purchase_request.purpose %>"</em>
+          Please be informed that your purchase request submitted on <strong><%= @submitted_on.strftime('%d %B %Y') %></strong>
+          for <em>"<%= @purchase_request.purpose %>"</em>
           has been <%= @action_description %> and is now marked as <strong><%= @current_state %></strong>.
         </p>
 

@@ -21,7 +21,8 @@
       <% end %>
 
       <p>
-        Please be informed that the purchase request submitted by <strong><%= @requester_name %></strong>
+        Please be informed that the purchase request submitted by <strong><%= @requester_name %></strong> on
+        <strong><%= @submitted_on.strftime('%d %B %Y') %></strong>
         for <em>"<%= @purchase_request.purpose %>"</em> is now marked as
         <strong><%= @current_state %></strong> and requires your review or action.
       </p>

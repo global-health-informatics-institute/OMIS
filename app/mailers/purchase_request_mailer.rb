@@ -6,6 +6,7 @@ class PurchaseRequestMailer < ApplicationMailer # rubocop:disable Style/Document
     @requester_name = requester&.person&.full_name || 'Requester'
     @current_state = purchase_request.current_state
     @action_description = action_description
+    @submitted_on = purchase_request.initiated_on || purchase_request.created_at.to_date
 
     mail(
       to: recipient_email,
@@ -13,7 +14,7 @@ class PurchaseRequestMailer < ApplicationMailer # rubocop:disable Style/Document
     )
   end
 
-  def review_required( # rubocop:disable Metrics/ParameterLists
+  def review_required( # rubocop:disable Metrics/ParameterLists,Metrics/MethodLength
     purchase_request,
     requester, actor,
     recipient_email,
@@ -26,6 +27,7 @@ class PurchaseRequestMailer < ApplicationMailer # rubocop:disable Style/Document
     @current_state = purchase_request.current_state
     @committee_meeting = committee_meeting
     @stand_in_for_name = stand_in_for&.person&.full_name
+    @submitted_on = purchase_request.initiated_on || purchase_request.created_at.to_date
 
     mail(
       to: recipient_email,
