@@ -104,7 +104,8 @@ module Requisitions
     def purchase_request_action_label(action)
       {
         'Route to IPC - Vendor Analysis' => 'Request IPC',
-        'Forward to Vendor Analysis' => 'Vendor Analysis'
+        'Forward to Vendor Analysis' => 'Vendor Analysis',
+        'Terminate Payment Request' => 'Decline Payment Request'
       }.fetch(action, action)
     end
 
