@@ -54,17 +54,8 @@
       <div class="row mt-3">
         <%# FIX 2: Changed to singular :requisition_budget_line %>
         <%= form.fields_for :requisition_budget_line do |rbl_form| %>
-          <div class="col-md-6">
-            <div class="mb-3">
-              <label class="form-label fw-normal">Budget Line</label>
-              <%= rbl_form.select(
-                :budget_line_id,
-                budget_lines,
-                { include_blank: 'Select Budget Line' },
-                { class: 'form-control form-select', required: true }
-              )%>
-            </div>
-          </div>
+          <%= render 'requisitions/purchase_requests/budget_line_field',
+                     rbl_form: rbl_form, core_opts: {} %>
         <% end %>
 
         <%# FIX 3: Changed to singular :requisition_donor %>

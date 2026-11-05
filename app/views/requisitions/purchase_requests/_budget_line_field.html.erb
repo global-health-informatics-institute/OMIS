@@ -1,0 +1,79 @@
+<div class="col-md-6">
+  <div class="mb-3">
+    <%= rbl_form.label :budget_line_id, 'Budget Line', class: 'form-label fw-normal' %>
+    <%= tag.div class: 'position-relative',
+                data: {
+                  controller: 'budget-line-filter',
+                  action: 'submit->budget-line-filter#validate keydown.esc->budget-line-filter#close click@window->budget-line-filter#closeOnOutside',
+                  budget_line_filter_categories_value: budget_line_category_map,
+                  budget_line_filter_required_value: !core_opts[:disabled]
+                } do %>
+      <button type="button"
+              class="form-select text-start"
+              aria-haspopup="dialog"
+              aria-expanded="false"
+              aria-controls="budget-line-picker-<%= rbl_form.object_name.gsub(/[^a-zA-Z0-9_-]/, '_') %>"
+              <%= 'disabled' if core_opts[:disabled] %>
+              data-budget-line-filter-target="trigger"
+              data-action="click->budget-line-filter#toggle keydown.esc->budget-line-filter#close">
+        <span data-budget-line-filter-target="selectedLabel">Select Budget Line</span>
+      </button>
+
+      <div class="card shadow position-absolute start-0 w-100 mt-1"
+           role="dialog"
+           aria-label="Select budget line"
+           id="budget-line-picker-<%= rbl_form.object_name.gsub(/[^a-zA-Z0-9_-]/, '_') %>"
+           hidden
+           style="z-index: 1050;"
+           data-budget-line-filter-target="panel">
+        <div class="card-body">
+          <fieldset class="mb-3">
+            <legend class="fs-6">Filter by category</legend>
+            <div class="d-flex flex-wrap gap-2" role="group" aria-label="Budget line categories">
+              <% category_filters = [['All categories', '']] + budget_line_categories.map { |category| [category, category] } %>
+              <% category_filters.each do |label, category| %>
+                <%= button_tag label,
+                               type: 'button',
+                               class: 'btn btn-sm btn-outline-primary',
+                               aria: { pressed: category.blank? },
+                               data: {
+                                 budget_line_filter_target: 'category',
+                                 value: category,
+                                 action: 'click->budget-line-filter#filter'
+                               } %>
+              <% end %>
+            </div>
+          </fieldset>
+
+          <%= search_field_tag :budget_line_search,
+                               nil,
+                               class: 'form-control mb-2',
+                               placeholder: 'Search budget lines',
+                               aria: { label: 'Search budget lines in the selected category' },
+                               data: {
+                                 budget_line_filter_target: 'search',
+                                 action: 'input->budget-line-filter#search'
+                               } %>
+          <div class="list-group overflow-auto" style="height: 16rem;"
+               data-budget-line-filter-target="options"></div>
+          <p class="text-muted mb-0" hidden data-budget-line-filter-target="emptyMessage">
+            No budget lines match your search.
+          </p>
+        </div>
+      </div>
+
+      <%= rbl_form.select(:budget_line_id, budget_lines,
+                          { include_blank: 'Select Budget Line' },
+                          {
+                            class: 'visually-hidden',
+                            tabindex: -1,
+                            aria: { hidden: true },
+                            data: { budget_line_filter_target: 'line' },
+                            **core_opts.except(:required)
+                          }) %>
+      <div class="invalid-feedback" hidden data-budget-line-filter-target="error">
+        Please select a budget line.
+      </div>
+    <% end %>
+  </div>
+</div>

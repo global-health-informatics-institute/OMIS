@@ -231,6 +231,18 @@ module Requisitions
       end
     end
 
+    # budget line id => category. The ids are strings because they become the keys of the JSON the filter reads.
+    def budget_line_category_map
+      @budget_line_category_map ||= BudgetLine.order(BudgetLine.primary_key)
+                                              .pluck(BudgetLine.primary_key, :category)
+                                              .to_h { |id, category| [id.to_s, category] }
+    end
+
+    # categories in the order the budget lines were seeded, which is the csv column order
+    def budget_line_categories
+      budget_line_category_map.values.compact.uniq
+    end
+
     private
 
     def workflow_step_actors(workflow_state_id, transitions)
