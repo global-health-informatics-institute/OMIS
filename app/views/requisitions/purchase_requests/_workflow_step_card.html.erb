@@ -1,25 +1,32 @@
 <% workflow_step = workflow_step_information(purchase_request) %>
 
-<div class="card border-primary mt-3">
-    <div class="card-body py-3">
-        <p class="mb-2">
-            <strong>Current step:</strong> <%= workflow_step[:description] %>
-        </p>
-        <p class="mb-2">
-            <% if workflow_step[:actors].present? %>
-                <strong>Expected to act:</strong> <%= workflow_step[:actors].to_sentence %>.
-            <% end %>
-        </p>
+<div class="card border-start border-secondary-subtle border-4 mt-3">
+    <div class="card-body p-3">
         <div>
-            <strong>Possible actions:</strong>
+            <div class="small text-body-secondary fw-semibold mb-1">CURRENT STEP</div>
+            <p class="mb-0"><%= workflow_step[:description] %></p>
+        </div>
+
+        <% if workflow_step[:actors].present? %>
+            <div class="mt-3">
+                <div class="small text-body-secondary fw-semibold mb-1">EXPECTED TO ACT</div>
+                <p class="mb-0"><%= workflow_step[:actors].to_sentence %></p>
+            </div>
+        <% end %>
+
+        <div class="mt-3">
+            <div class="small text-body-secondary fw-semibold mb-2">POSSIBLE NEXT ACTIONS</div>
             <% if workflow_step[:next_steps].present? %>
-                <ul class="mb-0 ps-3">
+                <ul class="list-unstyled mb-0">
                     <% workflow_step[:next_steps].each do |next_step| %>
-                        <li><em>'<%= next_step[:action] %>'</em> - <%= next_step[:description] %></li>
+                        <li class="py-1">
+                            <span class="d-inline-block fw-semibold" style="width: 14rem"><%= next_step[:action] %></span>
+                            <span class="text-body-secondary"><%= next_step[:description] %></span>
+                        </li>
                     <% end %>
                 </ul>
             <% else %>
-                No further workflow action is required.
+                <p class="mb-0 text-body-secondary">No further workflow action is required.</p>
             <% end %>
         </div>
     </div>
