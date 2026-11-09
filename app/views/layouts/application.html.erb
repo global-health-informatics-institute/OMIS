@@ -46,7 +46,7 @@
           </div>
         </div>
       </nav>
-      <div class="flex-grow-1 row vw-100">
+      <div class="row g-0 flex-grow-1">
         <div class="col-md-auto p-2" style="background: #252525 !important;">
           <ul class="nav navbar-nav">
             <li class ="nav-item ms-1">
@@ -115,7 +115,7 @@
             <% end %>
           </ul>
         </div>
-        <div class="col overflow-y-scroll-auto" style="max-height: 90vh;">
+        <div class="col p-2 overflow-auto">
           <%= render partial: 'layouts/notices' %>
           <%= yield %>
           <%= turbo_frame_tag "remote_modal", target: "_top" %>
@@ -125,8 +125,5 @@
     <% else %>
       <%= yield %>
     <%end%>
-    <main>
-
-    </main>
   </body>
 </html>
