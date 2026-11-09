@@ -29,6 +29,13 @@ class TcDashboardController < ApplicationController # rubocop:disable Metrics/Cl
 
   private
 
+  def employees_aged(min: nil, max: nil)
+    scope = Employee.joins(:person).where(still_employed: true)
+    scope = scope.where('people.birth_date <= ?', Date.current - min.years) if min
+    scope = scope.where('people.birth_date > ?', Date.current - (max + 1).years) if max
+    scope.count
+  end
+
   def prepare_dashboard_data # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
     @common_data = {
       subtitle_1: "#{(Date.today.month - 1) / 3 + 1} Quarter - #{Date.today.year}", # rubocop:disable Naming/VariableNumber
@@ -47,28 +54,18 @@ class TcDashboardController < ApplicationController # rubocop:disable Metrics/Cl
 
       gender_female: Employee.where(still_employed: true).joins(:person).where(people: { gender: 'Female' }).count || 0,
       gender_male: Employee.where(still_employed: true).joins(:person).where(people: { gender: 'Male' }).count || 0,
-      gender_other: Employee.where(still_employed: true).joins(:person).where.not(people: { gender: %w[Female Male] }).count || 0,
+      gender_other: Employee.where(still_employed: true).joins(:person).where.not(people: { gender: %w[Female
+                                                                                                       Male] }).count || 0, # rubocop:disable Layout/LineLength
 
-      age_18_24: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
-                          .where(still_employed: true)
-                          .where(people: { birth_date: 24.years.ago..18.years.ago }).count || 0,
-      age_25_29: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
-                          .where(still_employed: true)
-                          .where(people: { birth_date: 35.years.ago..26.years.ago }).count || 0,
-      age_30_44: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
-                          .where(still_employed: true)
-                          .where(people: { birth_date: 45.years.ago..36.years.ago }).count || 0,
-      age_46_60: Employee.joins(:person) # rubocop:disable Naming/VariableNumber
-                          .where(still_employed: true)
-                          .where(people: { birth_date: 55.years.ago..46.years.ago }).count || 0,
-      age_60_plus: Employee.joins(:person)
-                          .where(still_employed: true)
-                          .where('people.birth_date <= ?', 60.years.ago).count || 0,
-    
+      age_under_25: employees_aged(max: 24), # rubocop:disable Naming/VariableNumber
+      age_25_29: employees_aged(min: 25, max: 29), # rubocop:disable Naming/VariableNumber
+      age_30_44: employees_aged(min: 30, max: 44), # rubocop:disable Naming/VariableNumber
+      age_45_59: employees_aged(min: 45, max: 59), # rubocop:disable Naming/VariableNumber
+      age_60_plus: employees_aged(min: 60),
 
       headcount: Employee.where(still_employed: true).count,
       new_hires: Employee.where(still_employed: true,
-                                employment_date: Date.current.beginning_of_quarter..Date.current.end_of_quarter).count # rubocop:disable Layout/LineLength
+                                employment_date: Date.current.beginning_of_quarter..Date.current.end_of_quarter).count
     }
 
     @tenure = {
