@@ -1,7 +1,8 @@
-<h4 class="mb-4">Purchase Request</h4>
-
 <%= form_with model: [:requisitions, @purchase_request], url: requisitions_purchase_requests_path, method: :post do |form| %>
   <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header card-header-dark mb-2 bg-secondary-subtle">
+      <h5 class="mb-0">Purchase Request</h5>
+    </div>
     <div class="card-body">
       <h5 class="mb-3">Request details</h5>
 
