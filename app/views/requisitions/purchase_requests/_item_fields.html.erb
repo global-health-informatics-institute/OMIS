@@ -1,0 +1,56 @@
+<% item_index = item_form.index %>
+<% item_name_id = "#{item_form.object_name.gsub(/[^a-zA-Z0-9_-]/, '_')}_item_name" %>
+
+<section class="card border-2 shadow-sm mb-3 purchase-request-item" data-request-items-target="row" data-index="<%= item_index %>">
+  <div class="card-header bg-secondary-subtle d-flex align-items-center justify-content-between">
+    <h6 class="mb-0" data-request-items-target="heading">Item</h6>
+    <button type="button"
+            class="btn btn-sm btn-danger"
+            aria-label="Remove item"
+            data-action="request-items#remove">
+      Remove item
+    </button>
+  </div>
+
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-8">
+        <div class="mb-3">
+          <%= label_tag item_name_id, 'Item Name', class: 'form-label fw-normal' %>
+          <%= text_field_tag "#{item_form.object_name}[item_name]",
+                             nil,
+                             id: item_name_id,
+                             placeholder: 'Enter item name',
+                             class: 'form-control',
+                             required: true %>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="mb-3">
+          <%= item_form.label :quantity, 'Quantity', class: 'form-label fw-normal' %>
+          <%= item_form.number_field :quantity,
+                                     value: item_form.object.quantity.presence || 1,
+                                     class: 'form-control',
+                                     min: 1,
+                                     step: 1,
+                                     required: true %>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <%= item_form.label :item_description, 'Description', class: 'form-label fw-normal' %>
+      <%= item_form.text_area :item_description,
+                              placeholder: 'Enter description',
+                              class: 'form-control',
+                              rows: 2,
+                              required: true %>
+    </div>
+
+    <div class="row">
+      <%= render 'requisitions/purchase_requests/budget_line_field',
+                 rbl_form: item_form, core_opts: core_opts %>
+    </div>
+  </div>
+</section>

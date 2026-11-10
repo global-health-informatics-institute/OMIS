@@ -3,8 +3,8 @@
 <%= form_with model: [:requisitions, @purchase_request], url: requisitions_purchase_requests_path, method: :post do |form| %>
   <div class="card shadow-sm mb-4">
     <div class="card-body">
+      <h5 class="mb-3">Request details</h5>
 
-      <%# Row 1: Initiated By and Date %>
       <div class="row mt-3">
         <div class="col-md-6">
           <div class="mb-3">
@@ -21,70 +21,11 @@
         </div>
       </div>
 
-      <%# Row 2 & 3: Item Name, Quantity, and Description %>
-      <div class="row mt-3">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label fw-normal">Item Name</label>
-            <%= form.text_field :purpose, placeholder: "Enter item name", class: 'form-control', required: true %>
-          </div>
-        </div>
-
-        <%# FIX 1: Wrap BOTH quantity and description in ONE single fields_for block %>
-        <%= form.fields_for :requisition_items do |item_form| %>
-          <div class="col-md-6">
-            <div class="mb-3">
-              <label class="form-label fw-normal">Quantity</label>
-              <%= item_form.number_field :quantity, value: 1, class: 'form-control', min: 1, step: 1, required: true %>
-            </div>
-          </div>
-        </div> <%# Closes the row early to cleanly drop description to its own line %>
-
-        <div class="row mt-3">
-          <div class="col-md-12">
-            <div class="mb-3">
-              <label class="form-label fw-normal">Description</label>
-              <%= item_form.text_area :item_description, placeholder: "Enter description", class: 'form-control', rows: 2, required: true %>
-            </div>
-          </div>
-        <% end %>
-      </div>
-
-      <%# Row 4: Budget Line and Donor %>
-      <div class="row mt-3">
-        <%# FIX 2: Changed to singular :requisition_budget_line %>
-        <%= form.fields_for :requisition_budget_line do |rbl_form| %>
-          <%= render 'requisitions/purchase_requests/budget_line_field',
-                     rbl_form: rbl_form, core_opts: {} %>
-        <% end %>
-
-        <%# FIX 3: Changed to singular :requisition_donor %>
-        <%= form.fields_for :requisition_donor do |donor_form| %>
-          <div class="col-md-6">
-            <div class="mb-3">
-              <label class="form-label fw-normal">Donor</label>
-              <%# FIX 4: Changed field from :id to :donor_id %>
-              <%= donor_form.select(
-                :donor_id, 
-                donors,
-                { include_blank: 'Select Donor' },
-                { class: 'form-control form-select', required: true }
-              )%>
-            </div>
-          </div>
-        <% end %>
-      </div>
-
       <div class="row mt-3">
         <div class="col-md-6">
           <div class="mb-3">
             <label class="form-label fw-normal">Project</label>
-            <%= form.select(
-              :project_id,
-              requisition_projects,
-              { include_blank: 'Select Project' },
-              { class: 'form-control form-select', required: true }
-            ) %>
+            <%= form.select :project_id, requisition_projects, { include_blank: 'Select Project' }, { class: 'form-control form-select', required: true } %>
           </div>
         </div>
 
@@ -92,25 +33,59 @@
           <div class="col-md-6">
             <div class="mb-3">
               <label class="form-label fw-normal">Department</label>
-              <%= detail_form.select(
-                :department_id,
-                purchase_request_departments,
-                { include_blank: 'Select Department' },
-                { class: 'form-control form-select', required: true }
-              ) %>
+              <%= detail_form.select :department_id, purchase_request_departments, { include_blank: 'Select Department' }, { class: 'form-control form-select', required: true } %>
             </div>
           </div>
         <% end %>
       </div>
 
       <div class="row mt-3">
-        <div class="col-md-6">
-          <div class="col-md-3">
-            <%= form.submit "Submit Request", class: "btn btn-success" %>
+        <%= form.fields_for :requisition_donor do |donor_form| %>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label fw-normal">Donor</label>
+              <%= donor_form.select :donor_id, donors, { include_blank: 'Select Donor' }, { class: 'form-control form-select', required: true } %>
+            </div>
           </div>
-        </div>
+        <% end %>
       </div>
 
+      <div data-controller="request-items"
+           data-action="input->request-items#syncPurpose change->request-items#syncBudget">
+        <%= form.hidden_field :purpose, data: { request_items_target: 'purpose' } %>
+        <%= hidden_field_tag 'purchase_request[requisition_budget_line_attributes][budget_line_id]',
+                             nil,
+                             data: { request_items_target: 'budgetLine' } %>
+
+        <hr class="my-4">
+
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div>
+            <h5 class="mb-1">Requested items</h5>
+            <p class="text-muted mb-0">Add each item with its quantity, description, and budget line.</p>
+          </div>
+          <span class="badge text-bg-secondary px-3 py-2 fs-6" data-request-items-target="count" aria-live="polite"></span>
+        </div>
+
+        <div class="request-items-list" data-request-items-target="rows">
+          <%= form.fields_for :requisition_items do |item_form| %>
+            <%= render 'requisitions/purchase_requests/item_fields', item_form: item_form, core_opts: {} %>
+          <% end %>
+        </div>
+
+        <template data-request-items-target="template">
+          <%= form.fields_for :requisition_items, RequisitionItem.new, child_index: 'NEW_RECORD' do |item_form| %>
+            <%= render 'requisitions/purchase_requests/item_fields', item_form: item_form, core_opts: {} %>
+          <% end %>
+        </template>
+
+        <button type="button" class="btn btn-primary mt-2" data-action="request-items#add">
+          <span aria-hidden="true">+</span> Add another item
+        </button>
+      </div>
+
+      <div class="d-flex justify-content-end mt-4">
+        <%= form.submit "Submit Request", class: "btn btn-success" %>
       </div>
     </div>
   </div>

@@ -63,7 +63,7 @@
       </div>
 
       <%= rbl_form.select(:budget_line_id, budget_lines,
-                          { include_blank: 'Select Budget Line' },
+                          { include_blank: 'Select Budget Line', selected: rbl_form.object.try(:budget_line_id) },
                           {
                             class: 'visually-hidden',
                             tabindex: -1,
