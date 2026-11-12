@@ -1,5 +1,13 @@
+# frozen_string_literal: true
+
+# Model representing a single item for a requisition
 class RequisitionItem < ApplicationRecord
   belongs_to :requisition, foreign_key: :requisition_id
+  has_one :requisition_budget_line,
+          foreign_key: :requisition_item_id,
+          dependent: :delete
+  accepts_nested_attributes_for :requisition_budget_line
+
   validates :quantity, numericality: { greater_than: 0 }
   validates :value, numericality: { greater_than: 0 }, allow_nil: true
 
