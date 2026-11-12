@@ -14,21 +14,22 @@ class PurchaseRequestCreateService # rubocop:disable Style/Documentation
       puts "PROCESSED DATA #{data}"
       requisition = Requisition.create!(data[:requisition])
 
-      RequisitionItem.create!(
-        requisition_id: requisition.id,
-        item_description: data[:item][:item_description],
-        quantity: data[:item][:quantity]
-      )
+      data[:items].each do |item_data|
+        item = RequisitionItem.create!(
+          requisition_id: requisition.id,
+          item_name: item_data[:item_name],
+          item_description: item_data[:item_description],
+          quantity: item_data[:quantity]
+        )
 
-      RequisitionDonor.create!(
-        requisition_id: requisition.id,
-        donor_id: data[:donor][:donor_id]
-      )
+        RequisitionBudgetLine.create!(
+          requisition_id: requisition.id,
+          requisition_item_id: item.requisition_item_id,
+          budget_line_id: item_data[:budget_line_id]
+        )
+      end
 
-      RequisitionBudgetLine.create!(
-        requisition_id: requisition.id,
-        budget_line_id: data[:budget_line][:budget_line_id]
-      )
+      RequisitionDonor.create!(requisition_id: requisition.id, donor_id: data[:donor][:donor_id])
 
       PurchaseRequestDetail.create!(
         requisition_id: requisition.id,
@@ -56,10 +57,7 @@ class PurchaseRequestCreateService # rubocop:disable Style/Documentation
       last_name = name_parts.length > 1 ? name_parts.last : ''
 
       items_attrs = req_params[:requisition_items_attributes] || {}
-      first_item = items_attrs.respond_to?(:values) ? items_attrs.values.first : {}
-      first_item ||= {}
-
-      budget_attrs = req_params[:requisition_budget_line_attributes] || {}
+      items = items_attrs.respond_to?(:values) ? items_attrs.values : Array(items_attrs)
       donor_attrs = req_params[:requisition_donor_attributes] || {}
       purchase_request_detail_attrs = req_params[:purchase_request_detail_attributes] || {}
 
@@ -75,13 +73,16 @@ class PurchaseRequestCreateService # rubocop:disable Style/Documentation
             workflow_process_id: WorkflowProcess.find_by(workflow: 'Purchase Request')&.workflow_process_id
           )&.workflow_state_id
         },
-        item: {
-          quantity: first_item[:quantity] || first_item['quantity'],
-          item_description: first_item[:item_description] || first_item['item_description']
-        },
-        budget_line: {
-          budget_line_id: budget_attrs[:budget_line_id] || budget_attrs['budget_line_id']
-        },
+        items: items.reject { |item| item[:_destroy] == '1' || item['_destroy'] == '1' }.map do |item|
+          budget_line = item[:requisition_budget_line_attributes] || item['requisition_budget_line_attributes'] || {}
+
+          {
+            item_name: item[:item_name] || item['item_name'],
+            item_description: item[:item_description] || item['item_description'],
+            quantity: item[:quantity] || item['quantity'],
+            budget_line_id: budget_line[:budget_line_id] || budget_line['budget_line_id']
+          }
+        end,
         donor: {
           donor_id: donor_attrs[:donor_id] || donor_attrs['donor_id']
         },

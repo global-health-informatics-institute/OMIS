@@ -47,44 +47,52 @@
     <% end %>
 
     <%= render_section_if @purchase_request, :item_details do %>
-        <%# Row 2 & 3: Item Name, Quantity, and Description %>
-        <div class="row mt-3">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label fw-normal">Item Name</label>
-                        <%= form.text_field :purpose,
-                                            class: 'form-control',
-                                            required: true,
-                                            **core_opts %>
+        <div class="request-items-list mt-3">
+            <%= form.fields_for :requisition_items do |item_form| %>
+                <section class="card border-2 shadow-sm mb-3 purchase-request-item">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">Item <%= item_form.index.to_i + 1 %></h6>
                     </div>
-                </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <%= item_form.label :item_name, 'Item Name', class: 'form-label fw-normal' %>
+                                    <%= item_form.text_field :item_name, class: 'form-control', required: true, **core_opts %>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <%= item_form.label :quantity, 'Quantity', class: 'form-label fw-normal' %>
+                                    <%= item_form.number_field :quantity,
+                                                               min: 1,
+                                                               step: 1,
+                                                               class: 'form-control',
+                                                               required: true,
+                                                               **core_opts %>
+                                </div>
+                            </div>
+                        </div>
 
-                <%= form.fields_for :requisition_items do |item_form| %>
-                    <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label fw-normal">Quantity</label>
-                            <%= item_form.number_field :quantity,
-                                                    min: 1,
-                                                    step: 1,
+                            <%= item_form.label :item_description, 'Description', class: 'form-label fw-normal' %>
+                            <%= item_form.text_area :item_description,
                                                     class: 'form-control',
+                                                    rows: 2,
                                                     required: true,
                                                     **core_opts %>
                         </div>
-                    </div>
-            </div> 
 
-            <div class="row mt-3">
-                <div class="col-md-12">
-                    <div class="mb-3">
-                        <label class="form-label fw-normal">Description</label>
-                        <%= item_form.text_area :item_description,
-                                                class: 'form-control',
-                                                rows: 2,
-                                                required: true,
-                                                **core_opts %>
+                        <div class="row">
+                            <%= item_form.fields_for :requisition_budget_line do |budget_line_form| %>
+                                <%= render 'requisitions/purchase_requests/budget_line_field',
+                                           rbl_form: budget_line_form,
+                                           core_opts: core_opts %>
+                            <% end %>
+                        </div>
                     </div>
-                </div>
-                <% end %>
+                </section>
+            <% end %>
         </div>
     <% end %>
 
@@ -92,21 +100,26 @@
         <%# Row 4: Budget Line and Donor %>
         <div class="row mt-3">
 
-<%= form.fields_for :requisition_budget_line do |rbl_form| %>
-    <%= render 'requisitions/purchase_requests/budget_line_field',
-               rbl_form: rbl_form, core_opts: core_opts %>
-<% end %>
-
-                <%= form.fields_for :requisition_donor do |donor_form| %>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label fw-normal">Donor</label>
-                            <%= donor_form.select(:donor_id, donors, 
-                                                { include_blank: 'Select Donor' }, 
-                                                { class: 'form-control form-select', required: true, **core_opts }) %>
-                        </div>
+            <%= form.fields_for :requisition_donor do |donor_form| %>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-normal">Donor</label>
+                        <%= donor_form.select(:donor_id, donors,
+                                            { include_blank: 'Select Donor' },
+                                            { class: 'form-control form-select', required: true, **core_opts }) %>
                     </div>
-                <% end %>
+                </div>
+            <% end %>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-normal">Requisition Purpose</label>
+                    <%= form.text_field :purpose,
+                                        class: 'form-control',
+                                        required: true,
+                                        **core_opts %>
+                </div>
+            </div>
         </div>
 
         <%# Row 5: Project and Department %>

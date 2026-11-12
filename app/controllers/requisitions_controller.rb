@@ -46,8 +46,7 @@ class RequisitionsController < ApplicationController
       @asset_types = AssetCategory.all.collect { |x| x.category }
     when 'Purchase Request'
       @purchase_request = PurchaseRequest.new
-      @purchase_request.requisition_items.build
-      @purchase_request.build_requisition_budget_line
+      @purchase_request.requisition_items.build.build_requisition_budget_line
       @purchase_request.build_requisition_donor
       @purchase_request.build_purchase_request_detail
     when 'Travel Request'

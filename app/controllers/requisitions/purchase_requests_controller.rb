@@ -280,8 +280,10 @@ module Requisitions
         :initiated_on,
         :purpose,
         :vendor_name,
-        requisition_items_attributes: %i[id item_description quantity _destroy],
-        requisition_budget_line_attributes: %i[id budget_line_id _destroy],
+        requisition_items_attributes: [
+          :id, :item_name, :item_description, :quantity, :_destroy,
+          { requisition_budget_line_attributes: %i[id budget_line_id _destroy] }
+        ],
         requisition_donor_attributes: %i[id donor_id _destroy],
         purchase_request_detail_attributes: %i[
           id department_id unit_price attracts_levy attracts_mra vendor_mobile_number vendor_email

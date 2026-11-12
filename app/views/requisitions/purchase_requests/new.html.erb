@@ -49,14 +49,19 @@
             </div>
           </div>
         <% end %>
+
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :purpose, 'Request Purpose', class: 'form-label fw-normal' %>
+            <%= form.text_field :purpose,
+                                class: 'form-control',
+                                placeholder: 'Mention the overall purpose of this requisition',
+                                required: true %>
+          </div>
+        </div>
       </div>
 
-      <div data-controller="request-items"
-           data-action="input->request-items#syncPurpose change->request-items#syncBudget">
-        <%= form.hidden_field :purpose, data: { request_items_target: 'purpose' } %>
-        <%= hidden_field_tag 'purchase_request[requisition_budget_line_attributes][budget_line_id]',
-                             nil,
-                             data: { request_items_target: 'budgetLine' } %>
+      <div data-controller="request-items">
 
         <hr class="my-4">
 

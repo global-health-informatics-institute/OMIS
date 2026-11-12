@@ -16,13 +16,12 @@
     <div class="row">
       <div class="col-md-8">
         <div class="mb-3">
-          <%= label_tag item_name_id, 'Item Name', class: 'form-label fw-normal' %>
-          <%= text_field_tag "#{item_form.object_name}[item_name]",
-                             nil,
-                             id: item_name_id,
-                             placeholder: 'Enter item name',
-                             class: 'form-control',
-                             required: true %>
+          <%= item_form.label :item_name, 'Item Name', for: item_name_id, class: 'form-label fw-normal' %>
+          <%= item_form.text_field :item_name,
+                                   id: item_name_id,
+                                   placeholder: 'Enter item name',
+                                   class: 'form-control',
+                                   required: true %>
         </div>
       </div>
 
@@ -49,8 +48,11 @@
     </div>
 
     <div class="row">
-      <%= render 'requisitions/purchase_requests/budget_line_field',
-                 rbl_form: item_form, core_opts: core_opts %>
+      <% item_form.object.build_requisition_budget_line unless item_form.object.requisition_budget_line %>
+      <%= item_form.fields_for :requisition_budget_line do |budget_line_form| %>
+        <%= render 'requisitions/purchase_requests/budget_line_field',
+                   rbl_form: budget_line_form, core_opts: core_opts %>
+      <% end %>
     </div>
   </div>
 </section>

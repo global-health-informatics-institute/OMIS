@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["rows", "row", "template", "heading", "count", "purpose", "budgetLine"]
+  static targets = ["rows", "row", "template", "heading", "count"]
 
   connect() {
     this.nextIndex = this.rowTargets.reduce((maximum, row) => {
@@ -9,8 +9,6 @@ export default class extends Controller {
       return Number.isInteger(index) ? Math.max(maximum, index + 1) : maximum
     }, 0)
     this.refresh()
-    this.syncPurpose()
-    this.syncBudget()
   }
 
   add() {
@@ -38,13 +36,4 @@ export default class extends Controller {
     this.countTarget.textContent = `${this.rowTargets.length} ${this.rowTargets.length === 1 ? "item" : "items"}`
   }
 
-  syncPurpose() {
-    const firstItemName = this.rowTargets[0]?.querySelector("input[name$='[item_name]']")
-    this.purposeTarget.value = firstItemName?.value || ""
-  }
-
-  syncBudget() {
-    const firstBudgetLine = this.rowTargets[0]?.querySelector("[data-budget-line-filter-target='line']")
-    this.budgetLineTarget.value = firstBudgetLine?.value || ""
-  }
 }
