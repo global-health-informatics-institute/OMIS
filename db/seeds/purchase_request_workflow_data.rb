@@ -447,9 +447,9 @@ GLOBAL_PROPERTIES = [
     description: 'Current levy rate for all purchases, expressed as a decimal. For example, a 1% levy rate is represented as 0.01.' # rubocop:disable Layout/LineLength
   },
   {
-    property: 'mra.rate',
-    property_value: '17.5',
-    description: 'Current MRA rate for all purchases, expressed as a percentage. For example, a 17.5% MRA rate is represented as 17.5.' # rubocop:disable Layout/LineLength
+    property: 'vat.rate',
+    property_value: '0.175',
+    description: 'Current VAT rate for all purchases, expressed as a percentage. For example, a 17.5% VAT rate is represented as 0.175.' # rubocop:disable Layout/LineLength
   },
   {
     property: 'lpo.validity.period.in.days',
