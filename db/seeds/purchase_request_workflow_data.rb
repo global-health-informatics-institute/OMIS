@@ -445,12 +445,33 @@ GLOBAL_PROPERTIES = [
     property: 'levy.rate',
     property_value: '0.01',
     description: 'Current levy rate for all purchases, expressed as a decimal. For example, a 1% levy rate is represented as 0.01.' # rubocop:disable Layout/LineLength
-  },
+  }, # tax
   {
     property: 'vat.rate',
     property_value: '0.175',
     description: 'Current VAT rate for all purchases, expressed as a percentage. For example, a 17.5% VAT rate is represented as 0.175.' # rubocop:disable Layout/LineLength
-  },
+  }, # tax. TODO: refactor occurence for mra to vat
+  {
+    property: 'service.withholding.tax.rate',
+    property_value: '0.02',
+    description: 'Current service withholding tax rate for applied to a supplier not the separate items. For example, a 20% service withholding tax rate is represented as 0.2.' # rubocop:disable Layout/LineLength
+  }, # tax
+  {
+    property: 'supplies.withholding.tax.rate',
+    property_value: '0.03',
+    description: 'Current supplies withholding tax rate for applied to the supplier, expressed as a decimal. For example, a 3% supplies withholding tax rate is represented as 0.03.' # rubocop:disable Layout/LineLength
+  }, # tax
+  {
+    property: 'dmvic.fee',
+    property_value: '50000',
+    description: 'The fee for Digital Motor Vehicle Insurance Certificates. applies as a flat fee to a specific item'
+  }, # fee
+  {
+    property: 'stamp.duty.fee',
+    property_value: '5000',
+    description: 'The fee for stamp duty on certain transactions. applies as a flat fee to a specific item'
+  }, # fee
+  # TODO: use comments fee, tax to populate Charge data
   {
     property: 'lpo.validity.period.in.days',
     property_value: '7',
