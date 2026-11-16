@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_11_11_134151) do
+ActiveRecord::Schema[7.0].define(version: 2026_11_16_144522) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -65,6 +65,21 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_11_134151) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "category"
+  end
+
+  create_table "charges", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "value_type", default: "rate", null: false
+    t.integer "global_property_id", null: false
+    t.boolean "applies_to_item", default: true, null: false
+    t.boolean "applies_to_supplier", default: false, null: false
+    t.boolean "voided", default: false, null: false
+    t.string "void_reason"
+    t.datetime "date_voided"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["global_property_id"], name: "index_charges_on_global_property_id"
+    t.index ["name"], name: "index_charges_on_name", unique: true
   end
 
   create_table "committee_meetings", primary_key: "committee_meeting_id", force: :cascade do |t|
@@ -350,7 +365,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_11_134151) do
     t.datetime "approved_on"
     t.decimal "unit_price", precision: 12, scale: 2
     t.boolean "attracts_levy"
-    t.boolean "attracts_mra"
+    t.boolean "attracts_vat"
     t.string "vendor_mobile_number"
     t.string "vendor_email"
     t.integer "lpo_prepared_by"
@@ -404,6 +419,17 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_11_134151) do
     t.index ["requisition_id"], name: "index_requisition_donors_on_requisition_id"
   end
 
+  create_table "requisition_item_charges", force: :cascade do |t|
+    t.integer "requisition_item_id", null: false
+    t.bigint "charge_id", null: false
+    t.decimal "charge_value", precision: 12, scale: 4, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["charge_id"], name: "index_requisition_item_charges_on_charge_id"
+    t.index ["requisition_item_id", "charge_id"], name: "idx_req_item_charges_on_item_and_charge", unique: true
+    t.index ["requisition_item_id"], name: "index_requisition_item_charges_on_requisition_item_id"
+  end
+
   create_table "requisition_items", primary_key: "requisition_item_id", force: :cascade do |t|
     t.integer "requisition_id", null: false
     t.decimal "quantity"
@@ -412,6 +438,9 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_11_134151) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "item_name"
+    t.decimal "quotation_unit_price", precision: 12, scale: 2
+    t.boolean "quotation_attracts_levy"
+    t.boolean "quotation_attracts_mra"
   end
 
   create_table "requisition_notes", force: :cascade do |t|
@@ -540,6 +569,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_11_134151) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "charges", "global_properties", primary_key: "property_id"
   add_foreign_key "committee_meetings", "committees", primary_key: "committee_id"
   add_foreign_key "committee_meetings", "employees", column: "scheduled_by", primary_key: "employee_id"
   add_foreign_key "committee_meetings", "requisitions", primary_key: "requisition_id"
@@ -556,4 +586,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_11_134151) do
   add_foreign_key "requisition_budget_lines", "requisitions", primary_key: "requisition_id"
   add_foreign_key "requisition_donors", "donors"
   add_foreign_key "requisition_donors", "requisitions", primary_key: "requisition_id"
+  add_foreign_key "requisition_item_charges", "charges"
+  add_foreign_key "requisition_item_charges", "requisition_items", primary_key: "requisition_item_id"
 end

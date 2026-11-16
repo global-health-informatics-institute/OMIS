@@ -30,14 +30,14 @@ class PurchaseRequestDetail < ApplicationRecord
     quotation_subtotal * GlobalProperty.levy_rate
   end
 
-  def quotation_mra
-    return 0.to_d unless attracts_mra?
+  def quotation_vat
+    return 0.to_d unless attracts_vat?
 
-    quotation_subtotal * GlobalProperty.mra_rate
+    quotation_subtotal * GlobalProperty.vat_rate
   end
 
   def quotation_total
-    quotation_subtotal + quotation_levy + quotation_mra
+    quotation_subtotal + quotation_levy + quotation_vat
   end
 
   def unit_price=(value)

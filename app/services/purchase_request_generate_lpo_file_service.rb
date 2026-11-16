@@ -113,7 +113,7 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
           item[:description].to_s,
           _money(item[:unit_price]),
           item[:quantity].to_s,
-          _money(item[:mra_fee]),
+          _money(item[:vat_fee]),
           _money(item[:levy_fee]),
           _money(item[:total])
         ]
@@ -222,7 +222,7 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
                    'Informatics Institute (the buyer) for the provision of the services/items specified below:',
         validity_note: "<b>Note:</b> This LPO is valid for a period of #{validity_days} days after approval date " \
                        "and payment must be made within #{payment_period} days after the item has been delivered.",
-        item_headers: ['Item No', 'Description', 'Unit Price', 'Quantity', 'MRA Fee (MWK)', 'Levy Fee (MWK)',
+        item_headers: ['Item No', 'Description', 'Unit Price', 'Quantity', 'VAT Fee (MWK)', 'Levy Fee (MWK)',
                        'Total (MWK)'],
         amount_in_words_label: 'Amount in words',
         signature_label: 'Signature',
@@ -254,7 +254,7 @@ class PurchaseRequestGenerateLpoFileService # rubocop:disable Metrics/ClassLengt
           description: item.item_description,
           unit_price: detail.unit_price,
           quantity: item.quantity,
-          mra_fee: detail.quotation_mra,
+          vat_fee: detail.quotation_vat,
           levy_fee: detail.quotation_levy,
           total: detail.quotation_total
         },

@@ -108,13 +108,13 @@ class PurchaseRequestGeneratePaymentVoucherFileService # rubocop:disable Metrics
 
     def _items_table_data(item) # rubocop:disable Metrics/MethodLength
       [
-        ['Item No', 'Description', 'Unit Price', 'Quantity', 'MRA Fee (MWK)', 'Levy Fee (MWK)', 'Total (MWK)'],
+        ['Item No', 'Description', 'Unit Price', 'Quantity', 'VAT Fee (MWK)', 'Levy Fee (MWK)', 'Total (MWK)'],
         [
           item[:number].to_s,
           item[:description].to_s,
           _money(item[:unit_price]),
           item[:quantity].to_s,
-          _money(item[:mra_fee]),
+          _money(item[:vat_fee]),
           _money(item[:levy_fee]),
           _money(item[:total])
         ]
@@ -231,7 +231,7 @@ class PurchaseRequestGeneratePaymentVoucherFileService # rubocop:disable Metrics
           description: item.item_description,
           unit_price: detail.unit_price,
           quantity: item.quantity,
-          mra_fee: detail.quotation_mra,
+          vat_fee: detail.quotation_vat,
           levy_fee: detail.quotation_levy,
           total: detail.quotation_total
         },

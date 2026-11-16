@@ -42,7 +42,7 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
     def validate_detail_pricing(detail, purchase_request)
       add_detail_error(detail, purchase_request, :unit_price, 'must be greater than 0') unless detail.unit_price&.positive?
       add_detail_error(detail, purchase_request, :attracts_levy, 'must be selected') if detail.attracts_levy.nil?
-      add_detail_error(detail, purchase_request, :attracts_mra, 'must be selected') if detail.attracts_mra.nil?
+      add_detail_error(detail, purchase_request, :attracts_vat, 'must be selected') if detail.attracts_vat.nil?
     end
 
     def add_detail_error(detail, purchase_request, attribute, message)

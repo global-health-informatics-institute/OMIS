@@ -1,10 +1,10 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["unitPrice", "levy", "mra", "lineTotal", "capMessage", "saveAction"]
+  static targets = ["unitPrice", "levy", "vat", "lineTotal", "capMessage", "saveAction"]
   static values = {
     levyRate: Number,
-    mraRate: Number,
+    vatRate: Number,
     quantity: Number,
     threshold: Number,
     capRule: String
@@ -52,9 +52,9 @@ sanitizeUnitPrice({ target }) {
 calculateTotal() {
   const unitPrice = Number(this.unitPriceTarget.value.replace(/,/g, "")) || 0
   const attractsLevy = this.levyTargets.find((input) => input.checked)?.value === "true"
-  const attractsMra = this.mraTargets.find((input) => input.checked)?.value === "true"
+  const attractsVat = this.vatTargets.find((input) => input.checked)?.value === "true"
   const subtotal = this.quantityValue * unitPrice
-  const total = subtotal + (attractsLevy ? subtotal * this.levyRateValue : 0) + (attractsMra ? subtotal * this.mraRateValue : 0)
+  const total = subtotal + (attractsLevy ? subtotal * this.levyRateValue : 0) + (attractsVat ? subtotal * this.vatRateValue : 0)
   return total
 }
 

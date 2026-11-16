@@ -450,7 +450,7 @@ GLOBAL_PROPERTIES = [
     property: 'vat.rate',
     property_value: '0.175',
     description: 'Current VAT rate for all purchases, expressed as a percentage. For example, a 17.5% VAT rate is represented as 0.175.' # rubocop:disable Layout/LineLength
-  }, # tax. TODO: refactor occurence for mra to vat
+  },
   {
     property: 'service.withholding.tax.rate',
     property_value: '0.02',
@@ -488,6 +488,10 @@ GLOBAL_PROPERTIES = [
     description: 'The address of the office where purchases are managed.'
   }
 ].freeze
+
+CHARGE = [
+  
+]
 
 def _get_workflow_process_id(workflow_process_name)
   WorkflowProcess.find_by(workflow: workflow_process_name)&.workflow_process_id
