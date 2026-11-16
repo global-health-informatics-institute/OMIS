@@ -438,9 +438,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_16_144522) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "item_name"
-    t.decimal "quotation_unit_price", precision: 12, scale: 2
-    t.boolean "quotation_attracts_levy"
-    t.boolean "quotation_attracts_mra"
   end
 
   create_table "requisition_notes", force: :cascade do |t|
