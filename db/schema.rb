@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_11_16_144522) do
+ActiveRecord::Schema[7.0].define(version: 2026_11_23_171500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -430,6 +430,17 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_16_144522) do
     t.index ["requisition_item_id"], name: "index_requisition_item_charges_on_requisition_item_id"
   end
 
+  create_table "requisition_item_quotations", force: :cascade do |t|
+    t.integer "requisition_item_id", null: false
+    t.bigint "supplier_id", null: false
+    t.decimal "unit_price", precision: 12, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["requisition_item_id", "supplier_id"], name: "idx_item_quotations_on_item_and_supplier", unique: true
+    t.index ["requisition_item_id"], name: "index_requisition_item_quotations_on_requisition_item_id"
+    t.index ["supplier_id"], name: "index_requisition_item_quotations_on_supplier_id"
+  end
+
   create_table "requisition_items", primary_key: "requisition_item_id", force: :cascade do |t|
     t.integer "requisition_id", null: false
     t.decimal "quantity"
@@ -471,6 +482,16 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_16_144522) do
     t.boolean "is_terminated", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "suppliers", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "mobile_number", null: false
+    t.string "email", null: false
+    t.boolean "voided", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_suppliers_on_email", unique: true
   end
 
   create_table "timesheet_tasks", force: :cascade do |t|
@@ -585,4 +606,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_16_144522) do
   add_foreign_key "requisition_donors", "requisitions", primary_key: "requisition_id"
   add_foreign_key "requisition_item_charges", "charges"
   add_foreign_key "requisition_item_charges", "requisition_items", primary_key: "requisition_item_id"
+  add_foreign_key "requisition_item_quotations", "requisition_items", primary_key: "requisition_item_id"
+  add_foreign_key "requisition_item_quotations", "suppliers"
 end

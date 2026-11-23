@@ -12,6 +12,10 @@ class RequisitionItem < ApplicationRecord
            foreign_key: :requisition_item_id,
            dependent: :delete_all
 
+  has_many :requisition_item_quotations,
+           foreign_key: :requisition_item_id,
+           dependent: :delete_all
+
   accepts_nested_attributes_for :requisition_budget_line
 
   validates :quantity, numericality: { greater_than: 0 }
