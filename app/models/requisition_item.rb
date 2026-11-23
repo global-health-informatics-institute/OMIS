@@ -3,9 +3,15 @@
 # Model representing a single item for a requisition
 class RequisitionItem < ApplicationRecord
   belongs_to :requisition, foreign_key: :requisition_id
+
   has_one :requisition_budget_line,
           foreign_key: :requisition_item_id,
           dependent: :delete
+
+  has_many :requisition_item_charges,
+           foreign_key: :requisition_item_id,
+           dependent: :delete_all
+
   accepts_nested_attributes_for :requisition_budget_line
 
   validates :quantity, numericality: { greater_than: 0 }
