@@ -236,11 +236,13 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <% item_number = 0 %>
                         <%= form.fields_for :requisition_items do |item_form| %>
                             <% item = item_form.object %>
+                            <% item_number += 1 %>
                             <tr data-quotation-pricing-target="item"
                                 data-quotation-pricing-quantity-value="<%= item.quantity %>">
-                                <th scope="row" class="border-2"><%= item_form.index.to_i + 1 %></th>
+                                <th scope="row" class="border-2"><%= item_number %></th>
                                 <td class="border-2"><%= item.item_name %></td>
                                 <td class="text-end border-2"><%= number_with_precision(item.quantity, precision: 2, strip_insignificant_zeros: true) %></td>
                                 <% vendor_analysis_charges.each do |charge| %>
