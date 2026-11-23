@@ -59,6 +59,13 @@ module Requisitions
       'Purchase Request Complete'
     ].freeze
 
+    VENDOR_ANALYSIS_CHARGE_NAMES = %w[
+      levy.rate
+      vat.rate
+      dmvic.fee
+      stamp.duty.fee
+    ].freeze
+
     def purchase_request_state_badge_class(state) # rubocop:disable Metrics/MethodLength
       case state.to_s.downcase
       when 'requested', 'pending approval', 'pending supervisor approval'
@@ -212,6 +219,33 @@ module Requisitions
         'at_least'
       when 'pending vendor analysis'
         'less_than'
+      end
+    end
+
+    def vendor_analysis_charges
+      charges_by_name = Charge.where(name: VENDOR_ANALYSIS_CHARGE_NAMES)
+                             .includes(:global_property)
+                             .index_by(&:name)
+
+      VENDOR_ANALYSIS_CHARGE_NAMES.filter_map { |name| charges_by_name[name] }
+    end
+
+    def vendor_analysis_charge_label(charge)
+      label = {
+        'levy.rate' => 'Attracts Levy?',
+        'vat.rate' => 'Attracts VAT?',
+        'dmvic.fee' => 'Requires DMVIC Fee?',
+        'stamp.duty.fee' => 'Requires Stamp Duty Fee?'
+      }.fetch(charge.name, charge.name.humanize)
+
+      "#{label} (#{vendor_analysis_charge_value(charge)})"
+    end
+
+    def vendor_analysis_charge_value(charge)
+      if charge.rate?
+        number_to_percentage(charge.value * 100, precision: 2, strip_insignificant_zeros: true)
+      else
+        number_with_delimiter(charge.value)
       end
     end
 

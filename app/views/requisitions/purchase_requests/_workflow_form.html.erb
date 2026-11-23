@@ -8,9 +8,6 @@
 <%= form_with model: [:requisitions, @purchase_request] do |form| %>
 <div class="p-3"
      data-controller="quotation-pricing"
-     data-quotation-pricing-levy-rate-value="<%= GlobalProperty.levy_rate %>"
-     data-quotation-pricing-vat-rate-value="<%= GlobalProperty.vat_rate %>"
-     data-quotation-pricing-quantity-value="<%= @purchase_request.purchase_request_detail.quotation_quantity %>"
      data-quotation-pricing-threshold-value="<%= PurchaseRequest.ipc_threshold %>"
      data-quotation-pricing-cap-rule-value="<%= quotation_cap_rule(@purchase_request) %>">
     <%= render_section_if @purchase_request, :request_details do %>
@@ -217,67 +214,85 @@
                                                     **sourcing_qoutations_opts %>
                     </div>
                 </div>
-
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label fw-normal">Unit Price (MWK)</label>
-                        <%= detail_form.text_field :unit_price,
-                                                    value: detail_form.object.unit_price.present? ? number_with_precision(detail_form.object.unit_price, precision: 2, delimiter: ',') : nil,
-                                                    inputmode: 'decimal',
-                                                    autocomplete: 'off',
-                                                    # pattern: '^(?!0+(\.0+)?$)\d+(\.\d{1,2})?$',
-                                                    title: 'Enter a valid amount greater than 0, e.g. 1500 or 1500.50',
-                                                    class: 'form-control',
-                                                    required: true,
-                                                    data: { quotation_pricing_target: 'unitPrice', action: 'input->quotation-pricing#sanitizeUnitPrice input->quotation-pricing#refresh' },
-                                                    **sourcing_qoutations_opts %>
-                    </div>
-                </div>
             </div>
         <% end %>
-    <% end %>
 
-    <%# Tax rate section: change TAX_RATE_STATES to control where this appears. %>
-    <%= render_section_if @purchase_request, :tax_rates do %>
-        <hr>
-        <h6 class="mb-3">Tax Rates</h6>
-        <%= form.fields_for :purchase_request_detail do |detail_form| %>
-            <div class="row mt-3">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label fw-normal d-block">Attracts Levy? (<%= number_to_percentage(GlobalProperty.levy_rate * 100, precision: 2, strip_insignificant_zeros: true) %>)</label>
-                        <div class="btn-group" role="group" aria-label="Attracts levy">
-                            <%= detail_form.radio_button :attracts_levy, true, required: true, class: 'btn-check', data: { quotation_pricing_target: 'levy', action: 'change->quotation-pricing#refresh' }, disabled: sourcing_qoutations_opts[:disabled] %>
-                            <%= detail_form.label :attracts_levy_true, 'Yes', class: 'btn btn-outline-primary px-4' %>
-                            <%= detail_form.radio_button :attracts_levy, false, class: 'btn-check', data: { quotation_pricing_target: 'levy', action: 'change->quotation-pricing#refresh' }, disabled: sourcing_qoutations_opts[:disabled] %>
-                            <%= detail_form.label :attracts_levy_false, 'No', class: 'btn btn-outline-danger px-4' %>
-                        </div>
-                    </div>
-                </div>
+        <section class="mt-4">
+            <h6 class="mb-1">Vendor Analysis</h6>
+            <p class="text-muted small mb-3">Enter a unit cost and select the charges that apply to each item.</p>
 
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label fw-normal d-block">Attracts VAT? (<%= number_to_percentage(GlobalProperty.vat_rate * 100, precision: 2, strip_insignificant_zeros: true) %>)</label>
-                        <div class="btn-group" role="group" aria-label="Attracts VAT">
-                            <%= detail_form.radio_button :attracts_vat, true, required: true, class: 'btn-check', data: { quotation_pricing_target: 'vat', action: 'change->quotation-pricing#refresh' }, disabled: sourcing_qoutations_opts[:disabled] %>
-                            <%= detail_form.label :attracts_vat_true, 'Yes', class: 'btn btn-outline-primary px-4' %>
-                            <%= detail_form.radio_button :attracts_vat, false, class: 'btn-check', data: { quotation_pricing_target: 'vat', action: 'change->quotation-pricing#refresh' }, disabled: sourcing_qoutations_opts[:disabled] %>
-                            <%= detail_form.label :attracts_vat_false, 'No', class: 'btn btn-outline-danger px-4' %>
-                        </div>
-                    </div>
-                </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="border-2">#</th>
+                            <th scope="col" class="border-2">Item Name</th>
+                            <th scope="col" class="text-end border-2">Qty</th>
+                            <% vendor_analysis_charges.each do |charge| %>
+                                <th scope="col" class="text-center border-2"><%= vendor_analysis_charge_label(charge) %></th>
+                            <% end %>
+                            <th scope="col" class="text-end border-2">Unit Cost (MWK)</th>
+                            <th scope="col" class="text-end border-2">Total Cost (MWK)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <%= form.fields_for :requisition_items do |item_form| %>
+                            <% item = item_form.object %>
+                            <tr data-quotation-pricing-target="item"
+                                data-quotation-pricing-quantity-value="<%= item.quantity %>">
+                                <th scope="row" class="border-2"><%= item_form.index.to_i + 1 %></th>
+                                <td class="border-2"><%= item.item_name %></td>
+                                <td class="text-end border-2"><%= number_with_precision(item.quantity, precision: 2, strip_insignificant_zeros: true) %></td>
+                                <% vendor_analysis_charges.each do |charge| %>
+                                    <% input_id = "quotation_item_#{item.requisition_item_id || item_form.index}_charge_#{charge.id}" %>
+                                    <td class="px-3 border-2">
+                                        <div class="form-check d-flex align-items-center gap-2 mb-0 ps-0">
+                                            <%= check_box_tag "quotation_item_charges[#{item.requisition_item_id || item_form.index}][]",
+                                                              charge.id,
+                                                              false,
+                                                              id: input_id,
+                                                              class: 'form-check-input mt-0 ms-0 fs-4 border border-2 border-dark',
+                                                              disabled: sourcing_qoutations_opts[:disabled],
+                                                              data: {
+                                                                quotation_pricing_target: 'charge',
+                                                                charge_type: charge.value_type,
+                                                                charge_value: charge.value,
+                                                                action: 'change->quotation-pricing#refresh'
+                                                              } %>
+                                            <label class="form-check-label small" for="<%= input_id %>">Yes</label>
+                                        </div>
+                                    </td>
+                                <% end %>
+                                <td class="border-2">
+                                    <%= text_field_tag "quotation_item_unit_prices[#{item.requisition_item_id || item_form.index}]",
+                                                       nil,
+                                                       inputmode: 'decimal',
+                                                       autocomplete: 'off',
+                                                       class: 'form-control form-control-sm text-end border-2 border-dark',
+                                                       required: true,
+                                                       disabled: sourcing_qoutations_opts[:disabled],
+                                                       title: 'Enter a valid amount greater than 0, e.g. 1500 or 1500.50',
+                                                       data: {
+                                                         quotation_pricing_target: 'unitPrice',
+                                                         action: 'input->quotation-pricing#sanitizeUnitPrice input->quotation-pricing#refresh'
+                                                       } %>
+                                </td>
+                                <td class="text-end fw-semibold border-2">
+                                    <output aria-live="polite" data-quotation-pricing-target="itemTotal">0.00</output>
+                                </td>
+                            </tr>
+                        <% end %>
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <th colspan="<%= vendor_analysis_charges.size + 4 %>" class="text-end border-2">Calculated Total Cost (MWK)</th>
+                            <td class="text-end fw-bold border-2"><output aria-live="polite" data-quotation-pricing-target="lineTotal">0.00</output></td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
-
-            <div class="row mt-3">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label fw-normal">Calculated Total Cost (MWK)</label>
-                        <output class="form-control bg-light" aria-live="polite" data-quotation-pricing-target="lineTotal">0.00</output>
-                        <div class="small mt-1" aria-live="polite" data-quotation-pricing-target="capMessage"></div>
-                    </div>
-                </div>
-            </div>
-        <% end %>
+            <div class="small mt-1" aria-live="polite" data-quotation-pricing-target="capMessage"></div>
+        </section>
     <% end %>
 
     <%# lpo check %>

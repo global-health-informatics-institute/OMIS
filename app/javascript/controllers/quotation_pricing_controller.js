@@ -1,11 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["unitPrice", "levy", "vat", "lineTotal", "capMessage", "saveAction"]
+  static targets = ["item", "unitPrice", "itemTotal", "lineTotal", "capMessage", "saveAction"]
   static values = {
-    levyRate: Number,
-    vatRate: Number,
-    quantity: Number,
     threshold: Number,
     capRule: String
   }
@@ -44,19 +41,28 @@ sanitizeUnitPrice({ target }) {
   refresh() {
     if (!this.hasUnitPriceTarget) return
 
-    const total = this.calculateTotal()
+    const total = this.itemTargets.reduce((sum, item) => {
+      const itemTotal = this.calculateItemTotal(item)
+      item.querySelector('[data-quotation-pricing-target="itemTotal"]').textContent = this.formatMoney(itemTotal)
+      return sum + itemTotal
+    }, 0)
+
     this.lineTotalTargets.forEach((target) => { target.textContent = this.formatMoney(total) })
     this.validateCap(total)
   }
 
-calculateTotal() {
-  const unitPrice = Number(this.unitPriceTarget.value.replace(/,/g, "")) || 0
-  const attractsLevy = this.levyTargets.find((input) => input.checked)?.value === "true"
-  const attractsVat = this.vatTargets.find((input) => input.checked)?.value === "true"
-  const subtotal = this.quantityValue * unitPrice
-  const total = subtotal + (attractsLevy ? subtotal * this.levyRateValue : 0) + (attractsVat ? subtotal * this.vatRateValue : 0)
-  return total
-}
+  calculateItemTotal(item) {
+    const quantity = Number(item.dataset.quotationPricingQuantityValue) || 0
+    const unitPriceInput = item.querySelector('[data-quotation-pricing-target="unitPrice"]')
+    const unitPrice = Number(unitPriceInput.value.replace(/,/g, "")) || 0
+    const subtotal = quantity * unitPrice
+
+    return Array.from(item.querySelectorAll('[data-quotation-pricing-target="charge"]:checked'))
+      .reduce((total, charge) => {
+        const value = Number(charge.dataset.chargeValue) || 0
+        return charge.dataset.chargeType === "rate" ? total + (subtotal * value) : total + value
+      }, subtotal)
+  }
 
   validateCap(total) {
     let message = ""
