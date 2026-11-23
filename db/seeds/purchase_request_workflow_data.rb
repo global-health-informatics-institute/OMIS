@@ -449,29 +449,28 @@ GLOBAL_PROPERTIES = [
   {
     property: 'vat.rate',
     property_value: '0.175',
-    description: 'Current VAT rate for all purchases, expressed as a percentage. For example, a 17.5% VAT rate is represented as 0.175.' # rubocop:disable Layout/LineLength
+    description: 'Current VAT rate for all purchases, expressed as a decimal. For example, a 17.5% VAT rate is represented as 0.175.' # rubocop:disable Layout/LineLength
   },
   {
     property: 'service.withholding.tax.rate',
     property_value: '0.02',
-    description: 'Current service withholding tax rate for applied to a supplier not the separate items. For example, a 20% service withholding tax rate is represented as 0.2.' # rubocop:disable Layout/LineLength
+    description: 'Current service withholding tax rate applied to a supplier not the separate items. For example, a 2% service withholding tax rate is represented as 0.02.' # rubocop:disable Layout/LineLength
   }, # tax
   {
     property: 'supplies.withholding.tax.rate',
     property_value: '0.03',
-    description: 'Current supplies withholding tax rate for applied to the supplier, expressed as a decimal. For example, a 3% supplies withholding tax rate is represented as 0.03.' # rubocop:disable Layout/LineLength
+    description: 'Current supplies withholding tax rate applied to the supplier, expressed as a decimal. For example, a 3% supplies withholding tax rate is represented as 0.03.' # rubocop:disable Layout/LineLength
   }, # tax
   {
     property: 'dmvic.fee',
     property_value: '50000',
-    description: 'The fee for Digital Motor Vehicle Insurance Certificates. applies as a flat fee to a specific item'
+    description: 'The fee for Digital Motor Vehicle Insurance Certificates. Applies as a flat fee to a specific item'
   }, # fee
   {
     property: 'stamp.duty.fee',
     property_value: '5000',
-    description: 'The fee for stamp duty on certain transactions. applies as a flat fee to a specific item'
+    description: 'The fee for stamp duty on certain transactions. Applies as a flat fee to a specific item'
   }, # fee
-  # TODO: use comments fee, tax to populate Charge data
   {
     property: 'lpo.validity.period.in.days',
     property_value: '7',
@@ -489,9 +488,63 @@ GLOBAL_PROPERTIES = [
   }
 ].freeze
 
+# each charge reads its rate or fee from the global property with the same name
 CHARGE = [
-  
-]
+  {
+    name: 'levy.rate',
+    value_type: 'rate',
+    applies_to_item: true,
+    applies_to_supplier: false
+  },
+  {
+    name: 'vat.rate',
+    value_type: 'rate',
+    applies_to_item: true,
+    applies_to_supplier: false
+  },
+  {
+    name: 'service.withholding.tax.rate',
+    value_type: 'rate',
+    applies_to_item: false,
+    applies_to_supplier: true
+  },
+  {
+    name: 'supplies.withholding.tax.rate',
+    value_type: 'rate',
+    applies_to_item: false,
+    applies_to_supplier: true
+  },
+  {
+    name: 'dmvic.fee',
+    value_type: 'fee',
+    applies_to_item: true,
+    applies_to_supplier: false
+  },
+  {
+    name: 'stamp.duty.fee',
+    value_type: 'fee',
+    applies_to_item: true,
+    applies_to_supplier: false
+  }
+].freeze
+
+# every charge needs a global property of the same name, must be a rate or a fee,
+# and a rate is a decimal (17.5% is 0.175, not 17.5)
+global_property_values = GLOBAL_PROPERTIES.to_h { |gp| [gp[:property], gp[:property_value]] }
+
+charges_without_property = CHARGE.map { |c| c[:name] } - global_property_values.keys
+unless charges_without_property.empty?
+  raise "Charge without a global property of the same name: #{charges_without_property.join(', ')}"
+end
+
+invalid_value_types = CHARGE.map { |c| c[:value_type] }.uniq - Charge::VALUE_TYPES
+unless invalid_value_types.empty?
+  raise "Charge value_type must be #{Charge::VALUE_TYPES.join(' or ')}, got: #{invalid_value_types.join(', ')}"
+end
+
+rates_over_one = CHARGE.select { |c| c[:value_type] == 'rate' && BigDecimal(global_property_values[c[:name]]) > 1 }
+                       .map { |c| c[:name] }
+raise "A rate must be a decimal like 0.175 for 17.5%, check: #{rates_over_one.join(', ')}" unless rates_over_one.empty?
 
 def _get_workflow_process_id(workflow_process_name)
   WorkflowProcess.find_by(workflow: workflow_process_name)&.workflow_process_id
@@ -512,6 +565,12 @@ def _get_designation_role_id(designated_role)
   )&.designation_id
 end
 
+def _get_global_property_id(property_name)
+  GlobalProperty.find_by(
+    property: property_name
+  )&.property_id
+end
+
 # DRY_RUN=1 runs everything inside the transaction, prints the counts, then rolls back
 dry_run = ENV['DRY_RUN'] == '1'
 
@@ -523,6 +582,7 @@ stats = {
   committees: { created: 0, updated: 0 },
   committee_memberships: { created: 0, updated: 0 },
   global_properties: { created: 0, updated: 0 },
+  charges: { created: 0, updated: 0 },
   stale: {}
 }
 touched = { states: [], transitions: [] }
@@ -605,9 +665,10 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
   end
 
   # 5. Upsert Global Properties
+  # matched on the property name, so a changed value or description updates the row instead of adding a second one
   GLOBAL_PROPERTIES.each do |global_property|
     gp = GlobalProperty.find_or_initialize_by(
-      global_property
+      property: global_property[:property]
     )
 
     stats[:global_properties][gp.new_record? ? :created : :updated] += 1
@@ -616,7 +677,26 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
     )
   end
 
-  # 6. Upsert committees and their members
+  # 6. Upsert Charges (each one points at the global property that holds its rate or fee)
+  CHARGE.each do |charge_data|
+    global_property_id = _get_global_property_id(charge_data[:name])
+    raise "Global property not found for charge: #{charge_data[:name]}" unless global_property_id
+
+    charge = Charge.find_or_initialize_by(global_property_id:)
+    stats[:charges][charge.new_record? ? :created : :updated] += 1
+
+    # a charge never switches between a rate and a fee, so value_type is only set when it is created
+    if charge.new_record?
+      charge.value_type = charge_data[:value_type]
+    elsif charge.value_type != charge_data[:value_type]
+      warn "Charge '#{charge_data[:name]}' is a #{charge.value_type} in the database, " \
+           "the seed says #{charge_data[:value_type]}; value_type is not changed"
+    end
+
+    charge.update!(charge_data.slice(:name, :applies_to_item, :applies_to_supplier))
+  end
+
+  # 7. Upsert committees and their members
   COMMITTEES.each do |committee_data|
     committee = Committee.find_or_initialize_by(short_name: committee_data[:short_name])
     stats[:committees][committee.new_record? ? :created : :updated] += 1
@@ -624,8 +704,13 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
 
     committee_data[:memberships].each do |membership_data|
       employee_id = membership_data[:employee_id]
-      raise "Committee member employee not found: #{employee_id}" unless Employee.exists?(employee_id: employee_id)
-
+      unless Employee.exists?(employee_id: employee_id)
+        warn "Committee member employee not found (skipped): #{employee_id}"
+        stats[:committee_memberships][:skipped] ||= 0
+        stats[:committee_memberships][:skipped] += 1
+        next
+      end
+      
       membership = CommitteeMembership.find_or_initialize_by(
         committee_id: committee.committee_id,
         employee_id: employee_id,
@@ -637,12 +722,12 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
     end
   end
 
-  # 7. Upsert Initial State
+  # 8. Upsert Initial State
   first_state_id = _get_workflow_state_id(process_id, WORKFLOW_STATE.first[:state])
   initial_state = InitialState.find_or_initialize_by(workflow_process_id: process_id)
   initial_state.update!(workflow_state_id: first_state_id)
 
-  # 8. Find rows from earlier runs that are no longer in this seed (reported, never deleted)
+  # 9. Find rows from earlier runs that are no longer in this seed (reported, never deleted)
   state_names = WorkflowState.where(workflow_process_id: process_id).pluck(:workflow_state_id, :state).to_h
   stats[:stale][:states] = state_names.reject { |id, _| touched[:states].include?(id) }.values
   stats[:stale][:transitions] =
@@ -667,6 +752,7 @@ puts "  Actors:            #{format_counts.call(stats[:actors])}, #{stats[:actor
 puts "  Committees:        #{format_counts.call(stats[:committees])}"
 puts "  Committee members: #{format_counts.call(stats[:committee_memberships])}"
 puts "  Global properties: #{format_counts.call(stats[:global_properties])}"
+puts "  Charges:           #{format_counts.call(stats[:charges])}"
 
 unless stats[:stale][:states].empty? && stats[:stale][:transitions].empty?
   puts '  Left over from earlier runs (not in this seed, not deleted):'
