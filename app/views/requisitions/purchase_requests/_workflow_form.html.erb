@@ -43,56 +43,6 @@
         </div>
     <% end %>
 
-    <%= render_section_if @purchase_request, :item_details do %>
-        <div class="request-items-list mt-3">
-            <%= form.fields_for :requisition_items do |item_form| %>
-                <section class="card  border-2 border-dark shadow-sm mb-3 purchase-request-item">
-                    <div class="card-header bg-light border-2 border-dark">
-                        <h6 class="mb-0">Item <%= item_form.index.to_i + 1 %></h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="mb-3">
-                                    <%= item_form.label :item_name, 'Item Name', class: 'form-label fw-normal' %>
-                                    <%= item_form.text_field :item_name, class: 'form-control border-2 border-secondary', required: true, **core_opts %>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <%= item_form.label :quantity, 'Quantity', class: 'form-label fw-normal' %>
-                                    <%= item_form.number_field :quantity,
-                                                               min: 1,
-                                                               step: 1,
-                                                               class: 'form-control border-2 border-secondary',
-                                                               required: true,
-                                                               **core_opts %>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <%= item_form.label :item_description, 'Description', class: 'form-label fw-normal' %>
-                            <%= item_form.text_area :item_description,
-                                                    class: 'form-control border-2 border-secondary',
-                                                    rows: 2,
-                                                    required: true,
-                                                    **core_opts %>
-                        </div>
-
-                        <div class="row">
-                            <%= item_form.fields_for :requisition_budget_line do |budget_line_form| %>
-                                <%= render 'requisitions/purchase_requests/budget_line_field',
-                                           rbl_form: budget_line_form,
-                                           core_opts: core_opts %>
-                            <% end %>
-                        </div>
-                    </div>
-                </section>
-            <% end %>
-        </div>
-    <% end %>
-
     <%= render_section_if @purchase_request, :request_details do %>
         <%# Row 4: Budget Line and Donor %>
         <div class="row mt-3">
@@ -142,6 +92,75 @@
                 <% end %>
         </div>
     <% end %>
+
+    <%= render_section_if @purchase_request, :item_details do %>
+        <div class="request-items-list mt-3" data-controller="item-wizard">
+            <%= form.fields_for :requisition_items do |item_form| %>
+                <section class="card border-2 border-dark shadow-sm mb-3 purchase-request-item"
+                         data-item-wizard-target="item">
+                    <div class="card-header bg-light border-2 border-dark">
+                        <h6 class="mb-0">Item <%= item_form.index.to_i + 1 %> of <%= @purchase_request.requisition_items.size %></h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <%= item_form.label :item_name, 'Item Name', class: 'form-label fw-normal' %>
+                                    <%= item_form.text_field :item_name, class: 'form-control border-2 border-secondary', required: true, **core_opts %>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <%= item_form.label :quantity, 'Quantity', class: 'form-label fw-normal' %>
+                                    <%= item_form.number_field :quantity,
+                                                               min: 1,
+                                                               step: 1,
+                                                               class: 'form-control border-2 border-secondary',
+                                                               required: true,
+                                                               **core_opts %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <%= item_form.label :item_description, 'Description', class: 'form-label fw-normal' %>
+                            <%= item_form.text_area :item_description,
+                                                    class: 'form-control border-2 border-secondary',
+                                                    rows: 2,
+                                                    required: true,
+                                                    **core_opts %>
+                        </div>
+
+                        <div class="row">
+                            <%= item_form.fields_for :requisition_budget_line do |budget_line_form| %>
+                                <%= render 'requisitions/purchase_requests/budget_line_field',
+                                           rbl_form: budget_line_form,
+                                           core_opts: core_opts %>
+                            <% end %>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-secondary bg-opacity-50 border-top border-2 border-dark d-flex justify-content-end gap-2">
+                        <button type="button"
+                                class="btn btn-primary text-black"
+                                data-item-wizard-target="previous"
+                                data-action="item-wizard#previous">
+                            Previous
+                        </button>
+                        <button type="button"
+                                class="btn btn-primary text-black"
+                                data-item-wizard-target="next"
+                                data-action="item-wizard#next">
+                            Next
+                        </button>
+                    </div>
+                </section>
+            <% end %>
+        </div>
+    <% end %>
+
+    
+
+
 
     <%# Approval Section %>
     <%= render_section_if @purchase_request, :approval do %>
