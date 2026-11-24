@@ -1,8 +1,8 @@
 <% item_index = item_form.index %>
 <% item_name_id = "#{item_form.object_name.gsub(/[^a-zA-Z0-9_-]/, '_')}_item_name" %>
 
-<section class="card border-2 shadow-sm mb-3 purchase-request-item" data-request-items-target="row" data-index="<%= item_index %>">
-  <div class="card-header bg-secondary-subtle d-flex align-items-center justify-content-between">
+<section class="card border-2 border-dark shadow-sm mb-3 purchase-request-item" data-request-items-target="row" data-index="<%= item_index %>">
+  <div class="card-header bg-secondary-subtle border-bottom border-2 border-dark d-flex align-items-center justify-content-between">
     <h6 class="mb-0" data-request-items-target="heading">Item</h6>
     <button type="button"
             class="btn btn-sm btn-danger"
@@ -20,7 +20,7 @@
           <%= item_form.text_field :item_name,
                                    id: item_name_id,
                                    placeholder: 'Enter item name',
-                                   class: 'form-control',
+                                   class: 'form-control border-2 border-secondary',
                                    required: true %>
         </div>
       </div>
@@ -30,7 +30,7 @@
           <%= item_form.label :quantity, 'Quantity', class: 'form-label fw-normal' %>
           <%= item_form.number_field :quantity,
                                      value: item_form.object.quantity.presence || 1,
-                                     class: 'form-control',
+                                     class: 'form-control border-2 border-secondary',
                                      min: 1,
                                      step: 1,
                                      required: true %>
@@ -42,7 +42,7 @@
       <%= item_form.label :item_description, 'Description', class: 'form-label fw-normal' %>
       <%= item_form.text_area :item_description,
                               placeholder: 'Enter description',
-                              class: 'form-control',
+                              class: 'form-control border-2 border-secondary',
                               rows: 2,
                               required: true %>
     </div>

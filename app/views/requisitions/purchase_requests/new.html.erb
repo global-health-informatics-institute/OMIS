@@ -1,6 +1,6 @@
 <%= form_with model: [:requisitions, @purchase_request], url: requisitions_purchase_requests_path, method: :post do |form| %>
-  <div class="card border-0 shadow-sm mb-4">
-    <div class="card-header card-header-dark mb-2 bg-secondary-subtle">
+  <div class="card border-2 border-dark shadow-sm mb-4">
+    <div class="card-header card-header-dark mb-2 bg-secondary-subtle border-bottom border-2 border-dark">
       <h5 class="mb-0">Purchase Request</h5>
     </div>
     <div class="card-body">
@@ -10,14 +10,14 @@
         <div class="col-md-6">
           <div class="mb-3">
             <label class="form-label fw-normal">Initiated By</label>
-            <%= form.text_field :initiated_by, value: current_user.full_name, class: 'form-control', required: true, readonly: true %>
+            <%= form.text_field :initiated_by, value: current_user.full_name, class: 'form-control border-2 border-secondary', required: true, readonly: true %>
           </div>
         </div>
 
         <div class="col-md-6">
           <div class="mb-3">
             <label class="form-label fw-normal">Date</label>
-            <%= form.date_field :initiated_on, value: Date.today, class: 'form-control', required: true, readonly: true %>
+            <%= form.date_field :initiated_on, value: Date.today, class: 'form-control border-2 border-secondary', required: true, readonly: true %>
           </div>
         </div>
       </div>
@@ -26,7 +26,7 @@
         <div class="col-md-6">
           <div class="mb-3">
             <label class="form-label fw-normal">Project</label>
-            <%= form.select :project_id, requisition_projects, { include_blank: 'Select Project' }, { class: 'form-control form-select', required: true } %>
+            <%= form.select :project_id, requisition_projects, { include_blank: 'Select Project' }, { class: 'form-control form-select border-2 border-secondary', required: true } %>
           </div>
         </div>
 
@@ -34,7 +34,7 @@
           <div class="col-md-6">
             <div class="mb-3">
               <label class="form-label fw-normal">Department</label>
-              <%= detail_form.select :department_id, purchase_request_departments, { include_blank: 'Select Department' }, { class: 'form-control form-select', required: true } %>
+              <%= detail_form.select :department_id, purchase_request_departments, { include_blank: 'Select Department' }, { class: 'form-control form-select border-2 border-secondary', required: true } %>
             </div>
           </div>
         <% end %>
@@ -45,7 +45,7 @@
           <div class="col-md-6">
             <div class="mb-3">
               <label class="form-label fw-normal">Donor</label>
-              <%= donor_form.select :donor_id, donors, { include_blank: 'Select Donor' }, { class: 'form-control form-select', required: true } %>
+              <%= donor_form.select :donor_id, donors, { include_blank: 'Select Donor' }, { class: 'form-control form-select border-2 border-secondary', required: true } %>
             </div>
           </div>
         <% end %>
@@ -54,7 +54,7 @@
           <div class="mb-3">
             <%= form.label :purpose, 'Request Purpose', class: 'form-label fw-normal' %>
             <%= form.text_field :purpose,
-                                class: 'form-control',
+                                class: 'form-control border-2 border-secondary',
                                 placeholder: 'Mention the overall purpose of this requisition',
                                 required: true %>
           </div>

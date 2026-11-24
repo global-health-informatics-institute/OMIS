@@ -1,14 +1,14 @@
 <table class="table table-bordered table-striped align-middle mb-0">
-    <thead class="table-light">
+    <thead class="table-secondary">
         <tr>
-            <th scope="col" class="border-2">#</th>
-            <th scope="col" class="border-2">Item Name</th>
-            <th scope="col" class="text-end border-2">Qty</th>
+            <th scope="col" class="border-2 border-dark">#</th>
+            <th scope="col" class="border-2 border-dark">Item Name</th>
+            <th scope="col" class="text-end border-2 border-dark">Qty</th>
             <% vendor_analysis_charges.each do |charge| %>
-                <th scope="col" class="text-center border-2"><%= vendor_analysis_charge_label(charge) %></th>
+                <th scope="col" class="text-center border-2 border-dark"><%= vendor_analysis_charge_label(charge) %></th>
             <% end %>
-            <th scope="col" class="text-end border-2">Unit Cost (MWK)</th>
-            <th scope="col" class="text-end border-2">Total Cost (MWK)</th>
+            <th scope="col" class="text-end border-2 border-dark">Unit Cost (MWK)</th>
+            <th scope="col" class="text-end border-2 border-dark">Total Cost (MWK)</th>
         </tr>
     </thead>
     <tbody>
@@ -28,7 +28,7 @@
                                                 charge.id,
                                                 item.requisition_item_charges.any? { |item_charge| item_charge.charge_id == charge.id },
                                                 id: input_id,
-                                                class: 'form-check-input mt-0 ms-0 fs-4 border border-2 border-dark',
+                                                class: 'form-check-input mt-0 ms-0 fs-4 border border-2 border-secondary',
                                                 disabled: sourcing_qoutations_opts[:disabled],
                                                 data: {
                                                 quotation_pricing_target: 'charge',
@@ -45,7 +45,7 @@
                                         item_quotation&.unit_price.present? ? number_with_precision(item_quotation.unit_price, precision: 2, delimiter: ',') : nil,
                                         inputmode: 'decimal',
                                         autocomplete: 'off',
-                                        class: 'form-control form-control-sm text-end border-2 border-dark',
+                                        class: 'form-control form-control-sm text-end border-2 border-secondary',
                                         required: true,
                                         disabled: sourcing_qoutations_opts[:disabled],
                                         title: 'Enter a valid amount greater than 0, e.g. 1500 or 1500.50',
@@ -60,7 +60,7 @@
             </tr>
         <% end %>
     </tbody>
-    <tfoot class="table-light">
+    <tfoot class="table-secondary">
         <tr>
             <th colspan="<%= vendor_analysis_charges.size + 4 %>" class="text-end border-2">Calculated Total Cost (MWK)</th>
             <td class="text-end fw-bold border-2"><output aria-live="polite" data-quotation-pricing-target="lineTotal">0.00</output></td>

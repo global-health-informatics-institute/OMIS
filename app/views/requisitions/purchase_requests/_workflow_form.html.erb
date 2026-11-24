@@ -20,7 +20,7 @@
                         <label class="form-label fw-normal">Initiated By</label>
                         <%= form.text_field :initiated_by,
                                             value: form.object.initiated_by_full_name,
-                                            class: 'form-control',
+                                            class: 'form-control border-2 border-secondary',
                                             required: true,
                                             readonly: true,
                                             disabled: true
@@ -33,7 +33,7 @@
                         <label class="form-label fw-normal">Date</label>
                         <%= form.date_field :initiated_on,
                                             value: form.object.initiated_on&.to_date,
-                                            class: 'form-control',
+                                            class: 'form-control border-2 border-secondary',
                                             required: true,
                                             readonly: true,
                                             disabled: true
@@ -46,8 +46,8 @@
     <%= render_section_if @purchase_request, :item_details do %>
         <div class="request-items-list mt-3">
             <%= form.fields_for :requisition_items do |item_form| %>
-                <section class="card border-2 shadow-sm mb-3 purchase-request-item">
-                    <div class="card-header bg-light">
+                <section class="card  border-2 border-dark shadow-sm mb-3 purchase-request-item">
+                    <div class="card-header bg-light border-2 border-dark">
                         <h6 class="mb-0">Item <%= item_form.index.to_i + 1 %></h6>
                     </div>
                     <div class="card-body">
@@ -55,7 +55,7 @@
                             <div class="col-md-8">
                                 <div class="mb-3">
                                     <%= item_form.label :item_name, 'Item Name', class: 'form-label fw-normal' %>
-                                    <%= item_form.text_field :item_name, class: 'form-control', required: true, **core_opts %>
+                                    <%= item_form.text_field :item_name, class: 'form-control border-2 border-secondary', required: true, **core_opts %>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -64,7 +64,7 @@
                                     <%= item_form.number_field :quantity,
                                                                min: 1,
                                                                step: 1,
-                                                               class: 'form-control',
+                                                               class: 'form-control border-2 border-secondary',
                                                                required: true,
                                                                **core_opts %>
                                 </div>
@@ -74,7 +74,7 @@
                         <div class="mb-3">
                             <%= item_form.label :item_description, 'Description', class: 'form-label fw-normal' %>
                             <%= item_form.text_area :item_description,
-                                                    class: 'form-control',
+                                                    class: 'form-control border-2 border-secondary',
                                                     rows: 2,
                                                     required: true,
                                                     **core_opts %>
@@ -103,7 +103,7 @@
                         <label class="form-label fw-normal">Donor</label>
                         <%= donor_form.select(:donor_id, donors,
                                             { include_blank: 'Select Donor' },
-                                            { class: 'form-control form-select', required: true, **core_opts }) %>
+                                            { class: 'form-control form-select border-2 border-secondary', required: true, **core_opts }) %>
                     </div>
                 </div>
             <% end %>
@@ -112,7 +112,7 @@
                 <div class="mb-3">
                     <label class="form-label fw-normal">Requisition Purpose</label>
                     <%= form.text_field :purpose,
-                                        class: 'form-control',
+                                        class: 'form-control border-2 border-secondary',
                                         required: true,
                                         **core_opts %>
                 </div>
@@ -126,7 +126,7 @@
                         <label class="form-label fw-normal">Project</label>
                         <%= form.select(:project_id, requisition_projects, 
                                         { include_blank: 'Select Project' }, 
-                                        { class: 'form-control form-select', required: true, **core_opts }) %>
+                                        { class: 'form-control form-select border-2 border-secondary', required: true, **core_opts }) %>
                     </div>
                 </div>
 
@@ -136,7 +136,7 @@
                             <label class="form-label fw-normal">Department</label>
                             <%= detail_form.select(:department_id, purchase_request_departments,
                                                    { include_blank: 'Select Department' },
-                                                   { class: 'form-control form-select', required: true, **core_opts }) %>
+                                                   { class: 'form-control form-select border-2 border-secondary', required: true, **core_opts }) %>
                         </div>
                     </div>
                 <% end %>
@@ -152,7 +152,7 @@
                     <label class="form-label fw-normal">Approved By</label>
                     <%= form.text_field :approved_by, 
                                         value: form.object.approved_by_full_name, 
-                                        class: 'form-control', 
+                                        class: 'form-control border-2 border-secondary', 
                                         required: true, 
                                         **core_opts %>
                 </div>
@@ -162,7 +162,7 @@
                     <label class="form-label fw-normal">Approved on</label>
                     <%= form.text_field :approved_on, 
                                         value: form.object.approved_on&.to_date&.strftime('%d-%b-%Y'), 
-                                        class: 'form-control', 
+                                        class: 'form-control border-2 border-secondary', 
                                         required: true, 
                                         **core_opts %>
                 </div>
@@ -179,7 +179,7 @@
                     <div class="mb-3">
                         <label class="form-label fw-normal">Name of Supplier</label>
                         <%= form.text_field :vendor_name,
-                                            class: 'form-control',
+                                            class: 'form-control border-2 border-secondary',
                                             required: true,
                                             **sourcing_qoutations_opts %>
                     </div>
@@ -190,7 +190,7 @@
                         <label class="form-label fw-normal">Supplier Phone Number</label>
                         <%= detail_form.telephone_field :vendor_mobile_number,
                                                         maxlength: 10,
-                                                        class: 'form-control',
+                                                        class: 'form-control border-2 border-secondary',
                                                         autocomplete: 'tel',
                                                         inputmode: 'tel',
                                                         pattern: '^[0-9]{7,10}$',
@@ -208,7 +208,7 @@
                     <div class="mb-3">
                         <label class="form-label fw-normal">Supplier Email</label>
                         <%= detail_form.email_field :vendor_email,
-                                                    class: 'form-control',
+                                                    class: 'form-control border-2 border-secondary',
                                                     autocomplete: 'email',
                                                     required: true,
                                                     **sourcing_qoutations_opts %>
@@ -221,7 +221,7 @@
             <h6 class="mb-1">Vendor Analysis</h6>
             <p class="text-muted small mb-3">Enter a unit cost and select the charges that apply to each item.</p>
 
-            <div class="table-responsive">
+            <div class="table-responsive border border-2 border-dark">
                     <%= render 'vendor_analysis_table', vendor_analysis_charges: vendor_analysis_charges, sourcing_qoutations_opts: sourcing_qoutations_opts %>
             </div>
             <div class="small mt-1" aria-live="polite" data-quotation-pricing-target="capMessage"></div>
