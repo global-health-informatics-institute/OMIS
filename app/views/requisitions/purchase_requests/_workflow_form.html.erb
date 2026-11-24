@@ -41,6 +41,7 @@
                     </div>
                 </div>
         </div>
+        <div class="my-5"></div>
     <% end %>
 
     <%= render_section_if @purchase_request, :request_details do %>
@@ -91,6 +92,7 @@
                     </div>
                 <% end %>
         </div>
+        <div class="my-5"></div>
     <% end %>
 
     <%= render_section_if @purchase_request, :item_details do %>
@@ -156,10 +158,9 @@
                 </section>
             <% end %>
         </div>
+        <div class="my-5"></div>
+
     <% end %>
-
-    
-
 
 
     <%# Approval Section %>
@@ -187,6 +188,9 @@
                 </div>
             </div>
         </div>
+
+        <div class="my-5"></div>
+
         <% end %>
 
     <%# Sourcing Section %>
@@ -245,7 +249,9 @@
             </div>
             <div class="small mt-1" aria-live="polite" data-quotation-pricing-target="capMessage"></div>
         </section>
+        <div class="my-5"></div>
     <% end %>
+
 
     <%# lpo check %>
     <%= render_section_if @purchase_request, :lpo_check do %>
@@ -281,12 +287,14 @@
                 </div>
             </div>
         </div>
+        <div class="my-5"></div>
     <% end %>
 
     <%# purchase request %>
     <%= render_section_if @purchase_request, :payment_request do %>
-
+        <div class="my-5"></div>
     <% end %>
+
 
 
     <%= render_section_if @purchase_request, :action_items do %>
@@ -316,6 +324,7 @@
                 </div>
             </div>
         <% end %>
+        <div class="my-5"></div>
     <% end %>
 
     <%= render 'workflow_step_card', purchase_request: @purchase_request %>
