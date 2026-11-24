@@ -81,10 +81,11 @@ module Requisitions
         'pending vendor analysis', 'pending lpo check', 'pending lpo request submission',
         'pending lpo review - finance team', 'pending lpo review - ed', 'pending delivery confirmation',
         'pending item acceptance', 'pending payment request', 'pending payment request review - finance team',
-        'pending payment request review (payment voucher) - ed'
-        'bg-secondary text-white'
-      else
+        'pending payment request review (payment voucher) - ed', 'pending payment request review - ed',
+        'pending payment request review (payment voucher) - finance team'
         'bg-info text-black'
+      else
+        'bg-secondary text-white'
       end
     end
 
