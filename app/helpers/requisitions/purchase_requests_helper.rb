@@ -50,6 +50,11 @@ module Requisitions
       'Pending Item Acceptance'
     ].freeze
 
+    SUPPLIER_SHORTLISTING_STATES = [
+      'Pending Vendor Shortlisting - IPC',
+      'Pending Vendor Shortlisting - Multiple Quotation'
+    ].freeze
+
     TAX_RATE_STATES = [
       'Pending IPC - Vendor Analysis',
       'Pending Vendor Analysis',
@@ -173,6 +178,8 @@ module Requisitions
         purchase_request.reviewed_by.present? || purchase_request.reviewed_on.present?
       when :sourcing_qoutations
         state.in?(SOURCING_QOUTATION_STATES) && current_user&.employee_id != purchase_request.initiated_by
+      when :supplier_shortlisting
+        state.in?(SUPPLIER_SHORTLISTING_STATES) && current_user&.employee_id != purchase_request.initiated_by
       when :tax_rates
         state.in?(TAX_RATE_STATES) && current_user&.employee_id != purchase_request.initiated_by
       when :action_items
@@ -228,6 +235,18 @@ module Requisitions
       when 'pending vendor analysis - single quotation'
         'less_than'
       end
+    end
+
+    def quotation_cap_threshold(purchase_request)
+      return PurchaseRequest.multiple_quotations_threshold if
+        purchase_request.current_state == 'Pending Vendor Analysis - Single Quotation'
+
+      PurchaseRequest.ipc_threshold
+    end
+
+    def supplier_shortlisting_minimum(purchase_request)
+      purchase_request.current_state == 'Pending Vendor Shortlisting - Multiple Quotation' ?
+        PurchaseRequest.multiple_quotations_required : 1
     end
 
     def vendor_analysis_charges

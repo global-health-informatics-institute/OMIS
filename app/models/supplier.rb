@@ -2,6 +2,9 @@
 
 # A supplier that may submit quotations for one or more requisition items.
 class Supplier < ApplicationRecord
+  belongs_to :purchase_request, class_name: 'PurchaseRequest', foreign_key: :requisition_id,
+                                primary_key: :requisition_id
+
   has_many :requisition_item_quotations, dependent: :restrict_with_error
 
   validates :name, presence: true
@@ -10,7 +13,7 @@ class Supplier < ApplicationRecord
   validates :email,
             presence: true,
             format: { with: URI::MailTo::EMAIL_REGEXP },
-            uniqueness: { case_sensitive: false }
+            uniqueness: { scope: :requisition_id, case_sensitive: false }
 
   default_scope { where(voided: false) }
 end

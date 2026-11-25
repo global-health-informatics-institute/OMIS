@@ -12,6 +12,7 @@ module Requisitions
       route_to_ipc_vendor_analysis: 'routed for IPC review',
       forward_to_vendor_analysis: 'routed for a single quotation',
       route_to_multiple_vendor_quotations: 'routed for multiple quotations',
+      save_vendor_details: 'saved shortlisted supplier details',
       route_to_lpo: 'routed to LPO processing',
       mark_sourcing_as_failed: 'marked as sourcing unsuccessful',
       save_qoutation: 'updated with a supplier quotation',
@@ -151,6 +152,21 @@ module Requisitions
       @purchase_request = PurchaseRequestVendorAnalysisRouteService.route_to_multiple_quotations(params[:id])
       flash[:notice] = 'Purchase request routed for multiple quotations'
       redirect_to requisitions_purchase_request_path(@purchase_request)
+    end
+
+    def save_vendor_details
+      @purchase_request = PurchaseRequestSaveVendorDetailsService.call(
+        id: params[:id],
+        suppliers_params: supplier_params
+      )
+      flash[:notice] = 'Supplier details saved successfully'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
+    rescue ActiveRecord::RecordInvalid => e
+      @purchase_request = e.record
+      @skip_state_transition_notification = true
+      load_possible_actions
+      flash.now[:alert] = 'Enter valid details for every supplier.'
+      render :show, status: :unprocessable_entity
     end
 
     def route_to_lpo
@@ -302,6 +318,13 @@ module Requisitions
           id department_id unit_price attracts_levy attracts_vat vendor_mobile_number vendor_email
         ]
       )
+    end
+
+    def supplier_params
+      params.permit(suppliers: %i[name mobile_number email])
+            .fetch(:suppliers, {})
+            .to_h
+            .transform_values(&:symbolize_keys)
     end
 
     def committee_meeting_params

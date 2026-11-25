@@ -8,7 +8,7 @@
 <%= form_with model: [:requisitions, @purchase_request] do |form| %>
 <div class="p-3"
      data-controller="quotation-pricing"
-     data-quotation-pricing-threshold-value="<%= PurchaseRequest.ipc_threshold %>"
+     data-quotation-pricing-threshold-value="<%= quotation_cap_threshold(@purchase_request) %>"
      data-quotation-pricing-cap-rule-value="<%= quotation_cap_rule(@purchase_request) %>">
     <%= render_section_if @purchase_request, :request_details do %>
 
@@ -194,6 +194,25 @@
         <% end %>
 
     <%# Sourcing Section %>
+    <%= render_section_if @purchase_request, :supplier_shortlisting do %>
+        <% supplier_count = supplier_shortlisting_minimum(@purchase_request) %>
+        <% suppliers = @purchase_request.shortlisted_suppliers.presence || Array.new(supplier_count) { Supplier.new } %>
+        <section class="mt-4" data-controller="supplier-wizard">
+            <h6 class="mb-1">Supplier Shortlisting</h6>
+            <p class="text-muted small mb-3">Record each supplier before entering quotation prices.</p>
+            <div data-supplier-wizard-target="rows">
+                <% suppliers.each_with_index do |supplier, supplier_index| %>
+                    <%= render 'supplier_fields', supplier: supplier, supplier_index: supplier_index %>
+                <% end %>
+            </div>
+            <template data-supplier-wizard-target="template">
+                <%= render 'supplier_fields', supplier: Supplier.new, supplier_index: 'NEW_RECORD' %>
+            </template>
+            <button type="button" class="btn btn-outline-primary" data-action="supplier-wizard#add">Add another supplier</button>
+        </section>
+        <div class="my-5"></div>
+    <% end %>
+
     <%= render_section_if @purchase_request, :sourcing_qoutations do %>
         <hr>
         <%= form.fields_for :purchase_request_detail do |detail_form| %>

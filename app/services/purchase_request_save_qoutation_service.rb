@@ -50,7 +50,10 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
 
     def build_supplier(purchase_request)
       detail = purchase_request.purchase_request_detail
-      supplier = Supplier.unscoped.find_or_initialize_by(email: detail.vendor_email.to_s.strip.downcase)
+      supplier = Supplier.unscoped.find_or_initialize_by(
+        requisition_id: purchase_request.requisition_id,
+        email: detail.vendor_email.to_s.strip.downcase
+      )
       supplier.assign_attributes(
         name: purchase_request.vendor_name.to_s.strip,
         mobile_number: detail.vendor_mobile_number.to_s.strip,
@@ -108,14 +111,12 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
     end
 
     def validate_total_for_routing(purchase_request, total)
-      threshold = PurchaseRequest.ipc_threshold
+      threshold = PurchaseRequest.multiple_quotations_threshold
 
       Rails.logger.info("quotation_total=#{total.inspect} threshold=#{threshold}")
 
       case purchase_request.current_state.to_s.downcase
-      when 'pending ipc - vendor analysis'
-        purchase_request.errors.add(:base, "Total must be at least #{threshold}") if total < threshold
-      when 'pending vendor analysis'
+      when 'pending vendor analysis - single quotation'
         purchase_request.errors.add(:base, "Total must be less than #{threshold}") if total >= threshold
       end
     end

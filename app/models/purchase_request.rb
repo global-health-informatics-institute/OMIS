@@ -15,6 +15,8 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
   has_one :requisition_donor, foreign_key: :requisition_id, dependent: :delete
   has_many :committee_meetings, foreign_key: :requisition_id, primary_key: :requisition_id,
                                 dependent: :restrict_with_error
+  has_many :shortlisted_suppliers, class_name: 'Supplier', foreign_key: :requisition_id,
+                                  primary_key: :requisition_id, dependent: :delete_all
 
   belongs_to :initiator, class_name: 'Employee', foreign_key: 'initiated_by', optional: true
   belongs_to :approver,  class_name: 'Employee', foreign_key: 'approved_by',  optional: true
@@ -129,6 +131,14 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
     GlobalProperty.find_by(
       property: 'ipc.threshold'
     )&.property_value.to_i
+  end
+
+  def self.multiple_quotations_threshold
+    GlobalProperty.find_by(property: 'multiple.quotations.threshold')&.property_value.to_d
+  end
+
+  def self.multiple_quotations_required
+    GlobalProperty.find_by(property: 'total.quotations.required')&.property_value.to_i
   end
 
   private

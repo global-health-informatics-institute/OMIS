@@ -3,6 +3,10 @@
 class CreateSuppliersAndRequisitionItemQuotations < ActiveRecord::Migration[7.0] # rubocop:disable Style/Documentation
   def change
     create_table :suppliers do |t|
+      t.references :requisition,
+                   type: :integer,
+                   null: false,
+                   foreign_key: { to_table: :requisitions, primary_key: :requisition_id }
       t.string :name, null: false
       t.string :mobile_number, null: false
       t.string :email, null: false
@@ -10,7 +14,7 @@ class CreateSuppliersAndRequisitionItemQuotations < ActiveRecord::Migration[7.0]
       t.timestamps
     end
 
-    add_index :suppliers, :email, unique: true
+    add_index :suppliers, %i[requisition_id email], unique: true
 
     create_table :requisition_item_quotations do |t|
       t.references :requisition_item,

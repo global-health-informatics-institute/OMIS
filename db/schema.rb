@@ -485,13 +485,15 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_23_171500) do
   end
 
   create_table "suppliers", force: :cascade do |t|
+    t.integer "requisition_id", null: false
     t.string "name", null: false
     t.string "mobile_number", null: false
     t.string "email", null: false
     t.boolean "voided", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["email"], name: "index_suppliers_on_email", unique: true
+    t.index ["requisition_id", "email"], name: "index_suppliers_on_requisition_id_and_email", unique: true
+    t.index ["requisition_id"], name: "index_suppliers_on_requisition_id"
   end
 
   create_table "timesheet_tasks", force: :cascade do |t|
@@ -608,4 +610,5 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_23_171500) do
   add_foreign_key "requisition_item_charges", "requisition_items", primary_key: "requisition_item_id"
   add_foreign_key "requisition_item_quotations", "requisition_items", primary_key: "requisition_item_id"
   add_foreign_key "requisition_item_quotations", "suppliers"
+  add_foreign_key "suppliers", "requisitions", primary_key: "requisition_id"
 end

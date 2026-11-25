@@ -70,7 +70,7 @@ sanitizeUnitPrice({ target }) {
     if (this.capRuleValue === "at_least" && total < this.thresholdValue) {
       message = `Quotation total must be at least ${this.formatMoney(this.thresholdValue)} MWK for IPC vendor analysis.`
     } else if (this.capRuleValue === "less_than" && total >= this.thresholdValue) {
-      message = `Quotation total must be less than ${this.formatMoney(this.thresholdValue)} MWK for vendor analysis.`
+      message = `Single quotation total must be less than ${this.formatMoney(this.thresholdValue)} MWK.`
     }
 
     this.capMessageTargets.forEach((target) => {
