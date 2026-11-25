@@ -55,10 +55,7 @@ class PurchaseRequestSaveVendorDetailsService # rubocop:disable Style/Documentat
     end
 
     def minimum_supplier_count(purchase_request)
-      return PurchaseRequest.multiple_quotations_required if
-        purchase_request.current_state == 'Pending Vendor Shortlisting - Multiple Quotation'
-
-      1
+      PurchaseRequest.multiple_quotations_required
     end
   end
 end

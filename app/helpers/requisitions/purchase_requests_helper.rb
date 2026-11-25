@@ -245,8 +245,7 @@ module Requisitions
     end
 
     def supplier_shortlisting_minimum(purchase_request)
-      purchase_request.current_state == 'Pending Vendor Shortlisting - Multiple Quotation' ?
-        PurchaseRequest.multiple_quotations_required : 1
+      PurchaseRequest.multiple_quotations_required
     end
 
     def vendor_analysis_charges

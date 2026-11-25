@@ -197,18 +197,20 @@
     <%= render_section_if @purchase_request, :supplier_shortlisting do %>
         <% supplier_count = supplier_shortlisting_minimum(@purchase_request) %>
         <% suppliers = @purchase_request.shortlisted_suppliers.presence || Array.new(supplier_count) { Supplier.new } %>
-        <section class="mt-4" data-controller="supplier-wizard">
+        <section class="mt-4"
+                 data-controller="supplier-list"
+                 data-supplier-list-minimum-value="<%= supplier_count %>">
             <h6 class="mb-1">Supplier Shortlisting</h6>
-            <p class="text-muted small mb-3">Record each supplier before entering quotation prices.</p>
-            <div data-supplier-wizard-target="rows">
+            <p class="text-muted small mb-3">Record at least <%= supplier_count %> suppliers before entering quotation prices.</p>
+            <div class="row g-3" data-supplier-list-target="rows">
                 <% suppliers.each_with_index do |supplier, supplier_index| %>
                     <%= render 'supplier_fields', supplier: supplier, supplier_index: supplier_index %>
                 <% end %>
             </div>
-            <template data-supplier-wizard-target="template">
+            <template data-supplier-list-target="template">
                 <%= render 'supplier_fields', supplier: Supplier.new, supplier_index: 'NEW_RECORD' %>
             </template>
-            <button type="button" class="btn btn-outline-primary" data-action="supplier-wizard#add">Add another supplier</button>
+            <button type="button" class="btn btn-outline-primary mt-3" data-action="supplier-list#add">Add another supplier</button>
         </section>
         <div class="my-5"></div>
     <% end %>

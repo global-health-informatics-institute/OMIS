@@ -1,16 +1,22 @@
-<section class="card border-2 border-dark shadow-sm mb-3" data-supplier-wizard-target="card">
-  <div class="card-header bg-light border-bottom border-2 border-dark">
-    <h6 class="mb-0" data-supplier-wizard-target="heading"></h6>
-  </div>
-  <div class="card-body">
-    <div class="row">
-      <div class="col-md-6 mb-3">
+<div class="col-md-6" data-supplier-list-target="card">
+  <section class="card border-2 border-dark shadow-sm h-100">
+    <div class="card-header bg-light border-bottom border-2 border-dark d-flex justify-content-between align-items-center">
+      <h6 class="mb-0" data-supplier-list-target="heading"></h6>
+      <button type="button"
+              class="btn btn-sm btn-danger"
+              data-supplier-list-target="remove"
+              data-action="supplier-list#remove">
+        Remove
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="mb-3">
         <%= label_tag "suppliers_#{supplier_index}_name", 'Supplier Name', class: 'form-label fw-normal' %>
         <%= text_field_tag "suppliers[#{supplier_index}][name]", supplier.name,
                            id: "suppliers_#{supplier_index}_name",
                            class: 'form-control border-2 border-secondary', required: true %>
       </div>
-      <div class="col-md-6 mb-3">
+      <div class="mb-3">
         <%= label_tag "suppliers_#{supplier_index}_mobile_number", 'Supplier Phone Number', class: 'form-label fw-normal' %>
         <%= telephone_field_tag "suppliers[#{supplier_index}][mobile_number]", supplier.mobile_number,
                                id: "suppliers_#{supplier_index}_mobile_number",
@@ -18,18 +24,12 @@
                                data: { action: 'input->quotation-pricing#sanitizePhone' },
                                class: 'form-control border-2 border-secondary', required: true %>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6 mb-0">
+      <div class="mb-0">
         <%= label_tag "suppliers_#{supplier_index}_email", 'Supplier Email', class: 'form-label fw-normal' %>
         <%= email_field_tag "suppliers[#{supplier_index}][email]", supplier.email,
                             id: "suppliers_#{supplier_index}_email",
                             class: 'form-control border-2 border-secondary', required: true %>
       </div>
     </div>
-  </div>
-  <div class="card-footer bg-secondary bg-opacity-50 border-top border-2 border-dark d-flex justify-content-end gap-2">
-    <button type="button" class="btn btn-primary text-black" data-supplier-wizard-target="previous" data-action="supplier-wizard#previous">Previous</button>
-    <button type="button" class="btn btn-primary text-black" data-supplier-wizard-target="next" data-action="supplier-wizard#next">Next</button>
-  </div>
-</section>
+  </section>
+</div>
