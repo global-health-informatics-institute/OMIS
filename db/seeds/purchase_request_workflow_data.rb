@@ -52,19 +52,41 @@ WORKFLOW_STATE = [
     state: 'Pending Sourcing Quotation',
     description: 'State indicating that the purchase request has been approved by the supervisor and the request has been moved to the finance team for sourcing quotations from vendors' # rubocop:disable Layout/LineLength
   },
-  # ON: Pending Sourcing Quotation - after supervisor approval, sourcing quotation should direct the method to use for purchasing: IPC or LPO # rubocop:disable Layout/LineLength
+  # on Pending Sourcing Quotation: IPC, multiple quotation, or single-vendor quotation.
+  # IPC and Multiple Quotation each run as Vendor Identification -> Vendor Pricing -> Vendor Selection,
+  # Single Quotation stays one step since there is only one vendor and nothing to select between.
   {
-    state: 'Pending IPC - Vendor Analysis',
-    description: 'State indicating that the items estimated or sourced price will require the internal committee to select a vendor' # rubocop:disable Layout/LineLength
+    state: 'Pending Vendor Analysis - Single Quotation',
+    description: 'State indicating that the requisition only requires a single vendor quotation, and finance is in the process of analyzing the quotation' # rubocop:disable Layout/LineLength
   },
   {
-    state: 'Pending Vendor Analysis',
-    description: 'State indicating that the items estimated or sourced price will require the internal committee to select a vendor' # rubocop:disable Layout/LineLength
+    state: 'Pending Vendor Shortlisting - IPC',
+    description: 'State indicating that the total exceeds the IPC threshold, and the internal committee is recording the vendors or suppliers to be considered' # rubocop:disable Layout/LineLength
   },
-  # after a vendor is selected (IPC or vendor analysis), finance decides: LPO or direct purchase
+  {
+    state: 'Pending Price Entry - IPC',
+    description: 'State indicating that the committee is entering the unit price and applicable charges quoted by each recorded vendor' # rubocop:disable Layout/LineLength
+  },
+  {
+    state: 'Pending Vendor Selection - IPC',
+    description: 'State indicating that every vendor quotation has been priced and the committee must select the winning vendor' # rubocop:disable Layout/LineLength
+  },
+  {
+    state: 'Pending Vendor Shortlisting - Multiple Quotation',
+    description: 'State indicating that multiple quotations are required, and finance is recording the vendors to be considered' # rubocop:disable Layout/LineLength
+  },
+  {
+    state: 'Pending Price Entry - Multiple Quotation',
+    description: 'State indicating that finance is entering the unit price and applicable charges quoted by each recorded vendor' # rubocop:disable Layout/LineLength
+  },
+  {
+    state: 'Pending Vendor Selection - Multiple Quotation',
+    description: 'State indicating that every vendor quotation has been priced and finance must select the winning vendor among the minimum required' # rubocop:disable Layout/LineLength
+  },
+  # after a vendor is selected (IPC, multiple quotation, or single quotation), finance decides: LPO or direct purchase
   {
     state: 'Pending LPO Check',
-    description: 'State indicating that a vendor has been selected (via IPC or vendor analysis) and finance is checking whether an LPO is required or the item can be bought and paid for directly' # rubocop:disable Layout/LineLength
+    description: 'State indicating that a vendor has been selected and finance is checking whether an LPO is required or the item can be bought and paid for directly' # rubocop:disable Layout/LineLength
   },
   {
     state: 'Pending LPO Request Submission',
@@ -161,64 +183,146 @@ WORKFLOW_STATE_TRANSITIONS = [
   # on pending sourcing qoutation
   # by finance team
 
-  # extra qoutation on 500K value does not triger further step
-  # 3M cap does not trigger a new step so available options are IPC, vendor analysis, and purchase request termination
+  # three routes out of sourcing, decided by the total against multiple.quotations.threshold
+  # and ipc.threshold: a single quotation, multiple quotations (itself a Vendor Identification ->
+  # Vendor Pricing -> Vendor Selection chain), or IPC (the same chain, run by the committee)
 
   {
     workflow_state_id: 'Pending Sourcing Quotation',
-    next_state: 'Pending Vendor Analysis',
-    action: 'Forward to Vendor Analysis',
+    next_state: 'Pending Vendor Analysis - Single Quotation',
+    action: 'Require Single Quotation',
     by_owner: false,
     by_supervisor: false
   },
   {
     workflow_state_id: 'Pending Sourcing Quotation',
-    next_state: 'Pending IPC - Vendor Analysis',
-    action: 'Route to IPC - Vendor Analysis',
+    next_state: 'Pending Vendor Shortlisting - Multiple Quotation',
+    action: 'Require Multiple Quotations',
     by_owner: false,
     by_supervisor: false
   },
   {
     workflow_state_id: 'Pending Sourcing Quotation',
-    next_state: 'Purchase Request Declined',
-    action: 'Mark Sourcing as Failed',
-    by_owner: false,
-    by_supervisor: false
-  },
-  # on Pending IPC - Vendor Analysis
-  # by finance team
-  {
-    # alias for pending vendor analysis
-    workflow_state_id: 'Pending IPC - Vendor Analysis',
-    next_state: 'Pending LPO Check',
-    action: 'Save Qoutation',
+    next_state: 'Pending Vendor Shortlisting - IPC',
+    action: 'Require IPC Review',
     by_owner: false,
     by_supervisor: false
   },
   {
-    workflow_state_id: 'Pending IPC - Vendor Analysis',
+    workflow_state_id: 'Pending Sourcing Quotation',
     next_state: 'Purchase Request Declined',
     action: 'Mark Sourcing as Failed',
     by_owner: false,
     by_supervisor: false
   },
 
-  # Pending vendor analysis
+  # Pending Vendor Analysis - Single Quotation
   # by finance team
   {
-    workflow_state_id: 'Pending Vendor Analysis',
+    workflow_state_id: 'Pending Vendor Analysis - Single Quotation',
     next_state: 'Pending LPO Check',
     action: 'Save Qoutation',
     by_owner: false,
     by_supervisor: false
   },
   {
-    workflow_state_id: 'Pending Vendor Analysis',
+    workflow_state_id: 'Pending Vendor Analysis - Single Quotation',
     next_state: 'Purchase Request Declined',
     action: 'Mark Sourcing as Failed',
     by_owner: false,
     by_supervisor: false
   },
+
+  # Pending Vendor Identification -> Vendor Pricing -> Vendor Selection - IPC
+  # by the internal committee
+  {
+    workflow_state_id: 'Pending Vendor Shortlisting - IPC',
+    next_state: 'Pending Price Entry - IPC',
+    action: 'Save Vendor Details',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Vendor Shortlisting - IPC',
+    next_state: 'Purchase Request Declined',
+    action: 'Mark Sourcing as Failed',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Price Entry - IPC',
+    next_state: 'Pending Vendor Selection - IPC',
+    action: 'Save Qoutation',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Price Entry - IPC',
+    next_state: 'Purchase Request Declined',
+    action: 'Mark Sourcing as Failed',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Vendor Selection - IPC',
+    next_state: 'Pending LPO Check',
+    action: 'Select Vendor',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Vendor Selection - IPC',
+    next_state: 'Purchase Request Declined',
+    action: 'Mark Sourcing as Failed',
+    by_owner: false,
+    by_supervisor: false
+  },
+
+  # Pending Vendor Identification -> Vendor Pricing -> Vendor Selection - Multiple Quotation
+  # by finance team
+  {
+    workflow_state_id: 'Pending Vendor Shortlisting - Multiple Quotation',
+    next_state: 'Pending Price Entry - Multiple Quotation',
+    action: 'Save Vendor Details',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Vendor Shortlisting - Multiple Quotation',
+    next_state: 'Purchase Request Declined',
+    action: 'Mark Sourcing as Failed',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Price Entry - Multiple Quotation',
+    next_state: 'Pending Vendor Selection - Multiple Quotation',
+    action: 'Save Qoutation',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Price Entry - Multiple Quotation',
+    next_state: 'Purchase Request Declined',
+    action: 'Mark Sourcing as Failed',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Vendor Selection - Multiple Quotation',
+    next_state: 'Pending LPO Check',
+    action: 'Select Vendor',
+    by_owner: false,
+    by_supervisor: false
+  },
+  {
+    workflow_state_id: 'Pending Vendor Selection - Multiple Quotation',
+    next_state: 'Purchase Request Declined',
+    action: 'Mark Sourcing as Failed',
+    by_owner: false,
+    by_supervisor: false
+  },
+
   # on Pending LPO Check (vendor already selected)
   # by finance team
   {
@@ -379,8 +483,10 @@ FT_DESIGNATIONS = [
 
 FT_STATES = [
   'Pending Sourcing Quotation',
-  'Pending IPC - Vendor Analysis',
-  'Pending Vendor Analysis',
+  'Pending Vendor Analysis - Single Quotation',
+  'Pending Vendor Shortlisting - Multiple Quotation',
+  'Pending Price Entry - Multiple Quotation',
+  'Pending Vendor Selection - Multiple Quotation',
   'Pending LPO Check',
   'Pending Delivery Confirmation'
 ].freeze
@@ -434,12 +540,21 @@ end
 duplicate_states = WORKFLOW_STATE_TRANSITIONS_ACTORS.map { |a| a[:state_to_act_on] }.tally.select { |_, n| n > 1 }.keys
 raise "State listed in more than one actor group: #{duplicate_states.join(', ')}" unless duplicate_states.empty?
 
-# IPC threshhold
 GLOBAL_PROPERTIES = [
   {
     property: 'ipc.threshold',
     property_value: '3000000',
     description: 'The IPC threshold cap is the maximum amount that can be approved for procurement without requiring an (IPC) review.' # rubocop:disable Layout/LineLength
+  },
+  {
+    property: 'multiple.quotations.threshold',
+    property_value: '500000',
+    description: 'The estimated total above which a purchase request must have multiple vendor quotations.'
+  },
+  {
+    property: 'total.quotations.required',
+    property_value: '3',
+    description: 'The number of vendor quotations required when the total is above the multiple.quotations.threshold.'
   },
   {
     property: 'levy.rate',
@@ -710,7 +825,7 @@ ActiveRecord::Base.transaction do # rubocop:disable Metrics/BlockLength
         stats[:committee_memberships][:skipped] += 1
         next
       end
-      
+
       membership = CommitteeMembership.find_or_initialize_by(
         committee_id: committee.committee_id,
         employee_id: employee_id,
