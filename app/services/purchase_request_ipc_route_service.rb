@@ -16,7 +16,7 @@ class PurchaseRequestIpcRouteService # rubocop:disable Style/Documentation
 
       transition = WorkflowStateTransition.find_by!(
         workflow_state_id: purchase_request.workflow_state_id,
-        action: 'Route to IPC - Vendor Analysis'
+        action: 'Require IPC Review'
       )
 
       validate_committee_members!(meeting, committee, members, chair)

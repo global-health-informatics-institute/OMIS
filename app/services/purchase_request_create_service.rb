@@ -12,7 +12,7 @@ class PurchaseRequestCreateService # rubocop:disable Style/Documentation
     ActiveRecord::Base.transaction do
       data = prepare_create_params(payload)
       puts "PROCESSED DATA #{data}"
-      requisition = Requisition.create!(data[:requisition])
+      requisition = PurchaseRequest.create!(data[:requisition])
 
       data[:items].each do |item_data|
         item = RequisitionItem.create!(

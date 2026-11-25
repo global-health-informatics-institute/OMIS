@@ -303,13 +303,14 @@
                 <div class="col gap-2 d-flex">
                     <% @possible_actions.each do |action| %>
                         <% action_label = purchase_request_action_label(action) %>
-                        <% if action == 'Route to IPC - Vendor Analysis' %>
+                        <% if action == 'Require IPC Review' %>
                             <%= link_to action_label,
                                         schedule_ipc_meeting_requisitions_purchase_request_path(@purchase_request),
                                         class: "btn #{available_actions_badge_class(action)}",
                                         data: { turbo_frame: 'remote_modal' } %>
                         <% else %>
-                            <% route_verb = action_route_verb(action) %>
+                            <% route_verb = { 'Require Single Quotation' => 'forward_to_vendor_analysis',
+                                              'Require Multiple Quotations' => 'route_to_multiple_vendor_quotations' }.fetch(action, action_route_verb(action)) %>
                             <% dynamic_path = send("#{route_verb}_requisitions_purchase_request_path", @purchase_request) %>
                             <% button_data = { turbo_confirm: "Are you sure you want to #{action.downcase}?" } %>
                             <% button_data[:quotation_pricing_target] = 'saveAction' if action.casecmp?('Save Qoutation') %>

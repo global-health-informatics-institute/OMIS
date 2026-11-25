@@ -84,6 +84,8 @@ Rails.application.routes.draw do
         get 'schedule_ipc_meeting'
         patch 'route_to_ipc_vendor_analysis'
         patch 'forward_to_vendor_analysis'
+        patch 'route_to_multiple_vendor_quotations'
+        patch 'save_vendor_details'
         patch 'route_to_lpo'
         patch 'mark_sourcing_as_failed'
         patch 'save_qoutation'

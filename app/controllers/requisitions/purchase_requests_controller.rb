@@ -9,8 +9,9 @@ module Requisitions
       resubmit: 'resubmitted',
       approve: 'approved',
       decline: 'declined',
-      route_to_ipc_vendor_analysis: 'routed to IPC vendor analysis',
-      forward_to_vendor_analysis: 'forwarded to vendor analysis',
+      route_to_ipc_vendor_analysis: 'routed for IPC review',
+      forward_to_vendor_analysis: 'routed for a single quotation',
+      route_to_multiple_vendor_quotations: 'routed for multiple quotations',
       route_to_lpo: 'routed to LPO processing',
       mark_sourcing_as_failed: 'marked as sourcing unsuccessful',
       save_qoutation: 'updated with a supplier quotation',
@@ -144,6 +145,12 @@ module Requisitions
       @purchase_request = PurchaseRequestVendorAnalysisRouteService.forward(params[:id])
       flash[:notice] = 'Purchase request successfully updated'
       redirect_to controller: 'requisitions/purchase_requests', action: 'show', id: @purchase_request.requisition_id
+    end
+
+    def route_to_multiple_vendor_quotations
+      @purchase_request = PurchaseRequestVendorAnalysisRouteService.route_to_multiple_quotations(params[:id])
+      flash[:notice] = 'Purchase request routed for multiple quotations'
+      redirect_to requisitions_purchase_request_path(@purchase_request)
     end
 
     def route_to_lpo

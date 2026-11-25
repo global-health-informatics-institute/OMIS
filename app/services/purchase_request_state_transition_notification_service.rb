@@ -147,11 +147,11 @@ class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/
   end
 
   def ipc_notification?
-    @purchase_request.current_state == 'Pending IPC - Vendor Analysis' && committee_meeting.present?
+    @purchase_request.ipc_workflow_state? && committee_meeting.present?
   end
 
   def committee_meeting
-    return unless @purchase_request.current_state == 'Pending IPC - Vendor Analysis'
+    return unless @purchase_request.ipc_workflow_state?
 
     @committee_meeting ||= @purchase_request.committee_meetings.scheduled.order(scheduled_on: :desc).first
   end

@@ -7,8 +7,13 @@ module Requisitions
       'Pending Supervisor Review',
       'Purchase Request Declined',
       'Pending Sourcing Quotation',
-      'Pending IPC - Vendor Analysis',
-      'Pending Vendor Analysis',
+      'Pending Vendor Analysis - Single Quotation',
+      'Pending Vendor Shortlisting - IPC',
+      'Pending Price Entry - IPC',
+      'Pending Vendor Selection - IPC',
+      'Pending Vendor Shortlisting - Multiple Quotation',
+      'Pending Price Entry - Multiple Quotation',
+      'Pending Vendor Selection - Multiple Quotation',
       'Purchase Request Recalled',
       'Pending Item Acceptance',
       'Purchase Request Complete'
@@ -29,8 +34,9 @@ module Requisitions
     ]).freeze
 
     SOURCING_QOUTATION_STATES = [
-      'Pending IPC - Vendor Analysis',
-      'Pending Vendor Analysis',
+      'Pending Vendor Analysis - Single Quotation',
+      'Pending Price Entry - IPC',
+      'Pending Price Entry - Multiple Quotation',
       'Pending LPO Check',
       'Pending LPO Request Submission',
       'Pending LPO Review - Finance Team',
@@ -77,8 +83,10 @@ module Requisitions
       when 'purchase request recalled', 'draft', 'pending submission'
         'bg-warning text-dark'
       when 'under review', 'pending review',
-        'pending sourcing quotation', 'pending ipc - vendor analysis',
-        'pending vendor analysis', 'pending lpo check', 'pending lpo request submission',
+        'pending sourcing quotation', 'pending vendor analysis - single quotation',
+        'pending vendor shortlisting - ipc', 'pending price entry - ipc', 'pending vendor selection - ipc',
+        'pending vendor shortlisting - multiple quotation', 'pending price entry - multiple quotation',
+        'pending vendor selection - multiple quotation', 'pending lpo check', 'pending lpo request submission',
         'pending lpo review - finance team', 'pending lpo review - ed', 'pending delivery confirmation',
         'pending item acceptance', 'pending payment request', 'pending payment request review - finance team',
         'pending payment request review (payment voucher) - ed', 'pending payment request review - ed',
@@ -95,14 +103,14 @@ module Requisitions
       when 'approve purchase request', 'confirm delivery', 'approve lpo request', 'accept item',
         'approve payment request'
         'bg-success text-white'
-      when 'recall purchase request', 'choose other vendor', 'route to ipc - vendor analysis'
+      when 'recall purchase request', 'choose other vendor', 'require ipc review'
         'bg-warning text-dark'
       when 'rescind purchase request', 'decline purchase request', 'mark sourcing as failed', 'mark delivery as failed',
         'decline item', 'terminate payment request', 'decline lpo request'
         'bg-danger text-white'
       when 'resubmit purchase request',
-        'route to lpo', 'save qoutation',
-        'forward to vendor analysis', 'prepare lpo request', 'prepare payment request'
+        'route to lpo', 'save qoutation', 'save vendor details', 'select vendor',
+        'require single quotation', 'require multiple quotations', 'prepare lpo request', 'prepare payment request'
         'bg-primary text-white'
       else
         'bg-secondary text-white'
@@ -111,8 +119,9 @@ module Requisitions
 
     def purchase_request_action_label(action)
       {
-        'Route to IPC - Vendor Analysis' => 'Request IPC',
-        'Forward to Vendor Analysis' => 'Vendor Analysis',
+        'Require IPC Review' => 'Request IPC',
+        'Require Single Quotation' => 'Single Quotation',
+        'Require Multiple Quotations' => 'Multiple Quotations',
         'Terminate Payment Request' => 'Decline Payment Request'
       }.fetch(action, action)
     end
@@ -216,9 +225,7 @@ module Requisitions
 
     def quotation_cap_rule(purchase_request)
       case purchase_request.current_state.to_s.downcase
-      when 'pending ipc - vendor analysis'
-        'at_least'
-      when 'pending vendor analysis'
+      when 'pending vendor analysis - single quotation'
         'less_than'
       end
     end
@@ -253,7 +260,7 @@ module Requisitions
     def cap_limit(route_type) # rubocop:disable Metrics/MethodLength
       threshold = PurchaseRequest.ipc_threshold
 
-      if route_type.to_s.downcase == 'pending ipc - vendor analysis'
+      if route_type.to_s.downcase == 'pending vendor shortlisting - ipc'
         {
           min: threshold,
           placeholder: "value not less than #{threshold}"
@@ -281,6 +288,9 @@ module Requisitions
     private
 
     def workflow_step_actors(workflow_state_id, transitions)
+      workflow_state = WorkflowState.find_by(workflow_state_id: workflow_state_id)
+      return ['the scheduled IPC committee members'] if workflow_state&.state&.end_with?(' - IPC')
+
       actors = []
       actors << 'the requester' if transitions.any?(&:by_owner?)
       actors << "the requester's supervisor" if transitions.any?(&:by_supervisor?)

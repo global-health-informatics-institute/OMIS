@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
+  IPC_WORKFLOW_STATES = [
+    'Pending Vendor Shortlisting - IPC',
+    'Pending Price Entry - IPC',
+    'Pending Vendor Selection - IPC'
+  ].freeze
+
   has_one :purchase_request_detail,
           foreign_key: :requisition_id,
           primary_key: :requisition_id,
@@ -57,10 +63,14 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
 
     # TODO: Correct misleading field 'employee_designation_id' to 'designation_id' in the WorkflowStateTransition model
     # because the field is actually referencing the Designation model, not the EmployeeDesignation model.
-    is_actor = WorkflowStateActor.where(
-      employee_designation_id: action_designation_ids(user, acting_employees), # TODO: migrate to reflect designation role not a specific employee role entry # rubocop:disable Layout/LineLength
-      workflow_state_id: state_id
-    ).exists?
+    is_actor = if ipc_workflow_state?
+                 ipc_committee_member?(user)
+               else
+                 WorkflowStateActor.where(
+                   employee_designation_id: action_designation_ids(user, acting_employees), # TODO: migrate to reflect designation role not a specific employee role entry # rubocop:disable Layout/LineLength
+                   workflow_state_id: state_id
+                 ).exists?
+               end
 
     if is_actor
       actions += WorkflowStateTransition.where(
@@ -80,6 +90,8 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
   end
 
   def actor?(user)
+    return ipc_committee_member?(user) if ipc_workflow_state?
+
     WorkflowStateActor.exists?(
       employee_designation_id: action_designation_ids(user, acting_employees_for(user)),
       workflow_state_id: workflow_state_id
@@ -97,7 +109,15 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
   def sourcing_qoutations_editable_by?(user)
     return false unless user
 
-    ['pending ipc - vendor analysis', 'pending vendor analysis'].include?(current_state.to_s.downcase) && actor?(user)
+    [
+      'pending vendor analysis - single quotation',
+      'pending price entry - ipc',
+      'pending price entry - multiple quotation'
+    ].include?(current_state.to_s.downcase) && actor?(user)
+  end
+
+  def ipc_workflow_state?
+    current_state.in?(IPC_WORKFLOW_STATES)
   end
 
   def editable_by?(user)
@@ -123,5 +143,16 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
   def action_designation_ids(user, acting_employees)
     employees = [user&.employee, *acting_employees].compact.uniq(&:employee_id)
     employees.flat_map { |employee| employee.current_designations.pluck(:designation_id) }.uniq
+  end
+
+  def ipc_committee_member?(user)
+    employee_ids = [user&.employee_id, user&.employee&.employee_id, user&.id].compact
+    return false if employee_ids.empty?
+
+    committee_meetings.scheduled.order(scheduled_on: :desc).first
+                      &.committee
+                      &.active_memberships
+                      &.where(employee_id: employee_ids)
+                      &.exists? || false
   end
 end
