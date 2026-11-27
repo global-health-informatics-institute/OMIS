@@ -244,14 +244,14 @@ module Requisitions
       PurchaseRequest.ipc_threshold
     end
 
-    def supplier_shortlisting_minimum(purchase_request)
+    def supplier_shortlisting_minimum
       PurchaseRequest.multiple_quotations_required
     end
 
     def vendor_analysis_charges
       charges_by_name = Charge.where(name: VENDOR_ANALYSIS_CHARGE_NAMES)
-                             .includes(:global_property)
-                             .index_by(&:name)
+                              .includes(:global_property)
+                              .index_by(&:name)
 
       VENDOR_ANALYSIS_CHARGE_NAMES.filter_map { |name| charges_by_name[name] }
     end

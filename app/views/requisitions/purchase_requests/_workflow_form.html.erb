@@ -195,7 +195,7 @@
 
     <%# Sourcing Section %>
     <%= render_section_if @purchase_request, :supplier_shortlisting do %>
-        <% supplier_count = supplier_shortlisting_minimum(@purchase_request) %>
+        <% supplier_count = supplier_shortlisting_minimum %>
         <% suppliers = @purchase_request.shortlisted_suppliers.presence || Array.new(supplier_count) { Supplier.new } %>
         <section class="mt-4"
                  data-controller="supplier-list"

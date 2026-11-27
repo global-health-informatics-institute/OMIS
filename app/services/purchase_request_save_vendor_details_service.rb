@@ -24,7 +24,7 @@ class PurchaseRequestSaveVendorDetailsService # rubocop:disable Style/Documentat
 
     private
 
-    def build_suppliers(purchase_request, suppliers_params)
+    def build_suppliers(purchase_request, suppliers_params) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       suppliers_params.values.filter_map do |attributes|
         next if attributes.values.all?(&:blank?)
 
@@ -40,7 +40,7 @@ class PurchaseRequestSaveVendorDetailsService # rubocop:disable Style/Documentat
     end
 
     def validate!(purchase_request, suppliers)
-      minimum = minimum_supplier_count(purchase_request)
+      minimum = minimum_supplier_count
       if suppliers.size < minimum
         purchase_request.errors.add(:base, "At least #{minimum} suppliers must be saved before price entry")
       end
@@ -54,7 +54,7 @@ class PurchaseRequestSaveVendorDetailsService # rubocop:disable Style/Documentat
       raise ActiveRecord::RecordInvalid, purchase_request if purchase_request.errors.any?
     end
 
-    def minimum_supplier_count(purchase_request)
+    def minimum_supplier_count
       PurchaseRequest.multiple_quotations_required
     end
   end
