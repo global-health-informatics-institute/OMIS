@@ -3,7 +3,7 @@
 
 class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
   class << self
-    def call(id:, params:, item_unit_prices:, item_charge_ids:) # rubocop:disable Metrics/MethodLength
+    def call(id:, params:, item_unit_prices:, item_charge_ids:, item_availability:) # rubocop:disable Metrics/MethodLength
       purchase_request = PurchaseRequest.find(id)
 
       ActiveRecord::Base.transaction do
@@ -11,7 +11,8 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
         item_quotations = validate_and_calculate_quotation!(
           purchase_request,
           item_unit_prices:,
-          item_charge_ids:
+          item_charge_ids:,
+          item_availability:
         )
         purchase_request.save!
         item_quotations.map { |quotation| quotation[:supplier] }.uniq.each(&:save!)
@@ -30,7 +31,7 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
 
     private
 
-    def validate_and_calculate_quotation!(purchase_request, item_unit_prices:, item_charge_ids:)
+    def validate_and_calculate_quotation!(purchase_request, item_unit_prices:, item_charge_ids:, item_availability:)
       suppliers = quotation_suppliers(purchase_request)
       purchase_request.errors.add(:base, 'At least one shortlisted supplier is required before price entry') if suppliers.empty?
       suppliers.each { |supplier| validate_supplier(supplier, purchase_request) }
@@ -41,7 +42,8 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
           purchase_request,
           supplier:,
           item_unit_prices: prices_for_supplier(purchase_request, supplier, item_unit_prices),
-          item_charge_ids: shared_charge_ids
+          item_charge_ids: shared_charge_ids,
+          item_availability: availability_for_supplier(purchase_request, supplier, item_availability)
         )
       end
 
@@ -78,12 +80,13 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
       supplier.errors.full_messages.each { |message| purchase_request.errors.add(:base, "Supplier #{message}") }
     end
 
-    def build_item_quotations(purchase_request, supplier:, item_unit_prices:, item_charge_ids:)
+    def build_item_quotations(purchase_request, supplier:, item_unit_prices:, item_charge_ids:, item_availability:)
       purchase_request.requisition_items.map.with_index(1) do |item, number|
-        unit_price = parse_unit_price(item_unit_prices[item.requisition_item_id.to_s])
+        available = item_available?(item_availability[item.requisition_item_id.to_s])
+        unit_price = available ? parse_unit_price(item_unit_prices[item.requisition_item_id.to_s]) : 0.to_d
         item_label = "#{supplier.name}: #{item.item_name.presence || "Item #{number}"}"
 
-        unless unit_price.positive?
+        unless !available || unit_price.positive?
           purchase_request.errors.add(:base, "#{item_label} unit price must be greater than 0")
         end
 
@@ -94,12 +97,16 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
           purchase_request.errors.add(:base, "#{item_label} has an invalid item charge")
         end
 
-        subtotal = item.quantity.to_d * unit_price
-        total = charges.reduce(subtotal) do |running_total, charge|
-          charge.rate? ? running_total + (subtotal * charge.value) : running_total + charge.value
-        end
+        total = if available
+                  subtotal = item.quantity.to_d * unit_price
+                  charges.reduce(subtotal) do |running_total, charge|
+                    charge.rate? ? running_total + (subtotal * charge.value) : running_total + charge.value
+                  end
+                else
+                  0.to_d
+                end
 
-        { item:, supplier:, unit_price:, charges:, total: total.round(2) }
+        { item:, supplier:, unit_price:, available:, charges:, total: total.round(2) }
       end
     end
 
@@ -121,12 +128,27 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
       item_charge_ids.fetch(suppliers.first.id.to_s, {})
     end
 
+    def availability_for_supplier(purchase_request, supplier, item_availability)
+      return item_availability unless supplier_price_entry?(purchase_request)
+
+      item_availability.fetch(supplier.id.to_s, {})
+    end
+
+    def item_available?(value)
+      !ActiveModel::Type::Boolean.new.cast(value)
+    end
+
     def save_item_quotations!(item_quotations, update_item_values:)
       item_quotations.each do |quotation|
         item = quotation[:item]
         item.update!(value: quotation[:total]) if update_item_values
-        item.requisition_item_quotations.find_or_initialize_by(supplier: quotation[:supplier])
-            .update!(unit_price: quotation[:unit_price])
+        quotation_record = item.requisition_item_quotations.find_or_initialize_by(supplier: quotation[:supplier])
+
+        if quotation[:available]
+          quotation_record.update!(unit_price: quotation[:unit_price])
+        else
+          quotation_record.delete if quotation_record.persisted?
+        end
       end
 
       save_item_charges!(item_quotations)

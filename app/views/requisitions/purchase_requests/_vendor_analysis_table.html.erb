@@ -4,6 +4,7 @@
             <th scope="col" class="border-2 border-dark">#</th>
             <th scope="col" class="border-2 border-dark">Item Name</th>
             <th scope="col" class="text-end border-2 border-dark">Qty</th>
+            <th scope="col" class="text-center border-2 border-dark">Item Not Available?</th>
             <% vendor_analysis_charges.each do |charge| %>
                 <th scope="col" class="text-center border-2 border-dark"><%= vendor_analysis_charge_label(charge) %></th>
             <% end %>
@@ -15,11 +16,30 @@
         <% @purchase_request.requisition_items.each_with_index do |item, item_number| %>
             <% item_key = item.requisition_item_id || item_number %>
             <% item_quotation = supplier ? item.requisition_item_quotations.find { |quotation| quotation.supplier_id == supplier.id } : item.requisition_item_quotations.first %>
+            <% item_available = true %>
             <tr data-quotation-pricing-target="item"
-                data-quotation-pricing-quantity-value="<%= item.quantity %>">
+                data-quotation-pricing-quantity-value="<%= item.quantity %>"
+                data-quotation-pricing-editable-value="<%= !sourcing_qoutations_opts[:disabled] %>"
+                class="<%= 'opacity-50' unless item_available %>">
                 <th scope="row" class="border-2"><%= item_number + 1 %></th>
                 <td class="border-2"><%= item.item_name %></td>
                 <td class="text-end border-2"><%= number_with_precision(item.quantity, precision: 2, strip_insignificant_zeros: true) %></td>
+                <% availability_id = "quotation_supplier_#{supplier&.id || 'single'}_item_#{item_key}_unavailable" %>
+                <td class="px-3 border-2">
+                    <div class="form-check d-flex align-items-center gap-2 mb-0 ps-0">
+                        <%= check_box_tag supplier ? "quotation_item_availability[#{supplier.id}][#{item_key}]" : "quotation_item_availability[#{item_key}]",
+                                          '1',
+                                          !item_available,
+                                          id: availability_id,
+                                          class: 'form-check-input mt-0 ms-0 fs-4 border border-2 border-secondary',
+                                          disabled: sourcing_qoutations_opts[:disabled],
+                                          data: {
+                                            quotation_pricing_target: 'itemUnavailable',
+                                            action: 'change->quotation-pricing#toggleItemAvailability'
+                                          } %>
+                        <label class="form-check-label small" for="<%= availability_id %>">Not available</label>
+                    </div>
+                </td>
                 <% vendor_analysis_charges.each do |charge| %>
                     <% input_id = "quotation_supplier_#{supplier&.id || 'single'}_item_#{item_key}_charge_#{charge.id}" %>
                     <td class="px-3 border-2">
@@ -29,8 +49,9 @@
                                                 item.requisition_item_charges.any? { |item_charge| item_charge.charge_id == charge.id },
                                                 id: input_id,
                                                 class: 'form-check-input mt-0 ms-0 fs-4 border border-2 border-secondary',
-                                                disabled: sourcing_qoutations_opts[:disabled],
+                                                disabled: sourcing_qoutations_opts[:disabled] || !item_available,
                                                 data: {
+                                                item_pricing_input: true,
                                                 quotation_pricing_target: 'charge',
                                                 charge_item_id: item_key,
                                                 charge_type: charge.value_type,
@@ -47,10 +68,11 @@
                                         inputmode: 'decimal',
                                         autocomplete: 'off',
                                         class: 'form-control form-control-sm text-end border-2 border-secondary',
-                                        required: true,
-                                        disabled: sourcing_qoutations_opts[:disabled],
+                                        required: item_available,
+                                        disabled: sourcing_qoutations_opts[:disabled] || !item_available,
                                         title: 'Enter a valid amount greater than 0, e.g. 1500 or 1500.50',
                                         data: {
+                                            item_pricing_input: true,
                                             quotation_pricing_target: 'unitPrice',
                                             action: 'input->quotation-pricing#sanitizeUnitPrice input->quotation-pricing#refresh'
                                         } %>
@@ -63,7 +85,7 @@
     </tbody>
     <tfoot class="table-secondary">
         <tr>
-            <th colspan="<%= vendor_analysis_charges.size + 4 %>" class="text-end border-2">Calculated Total Cost (MWK)</th>
+            <th colspan="<%= vendor_analysis_charges.size + 5 %>" class="text-end border-2">Calculated Total Cost (MWK)</th>
             <td class="text-end fw-bold border-2"><output aria-live="polite" data-quotation-pricing-target="<%= supplier ? 'supplierTotal' : 'lineTotal' %>">0.00</output></td>
         </tr>
     </tfoot>

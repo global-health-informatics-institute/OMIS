@@ -185,14 +185,16 @@ module Requisitions
       safe_params = params[:purchase_request].present? ? permit_purchase_request_params : {}
       item_pricing_params = params.permit(
         quotation_item_unit_prices: {},
-        quotation_item_charges: {}
+        quotation_item_charges: {},
+        quotation_item_availability: {}
       )
 
       @purchase_request = PurchaseRequestSaveQoutationService.call(
         id: params[:id],
         params: safe_params,
-        item_unit_prices: item_pricing_params[:quotation_item_unit_prices]&.to_h || {},
-        item_charge_ids: item_pricing_params[:quotation_item_charges]&.to_h || {}
+        item_unit_prices: item_pricing_params[:quotation_item_unit_prices].to_h,
+        item_charge_ids: item_pricing_params[:quotation_item_charges].to_h,
+        item_availability: item_pricing_params[:quotation_item_availability].to_h
       )
 
       flash[:notice] = 'Quotation saved successfully'

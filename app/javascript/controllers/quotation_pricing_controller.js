@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["supplier", "item", "unitPrice", "itemTotal", "supplierTotal", "lineTotal", "capMessage", "saveAction"]
+  static targets = ["supplier", "item", "itemUnavailable", "unitPrice", "itemTotal", "supplierTotal", "lineTotal", "capMessage", "saveAction"]
   static values = {
     threshold: Number,
     upperThreshold: Number,
@@ -42,6 +42,8 @@ sanitizeUnitPrice({ target }) {
   refresh() {
     if (!this.hasUnitPriceTarget) return
 
+    this.itemUnavailableTargets.forEach((input) => this.applyItemAvailability(input))
+
     if (this.hasSupplierTarget) {
       const totals = this.supplierTargets.map((supplier) => {
         const total = this.calculateTotalFor(supplier)
@@ -70,6 +72,22 @@ sanitizeUnitPrice({ target }) {
     this.refresh()
   }
 
+  toggleItemAvailability(event) {
+    this.applyItemAvailability(event.target)
+    this.refresh()
+  }
+
+  applyItemAvailability(input) {
+    const item = input.closest('[data-quotation-pricing-target="item"]')
+    const unavailable = input.checked
+    const editable = item.dataset.quotationPricingEditableValue === "true"
+
+    item.classList.toggle("opacity-50", unavailable)
+    item.querySelectorAll('[data-item-pricing-input="true"]').forEach((field) => {
+      field.disabled = unavailable || !editable
+    })
+  }
+
   calculateTotalFor(container) {
     return Array.from(container.querySelectorAll('[data-quotation-pricing-target="item"]')).reduce((sum, item) => {
       const itemTotal = this.calculateItemTotal(item)
@@ -79,6 +97,8 @@ sanitizeUnitPrice({ target }) {
   }
 
   calculateItemTotal(item) {
+    if (item.querySelector('[data-quotation-pricing-target="itemUnavailable"]')?.checked) return 0
+
     const quantity = Number(item.dataset.quotationPricingQuantityValue) || 0
     const unitPriceInput = item.querySelector('[data-quotation-pricing-target="unitPrice"]')
     const unitPrice = Number(unitPriceInput.value.replace(/,/g, "")) || 0
