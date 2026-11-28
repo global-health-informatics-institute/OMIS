@@ -1,0 +1,27 @@
+<section class="card border-2 border-dark shadow-sm mb-3" data-supplier-preview-target="card">
+  <div class="card-header bg-light border-bottom border-2 border-dark">
+    <h6 class="mb-0">Supplier <%= supplier_index + 1 %> of <%= supplier_count %></h6>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-normal">Supplier Name</label>
+        <output class="form-control border-2 border-secondary bg-body-secondary"><%= supplier.name %></output>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-normal">Supplier Phone Number</label>
+        <output class="form-control border-2 border-secondary bg-body-secondary"><%= supplier.mobile_number %></output>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <label class="form-label fw-normal">Supplier Email</label>
+        <output class="form-control border-2 border-secondary bg-body-secondary"><%= supplier.email %></output>
+      </div>
+    </div>
+  </div>
+  <div class="card-footer bg-secondary bg-opacity-50 border-top border-2 border-dark d-flex justify-content-end gap-2">
+    <button type="button" class="btn btn-primary text-black" data-supplier-preview-target="previous" data-action="supplier-preview#previous">Previous</button>
+    <button type="button" class="btn btn-primary text-black" data-supplier-preview-target="next" data-action="supplier-preview#next">Next</button>
+  </div>
+</section>

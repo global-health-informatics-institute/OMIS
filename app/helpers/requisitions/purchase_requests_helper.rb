@@ -55,6 +55,13 @@ module Requisitions
       'Pending Vendor Shortlisting - Multiple Quotation'
     ].freeze
 
+    SUPPLIER_PREVIEW_STATES = [
+      'Pending Price Entry - IPC',
+      'Pending Vendor Selection - IPC',
+      'Pending Price Entry - Multiple Quotation',
+      'Pending Vendor Selection - Multiple Quotation'
+    ].freeze
+
     TAX_RATE_STATES = [
       'Pending IPC - Vendor Analysis',
       'Pending Vendor Analysis',
@@ -180,6 +187,8 @@ module Requisitions
         state.in?(SOURCING_QOUTATION_STATES) && current_user&.employee_id != purchase_request.initiated_by
       when :supplier_shortlisting
         state.in?(SUPPLIER_SHORTLISTING_STATES) && current_user&.employee_id != purchase_request.initiated_by
+      when :shortlisted_supplier_preview
+        state.in?(SUPPLIER_PREVIEW_STATES) && purchase_request.shortlisted_suppliers.exists?
       when :tax_rates
         state.in?(TAX_RATE_STATES) && current_user&.employee_id != purchase_request.initiated_by
       when :action_items
