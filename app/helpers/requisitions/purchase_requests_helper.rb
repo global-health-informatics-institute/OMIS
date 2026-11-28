@@ -305,9 +305,9 @@ module Requisitions
 
     private
 
-    def workflow_step_actors(workflow_state_id, transitions)
+    def workflow_step_actors(workflow_state_id, transitions) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
       workflow_state = WorkflowState.find_by(workflow_state_id: workflow_state_id)
-      return ['the scheduled IPC committee members'] if workflow_state&.state&.end_with?(' - IPC')
+      return ['The IPC committee members'] if workflow_state&.state&.end_with?(' - IPC')
 
       actors = []
       actors << 'the requester' if transitions.any?(&:by_owner?)
@@ -315,7 +315,7 @@ module Requisitions
 
       if transitions.any? { |transition| !transition.by_owner? && !transition.by_supervisor? }
         designation_ids = WorkflowStateActor.where(workflow_state_id: workflow_state_id)
-                                             .pluck(:employee_designation_id)
+                                            .pluck(:employee_designation_id)
         actors.concat(Designation.where(designation_id: designation_ids).order(:designated_role).pluck(:designated_role))
       end
 
