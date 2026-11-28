@@ -489,7 +489,9 @@ FT_STATES = [
   'Pending Vendor Selection - Multiple Quotation',
   'Pending LPO Check',
   'Pending Delivery Confirmation',
-  'Pending Vendor Shortlisting - IPC'
+  'Pending Vendor Shortlisting - IPC',
+  'Pending Price Entry - IPC',
+  'Pending Vendor Selection - IPC'
 ].freeze
 
 # who can act on the review states

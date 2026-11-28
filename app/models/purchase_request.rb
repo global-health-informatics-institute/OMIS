@@ -66,7 +66,7 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
     # TODO: Correct misleading field 'employee_designation_id' to 'designation_id' in the WorkflowStateTransition model
     # because the field is actually referencing the Designation model, not the EmployeeDesignation model.
     is_actor = designated_actor?(user, acting_employees) ||
-               (ipc_workflow_state? && ipc_committee_member?(user))
+               (ipc_workflow_state? && ipc_committee_chair?(user))
 
     if is_actor
       actions += WorkflowStateTransition.where(
@@ -87,7 +87,7 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
 
   def actor?(user)
     designated_actor?(user, acting_employees_for(user)) ||
-      (ipc_workflow_state? && ipc_committee_member?(user))
+      (ipc_workflow_state? && ipc_committee_chair?(user))
   end
 
   def core_editable_by?(user)
@@ -152,14 +152,14 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
     ).exists?
   end
 
-  def ipc_committee_member?(user)
+  def ipc_committee_chair?(user)
     employee_ids = [user&.employee_id, user&.employee&.employee_id, user&.id].compact
     return false if employee_ids.empty?
 
     committee_meetings.scheduled.order(scheduled_on: :desc).first
                       &.committee
                       &.active_memberships
-                      &.where(employee_id: employee_ids)
+                      &.where(employee_id: employee_ids, role: 'Chair')
                       &.exists? || false
   end
 end
