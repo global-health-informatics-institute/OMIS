@@ -14,8 +14,8 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
           item_charge_ids:
         )
         purchase_request.save!
-        item_quotations.first[:supplier].save!
-        save_item_quotations!(item_quotations)
+        item_quotations.map { |quotation| quotation[:supplier] }.uniq.each(&:save!)
+        save_item_quotations!(item_quotations, update_item_values: !supplier_price_entry?(purchase_request))
 
         transition = WorkflowStateTransition.find_by!(
           workflow_state_id: purchase_request.workflow_state_id,
@@ -31,14 +31,19 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
     private
 
     def validate_and_calculate_quotation!(purchase_request, item_unit_prices:, item_charge_ids:)
-      supplier = build_supplier(purchase_request)
-      validate_supplier(supplier, purchase_request)
-      item_quotations = build_item_quotations(
-        purchase_request,
-        supplier:,
-        item_unit_prices:,
-        item_charge_ids:
-      )
+      suppliers = quotation_suppliers(purchase_request)
+      purchase_request.errors.add(:base, 'At least one shortlisted supplier is required before price entry') if suppliers.empty?
+      suppliers.each { |supplier| validate_supplier(supplier, purchase_request) }
+
+      shared_charge_ids = shared_charge_ids(purchase_request, item_charge_ids, suppliers)
+      item_quotations = suppliers.flat_map do |supplier|
+        build_item_quotations(
+          purchase_request,
+          supplier:,
+          item_unit_prices: prices_for_supplier(purchase_request, supplier, item_unit_prices),
+          item_charge_ids: shared_charge_ids
+        )
+      end
 
       total = item_quotations.sum { |quotation| quotation[:total] }
       validate_total_for_routing(purchase_request, total) if purchase_request.errors.empty?
@@ -46,6 +51,12 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
       raise ActiveRecord::RecordInvalid, purchase_request if purchase_request.errors.any?
 
       item_quotations
+    end
+
+    def quotation_suppliers(purchase_request)
+      return purchase_request.shortlisted_suppliers.to_a if supplier_price_entry?(purchase_request)
+
+      [build_supplier(purchase_request)]
     end
 
     def build_supplier(purchase_request)
@@ -71,7 +82,7 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
     def build_item_quotations(purchase_request, supplier:, item_unit_prices:, item_charge_ids:)
       purchase_request.requisition_items.map.with_index(1) do |item, number|
         unit_price = parse_unit_price(item_unit_prices[item.requisition_item_id.to_s])
-        item_label = item.item_name.presence || "Item #{number}"
+        item_label = "#{supplier.name}: #{item.item_name.presence || "Item #{number}"}"
 
         unless unit_price.positive?
           purchase_request.errors.add(:base, "#{item_label} unit price must be greater than 0")
@@ -99,14 +110,33 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
       0.to_d
     end
 
-    def save_item_quotations!(item_quotations)
+    def prices_for_supplier(purchase_request, supplier, item_unit_prices)
+      return item_unit_prices unless supplier_price_entry?(purchase_request)
+
+      item_unit_prices.fetch(supplier.id.to_s, {})
+    end
+
+    def shared_charge_ids(purchase_request, item_charge_ids, suppliers)
+      return item_charge_ids unless supplier_price_entry?(purchase_request)
+
+      item_charge_ids.fetch(suppliers.first.id.to_s, {})
+    end
+
+    def save_item_quotations!(item_quotations, update_item_values:)
       item_quotations.each do |quotation|
         item = quotation[:item]
-        item.update!(value: quotation[:total])
+        item.update!(value: quotation[:total]) if update_item_values
         item.requisition_item_quotations.find_or_initialize_by(supplier: quotation[:supplier])
             .update!(unit_price: quotation[:unit_price])
+      end
+
+      save_item_charges!(item_quotations)
+    end
+
+    def save_item_charges!(item_quotations)
+      item_quotations.group_by { |quotation| quotation[:item] }.each do |item, quotations|
         item.requisition_item_charges.delete_all
-        quotation[:charges].each { |charge| item.requisition_item_charges.create!(charge:) }
+        quotations.first[:charges].each { |charge| item.requisition_item_charges.create!(charge:) }
       end
     end
 
@@ -119,6 +149,13 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
       when 'pending vendor analysis - single quotation'
         purchase_request.errors.add(:base, "Total must be less than #{threshold}") if total >= threshold
       end
+    end
+
+    def supplier_price_entry?(purchase_request)
+      purchase_request.current_state.in?([
+                                           'Pending Price Entry - IPC',
+                                           'Pending Price Entry - Multiple Quotation'
+                                         ])
     end
   end
 end

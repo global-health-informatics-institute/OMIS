@@ -35,8 +35,6 @@ module Requisitions
 
     SOURCING_QOUTATION_STATES = [
       'Pending Vendor Analysis - Single Quotation',
-      'Pending Price Entry - IPC',
-      'Pending Price Entry - Multiple Quotation',
       'Pending LPO Check',
       'Pending LPO Request Submission',
       'Pending LPO Review - Finance Team',
@@ -60,6 +58,11 @@ module Requisitions
       'Pending Vendor Selection - IPC',
       'Pending Price Entry - Multiple Quotation',
       'Pending Vendor Selection - Multiple Quotation'
+    ].freeze
+
+    SUPPLIER_PRICE_ENTRY_STATES = [
+      'Pending Price Entry - IPC',
+      'Pending Price Entry - Multiple Quotation'
     ].freeze
 
     TAX_RATE_STATES = [
@@ -189,6 +192,8 @@ module Requisitions
         state.in?(SUPPLIER_SHORTLISTING_STATES) && current_user&.employee_id != purchase_request.initiated_by
       when :shortlisted_supplier_preview
         state.in?(SUPPLIER_PREVIEW_STATES) && purchase_request.shortlisted_suppliers.exists?
+      when :supplier_price_entry
+        state.in?(SUPPLIER_PRICE_ENTRY_STATES) && purchase_request.shortlisted_suppliers.exists?
       when :tax_rates
         state.in?(TAX_RATE_STATES) && current_user&.employee_id != purchase_request.initiated_by
       when :action_items

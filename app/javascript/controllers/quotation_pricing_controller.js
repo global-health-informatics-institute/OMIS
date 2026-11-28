@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["item", "unitPrice", "itemTotal", "lineTotal", "capMessage", "saveAction"]
+  static targets = ["supplier", "item", "unitPrice", "itemTotal", "supplierTotal", "lineTotal", "capMessage", "saveAction"]
   static values = {
     threshold: Number,
     capRule: String
@@ -41,14 +41,38 @@ sanitizeUnitPrice({ target }) {
   refresh() {
     if (!this.hasUnitPriceTarget) return
 
-    const total = this.itemTargets.reduce((sum, item) => {
+    if (this.hasSupplierTarget) {
+      this.supplierTargets.forEach((supplier) => {
+        const total = this.calculateTotalFor(supplier)
+        supplier.querySelector('[data-quotation-pricing-target="supplierTotal"]').textContent = this.formatMoney(total)
+      })
+      return
+    }
+
+    const total = this.calculateTotalFor(this.element)
+
+    this.lineTotalTargets.forEach((target) => { target.textContent = this.formatMoney(total) })
+    this.validateCap(total)
+  }
+
+  syncCharge(event) {
+    const { chargeItemId } = event.target.dataset
+    const { value, checked } = event.target
+
+    this.chargeTargets.forEach((charge) => {
+      if (charge !== event.target && charge.dataset.chargeItemId === chargeItemId && charge.value === value) {
+        charge.checked = checked
+      }
+    })
+    this.refresh()
+  }
+
+  calculateTotalFor(container) {
+    return Array.from(container.querySelectorAll('[data-quotation-pricing-target="item"]')).reduce((sum, item) => {
       const itemTotal = this.calculateItemTotal(item)
       item.querySelector('[data-quotation-pricing-target="itemTotal"]').textContent = this.formatMoney(itemTotal)
       return sum + itemTotal
     }, 0)
-
-    this.lineTotalTargets.forEach((target) => { target.textContent = this.formatMoney(total) })
-    this.validateCap(total)
   }
 
   calculateItemTotal(item) {

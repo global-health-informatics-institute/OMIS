@@ -230,6 +230,20 @@
         <div class="my-5"></div>
     <% end %>
 
+    <%= render_section_if @purchase_request, :supplier_price_entry do %>
+        <section class="mt-4">
+            <h6 class="mb-1">Quotation Entry</h6>
+            <p class="text-muted small mb-3">Enter each supplier's unit prices. Item charges apply consistently across all supplier quotations.</p>
+            <% @purchase_request.shortlisted_suppliers.each do |supplier| %>
+                <%= render 'supplier_price_entry',
+                           supplier: supplier,
+                           vendor_analysis_charges: vendor_analysis_charges,
+                           sourcing_qoutations_opts: sourcing_qoutations_opts %>
+            <% end %>
+        </section>
+        <div class="my-5"></div>
+    <% end %>
+
     <%= render_section_if @purchase_request, :sourcing_qoutations do %>
         <hr>
         <section class="mt-4">
@@ -237,7 +251,7 @@
             <p class="text-muted small mb-3">Enter a unit cost and select the charges that apply to each item.</p>
 
             <div class="table-responsive border border-2 border-dark">
-                    <%= render 'vendor_analysis_table', vendor_analysis_charges: vendor_analysis_charges, sourcing_qoutations_opts: sourcing_qoutations_opts %>
+                    <%= render 'vendor_analysis_table', supplier: nil, vendor_analysis_charges: vendor_analysis_charges, sourcing_qoutations_opts: sourcing_qoutations_opts %>
             </div>
             <div class="small mt-1" aria-live="polite" data-quotation-pricing-target="capMessage"></div>
         </section>

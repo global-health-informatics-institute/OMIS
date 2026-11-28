@@ -1,0 +1,13 @@
+<section class="card border-2 border-dark shadow-sm mb-4" data-quotation-pricing-target="supplier">
+  <div class="card-header bg-light border-bottom border-2 border-dark">
+    <h6 class="mb-0">Quotation: <%= supplier.name %></h6>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive border border-2 border-dark">
+      <%= render 'vendor_analysis_table',
+                 supplier: supplier,
+                 vendor_analysis_charges: vendor_analysis_charges,
+                 sourcing_qoutations_opts: sourcing_qoutations_opts %>
+    </div>
+  </div>
+</section>

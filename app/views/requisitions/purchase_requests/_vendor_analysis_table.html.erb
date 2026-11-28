@@ -14,17 +14,17 @@
     <tbody>
         <% @purchase_request.requisition_items.each_with_index do |item, item_number| %>
             <% item_key = item.requisition_item_id || item_number %>
-            <% item_quotation = item.requisition_item_quotations.first %>
+            <% item_quotation = supplier ? item.requisition_item_quotations.find { |quotation| quotation.supplier_id == supplier.id } : item.requisition_item_quotations.first %>
             <tr data-quotation-pricing-target="item"
                 data-quotation-pricing-quantity-value="<%= item.quantity %>">
                 <th scope="row" class="border-2"><%= item_number + 1 %></th>
                 <td class="border-2"><%= item.item_name %></td>
                 <td class="text-end border-2"><%= number_with_precision(item.quantity, precision: 2, strip_insignificant_zeros: true) %></td>
                 <% vendor_analysis_charges.each do |charge| %>
-                    <% input_id = "quotation_item_#{item_key}_charge_#{charge.id}" %>
+                    <% input_id = "quotation_supplier_#{supplier&.id || 'single'}_item_#{item_key}_charge_#{charge.id}" %>
                     <td class="px-3 border-2">
                         <div class="form-check d-flex align-items-center gap-2 mb-0 ps-0">
-                            <%= check_box_tag "quotation_item_charges[#{item_key}][]",
+                            <%= check_box_tag supplier ? "quotation_item_charges[#{supplier.id}][#{item_key}][]" : "quotation_item_charges[#{item_key}][]",
                                                 charge.id,
                                                 item.requisition_item_charges.any? { |item_charge| item_charge.charge_id == charge.id },
                                                 id: input_id,
@@ -32,16 +32,17 @@
                                                 disabled: sourcing_qoutations_opts[:disabled],
                                                 data: {
                                                 quotation_pricing_target: 'charge',
+                                                charge_item_id: item_key,
                                                 charge_type: charge.value_type,
                                                 charge_value: charge.value,
-                                                action: 'change->quotation-pricing#refresh'
+                                                action: 'change->quotation-pricing#syncCharge'
                                                 } %>
                             <label class="form-check-label small" for="<%= input_id %>">Yes</label>
                         </div>
                     </td>
                 <% end %>
                 <td class="border-2">
-                    <%= text_field_tag "quotation_item_unit_prices[#{item_key}]",
+                    <%= text_field_tag supplier ? "quotation_item_unit_prices[#{supplier.id}][#{item_key}]" : "quotation_item_unit_prices[#{item_key}]",
                                         item_quotation&.unit_price.present? ? number_with_precision(item_quotation.unit_price, precision: 2, delimiter: ',') : nil,
                                         inputmode: 'decimal',
                                         autocomplete: 'off',
@@ -63,7 +64,7 @@
     <tfoot class="table-secondary">
         <tr>
             <th colspan="<%= vendor_analysis_charges.size + 4 %>" class="text-end border-2">Calculated Total Cost (MWK)</th>
-            <td class="text-end fw-bold border-2"><output aria-live="polite" data-quotation-pricing-target="lineTotal">0.00</output></td>
+            <td class="text-end fw-bold border-2"><output aria-live="polite" data-quotation-pricing-target="<%= supplier ? 'supplierTotal' : 'lineTotal' %>">0.00</output></td>
         </tr>
     </tfoot>
 </table>
