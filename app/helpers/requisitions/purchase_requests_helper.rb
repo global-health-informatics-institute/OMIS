@@ -248,14 +248,26 @@ module Requisitions
       case purchase_request.current_state.to_s.downcase
       when 'pending vendor analysis - single quotation'
         'less_than'
+      when 'pending price entry - ipc'
+        'at_least'
+      when 'pending price entry - multiple quotation'
+        'between'
       end
     end
 
     def quotation_cap_threshold(purchase_request)
       return PurchaseRequest.multiple_quotations_threshold if
-        purchase_request.current_state == 'Pending Vendor Analysis - Single Quotation'
+        purchase_request.current_state.in?([
+                                             'Pending Vendor Analysis - Single Quotation',
+                                             'Pending Price Entry - Multiple Quotation'
+                                           ])
 
       PurchaseRequest.ipc_threshold
+    end
+
+    def quotation_cap_upper_threshold(purchase_request)
+      return PurchaseRequest.ipc_threshold if
+        purchase_request.current_state == 'Pending Price Entry - Multiple Quotation'
     end
 
     def supplier_shortlisting_minimum

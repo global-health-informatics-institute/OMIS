@@ -9,6 +9,7 @@
 <div class="p-3"
      data-controller="quotation-pricing"
      data-quotation-pricing-threshold-value="<%= quotation_cap_threshold(@purchase_request) %>"
+     data-quotation-pricing-upper-threshold-value="<%= quotation_cap_upper_threshold(@purchase_request) %>"
      data-quotation-pricing-cap-rule-value="<%= quotation_cap_rule(@purchase_request) %>">
     <%= render_section_if @purchase_request, :request_details do %>
 

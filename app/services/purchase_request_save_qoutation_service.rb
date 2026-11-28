@@ -45,8 +45,7 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
         )
       end
 
-      total = item_quotations.sum { |quotation| quotation[:total] }
-      validate_total_for_routing(purchase_request, total) if purchase_request.errors.empty?
+      validate_totals_for_routing(purchase_request, item_quotations) if purchase_request.errors.empty?
 
       raise ActiveRecord::RecordInvalid, purchase_request if purchase_request.errors.any?
 
@@ -140,14 +139,43 @@ class PurchaseRequestSaveQoutationService # rubocop:disable Style/Documentation
       end
     end
 
-    def validate_total_for_routing(purchase_request, total)
-      threshold = PurchaseRequest.multiple_quotations_threshold
+    def validate_totals_for_routing(purchase_request, item_quotations)
+      totals_by_supplier = item_quotations.group_by { |quotation| quotation[:supplier] }
+                                          .transform_values { |quotations| quotations.sum { |quotation| quotation[:total] } }
 
-      Rails.logger.info("quotation_total=#{total.inspect} threshold=#{threshold}")
-
-      case purchase_request.current_state.to_s.downcase
-      when 'pending vendor analysis - single quotation'
+      case purchase_request.current_state
+      when 'Pending Vendor Analysis - Single Quotation'
+        total = totals_by_supplier.values.first || 0
+        threshold = PurchaseRequest.multiple_quotations_threshold
         purchase_request.errors.add(:base, "Total must be less than #{threshold}") if total >= threshold
+      when 'Pending Price Entry - Multiple Quotation'
+        validate_supplier_range(
+          purchase_request,
+          totals_by_supplier,
+          minimum: PurchaseRequest.multiple_quotations_threshold,
+          maximum: PurchaseRequest.ipc_threshold
+        )
+      when 'Pending Price Entry - IPC'
+        validate_supplier_minimums(purchase_request, totals_by_supplier, PurchaseRequest.ipc_threshold)
+      end
+    end
+
+    def validate_supplier_minimums(purchase_request, totals_by_supplier, threshold)
+      totals_by_supplier.each do |supplier, total|
+        next if total >= threshold
+
+        purchase_request.errors.add(:base, "#{supplier.name} quotation total must be at least #{threshold}")
+      end
+    end
+
+    def validate_supplier_range(purchase_request, totals_by_supplier, minimum:, maximum:)
+      totals_by_supplier.each do |supplier, total|
+        next if total >= minimum && total < maximum
+
+        purchase_request.errors.add(
+          :base,
+          "#{supplier.name} quotation total must be at least #{minimum} and less than #{maximum}"
+        )
       end
     end
 

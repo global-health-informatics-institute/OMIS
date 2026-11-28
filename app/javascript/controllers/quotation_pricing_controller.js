@@ -4,6 +4,7 @@ export default class extends Controller {
   static targets = ["supplier", "item", "unitPrice", "itemTotal", "supplierTotal", "lineTotal", "capMessage", "saveAction"]
   static values = {
     threshold: Number,
+    upperThreshold: Number,
     capRule: String
   }
 
@@ -42,10 +43,12 @@ sanitizeUnitPrice({ target }) {
     if (!this.hasUnitPriceTarget) return
 
     if (this.hasSupplierTarget) {
-      this.supplierTargets.forEach((supplier) => {
+      const totals = this.supplierTargets.map((supplier) => {
         const total = this.calculateTotalFor(supplier)
         supplier.querySelector('[data-quotation-pricing-target="supplierTotal"]').textContent = this.formatMoney(total)
+        return { supplier, total }
       })
+      this.validateSupplierCaps(totals)
       return
     }
 
@@ -89,20 +92,44 @@ sanitizeUnitPrice({ target }) {
   }
 
   validateCap(total) {
-    let message = ""
-
-    if (this.capRuleValue === "at_least" && total < this.thresholdValue) {
-      message = `Quotation total must be at least ${this.formatMoney(this.thresholdValue)} MWK for IPC vendor analysis.`
-    } else if (this.capRuleValue === "less_than" && total >= this.thresholdValue) {
-      message = `Single quotation total must be less than ${this.formatMoney(this.thresholdValue)} MWK.`
-    }
+    const message = this.capMessage(total)
 
     this.capMessageTargets.forEach((target) => {
-      target.textContent = message
-      target.classList.toggle("text-danger", message.length > 0)
-      target.classList.toggle("text-success", message.length === 0 && total > 0)
+      this.setCapMessage(target, message, total)
     })
     this.saveActionTargets.forEach((button) => { button.disabled = message.length > 0 })
+  }
+
+  validateSupplierCaps(totals) {
+    const messages = totals.map(({ supplier, total }) => ({ supplier, total, message: this.capMessage(total) }))
+
+    messages.forEach(({ supplier, total, message }) => {
+      const target = supplier.querySelector('[data-quotation-pricing-target="capMessage"]')
+      this.setCapMessage(target, message, total)
+    })
+    this.saveActionTargets.forEach((button) => { button.disabled = messages.some(({ message }) => message.length > 0) })
+  }
+
+  capMessage(total) {
+    if (this.capRuleValue === "at_least" && total < this.thresholdValue) {
+      return `Quotation total must be at least ${this.formatMoney(this.thresholdValue)} MWK for this route.`
+    }
+    if (this.capRuleValue === "less_than" && total >= this.thresholdValue) {
+      return `Single quotation total must be less than ${this.formatMoney(this.thresholdValue)} MWK.`
+    }
+    if (this.capRuleValue === "between" && (total < this.thresholdValue || total >= this.upperThresholdValue)) {
+      return `Multiple quotation total must be at least ${this.formatMoney(this.thresholdValue)} MWK and less than ${this.formatMoney(this.upperThresholdValue)} MWK.`
+    }
+
+    return ""
+  }
+
+  setCapMessage(target, message, total) {
+    if (!target) return
+
+    target.textContent = message
+    target.classList.toggle("text-danger", message.length > 0)
+    target.classList.toggle("text-success", message.length === 0 && total > 0)
   }
 
   formatMoney(amount) {
