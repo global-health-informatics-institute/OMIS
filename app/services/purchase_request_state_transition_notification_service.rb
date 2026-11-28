@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/Documentation
+class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/Documentation,Metrics/ClassLength
   class << self
     def call(purchase_request, action_description:)
       new(purchase_request, action_description).call
@@ -17,6 +17,7 @@ class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/
     sent << notify_requester
     if ipc_notification?
       sent << notify_committee
+      actor_recipients.each { |actor| sent << notify_actor(actor) unless committee_members.include?(actor) }
     else
       actor_recipients.each { |actor| sent << notify_actor(actor) }
     end
@@ -40,7 +41,7 @@ class PurchaseRequestStateTransitionNotificationService # rubocop:disable Style/
     end
   end
 
-  def notify_actor(actor) # rubocop:disable Metrics/MethodLength
+  def notify_actor(actor)
     sent = [notify_actor_recipient(actor)]
     return sent.any? unless actor.active_leave?
 

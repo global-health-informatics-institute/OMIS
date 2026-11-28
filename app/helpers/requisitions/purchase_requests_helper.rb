@@ -307,9 +307,8 @@ module Requisitions
 
     def workflow_step_actors(workflow_state_id, transitions) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
       workflow_state = WorkflowState.find_by(workflow_state_id: workflow_state_id)
-      return ['The IPC committee members'] if workflow_state&.state&.end_with?(' - IPC')
-
       actors = []
+      actors << 'the IPC committee members' if workflow_state&.state&.end_with?(' - IPC')
       actors << 'the requester' if transitions.any?(&:by_owner?)
       actors << "the requester's supervisor" if transitions.any?(&:by_supervisor?)
 

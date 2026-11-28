@@ -65,14 +65,8 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
 
     # TODO: Correct misleading field 'employee_designation_id' to 'designation_id' in the WorkflowStateTransition model
     # because the field is actually referencing the Designation model, not the EmployeeDesignation model.
-    is_actor = if ipc_workflow_state?
-                 ipc_committee_member?(user)
-               else
-                 WorkflowStateActor.where(
-                   employee_designation_id: action_designation_ids(user, acting_employees), # TODO: migrate to reflect designation role not a specific employee role entry # rubocop:disable Layout/LineLength
-                   workflow_state_id: state_id
-                 ).exists?
-               end
+    is_actor = designated_actor?(user, acting_employees) ||
+               (ipc_workflow_state? && ipc_committee_member?(user))
 
     if is_actor
       actions += WorkflowStateTransition.where(
@@ -92,12 +86,8 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
   end
 
   def actor?(user)
-    return ipc_committee_member?(user) if ipc_workflow_state?
-
-    WorkflowStateActor.exists?(
-      employee_designation_id: action_designation_ids(user, acting_employees_for(user)),
-      workflow_state_id: workflow_state_id
-    )
+    designated_actor?(user, acting_employees_for(user)) ||
+      (ipc_workflow_state? && ipc_committee_member?(user))
   end
 
   def core_editable_by?(user)
@@ -153,6 +143,13 @@ class PurchaseRequest < Requisition # rubocop:disable Style/Documentation
   def action_designation_ids(user, acting_employees)
     employees = [user&.employee, *acting_employees].compact.uniq(&:employee_id)
     employees.flat_map { |employee| employee.current_designations.pluck(:designation_id) }.uniq
+  end
+
+  def designated_actor?(user, acting_employees)
+    WorkflowStateActor.where(
+      employee_designation_id: action_designation_ids(user, acting_employees), # TODO: migrate to reflect designation role not a specific employee role entry # rubocop:disable Layout/LineLength
+      workflow_state_id: workflow_state_id
+    ).exists?
   end
 
   def ipc_committee_member?(user)
